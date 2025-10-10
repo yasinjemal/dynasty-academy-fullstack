@@ -1,0 +1,585 @@
+// This is your Prisma schema file
+// Learn more about it: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role     @default(USER)
+  bio           String?
+  socialLinks   Json?    // {twitter, linkedin, instagram, website}
+  
+  // Subscription
+  isPremium     Boolean  @default(false)
+  premiumUntil  DateTime?
+  
+  // Settings
+  settings      Json?    // {notifications, privacy, theme}
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastLoginAt   DateTime?
+  
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  books         Book[]       // Created books (if author)
+  blogPosts     BlogPost[]   // Created posts
+  orders        Order[]
+  comments      Comment[]
+  likes         Like[]
+  bookmarks     Bookmark[]
+  followers     Follow[]     @relation("Following")
+  following     Follow[]     @relation("Follower")
+  notifications Notification[] @relation("Recipient")
+  achievements  UserAchievement[]
+  progress      UserProgress[]
+  reviews       Review[]
+  
+  // Forum/Community
+  forumTopics   ForumTopic[]   @relation("ForumTopicAuthor")
+  forumPosts    ForumPost[]    @relation("ForumPostAuthor")
+  forumTopicLikes ForumTopicLike[] @relation("ForumTopicLikes")
+  forumPostLikes  ForumPostLike[]  @relation("ForumPostLikes")
+  forumTopicBookmarks ForumTopicBookmark[] @relation("ForumTopicBookmarks")
+  
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+enum Role {
+  USER
+  AUTHOR
+  ADMIN
+  PREMIUM
+}
+
+// NextAuth Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================
+// CONTENT - BOOKS & COURSES
+// ============================================
+
+model Book {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String   @db.Text
+  excerpt     String?
+  coverImage  String?
+  price       Float
+  salePrice   Float?
+  category    String
+  tags        String[]
+  
+  // Content
+  contentType String   // PDF, Video Course, Audio Book, Bundle
+  fileUrl     String?
+  previewUrl  String?
+  pages       Int?
+  duration    String?  // For videos/audio
+  
+  // Metadata
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  publishedAt DateTime?
+  featured    Boolean  @default(false)
+  
+  // Stats
+  viewCount   Int      @default(0)
+  salesCount  Int      @default(0)
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  orders      OrderItem[]
+  reviews     Review[]
+  bookmarks   Bookmark[]
+  progress    UserProgress[]
+  
+  @@index([slug])
+  @@index([category])
+  @@index([featured])
+  @@index([publishedAt])
+  @@map("books")
+}
+
+// ============================================
+// BLOG
+// ============================================
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String   @db.Text
+  excerpt     String?
+  coverImage  String?
+  category    String
+  tags        String[]
+  
+  // Author
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  
+  // Publishing
+  publishedAt DateTime?
+  featured    Boolean  @default(false)
+  
+  // Stats
+  viewCount   Int      @default(0)
+  readTime    String?  // "5 min read"
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  comments    Comment[]
+  likes       Like[]
+  bookmarks   Bookmark[]
+  
+  @@index([slug])
+  @@index([category])
+  @@index([publishedAt])
+  @@map("blog_posts")
+}
+
+// ============================================
+// E-COMMERCE
+// ============================================
+
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  
+  // Payment
+  subtotal    Float
+  tax         Float       @default(0)
+  discount    Float       @default(0)
+  total       Float
+  
+  status      OrderStatus @default(PENDING)
+  paymentId   String?     // Stripe payment intent ID
+  paymentMethod String?   // card, paypal, etc
+  
+  // Delivery
+  email       String
+  downloadLinks Json?     // Generated download links
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  items       OrderItem[]
+  
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id])
+  
+  quantity  Int      @default(1)
+  price     Float
+  
+  createdAt DateTime @default(now())
+  
+  @@map("order_items")
+}
+
+// ============================================
+// SOCIAL FEATURES
+// ============================================
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  postId    String
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  parentId  String?
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([postId])
+  @@index([userId])
+  @@map("comments")
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  postId    String
+  post      BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, postId])
+  @@index([postId])
+  @@map("likes")
+}
+
+model Bookmark {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Polymorphic relation
+  bookId     String?
+  book       Book?     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  
+  postId     String?
+  post       BlogPost? @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime  @default(now())
+  
+  @@index([userId])
+  @@map("bookmarks")
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  follower    User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  
+  followingId String
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation("Recipient", fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      NotificationType
+  title     String
+  message   String?
+  link      String?
+  
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([read])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  COMMENT
+  LIKE
+  FOLLOW
+  PURCHASE
+  SYSTEM
+  ACHIEVEMENT
+}
+
+// ============================================
+// GAMIFICATION
+// ============================================
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  icon        String
+  points      Int
+  requirement String   // JSON describing requirement
+  
+  users       UserAchievement[]
+  
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  unlockedAt    DateTime    @default(now())
+  
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+// ============================================
+// PROGRESS TRACKING
+// ============================================
+
+model UserProgress {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  bookId     String
+  book       Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  
+  progress   Float    @default(0) // Percentage
+  lastPage   Int?
+  completed  Boolean  @default(false)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@unique([userId, bookId])
+  @@index([userId])
+  @@map("user_progress")
+}
+
+// ============================================
+// REVIEWS & RATINGS
+// ============================================
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      // 1-5
+  comment   String?  @db.Text
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  
+  helpful   Int      @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, bookId])
+  @@index([bookId])
+  @@map("reviews")
+}
+
+// ============================================
+// COMMUNITY & FORUM
+// ============================================
+
+model ForumCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?  // Emoji or icon name
+  color       String?  // Hex color for theme
+  order       Int      @default(0)
+  isActive    Boolean  @default(true) @map("is_active")
+  
+  topics      ForumTopic[]
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  @@index([slug])
+  @@map("forum_categories")
+}
+
+model ForumTopic {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String   @db.Text
+  isPinned    Boolean  @default(false) @map("is_pinned")
+  isLocked    Boolean  @default(false) @map("is_locked")
+  viewCount   Int      @default(0) @map("view_count")
+  
+  // Relations
+  authorId    String   @map("author_id")
+  author      User     @relation("ForumTopicAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  
+  categoryId  String   @map("category_id")
+  category    ForumCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  posts       ForumPost[]
+  likes       ForumTopicLike[]
+  bookmarks   ForumTopicBookmark[]
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  @@index([slug])
+  @@index([categoryId])
+  @@index([authorId])
+  @@map("forum_topics")
+}
+
+model ForumPost {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  isAnswer  Boolean  @default(false) @map("is_answer") // Mark as solution/best answer
+  
+  // Relations
+  authorId  String   @map("author_id")
+  author    User     @relation("ForumPostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  
+  topicId   String   @map("topic_id")
+  topic     ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  
+  parentId  String?  @map("parent_id")
+  parent    ForumPost? @relation("ForumPostReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   ForumPost[] @relation("ForumPostReplies")
+  
+  likes     ForumPostLike[]
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@index([topicId])
+  @@index([authorId])
+  @@index([parentId])
+  @@map("forum_posts")
+}
+
+model ForumTopicLike {
+  id        String   @id @default(cuid())
+  
+  userId    String   @map("user_id")
+  user      User     @relation("ForumTopicLikes", fields: [userId], references: [id], onDelete: Cascade)
+  
+  topicId   String   @map("topic_id")
+  topic     ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@unique([userId, topicId])
+  @@index([topicId])
+  @@map("forum_topic_likes")
+}
+
+model ForumPostLike {
+  id        String   @id @default(cuid())
+  
+  userId    String   @map("user_id")
+  user      User     @relation("ForumPostLikes", fields: [userId], references: [id], onDelete: Cascade)
+  
+  postId    String   @map("post_id")
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@unique([userId, postId])
+  @@index([postId])
+  @@map("forum_post_likes")
+}
+
+model ForumTopicBookmark {
+  id        String   @id @default(cuid())
+  
+  userId    String   @map("user_id")
+  user      User     @relation("ForumTopicBookmarks", fields: [userId], references: [id], onDelete: Cascade)
+  
+  topicId   String   @map("topic_id")
+  topic     ForumTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@unique([userId, topicId])
+  @@index([topicId])
+  @@map("forum_topic_bookmarks")
+}
