@@ -6,7 +6,7 @@ import { prisma } from '@/lib/db/prisma'
 // GET single book
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -15,9 +15,19 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
+
     const book = await prisma.book.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
         reviews: {
           include: { user: true },
           orderBy: { createdAt: 'desc' },
@@ -26,7 +36,7 @@ export async function GET(
         _count: {
           select: {
             reviews: true,
-            orderItems: true,
+            orders: true,
           },
         },
       },
@@ -36,7 +46,7 @@ export async function GET(
       return NextResponse.json({ error: 'Book not found' }, { status: 404 })
     }
 
-    return NextResponse.json(book)
+    return NextResponse.json({ book })
   } catch (error) {
     console.error('Error fetching book:', error)
     return NextResponse.json({ error: 'Failed to fetch book' }, { status: 500 })
@@ -46,8 +56,9 @@ export async function GET(
 // PATCH update book
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     
@@ -93,7 +104,7 @@ export async function PATCH(
     if (data.featured !== undefined) updateData.featured = data.featured
 
     const book = await prisma.book.update({
-      where: { id: params.id },
+      where: { id },
       data: updateData,
     })
 
@@ -107,9 +118,10 @@ export async function PATCH(
 // DELETE book
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     
     if (!session || session.user.role !== 'ADMIN') {
@@ -117,7 +129,7 @@ export async function DELETE(
     }
 
     await prisma.book.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ message: 'Book deleted successfully' })

@@ -8,8 +8,7 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '12')
     const search = searchParams.get('search') || ''
     const category = searchParams.get('category') || ''
-    const sortBy = searchParams.get('sortBy') || 'createdAt'
-    const order = searchParams.get('order') || 'desc'
+    const sort = searchParams.get('sortBy') || 'newest'
 
     const skip = (page - 1) * limit
 
@@ -22,11 +21,35 @@ export async function GET(req: NextRequest) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
+        { category: { contains: search, mode: 'insensitive' } },
       ]
     }
 
-    if (category) {
-      where.category = category
+    if (category && category !== 'All Categories') {
+      where.category = { contains: category, mode: 'insensitive' }
+    }
+
+    // Determine sort order
+    let orderBy: any = { createdAt: 'desc' }
+    
+    switch (sort) {
+      case 'oldest':
+        orderBy = { createdAt: 'asc' }
+        break
+      case 'price-low':
+        orderBy = { price: 'asc' }
+        break
+      case 'price-high':
+        orderBy = { price: 'desc' }
+        break
+      case 'rating':
+        orderBy = { rating: 'desc' }
+        break
+      case 'popular':
+        orderBy = { viewCount: 'desc' }
+        break
+      default: // newest
+        orderBy = { createdAt: 'desc' }
     }
 
     // Get books with pagination
@@ -35,9 +58,7 @@ export async function GET(req: NextRequest) {
         where,
         skip,
         take: limit,
-        orderBy: {
-          [sortBy]: order,
-        },
+        orderBy,
         select: {
           id: true,
           title: true,

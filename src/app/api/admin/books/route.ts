@@ -26,8 +26,8 @@ export async function GET(request: Request) {
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
-        { author: { contains: search, mode: 'insensitive' } },
-        { isbn: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { category: { contains: search, mode: 'insensitive' } },
       ]
     }
 
@@ -35,8 +35,11 @@ export async function GET(request: Request) {
       where.category = category
     }
 
-    if (status) {
-      where.status = status
+    // Note: We use publishedAt to determine status
+    if (status === 'PUBLISHED') {
+      where.publishedAt = { not: null }
+    } else if (status === 'DRAFT') {
+      where.publishedAt = null
     }
 
     const [books, total] = await Promise.all([
@@ -46,6 +49,13 @@ export async function GET(request: Request) {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
           _count: {
             select: {
               reviews: true,

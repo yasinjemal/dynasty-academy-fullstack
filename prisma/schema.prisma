@@ -62,6 +62,9 @@ model User {
   forumPostLikes  ForumPostLike[]  @relation("ForumPostLikes")
   forumTopicBookmarks ForumTopicBookmark[] @relation("ForumTopicBookmarks")
   
+  // Social Reading Layer
+  bookReflections BookReflection[] @relation("BookReflections")
+  
   @@index([email])
   @@index([role])
   @@map("users")
@@ -70,6 +73,7 @@ model User {
 enum Role {
   USER
   AUTHOR
+  MODERATOR
   ADMIN
   PREMIUM
 }
@@ -167,6 +171,7 @@ model Book {
   progress    UserProgress[]
   purchases   Purchase[]     @relation("BookPurchases")
   audioAssets AudioAsset[]
+  bookReflections BookReflection[] @relation("BookReflections")
   
   @@index([slug])
   @@index([category])
@@ -259,6 +264,7 @@ enum OrderStatus {
   PENDING
   PROCESSING
   COMPLETED
+  CANCELLED
   FAILED
   REFUNDED
 }
@@ -498,38 +504,21 @@ model AudioAsset {
   // Content identification
   bookId         String   @map("book_id")
   book           Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  chapterId      String   @map("chapter_id") // Chapter number or unique ID
+  chapterNumber  Int      @map("chapter_number") // Chapter number
   
-  // Cache key (SHA256 hash of: text + voiceId + model + rate + format)
-  cacheKey       String   @unique @map("cache_key") @db.VarChar(64)
-  
-  // Audio generation parameters
-  voiceId        String   @map("voice_id") // ElevenLabs voice ID
-  model          String   @default("eleven_multilingual_v2") // TTS model
-  speakingRate   Float    @default(1.0) @map("speaking_rate") // 0.5 - 2.0
-  format         String   @default("mp3_44100_128") // Audio format
-  
-  // Storage
-  storageUrl     String   @db.Text @map("storage_url") // Supabase/S3 URL
-  storageBucket  String   @default("audio") @map("storage_bucket")
-  storagePath    String   @map("storage_path") // audio/{bookId}/{chapterId}/{key}.mp3
-  
-  // Audio metadata
-  durationSec    Float    @default(0) @map("duration_sec") // Duration in seconds
-  fileSize       Int      @default(0) @map("file_size") // Size in bytes
-  wordCount      Int      @default(0) @map("word_count") // Original text word count
-  
-  // Usage tracking
-  accessCount    Int      @default(0) @map("access_count") // How many times accessed
-  lastAccessedAt DateTime? @map("last_accessed_at")
+  // Audio file
+  audioUrl       String   @db.Text @map("audio_url")
+  voiceId        String?  @map("voice_id") // ElevenLabs voice ID  
+  duration       String?  // Duration string
+  metadata       Json?    // Additional metadata
   
   // Timestamps
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   
-  @@index([bookId, chapterId])
-  @@index([cacheKey])
-  @@map("audio_assets")
+  @@unique([bookId, chapterNumber])
+  @@index([bookId])
+  @@map("book_audio")
 }
 
 // ============================================
@@ -599,6 +588,7 @@ model ForumTopic {
   posts       ForumPost[]
   likes       ForumTopicLike[]
   bookmarks   ForumTopicBookmark[]
+  reflectionPost BookReflection? @relation("ReflectionPost")
   
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -682,4 +672,35 @@ model ForumTopicBookmark {
   @@unique([userId, topicId])
   @@index([topicId])
   @@map("forum_topic_bookmarks")
+}
+
+// ============================================
+// BOOK REFLECTIONS (Social Reading Layer)
+// ============================================
+
+model BookReflection {
+  id                String    @id @default(cuid())
+  
+  userId            String    @map("user_id")
+  user              User      @relation("BookReflections", fields: [userId], references: [id], onDelete: Cascade)
+  
+  bookId            String    @map("book_id")
+  book              Book      @relation("BookReflections", fields: [bookId], references: [id], onDelete: Cascade)
+  
+  chapterNumber     Int       @default(1) @map("chapter_number")
+  content           String    @db.Text
+  isPublic          Boolean   @default(true) @map("is_public")
+  
+  // Link to community post if shared
+  communityPostId   String?   @unique @map("community_post_id")
+  communityPost     ForumTopic? @relation("ReflectionPost", fields: [communityPostId], references: [id], onDelete: SetNull)
+  
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  
+  @@index([userId])
+  @@index([bookId])
+  @@index([chapterNumber])
+  @@index([createdAt])
+  @@map("book_reflections")
 }
