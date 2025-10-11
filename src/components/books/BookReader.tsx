@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import ListenMode from './ListenMode'
+import ListenModeLuxury from './ListenModeLuxury'
 
 interface BookReaderProps {
   bookId: string
@@ -409,18 +409,16 @@ export default function BookReader({
               </div>
             ) : (
               <div className="space-y-6">
-                {/* Listen Mode with Sentence Highlighting */}
-                {listenMode && (
-                  <ListenMode
+                {/* Luxury Listen Mode - Full Screen Experience */}
+                {listenMode ? (
+                  <ListenModeLuxury
                     bookSlug={slug}
                     chapterNumber={currentPage}
                     pageContent={pageContent}
                     isPremiumUser={isPurchased}
                   />
-                )}
-
-                {/* Reading Content - Hidden in Listen Mode */}
-                {!listenMode && (
+                ) : (
+                  /* Reading Content */
                   <article
                     className={`prose prose-lg max-w-none leading-relaxed transition-opacity duration-300 ${
                       isTransitioning ? 'opacity-0' : 'opacity-100'
@@ -428,7 +426,8 @@ export default function BookReader({
                     style={{ fontSize: `${fontSize}px` }}
                     dangerouslySetInnerHTML={{ __html: pageContent }}
                   />
-                )}
+                )
+                }
               </div>
             )}
           </div>
