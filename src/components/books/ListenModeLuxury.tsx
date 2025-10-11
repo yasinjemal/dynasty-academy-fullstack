@@ -222,7 +222,7 @@ export default function ListenModeLuxury({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chapterNumber,
-          text: pageContent.replace(/<[^>]*>/g, ''),
+          content: pageContent.replace(/<[^>]*>/g, ''),
           voiceId: selectedVoice,
         }),
       })
@@ -234,16 +234,17 @@ export default function ListenModeLuxury({
       }
 
       const data = await response.json()
-      console.log('Audio generated successfully, data length:', data.audio?.length)
+      console.log('Audio API response:', data)
       
-      if (!data.audio) {
+      if (!data.audioUrl) {
+        console.error('No audioUrl in response:', data)
         throw new Error('No audio data received')
       }
 
-      const audioDataUrl = `data:audio/mp3;base64,${data.audio}`
-      setAudioUrl(audioDataUrl)
+      // The API returns the full data URL already
+      setAudioUrl(data.audioUrl)
       setHasGenerated(true)
-      console.log('Audio URL set, length:', audioDataUrl.length)
+      console.log('Audio URL set successfully, cached:', data.cached)
     } catch (err) {
       setError('Failed to generate audio. Please try again.')
       console.error('Audio generation error:', err)
