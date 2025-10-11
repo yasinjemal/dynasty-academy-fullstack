@@ -118,3 +118,15 @@ export const contactSchema = z.object({
   subject: z.string().min(5, 'Subject must be at least 5 characters'),
   message: z.string().min(20, 'Message must be at least 20 characters'),
 })
+
+// ============================================
+// REFLECTION SCHEMA
+// ============================================
+
+export const reflectionSchema = z.object({
+  bookId: z.string(),
+  chapter: z.number().int().positive(),
+  content: z.string().min(10, 'Reflection must be at least 10 characters').max(5000),
+  isPublic: z.boolean().default(false),
+  shareToForum: z.boolean().default(false),
+})
