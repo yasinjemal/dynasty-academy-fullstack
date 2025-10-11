@@ -164,19 +164,34 @@ export default function ListenModeLuxury({
   // Audio event handlers
   useEffect(() => {
     const audio = audioRef.current
-    if (!audio) return
+    if (!audio || !audioUrl) return
 
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime)
-    const handleLoadedMetadata = () => setDuration(audio.duration)
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration)
+      console.log('Audio loaded, duration:', audio.duration)
+    }
     const handleEnded = () => setIsPlaying(false)
     const handlePlay = () => setIsPlaying(true)
     const handlePause = () => setIsPlaying(false)
+    const handleError = (e: Event) => {
+      console.error('Audio error:', e)
+      setError('Failed to load audio. Please try regenerating.')
+    }
+    const handleCanPlay = () => {
+      console.log('Audio can play')
+    }
 
     audio.addEventListener('timeupdate', handleTimeUpdate)
     audio.addEventListener('loadedmetadata', handleLoadedMetadata)
     audio.addEventListener('ended', handleEnded)
     audio.addEventListener('play', handlePlay)
     audio.addEventListener('pause', handlePause)
+    audio.addEventListener('error', handleError)
+    audio.addEventListener('canplay', handleCanPlay)
+
+    // Load the audio
+    audio.load()
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate)
@@ -184,6 +199,8 @@ export default function ListenModeLuxury({
       audio.removeEventListener('ended', handleEnded)
       audio.removeEventListener('play', handlePlay)
       audio.removeEventListener('pause', handlePause)
+      audio.removeEventListener('error', handleError)
+      audio.removeEventListener('canplay', handleCanPlay)
     }
   }, [audioUrl])
 
@@ -199,6 +216,7 @@ export default function ListenModeLuxury({
     setError(null)
 
     try {
+      console.log('Generating audio for chapter:', chapterNumber)
       const response = await fetch(`/api/books/${bookSlug}/audio`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -209,11 +227,23 @@ export default function ListenModeLuxury({
         }),
       })
 
-      if (!response.ok) throw new Error('Failed to generate audio')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API error:', errorData)
+        throw new Error('Failed to generate audio')
+      }
 
       const data = await response.json()
-      setAudioUrl(`data:audio/mp3;base64,${data.audio}`)
+      console.log('Audio generated successfully, data length:', data.audio?.length)
+      
+      if (!data.audio) {
+        throw new Error('No audio data received')
+      }
+
+      const audioDataUrl = `data:audio/mp3;base64,${data.audio}`
+      setAudioUrl(audioDataUrl)
       setHasGenerated(true)
+      console.log('Audio URL set, length:', audioDataUrl.length)
     } catch (err) {
       setError('Failed to generate audio. Please try again.')
       console.error('Audio generation error:', err)
@@ -222,12 +252,21 @@ export default function ListenModeLuxury({
     }
   }
 
-  const togglePlayPause = () => {
-    if (!audioRef.current) return
-    if (isPlaying) {
-      audioRef.current.pause()
-    } else {
-      audioRef.current.play()
+  const togglePlayPause = async () => {
+    if (!audioRef.current) {
+      console.error('Audio ref not available')
+      return
+    }
+    
+    try {
+      if (isPlaying) {
+        audioRef.current.pause()
+      } else {
+        await audioRef.current.play()
+      }
+    } catch (err) {
+      console.error('Playback error:', err)
+      setError('Failed to play audio. Please try regenerating.')
     }
   }
 
@@ -324,7 +363,14 @@ export default function ListenModeLuxury({
         {/* Main Player Card */}
         <div className="bg-gradient-to-br from-slate-900/90 via-purple-900/30 to-slate-900/90 backdrop-blur-xl rounded-3xl border border-purple-500/20 shadow-2xl shadow-purple-500/10 overflow-hidden mb-8">
           {/* Audio Element */}
-          {audioUrl && <audio ref={audioRef} src={audioUrl} />}
+          {audioUrl && (
+            <audio 
+              ref={audioRef} 
+              src={audioUrl}
+              preload="metadata"
+              crossOrigin="anonymous"
+            />
+          )}
 
           {/* Voice Selection (Before Generation) */}
           {!hasGenerated && (
@@ -378,12 +424,26 @@ export default function ListenModeLuxury({
                   </span>
                 )}
               </button>
+
+              {/* Error Display */}
+              {error && (
+                <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-center">
+                  {error}
+                </div>
+              )}
             </div>
           )}
 
           {/* Player Interface (After Generation) */}
           {hasGenerated && audioUrl && (
             <div className="p-8 sm:p-12">
+              {/* Error Display */}
+              {error && (
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-center">
+                  {error}
+                </div>
+              )}
+
               {/* Luxury Visualizer */}
               <div className="mb-8 h-32 flex items-center justify-center gap-2">
                 {visualizerStyle === 'wave' && (
