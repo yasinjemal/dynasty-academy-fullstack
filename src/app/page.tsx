@@ -1,7 +1,45 @@
 ﻿import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { prisma } from '@/lib/db/prisma'
 
-export default function Home() {
+async function getTopBuilders() {
+  const users = await prisma.user.findMany({
+    where: {
+      bookReflections: {
+        some: {
+          isPublic: true,
+        },
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      image: true,
+      _count: {
+        select: {
+          bookReflections: true,
+          userAchievements: true,
+        },
+      },
+    },
+    orderBy: {
+      bookReflections: {
+        _count: 'desc',
+      },
+    },
+    take: 6,
+  })
+
+  return users.map((user) => ({
+    ...user,
+    reflectionsCount: user._count.bookReflections,
+    achievementsCount: user._count.userAchievements,
+  }))
+}
+
+export default async function Home() {
+  const topBuilders = await getTopBuilders()
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Navigation */}
@@ -149,6 +187,108 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Top Dynasty Builders - NEW */}
+      {topBuilders.length > 0 && (
+        <section className="py-20 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-blue-900/20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 text-white text-3xl mb-6 shadow-2xl animate-pulse">
+                🏆
+              </div>
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
+                Top Dynasty Builders
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Meet the community members leading the way with their reading journeys and reflections
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {topBuilders.map((builder) => (
+                <Link
+                  key={builder.id}
+                  href={`/@${builder.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="group"
+                >
+                  <div className="relative overflow-hidden rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-200/50 dark:border-purple-800/50 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-2">
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-600/10 via-pink-600/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    <div className="relative p-8 text-center">
+                      {/* Avatar */}
+                      <div className="relative inline-block mb-6">
+                        {builder.image ? (
+                          <img
+                            src={builder.image}
+                            alt={builder.name}
+                            className="w-24 h-24 rounded-full ring-4 ring-purple-400/50 dark:ring-purple-600/50 shadow-lg group-hover:scale-110 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 via-pink-600 to-blue-600 flex items-center justify-center text-white text-3xl font-bold ring-4 ring-purple-400/50 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            {builder.name[0]?.toUpperCase()}
+                          </div>
+                        )}
+                        {/* Trophy Badge */}
+                        <div className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white text-lg shadow-lg ring-4 ring-white dark:ring-gray-800">
+                          🏅
+                        </div>
+                      </div>
+
+                      {/* Name */}
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                        {builder.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                        Dynasty Builder
+                      </p>
+
+                      {/* Stats */}
+                      <div className="flex items-center justify-center gap-6 pt-6 border-t border-purple-200/50 dark:border-purple-800/50">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                            {builder.reflectionsCount}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            Reflections
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                            {builder.achievementsCount}
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                            Achievements
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* View Profile CTA */}
+                      <div className="mt-6">
+                        <span className="inline-flex items-center gap-2 text-sm font-semibold text-purple-600 dark:text-purple-400 group-hover:gap-3 transition-all">
+                          View Profile
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* See All Link */}
+            <div className="text-center mt-12">
+              <Link href="/wisdom">
+                <Button variant="outline" size="lg" className="text-lg">
+                  💎 Explore Wisdom Gallery
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="py-20 bg-gradient-to-r from-purple-600 to-blue-600">

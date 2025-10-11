@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import ListenModeLuxury from './ListenModeLuxury'
 import ReflectionModal, { type ReflectionData } from './ReflectionModal'
+import CommunityInsights from './CommunityInsights'
 
 interface BookReaderProps {
   bookId: string
@@ -145,7 +146,7 @@ export default function BookReader({
     }
   }
 
-  const handleReflectionSubmit = async (reflection: ReflectionData) => {
+  const handleReflectionSubmit = async (reflection: ReflectionData): Promise<{ reflectionId: string }> => {
     try {
       const res = await fetch('/api/community/reflections', {
         method: 'POST',
@@ -179,6 +180,9 @@ export default function BookReader({
           category: reflection.category,
         })
       }
+
+      // Return reflection ID for share modal
+      return { reflectionId: data.reflection.id }
     } catch (error) {
       console.error('Error submitting reflection:', error)
       throw error
@@ -469,6 +473,15 @@ export default function BookReader({
                       style={{ fontSize: `${fontSize}px` }}
                       dangerouslySetInnerHTML={{ __html: pageContent }}
                     />
+
+                    {/* Community Insights Section */}
+                    {!isTransitioning && pageContent && (
+                      <CommunityInsights
+                        bookId={bookId}
+                        bookSlug={slug}
+                        chapterNumber={currentPage}
+                      />
+                    )}
 
                     {/* Reflect & Share Button */}
                     {!isTransitioning && pageContent && (

@@ -15,9 +15,14 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get('userId') || session.user.id
 
-    // Get user achievements with achievement details
+    // Get user achievements with achievement details (filter out null achievements)
     const userAchievements = await prisma.userAchievement.findMany({
-      where: { userId },
+      where: {
+        userId,
+        achievement: {
+          isNot: null,
+        },
+      },
       include: {
         achievement: true,
       },

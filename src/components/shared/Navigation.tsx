@@ -14,9 +14,10 @@ export default function Navigation() {
     { href: '/books', label: 'Books' },
     { href: '/blog', label: 'Blog' },
     { href: '/community', label: 'Community', highlight: true },
+    { href: '/wisdom', label: '💎 Wisdom', highlight: true },
     { href: '/works', label: 'Works' },
     { href: '/contact', label: 'Contact' },
-  ]
+  ];
 
   const isActive = (href: string) => pathname === href || pathname?.startsWith(href + '/')
 

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { X, Sparkles, MessageCircle, Users, Lightbulb } from 'lucide-react'
+import ShareReflectionModal from '@/components/shared/ShareReflectionModal'
 
 interface ReflectionModalProps {
   isOpen: boolean
@@ -10,7 +11,7 @@ interface ReflectionModalProps {
   bookTitle: string
   chapterNumber: number
   chapterTitle?: string
-  onSubmit: (reflection: ReflectionData) => Promise<void>
+  onSubmit: (reflection: ReflectionData) => Promise<{ reflectionId: string }>
 }
 
 export interface ReflectionData {
@@ -42,26 +43,31 @@ export default function ReflectionModal({
   const [isPublic, setIsPublic] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [reflectionId, setReflectionId] = useState<string | null>(null)
 
-  if (!isOpen) return null
+  if (!isOpen && !showShareModal) return null
 
   const handleSubmit = async () => {
     if (!content.trim()) return
 
     setIsSubmitting(true)
     try {
-      await onSubmit({
+      const result = await onSubmit({
         content: content.trim(),
         postToCommunity,
         category,
         isPublic,
       })
       
+      setReflectionId(result.reflectionId)
       setShowSuccess(true)
+      
+      // Show success animation, then open share modal
       setTimeout(() => {
         setShowSuccess(false)
         onClose()
-        setContent('')
+        setShowShareModal(true)
       }, 2000)
     } catch (error) {
       console.error('Failed to submit reflection:', error)
@@ -69,6 +75,12 @@ export default function ReflectionModal({
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleShareModalClose = () => {
+    setShowShareModal(false)
+    setReflectionId(null)
+    setContent('')
   }
 
   const characterCount = content.length
@@ -272,6 +284,17 @@ Example: 'I realized my biggest enemy was comfort. This chapter made me restart 
           animation: scaleIn 0.3s ease-out;
         }
       `}</style>
+
+      {/* Share Modal */}
+      {showShareModal && reflectionId && (
+        <ShareReflectionModal
+          isOpen={showShareModal}
+          onClose={handleShareModalClose}
+          reflectionId={reflectionId}
+          bookTitle={bookTitle}
+          content={content}
+        />
+      )}
     </div>
   )
 }

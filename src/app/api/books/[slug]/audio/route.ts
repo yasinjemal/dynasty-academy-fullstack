@@ -37,7 +37,7 @@ export async function POST(
     const { chapterNumber, content, voiceId = 'EXAVITQu4vr4xnSDxMaL' } = await req.json()
 
     // Check if audio already exists
-    const existingAudio = await prisma.bookAudio.findFirst({
+    const existingAudio = await prisma.audioAsset.findFirst({
       where: {
         bookId: book.id,
         chapterNumber,
@@ -88,13 +88,13 @@ export async function POST(
     const audioUrl = `data:audio/mpeg;base64,${audioBase64}`
 
     // Save to database
-    const bookAudio = await prisma.bookAudio.create({
+    const bookAudio = await prisma.audioAsset.create({
       data: {
         bookId: book.id,
         chapterNumber,
         audioUrl,
         voiceId,
-        duration: 0, // Calculate from audio file
+        duration: null, // Calculate from audio file
         metadata: {
           generatedAt: new Date().toISOString(),
           wordCount: cleanText.split(/\s+/).length,
@@ -138,7 +138,7 @@ export async function GET(
       )
     }
 
-    const audio = await prisma.bookAudio.findFirst({
+    const audio = await prisma.audioAsset.findFirst({
       where: {
         bookId: book.id,
         chapterNumber,

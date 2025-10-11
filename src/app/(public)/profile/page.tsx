@@ -12,6 +12,7 @@ import { Alert } from '@/components/ui/alert'
 import UserProfileDropdown from '@/components/shared/UserProfileDropdown'
 import ThemeToggle from '@/components/shared/ThemeToggle'
 import NotificationBell from '@/components/shared/NotificationBell'
+import DynastyPointsCard from '@/components/profile/DynastyPointsCard'
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession()
@@ -167,6 +168,59 @@ export default function ProfilePage() {
             {message.text}
           </Alert>
         )}
+
+        {/* Dynasty Points & Rewards Section */}
+        <div className="mb-8">
+          <DynastyPointsCard userId={session.user.id} />
+        </div>
+
+        {/* Share Your Profile - NEW */}
+        <div className="mb-8">
+          <Card className="border-0 shadow-xl bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 p-1">
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-3xl">
+                    🔗
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                      Share Your Dynasty Profile
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Show off your reading journey to the world
+                    </p>
+                  </div>
+                </div>
+                <Link href={`/@${(session.user.name || '').toLowerCase().replace(/\s+/g, '-')}`} target="_blank">
+                  <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                    View Public Profile →
+                  </Button>
+                </Link>
+              </div>
+              <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                <div className="flex items-center justify-between gap-3">
+                  <code className="text-sm text-purple-800 dark:text-purple-300 font-mono flex-1">
+                    {typeof window !== 'undefined' ? window.location.origin : 'https://dynastybuilt.com'}/@{(session.user.name || '').toLowerCase().replace(/\s+/g, '-')}
+                  </code>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const urlFriendlyUsername = (session.user.name || '').toLowerCase().replace(/\s+/g, '-')
+                      const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://dynastybuilt.com'}/@${urlFriendlyUsername}`
+                      navigator.clipboard.writeText(url)
+                      setMessage({ type: 'success', text: 'Profile link copied to clipboard!' })
+                      setTimeout(() => setMessage(null), 3000)
+                    }}
+                  >
+                    📋 Copy Link
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Profile Preview Card */}

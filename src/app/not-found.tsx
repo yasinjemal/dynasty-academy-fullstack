@@ -7,10 +7,10 @@ export default function NotFound() {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
       <Card className="max-w-md w-full text-center">
         <CardHeader>
-          <CardTitle>
-            <span className="text-6xl mb-4 block">404</span>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Page Not Found</h1>
-          </CardTitle>
+          <div className="space-y-4">
+            <div className="text-6xl">404</div>
+            <CardTitle className="text-3xl">Page Not Found</CardTitle>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-gray-600 dark:text-gray-400">

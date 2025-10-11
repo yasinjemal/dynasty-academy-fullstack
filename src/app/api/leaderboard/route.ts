@@ -1,59 +1,148 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 
-// GET leaderboard (top users by XP)
-export async function GET(request: Request) {
+// GET leaderboard (top users by Dynasty Points from reflections)
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const limit = parseInt(searchParams.get('limit') || '50')
+    const { searchParams } = new URL(req.url)
+    const timeframe = searchParams.get('timeframe') || 'all-time'
+    const limit = parseInt(searchParams.get('limit') || '10')
 
-    const users = await prisma.user.findMany({
+    // Calculate date filter based on timeframe
+    let dateFilter: Date | undefined
+    const now = new Date()
+    
+    switch (timeframe) {
+      case 'week':
+        dateFilter = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+        break
+      case 'month':
+        dateFilter = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+        break
+      case 'all-time':
+      default:
+        dateFilter = undefined
+    }
+
+    // Get all users with their progress data
+    const usersWithProgress = await prisma.user.findMany({
       select: {
         id: true,
         name: true,
-        email: true,
         image: true,
-        role: true,
-        createdAt: true,
-        _count: {
+        progress: {
           select: {
-            orders: true,
-            blogPosts: true,
-            comments: true,
-            likes: true,
-            followers: true,
+            reflectionsCount: true,
+            completed: true,
+          },
+          ...(dateFilter && {
+            where: {
+              updatedAt: {
+                gte: dateFilter,
+              },
+            },
+          }),
+        },
+        achievements: {
+          select: {
+            id: true,
+          },
+          ...(dateFilter && {
+            where: {
+              unlockedAt: {
+                gte: dateFilter,
+              },
+            },
+          }),
+        },
+        bookReflections: {
+          select: {
+            id: true,
+            communityPost: {
+              select: {
+                _count: {
+                  select: {
+                    likes: true,
+                  },
+                },
+              },
+            },
+          },
+          where: {
+            communityPostId: { not: null },
+            ...(dateFilter && {
+              createdAt: {
+                gte: dateFilter,
+              },
+            }),
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
     })
 
-    // Calculate activity score based on user engagement
-    const usersWithScore = users.map((user: any, index: number) => {
-      const activityScore = 
-        (user._count.orders * 10) + 
-        (user._count.blogPosts * 5) + 
-        (user._count.comments * 2) + 
-        (user._count.likes * 1) + 
-        (user._count.followers * 3)
-      
-      return {
+    // Calculate stats and dynasty points for each user
+    const leaderboardData = usersWithProgress
+      .map((user: any) => {
+        // Calculate reflections count
+        const reflectionsCount = user.progress.reduce(
+          (sum: number, progress: { reflectionsCount: number | null }) => 
+            sum + (progress.reflectionsCount || 0),
+          0
+        )
+
+        // Calculate completed books
+        const completedBooks = user.progress.filter(
+          (p: { completed: boolean }) => p.completed
+        ).length
+
+        // Calculate total likes
+        const totalLikes = user.bookReflections.reduce(
+          (sum: number, reflection: any) => 
+            sum + (reflection.communityPost?._count.likes || 0),
+          0
+        )
+
+        // Calculate achievements count
+        const achievementsCount = user.achievements.length
+
+        // Dynasty Points Formula
+        const dynastyPoints =
+          reflectionsCount * 10 +
+          completedBooks * 50 +
+          totalLikes * 2 +
+          achievementsCount * 25
+
+        // Calculate level
+        const level = Math.floor(dynastyPoints / 100) + 1
+
+        return {
+          userId: user.id,
+          userName: user.name || 'Anonymous',
+          userImage: user.image,
+          reflectionsCount,
+          completedBooks,
+          dynastyPoints,
+          level,
+        }
+      })
+      .filter((user: any) => user.dynastyPoints > 0) // Only show users with points
+      .sort((a: any, b: any) => b.dynastyPoints - a.dynastyPoints) // Sort by points descending
+      .slice(0, limit) // Limit results
+      .map((user: any, index: number) => ({
         ...user,
         rank: index + 1,
-        activityScore,
-        level: Math.floor(activityScore / 100) + 1,
-      }
-    })
-    
-    // Sort by activity score and update ranks
-    const leaderboard = usersWithScore
-      .sort((a: any, b: any) => b.activityScore - a.activityScore)
-      .map((user: any, index: number) => ({ ...user, rank: index + 1 }))
+      }))
 
-    return NextResponse.json({ leaderboard })
+    return NextResponse.json({
+      leaderboard: leaderboardData,
+      timeframe,
+      total: leaderboardData.length,
+    })
   } catch (error) {
     console.error('Error fetching leaderboard:', error)
-    return NextResponse.json({ error: 'Failed to fetch leaderboard' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to fetch leaderboard' },
+      { status: 500 }
+    )
   }
 }

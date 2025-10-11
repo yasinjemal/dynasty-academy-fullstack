@@ -119,23 +119,23 @@ export default function LeaderboardPage() {
                   <CardContent className="pt-6 pb-8 text-center relative">
                     <div className="absolute top-2 right-2 text-4xl opacity-20">🥈</div>
                     <div className="relative">
-                      {leaderboard[1].image ? (
-                        <img src={leaderboard[1].image} alt={leaderboard[1].name} className="w-20 h-20 rounded-full mx-auto mb-3 object-cover border-4 border-gray-300 shadow-xl" />
+                      {leaderboard[1]?.image ? (
+                        <img src={leaderboard[1].image} alt={leaderboard[1]?.name || 'User'} className="w-20 h-20 rounded-full mx-auto mb-3 object-cover border-4 border-gray-300 shadow-xl" />
                       ) : (
                         <div className="w-20 h-20 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full mx-auto mb-3 flex items-center justify-center text-white font-bold text-2xl border-4 border-gray-300 shadow-xl">
-                          {leaderboard[1].name[0]?.toUpperCase()}
+                          {leaderboard[1]?.name?.[0]?.toUpperCase() || '?'}
                         </div>
                       )}
                       <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-gray-300 to-gray-500 rounded-full flex items-center justify-center text-2xl shadow-lg border-2 border-white">
                         2
                       </div>
                     </div>
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-1 truncate px-2">{leaderboard[1].name}</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-white mb-1 truncate px-2">{leaderboard[1]?.name || 'User'}</h3>
                     <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-200 dark:bg-gray-600 text-xs font-semibold mb-2">
-                      ⭐ Level {leaderboard[1].level}
+                      ⭐ Level {leaderboard[1]?.level || 0}
                     </div>
                     <div className="text-lg font-bold text-gray-700 dark:text-gray-300">
-                      {leaderboard[1].activityScore} pts
+                      {leaderboard[1]?.activityScore || 0} pts
                     </div>
                   </CardContent>
                 </Card>
@@ -149,23 +149,23 @@ export default function LeaderboardPage() {
                   <CardContent className="pt-6 pb-8 text-center relative">
                     <div className="absolute top-2 right-2 text-5xl opacity-20 animate-pulse">👑</div>
                     <div className="relative">
-                      {leaderboard[0].image ? (
-                        <img src={leaderboard[0].image} alt={leaderboard[0].name} className="w-24 h-24 rounded-full mx-auto mb-3 object-cover border-4 border-yellow-300 shadow-2xl" />
+                      {leaderboard[0]?.image ? (
+                        <img src={leaderboard[0].image} alt={leaderboard[0]?.name || 'User'} className="w-24 h-24 rounded-full mx-auto mb-3 object-cover border-4 border-yellow-300 shadow-2xl" />
                       ) : (
                         <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-600 rounded-full mx-auto mb-3 flex items-center justify-center text-white font-bold text-3xl border-4 border-yellow-300 shadow-2xl">
-                          {leaderboard[0].name[0]?.toUpperCase()}
+                          {leaderboard[0]?.name?.[0]?.toUpperCase() || '👑'}
                         </div>
                       )}
                       <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-14 h-14 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full flex items-center justify-center text-3xl shadow-2xl border-2 border-white animate-ping-slow">
                         1
                       </div>
                     </div>
-                    <h3 className="font-bold text-xl text-gray-900 mb-1 truncate px-2">{leaderboard[0].name}</h3>
+                    <h3 className="font-bold text-xl text-gray-900 mb-1 truncate px-2">{leaderboard[0]?.name || 'Champion'}</h3>
                     <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/50 text-sm font-bold mb-2">
-                      ⭐ Level {leaderboard[0].level}
+                      ⭐ Level {leaderboard[0]?.level || 0}
                     </div>
                     <div className="text-2xl font-bold text-gray-900">
-                      {leaderboard[0].activityScore} pts
+                      {leaderboard[0]?.activityScore || 0} pts
                     </div>
                   </CardContent>
                 </Card>
@@ -179,23 +179,23 @@ export default function LeaderboardPage() {
                   <CardContent className="pt-6 pb-8 text-center relative">
                     <div className="absolute top-2 right-2 text-4xl opacity-20">🥉</div>
                     <div className="relative">
-                      {leaderboard[2].image ? (
-                        <img src={leaderboard[2].image} alt={leaderboard[2].name} className="w-20 h-20 rounded-full mx-auto mb-3 object-cover border-4 border-orange-300 shadow-xl" />
+                      {leaderboard[2]?.image ? (
+                        <img src={leaderboard[2].image} alt={leaderboard[2]?.name || 'User'} className="w-20 h-20 rounded-full mx-auto mb-3 object-cover border-4 border-orange-300 shadow-xl" />
                       ) : (
                         <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-red-600 rounded-full mx-auto mb-3 flex items-center justify-center text-white font-bold text-2xl border-4 border-orange-300 shadow-xl">
-                          {leaderboard[2].name[0]?.toUpperCase()}
+                          {leaderboard[2]?.name?.[0]?.toUpperCase() || '?'}
                         </div>
                       )}
                       <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-12 bg-gradient-to-br from-orange-300 to-orange-500 rounded-full flex items-center justify-center text-2xl shadow-lg border-2 border-white">
                         3
                       </div>
                     </div>
-                    <h3 className="font-bold text-gray-900 dark:text-white mb-1 truncate px-2">{leaderboard[2].name}</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-white mb-1 truncate px-2">{leaderboard[2]?.name || 'User'}</h3>
                     <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/50 dark:bg-gray-700 text-xs font-semibold mb-2">
-                      ⭐ Level {leaderboard[2].level}
+                      ⭐ Level {leaderboard[2]?.level || 0}
                     </div>
                     <div className="text-lg font-bold text-gray-900 dark:text-white">
-                      {leaderboard[2].activityScore} pts
+                      {leaderboard[2]?.activityScore || 0} pts
                     </div>
                   </CardContent>
                 </Card>
@@ -219,7 +219,7 @@ export default function LeaderboardPage() {
             <div className="space-y-3">
               {leaderboard.map((user, index) => (
                 <div
-                  key={user.id}
+                  key={user.id || `user-${index}`}
                   className={`group flex items-center gap-3 sm:gap-6 p-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer ${
                     user.rank <= 3 
                       ? 'bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-2 border-yellow-300 dark:border-yellow-700' 
@@ -239,22 +239,22 @@ export default function LeaderboardPage() {
 
                   {/* Avatar */}
                   {user.image ? (
-                    <img src={user.image} alt={user.name} className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-white shadow-lg" />
+                    <img src={user.image} alt={user.name || 'User'} className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-white shadow-lg" />
                   ) : (
                     <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl border-2 border-white shadow-lg">
-                      {user.name[0]?.toUpperCase()}
+                      {user.name?.[0]?.toUpperCase() || '?'}
                     </div>
                   )}
 
                   {/* User Info */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-sm sm:text-lg text-gray-900 dark:text-white truncate">{user.name}</h3>
+                    <h3 className="font-bold text-sm sm:text-lg text-gray-900 dark:text-white truncate">{user.name || 'Anonymous'}</h3>
                     <div className="flex flex-wrap gap-2 sm:gap-4 text-xs text-gray-600 dark:text-gray-400 mt-1">
-                      <span className="flex items-center gap-1">🛒 {user._count.orders}</span>
-                      <span className="flex items-center gap-1">📝 {user._count.blogPosts}</span>
-                      <span className="flex items-center gap-1">💬 {user._count.comments}</span>
-                      <span className="flex items-center gap-1">❤️ {user._count.likes}</span>
-                      <span className="flex items-center gap-1">👥 {user._count.followers}</span>
+                      <span className="flex items-center gap-1">🛒 {user._count?.orders || 0}</span>
+                      <span className="flex items-center gap-1">📝 {user._count?.blogPosts || 0}</span>
+                      <span className="flex items-center gap-1">💬 {user._count?.comments || 0}</span>
+                      <span className="flex items-center gap-1">❤️ {user._count?.likes || 0}</span>
+                      <span className="flex items-center gap-1">👥 {user._count?.followers || 0}</span>
                     </div>
                   </div>
 

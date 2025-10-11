@@ -209,6 +209,35 @@ export default function DashboardPage() {
             </Link>
           </div>
 
+          {/* Wisdom Gallery Promo - NEW! */}
+          <div className="mt-6 sm:mt-8">
+            <Link href="/wisdom">
+              <button className="group relative w-full bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 hover:from-purple-700 hover:via-pink-700 hover:to-purple-700 text-white rounded-xl p-6 transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02] shadow-lg hover:shadow-2xl hover:shadow-purple-500/50 overflow-hidden">
+                {/* Animated Background */}
+                <div className="absolute inset-0 opacity-30">
+                  <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl animate-pulse" />
+                  <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-400 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+                </div>
+                
+                {/* Content */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="p-4 bg-white/20 backdrop-blur-sm rounded-xl group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                      <span className="text-4xl">💎</span>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xl sm:text-2xl font-bold">✨ Wisdom Gallery</p>
+                      <p className="text-sm text-white/80 mt-1">Discover insights from the Dynasty Built community</p>
+                    </div>
+                  </div>
+                  <svg className="w-6 h-6 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </div>
+              </button>
+            </Link>
+          </div>
+
           {/* Community CTA - Different for Users vs Admins */}
           <div className="mt-6 sm:mt-8">
             {session.user?.role === 'ADMIN' ? (
