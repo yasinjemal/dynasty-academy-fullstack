@@ -252,6 +252,38 @@ export default function ListenModeLuxury({
     }
   }, [currentTime, isPlaying, isPremiumUser, bookSlug, chapterNumber, duration])
 
+  // Screen lock prevention for mobile (audio continues playing with screen off)
+  useEffect(() => {
+    if (!isPlaying || typeof window === 'undefined') return
+
+    let wakeLock: any = null
+
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await (navigator as any).wakeLock.request('screen')
+          console.log('[Wake Lock] Screen lock prevented')
+        }
+      } catch (err) {
+        console.log('[Wake Lock] Not supported or denied:', err)
+      }
+    }
+
+    const releaseWakeLock = () => {
+      if (wakeLock) {
+        wakeLock.release()
+        wakeLock = null
+        console.log('[Wake Lock] Released')
+      }
+    }
+
+    requestWakeLock()
+
+    return () => {
+      releaseWakeLock()
+    }
+  }, [isPlaying])
+
   // Audio event handlers
   useEffect(() => {
     const audio = audioRef.current
@@ -643,14 +675,15 @@ export default function ListenModeLuxury({
 
               {/* Main Controls */}
               <div className="space-y-6 mb-8">
-                {/* Play/Pause Button with Pulse Effect */}
+                {/* Play/Pause Button with Pulse Effect - Mobile-friendly */}
                 <button
                   onClick={togglePlayPause}
-                  className={`w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white font-bold py-6 px-8 rounded-2xl transition-all duration-300 shadow-lg hover:scale-102 group relative overflow-hidden ${
+                  className={`w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 active:from-purple-700 active:to-violet-700 text-white font-bold py-6 px-8 min-h-[56px] rounded-2xl transition-all duration-300 shadow-lg hover:scale-102 group relative overflow-hidden touch-manipulation ${
                     isPlaying 
                       ? 'shadow-purple-500/60 animate-glow' 
                       : 'shadow-purple-500/30 hover:shadow-purple-500/50'
                   }`}
+                  aria-label={isPlaying ? "Pause audio" : "Play audio"}
                 >
                   {isPlaying && (
                     <span className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-violet-400/20 animate-pulse-slow" />
@@ -670,17 +703,19 @@ export default function ListenModeLuxury({
                   </span>
                 </button>
 
-                {/* Skip Controls */}
+                {/* Skip Controls - Mobile-friendly touch targets (min-height: 44px) */}
                 <div className="flex items-center justify-center gap-4">
                   <button
                     onClick={skipBackward}
-                    className="p-4 bg-slate-800/50 hover:bg-slate-700/50 rounded-full transition-all duration-200 group"
+                    className="p-4 min-w-[44px] min-h-[44px] bg-slate-800/50 hover:bg-slate-700/50 active:bg-slate-700/70 rounded-full transition-all duration-200 group touch-manipulation"
+                    aria-label="Skip backward 10 seconds"
                   >
                     <SkipBack className="w-6 h-6 text-purple-400 group-hover:scale-110 transition-transform" />
                   </button>
                   <button
                     onClick={skipForward}
-                    className="p-4 bg-slate-800/50 hover:bg-slate-700/50 rounded-full transition-all duration-200 group"
+                    className="p-4 min-w-[44px] min-h-[44px] bg-slate-800/50 hover:bg-slate-700/50 active:bg-slate-700/70 rounded-full transition-all duration-200 group touch-manipulation"
+                    aria-label="Skip forward 10 seconds"
                   >
                     <SkipForward className="w-6 h-6 text-purple-400 group-hover:scale-110 transition-transform" />
                   </button>
@@ -696,10 +731,15 @@ export default function ListenModeLuxury({
                     max={duration || 0}
                     value={currentTime}
                     onChange={handleProgressChange}
-                    className="w-full h-3 bg-slate-800/50 rounded-full appearance-none cursor-pointer luxury-slider"
+                    className="w-full h-3 bg-slate-800/50 rounded-full appearance-none cursor-pointer luxury-slider touch-manipulation"
                     style={{
                       background: `linear-gradient(to right, rgb(147 51 234) 0%, rgb(139 92 246) ${(currentTime / duration) * 100}%, rgb(30 41 59 / 0.5) ${(currentTime / duration) * 100}%, rgb(30 41 59 / 0.5) 100%)`,
+                      minHeight: '44px', // Touch-friendly height
                     }}
+                    aria-label="Audio progress"
+                    aria-valuemin={0}
+                    aria-valuemax={duration}
+                    aria-valuenow={currentTime}
                   />
                 </div>
                 <div className="flex justify-between text-sm items-center">
@@ -729,7 +769,11 @@ export default function ListenModeLuxury({
                 <div className="bg-slate-800/30 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm font-medium text-purple-300">Volume</span>
-                    <button onClick={toggleMute} className="text-purple-400 hover:text-purple-300 transition-colors">
+                    <button 
+                      onClick={toggleMute} 
+                      className="text-purple-400 hover:text-purple-300 transition-colors p-2 min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+                      aria-label={isMuted ? "Unmute" : "Mute"}
+                    >
                       {isMuted || volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                     </button>
                   </div>
@@ -739,7 +783,12 @@ export default function ListenModeLuxury({
                     max="100"
                     value={volume}
                     onChange={handleVolumeChange}
-                    className="w-full h-2 bg-slate-700/50 rounded-full appearance-none cursor-pointer"
+                    className="w-full h-2 bg-slate-700/50 rounded-full appearance-none cursor-pointer touch-manipulation"
+                    style={{ minHeight: '44px' }}
+                    aria-label="Volume control"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={volume}
                   />
                   <div className="text-xs text-purple-300/50 mt-2 text-center">{volume}%</div>
                 </div>
@@ -762,7 +811,8 @@ export default function ListenModeLuxury({
                         chapterId: chapterNumber
                       })
                     }}
-                    className="w-full bg-slate-700/50 text-purple-300 rounded-lg p-2 text-sm border border-purple-500/20 focus:border-purple-500/50 focus:outline-none"
+                    className="w-full bg-slate-700/50 text-purple-300 rounded-lg p-2 text-sm border border-purple-500/20 focus:border-purple-500/50 focus:outline-none touch-manipulation min-h-[44px]"
+                    aria-label="Playback speed"
                   >
                     {speeds.map((speed) => (
                       <option key={speed.value} value={speed.value}>
@@ -773,7 +823,7 @@ export default function ListenModeLuxury({
                 </div>
               </div>
 
-              {/* Premium Features */}
+              {/* Premium Features - Mobile-friendly */}
               <div className="flex flex-wrap gap-3 justify-center">
                 <button
                   onClick={() => {
@@ -785,11 +835,13 @@ export default function ListenModeLuxury({
                       chapterId: chapterNumber
                     })
                   }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-lg transition-all duration-200 touch-manipulation ${
                     followText 
                       ? 'bg-purple-600/30 text-purple-300 border border-purple-500/50' 
                       : 'bg-slate-800/30 text-slate-400 border border-slate-700/50'
                   }`}
+                  aria-label="Toggle auto-scroll"
+                  aria-pressed={followText}
                 >
                   <BookOpen className="w-4 h-4" />
                   <span className="text-sm font-medium">Auto-Scroll</span>
@@ -797,11 +849,13 @@ export default function ListenModeLuxury({
 
                 <button
                   onClick={() => setShowParticles(!showParticles)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                  className={`flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-lg transition-all duration-200 touch-manipulation ${
                     showParticles 
                       ? 'bg-purple-600/30 text-purple-300 border border-purple-500/50' 
                       : 'bg-slate-800/30 text-slate-400 border border-slate-700/50'
                   }`}
+                  aria-label="Toggle visual effects"
+                  aria-pressed={showParticles}
                 >
                   <Sparkles className="w-4 h-4" />
                   <span className="text-sm font-medium">Effects</span>
@@ -810,7 +864,8 @@ export default function ListenModeLuxury({
                 {isPremiumUser && (
                   <button
                     onClick={downloadAudio}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600/30 to-orange-600/30 text-amber-300 border border-amber-500/50 rounded-lg hover:from-amber-600/40 hover:to-orange-600/40 transition-all duration-200"
+                    className="flex items-center gap-2 px-4 py-2 min-h-[44px] bg-gradient-to-r from-amber-600/30 to-orange-600/30 text-amber-300 border border-amber-500/50 rounded-lg hover:from-amber-600/40 hover:to-orange-600/40 active:from-amber-600/50 active:to-orange-600/50 transition-all duration-200 touch-manipulation"
+                    aria-label="Download audio file"
                   >
                     <Download className="w-4 h-4" />
                     <span className="text-sm font-medium">Download</span>
@@ -1058,7 +1113,8 @@ export default function ListenModeLuxury({
                 // TODO: Navigate to pricing page or checkout
                 window.location.href = '/checkout'
               }}
-              className="w-full bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 hover:from-amber-500 hover:via-orange-500 hover:to-amber-500 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 hover:scale-102 mb-3"
+              className="w-full bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 hover:from-amber-500 hover:via-orange-500 hover:to-amber-500 active:from-amber-700 active:via-orange-700 active:to-amber-700 text-white font-bold py-4 px-8 min-h-[56px] rounded-2xl transition-all duration-300 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 hover:scale-102 touch-manipulation mb-3"
+              aria-label="Upgrade to premium"
             >
               <span className="flex items-center justify-center gap-2">
                 <Crown className="w-5 h-5" />
@@ -1074,7 +1130,8 @@ export default function ListenModeLuxury({
                   chapterId: chapterNumber
                 })
               }}
-              className="w-full text-purple-300/70 hover:text-purple-200 transition-colors text-sm py-2"
+              className="w-full text-purple-300/70 hover:text-purple-200 transition-colors text-sm py-2 min-h-[44px] touch-manipulation"
+              aria-label="Dismiss modal"
             >
               Not Now
             </button>
