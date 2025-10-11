@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { Volume2, VolumeX, Play, Pause, SkipBack, SkipForward, Download, Sparkles, Zap, Star, Wind, Music, Waves, Clock, BookOpen, Headphones } from 'lucide-react'
+import { Volume2, VolumeX, Play, Pause, SkipBack, SkipForward, Download, Sparkles, Zap, Star, Wind, Music, Waves, Clock, BookOpen, Headphones, Crown } from 'lucide-react'
 
 interface ListenModeLuxuryProps {
   bookSlug: string
@@ -44,11 +44,30 @@ export default function ListenModeLuxury({
   const [immersiveMode, setImmersiveMode] = useState(false)
   const [showParticles, setShowParticles] = useState(true)
   const [visualizerStyle, setVisualizerStyle] = useState<'wave' | 'pulse' | 'bars'>('wave')
+  const [showPaywallGate, setShowPaywallGate] = useState(false)
+  const [isCached, setIsCached] = useState(false)
 
   // Refs
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const sentenceRefs = useRef<(HTMLSpanElement | null)[]>([])
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const hasShownGateRef = useRef(false)
+  const lastUpdateTimeRef = useRef(0)
+
+  // Storage keys
+  const storageKey = `listen_${bookSlug}_${chapterNumber}_${selectedVoice}`
+
+  // Analytics helper
+  const trackEvent = (eventName: string, properties?: Record<string, any>) => {
+    try {
+      console.log('[Analytics]', eventName, properties)
+      // TODO: Replace with your analytics provider (PostHog, Amplitude, Mixpanel)
+      // window.analytics?.track(eventName, properties)
+      // posthog.capture(eventName, properties)
+    } catch (err) {
+      console.error('Analytics error:', err)
+    }
+  }
 
   // Premium voices with luxury metadata
   const voices = [
@@ -140,12 +159,58 @@ export default function ListenModeLuxury({
     })
   }, [pageContent, duration])
 
-  // Update active sentence
+  // Auto-resume: Load saved state on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey)
+      if (saved) {
+        const state = JSON.parse(saved)
+        if (state.position && audioRef.current && audioUrl) {
+          audioRef.current.currentTime = state.position
+          setCurrentTime(state.position)
+          if (state.speed) setPlaybackRate(state.speed)
+          console.log('[Auto-resume] Restored position:', state.position)
+        }
+      }
+    } catch (err) {
+      console.error('[Auto-resume] Error:', err)
+    }
+  }, [audioUrl, storageKey])
+
+  // Save progress periodically
+  useEffect(() => {
+    if (!audioUrl || !isPlaying) return
+    
+    const saveInterval = setInterval(() => {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({
+          position: currentTime,
+          speed: playbackRate,
+          voiceId: selectedVoice,
+          timestamp: Date.now()
+        }))
+      } catch (err) {
+        console.error('[Save progress] Error:', err)
+      }
+    }, 5000) // Save every 5 seconds
+
+    return () => clearInterval(saveInterval)
+  }, [currentTime, playbackRate, selectedVoice, audioUrl, isPlaying, storageKey])
+
+  // Update active sentence with debouncing
   useEffect(() => {
     if (!isPlaying || sentences.length === 0) return
 
+    // Debounce: only update if enough time has passed
+    const now = Date.now()
+    if (now - lastUpdateTimeRef.current < 200) return
+    lastUpdateTimeRef.current = now
+
     const activeIndex = sentences.findIndex(
-      (sentence) => currentTime >= sentence.startTime && currentTime < sentence.endTime
+      (sentence) => {
+        const progress = (currentTime - sentence.startTime) / (sentence.endTime - sentence.startTime)
+        return progress >= 0.6 && progress <= 1.0 // 60-70% threshold to prevent flicker
+      }
     )
 
     if (activeIndex !== -1 && activeIndex !== activeSentenceIndex) {
@@ -161,18 +226,83 @@ export default function ListenModeLuxury({
     }
   }, [currentTime, isPlaying, sentences, activeSentenceIndex, followText])
 
+  // Paywall enforcement: 3-minute gate for free users
+  useEffect(() => {
+    if (isPremiumUser || !isPlaying) return
+
+    const FREE_LIMIT = 180 // 3 minutes exactly
+
+    if (currentTime >= FREE_LIMIT && !hasShownGateRef.current) {
+      // Pause audio
+      if (audioRef.current) {
+        audioRef.current.pause()
+      }
+      setShowPaywallGate(true)
+      hasShownGateRef.current = true
+      
+      // Track event
+      trackEvent('listen_180s_gate_shown', {
+        bookId: bookSlug,
+        chapterId: chapterNumber,
+        currentTime,
+        duration
+      })
+
+      console.log('[Paywall] 3-minute gate triggered at', currentTime)
+    }
+  }, [currentTime, isPlaying, isPremiumUser, bookSlug, chapterNumber, duration])
+
   // Audio event handlers
   useEffect(() => {
     const audio = audioRef.current
     if (!audio || !audioUrl) return
 
-    const handleTimeUpdate = () => setCurrentTime(audio.currentTime)
+    const handleTimeUpdate = () => {
+      const newTime = audio.currentTime
+      
+      // Enforce 3-minute limit for free users
+      if (!isPremiumUser && newTime > 180) {
+        audio.currentTime = 178 // Snap back to 2:58
+        audio.pause()
+        setShowPaywallGate(true)
+        
+        trackEvent('seek_blocked_free', {
+          attemptedTime: newTime,
+          bookId: bookSlug,
+          chapterId: chapterNumber
+        })
+        
+        return
+      }
+      
+      setCurrentTime(newTime)
+    }
+    
     const handleLoadedMetadata = () => {
       setDuration(audio.duration)
       console.log('Audio loaded, duration:', audio.duration)
     }
-    const handleEnded = () => setIsPlaying(false)
-    const handlePlay = () => setIsPlaying(true)
+    const handleEnded = () => {
+      setIsPlaying(false)
+      trackEvent('listen_complete', {
+        bookId: bookSlug,
+        chapterId: chapterNumber,
+        durationSec: duration,
+        progressPct: 100
+      })
+    }
+    const handlePlay = () => {
+      setIsPlaying(true)
+      if (!hasGenerated) {
+        trackEvent('listen_start', {
+          bookId: bookSlug,
+          chapterId: chapterNumber,
+          voiceId: selectedVoice,
+          speed: playbackRate,
+          cached: isCached
+        })
+      }
+    }
     const handlePause = () => setIsPlaying(false)
     const handleError = (e: Event) => {
       console.error('Audio error:', e)
@@ -285,6 +415,20 @@ export default function ListenModeLuxury({
 
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = parseFloat(e.target.value)
+    
+    // Block seek beyond 3 minutes for free users
+    if (!isPremiumUser && newTime > 180) {
+      setShowPaywallGate(true)
+      trackEvent('seek_blocked_free', {
+        fromSec: currentTime,
+        toSec: newTime,
+        bookId: bookSlug,
+        chapterId: chapterNumber
+      })
+      console.log('[Paywall] Seek blocked: attempted', newTime, 'seconds')
+      return // Don't allow the seek
+    }
+    
     setCurrentTime(newTime)
     if (audioRef.current) {
       audioRef.current.currentTime = newTime
@@ -308,6 +452,14 @@ export default function ListenModeLuxury({
 
   const downloadAudio = () => {
     if (!audioUrl || !isPremiumUser) return
+    
+    trackEvent('audio_download', {
+      bookId: bookSlug,
+      chapterId: chapterNumber,
+      voiceId: selectedVoice,
+      durationSec: duration
+    })
+    
     const link = document.createElement('a')
     link.href = audioUrl
     link.download = `${bookSlug}-chapter-${chapterNumber}.mp3`
@@ -386,7 +538,16 @@ export default function ListenModeLuxury({
                 {voices.map((voice) => (
                   <button
                     key={voice.id}
-                    onClick={() => setSelectedVoice(voice.id)}
+                    onClick={() => {
+                      setSelectedVoice(voice.id)
+                      trackEvent('voice_selected', {
+                        voiceId: voice.id,
+                        voiceName: voice.name,
+                        isPremiumVoice: voice.premium,
+                        bookId: bookSlug,
+                        chapterId: chapterNumber
+                      })
+                    }}
                     className={`relative group p-6 rounded-2xl transition-all duration-300 ${
                       selectedVoice === voice.id
                         ? `bg-gradient-to-br ${voice.gradient} shadow-lg shadow-purple-500/30 scale-105`
@@ -591,7 +752,16 @@ export default function ListenModeLuxury({
                   </div>
                   <select
                     value={playbackRate}
-                    onChange={(e) => setPlaybackRate(parseFloat(e.target.value))}
+                    onChange={(e) => {
+                      const newSpeed = parseFloat(e.target.value)
+                      setPlaybackRate(newSpeed)
+                      trackEvent('speed_changed', {
+                        fromSpeed: playbackRate,
+                        toSpeed: newSpeed,
+                        bookId: bookSlug,
+                        chapterId: chapterNumber
+                      })
+                    }}
                     className="w-full bg-slate-700/50 text-purple-300 rounded-lg p-2 text-sm border border-purple-500/20 focus:border-purple-500/50 focus:outline-none"
                   >
                     {speeds.map((speed) => (
@@ -606,7 +776,15 @@ export default function ListenModeLuxury({
               {/* Premium Features */}
               <div className="flex flex-wrap gap-3 justify-center">
                 <button
-                  onClick={() => setFollowText(!followText)}
+                  onClick={() => {
+                    const newState = !followText
+                    setFollowText(newState)
+                    trackEvent('follow_along_toggle', {
+                      enabled: newState,
+                      bookId: bookSlug,
+                      chapterId: chapterNumber
+                    })
+                  }}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
                     followText 
                       ? 'bg-purple-600/30 text-purple-300 border border-purple-500/50' 
@@ -703,6 +881,14 @@ export default function ListenModeLuxury({
                     if (isPremiumUser && audioRef.current && sentences[index]) {
                       audioRef.current.currentTime = sentences[index].startTime
                       setActiveSentenceIndex(index)
+                      
+                      trackEvent('sentence_seek', {
+                        sentenceIndex: index,
+                        sentenceText: sentence.text.substring(0, 50) + '...',
+                        seekTo: sentences[index].startTime,
+                        bookId: bookSlug,
+                        chapterId: chapterNumber
+                      })
                     }
                   }}
                   className={`inline transition-all duration-500 ${
@@ -822,6 +1008,79 @@ export default function ListenModeLuxury({
           transform: scale(1.02);
         }
       `}</style>
+
+      {/* 3-Minute Paywall Gate Modal */}
+      {showPaywallGate && !isPremiumUser && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 p-8 sm:p-12 rounded-3xl border border-purple-500/30 max-w-md w-full shadow-2xl shadow-purple-500/20">
+            <Star className="w-16 h-16 text-amber-400 mx-auto mb-6 animate-pulse" />
+            
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3 text-center">
+              Transform Reading Into Ritual
+            </h3>
+            
+            <p className="text-purple-200/80 mb-2 text-center text-sm sm:text-base">
+              You've experienced Dynasty Listen Mode for 3 minutes.
+            </p>
+            
+            <p className="text-purple-300/90 mb-6 text-center font-medium">
+              Unlock synced highlighting & full-length audio.
+              <br />
+              <span className="text-amber-400">
+                {Math.floor((duration - 180) / 60)} more minutes await.
+              </span>
+            </p>
+            
+            <div className="bg-slate-800/50 rounded-2xl p-4 mb-6 border border-purple-500/20">
+              <div className="flex items-start gap-3 mb-3">
+                <Zap className="w-5 h-5 text-amber-400 mt-1 flex-shrink-0" />
+                <div>
+                  <h4 className="text-white font-bold text-sm mb-1">Premium Features</h4>
+                  <ul className="text-purple-200/70 text-xs space-y-1">
+                    <li>• Full-length audio (no limits)</li>
+                    <li>• Sentence-by-sentence highlighting</li>
+                    <li>• Click-to-seek any sentence</li>
+                    <li>• Download for offline listening</li>
+                    <li>• 5 luxury AI voices</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => {
+                trackEvent('upgrade_click_from_gate', {
+                  location: 'listen_gate',
+                  bookId: bookSlug,
+                  chapterId: chapterNumber,
+                  timeListened: currentTime
+                })
+                // TODO: Navigate to pricing page or checkout
+                window.location.href = '/checkout'
+              }}
+              className="w-full bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 hover:from-amber-500 hover:via-orange-500 hover:to-amber-500 text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 hover:scale-102 mb-3"
+            >
+              <span className="flex items-center justify-center gap-2">
+                <Crown className="w-5 h-5" />
+                Unlock Dynasty Listen Mode
+              </span>
+            </button>
+            
+            <button
+              onClick={() => {
+                setShowPaywallGate(false)
+                trackEvent('gate_dismissed', {
+                  bookId: bookSlug,
+                  chapterId: chapterNumber
+                })
+              }}
+              className="w-full text-purple-300/70 hover:text-purple-200 transition-colors text-sm py-2"
+            >
+              Not Now
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
