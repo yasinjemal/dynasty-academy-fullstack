@@ -482,12 +482,19 @@ export default function ListenModeLuxury({
 
               {/* Main Controls */}
               <div className="space-y-6 mb-8">
-                {/* Play/Pause Button */}
+                {/* Play/Pause Button with Pulse Effect */}
                 <button
                   onClick={togglePlayPause}
-                  className="w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white font-bold py-6 px-8 rounded-2xl transition-all duration-300 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-102 group"
+                  className={`w-full bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white font-bold py-6 px-8 rounded-2xl transition-all duration-300 shadow-lg hover:scale-102 group relative overflow-hidden ${
+                    isPlaying 
+                      ? 'shadow-purple-500/60 animate-glow' 
+                      : 'shadow-purple-500/30 hover:shadow-purple-500/50'
+                  }`}
                 >
-                  <span className="flex items-center justify-center gap-3 text-xl">
+                  {isPlaying && (
+                    <span className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-violet-400/20 animate-pulse-slow" />
+                  )}
+                  <span className="relative flex items-center justify-center gap-3 text-xl">
                     {isPlaying ? (
                       <>
                         <Pause className="w-7 h-7" />
@@ -534,10 +541,25 @@ export default function ListenModeLuxury({
                     }}
                   />
                 </div>
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-sm items-center">
                   <span className="text-purple-300 font-medium">{formatTime(currentTime)}</span>
                   <span className="text-purple-300/50">{formatTime(duration)}</span>
                 </div>
+                
+                {/* Premium Lock Message */}
+                {!isPremiumUser && duration > 180 && (
+                  <div className="mt-3 text-center">
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-lg px-4 py-2 text-sm">
+                      <Star className="w-4 h-4 text-amber-400" />
+                      <span className="text-amber-300">
+                        🔒 Unlock full-length audio & premium voices — 
+                        <button className="ml-1 underline font-semibold hover:text-amber-200 transition-colors">
+                          Go Premium
+                        </button>
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Advanced Controls Row */}
@@ -623,15 +645,46 @@ export default function ListenModeLuxury({
 
         {/* Text Display with Sentence Highlighting */}
         {hasGenerated && sentences.length > 0 && (
-          <div className="bg-gradient-to-br from-slate-900/90 via-purple-900/20 to-slate-900/90 backdrop-blur-xl rounded-3xl border border-purple-500/20 shadow-2xl shadow-purple-500/10 p-8 sm:p-12">
+          <div 
+            className={`bg-gradient-to-br from-slate-900/90 via-purple-900/20 to-slate-900/90 backdrop-blur-xl rounded-3xl border border-purple-500/20 shadow-2xl shadow-purple-500/10 p-8 sm:p-12 transition-all duration-1000 ${
+              !isPremiumUser && 'relative'
+            }`}
+            style={{
+              filter: isPlaying ? `hue-rotate(${(currentTime / duration) * 30}deg)` : 'none'
+            }}
+          >
+            {/* Premium Blur Overlay for Non-Premium Users */}
+            {!isPremiumUser && (
+              <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm rounded-3xl z-10 flex items-center justify-center">
+                <div className="text-center p-8">
+                  <Star className="w-16 h-16 text-amber-400 mx-auto mb-4 animate-pulse" />
+                  <h3 className="text-2xl font-bold text-white mb-2">Premium Feature</h3>
+                  <p className="text-purple-300 mb-4">Unlock sentence-by-sentence highlighting & auto-scroll</p>
+                  <button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 hover:scale-105">
+                    Upgrade to Premium
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                <Waves className="w-6 h-6 text-purple-400" />
+                <Waves className="w-6 h-6 text-purple-400 animate-pulse" />
                 Follow Along
+                {isPlaying && (
+                  <span className="text-sm font-normal text-purple-400 animate-pulse">● Live</span>
+                )}
               </h2>
-              <div className="flex items-center gap-2 text-sm text-purple-300/70">
-                <Clock className="w-4 h-4" />
-                <span>{sentences.length} sentences</span>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-sm text-purple-300/70">
+                  <Clock className="w-4 h-4" />
+                  <span>{sentences.length} sentences</span>
+                </div>
+                {activeSentenceIndex >= 0 && (
+                  <div className="text-sm text-purple-400 font-medium">
+                    {activeSentenceIndex + 1} / {sentences.length}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -646,17 +699,34 @@ export default function ListenModeLuxury({
                   ref={(el) => {
                     sentenceRefs.current[index] = el
                   }}
+                  onClick={() => {
+                    if (isPremiumUser && audioRef.current && sentences[index]) {
+                      audioRef.current.currentTime = sentences[index].startTime
+                      setActiveSentenceIndex(index)
+                    }
+                  }}
                   className={`inline transition-all duration-500 ${
                     index === activeSentenceIndex
-                      ? 'relative bg-gradient-to-r from-purple-500/30 via-violet-500/30 to-blue-500/30 text-white font-medium border-l-4 border-purple-400 pl-4 pr-2 py-2 rounded-r-lg shadow-lg shadow-purple-500/20 scale-105'
+                      ? 'relative bg-gradient-to-r from-purple-500/40 via-violet-500/40 to-blue-500/40 text-white font-semibold border-l-4 border-purple-400 pl-4 pr-2 py-2 rounded-r-lg shadow-lg shadow-purple-500/30 scale-105 animate-glow-text'
                       : index < activeSentenceIndex
-                      ? 'text-purple-300/40'
-                      : 'text-purple-200/80'
-                  }`}
+                      ? 'text-purple-300/40 line-through decoration-purple-500/30'
+                      : 'text-purple-200/80 hover:text-purple-200 hover:bg-purple-500/10 rounded px-1'
+                  } ${isPremiumUser ? 'cursor-pointer' : ''}`}
+                  style={{
+                    textShadow: index === activeSentenceIndex ? '0 0 20px rgba(168, 85, 247, 0.5)' : 'none'
+                  }}
                 >
+                  {index === activeSentenceIndex && (
+                    <span className="absolute -left-8 top-1/2 -translate-y-1/2">
+                      <span className="inline-flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                      </span>
+                    </span>
+                  )}
                   {sentence.text}{' '}
                   {index === activeSentenceIndex && (
-                    <span className="inline-block w-2 h-5 bg-purple-400 animate-pulse ml-1" />
+                    <span className="inline-block w-0.5 h-5 bg-gradient-to-b from-purple-400 to-violet-500 animate-pulse ml-1 shadow-lg shadow-purple-400/50" />
                   )}
                 </span>
               ))}
@@ -689,6 +759,33 @@ export default function ListenModeLuxury({
           animation: bounce 3s infinite;
         }
 
+        .animate-glow {
+          animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(168, 85, 247, 0.3); }
+          50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.8), 0 0 60px rgba(168, 85, 247, 0.5); }
+        }
+
+        .animate-pulse-slow {
+          animation: pulse-slow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-slow {
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 0.4; }
+        }
+
+        .animate-glow-text {
+          animation: glow-text 2s ease-in-out infinite;
+        }
+
+        @keyframes glow-text {
+          0%, 100% { filter: brightness(1); }
+          50% { filter: brightness(1.2); }
+        }
+
         .luxury-slider::-webkit-slider-thumb {
           appearance: none;
           width: 20px;
@@ -697,6 +794,12 @@ export default function ListenModeLuxury({
           background: linear-gradient(135deg, #a855f7, #8b5cf6);
           cursor: pointer;
           box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+          transition: all 0.3s ease;
+        }
+
+        .luxury-slider::-webkit-slider-thumb:hover {
+          box-shadow: 0 0 30px rgba(168, 85, 247, 0.8);
+          transform: scale(1.1);
         }
 
         .luxury-slider::-moz-range-thumb {
@@ -707,6 +810,12 @@ export default function ListenModeLuxury({
           cursor: pointer;
           box-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
           border: none;
+          transition: all 0.3s ease;
+        }
+
+        .luxury-slider::-moz-range-thumb:hover {
+          box-shadow: 0 0 30px rgba(168, 85, 247, 0.8);
+          transform: scale(1.1);
         }
 
         .scale-102 {
