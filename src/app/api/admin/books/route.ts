@@ -49,7 +49,7 @@ export async function GET(request: Request) {
           _count: {
             select: {
               reviews: true,
-              orderItems: true,
+              orders: true,
             },
           },
         },

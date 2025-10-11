@@ -52,6 +52,8 @@ model User {
   achievements  UserAchievement[]
   progress      UserProgress[]
   reviews       Review[]
+  purchases     Purchase[]     @relation("UserPurchases")
+  subscriptions Subscription[] @relation("UserSubscriptions")
   
   // Forum/Community
   forumTopics   ForumTopic[]   @relation("ForumTopicAuthor")
@@ -129,11 +131,15 @@ model Book {
   tags        String[]
   
   // Content
-  contentType String   // PDF, Video Course, Audio Book, Bundle
-  fileUrl     String?
-  previewUrl  String?
-  pages       Int?
-  duration    String?  // For videos/audio
+  contentType  String   // PDF, Video Course, Audio Book, Bundle
+  fileUrl      String?
+  previewUrl   String?
+  pages        Int?
+  duration     String?  // For videos/audio
+  
+  // Reader System
+  totalPages   Int?     @map("total_pages") // Total pages after file processing
+  previewPages Int?     @map("preview_pages") // Number of free preview pages
   
   // Metadata
   authorId    String
@@ -159,6 +165,8 @@ model Book {
   reviews     Review[]
   bookmarks   Bookmark[]
   progress    UserProgress[]
+  purchases   Purchase[]     @relation("BookPurchases")
+  audioAssets AudioAsset[]
   
   @@index([slug])
   @@index([category])
@@ -269,6 +277,57 @@ model OrderItem {
   createdAt DateTime @default(now())
   
   @@map("order_items")
+}
+
+// ============================================
+// PURCHASES & SUBSCRIPTIONS
+// ============================================
+
+model Purchase {
+  id                String   @id @default(cuid())
+  userId            String   @map("user_id")
+  user              User     @relation("UserPurchases", fields: [userId], references: [id], onDelete: Cascade)
+  
+  bookId            String   @map("book_id")
+  book              Book     @relation("BookPurchases", fields: [bookId], references: [id])
+  
+  amount            Float
+  status            String   @default("completed") // completed, refunded, failed
+  paymentProvider   String   @default("stripe") @map("payment_provider") // stripe, paystack, paypal
+  paymentIntentId   String?  @map("payment_intent_id")
+  
+  metadata          Json?    // Additional purchase data
+  
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  
+  @@unique([userId, bookId])
+  @@index([userId])
+  @@index([bookId])
+  @@index([status])
+  @@map("purchases")
+}
+
+model Subscription {
+  id                    String   @id @default(cuid())
+  userId                String   @map("user_id")
+  user                  User     @relation("UserSubscriptions", fields: [userId], references: [id], onDelete: Cascade)
+  
+  planId                String   @map("plan_id") // basic, pro, premium
+  status                String   @default("active") // active, past_due, canceled, paused
+  
+  stripeSubscriptionId  String?  @unique @map("stripe_subscription_id")
+  stripeCustomerId      String?  @map("stripe_customer_id")
+  
+  currentPeriodEnd      DateTime @map("current_period_end")
+  canceledAt            DateTime? @map("canceled_at")
+  
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  
+  @@index([userId])
+  @@index([status])
+  @@map("subscriptions")
 }
 
 // ============================================
@@ -430,6 +489,47 @@ model UserProgress {
   @@unique([userId, bookId])
   @@index([userId])
   @@map("user_progress")
+}
+
+// Professional audio cache with content-based hashing
+model AudioAsset {
+  id             String   @id @default(cuid())
+  
+  // Content identification
+  bookId         String   @map("book_id")
+  book           Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  chapterId      String   @map("chapter_id") // Chapter number or unique ID
+  
+  // Cache key (SHA256 hash of: text + voiceId + model + rate + format)
+  cacheKey       String   @unique @map("cache_key") @db.VarChar(64)
+  
+  // Audio generation parameters
+  voiceId        String   @map("voice_id") // ElevenLabs voice ID
+  model          String   @default("eleven_multilingual_v2") // TTS model
+  speakingRate   Float    @default(1.0) @map("speaking_rate") // 0.5 - 2.0
+  format         String   @default("mp3_44100_128") // Audio format
+  
+  // Storage
+  storageUrl     String   @db.Text @map("storage_url") // Supabase/S3 URL
+  storageBucket  String   @default("audio") @map("storage_bucket")
+  storagePath    String   @map("storage_path") // audio/{bookId}/{chapterId}/{key}.mp3
+  
+  // Audio metadata
+  durationSec    Float    @default(0) @map("duration_sec") // Duration in seconds
+  fileSize       Int      @default(0) @map("file_size") // Size in bytes
+  wordCount      Int      @default(0) @map("word_count") // Original text word count
+  
+  // Usage tracking
+  accessCount    Int      @default(0) @map("access_count") // How many times accessed
+  lastAccessedAt DateTime? @map("last_accessed_at")
+  
+  // Timestamps
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  
+  @@index([bookId, chapterId])
+  @@index([cacheKey])
+  @@map("audio_assets")
 }
 
 // ============================================

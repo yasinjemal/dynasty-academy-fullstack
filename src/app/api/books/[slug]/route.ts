@@ -3,14 +3,22 @@ import { prisma } from '@/lib/db/prisma'
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const { slug } = await params
     const book = await prisma.book.findUnique({
       where: {
-        slug: params.slug,
+        slug,
       },
       include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
         reviews: {
           take: 10,
           orderBy: {
@@ -29,7 +37,7 @@ export async function GET(
       },
     })
 
-    if (!book || !book.published) {
+    if (!book || !book.publishedAt) {
       return NextResponse.json(
         { message: 'Book not found' },
         { status: 404 }
@@ -39,7 +47,7 @@ export async function GET(
     // Increment view count
     await prisma.book.update({
       where: { id: book.id },
-      data: { views: { increment: 1 } },
+      data: { viewCount: { increment: 1 } },
     })
 
     return NextResponse.json({ book })

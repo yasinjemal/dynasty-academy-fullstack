@@ -151,9 +151,9 @@ export default async function BooksPage() {
                           </svg>
                         </div>
                       )}
-                      {book.isPremium && (
+                      {book.featured && (
                         <div className="absolute top-3 right-3 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                          Premium
+                          Featured
                         </div>
                       )}
                     </div>
@@ -163,7 +163,7 @@ export default async function BooksPage() {
                         {book.title}
                       </CardTitle>
                       <CardDescription className="line-clamp-1">
-                        by {book.author}
+                        by {book.author?.name || 'Unknown Author'}
                       </CardDescription>
                     </CardHeader>
                     
@@ -174,10 +174,10 @@ export default async function BooksPage() {
                       
                       <div className="flex items-center justify-between">
                         <div>
-                          {book.discountPrice ? (
+                          {book.salePrice ? (
                             <div className="flex items-center gap-2">
                               <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                                ${book.discountPrice}
+                                ${book.salePrice}
                               </span>
                               <span className="text-sm text-gray-500 line-through">
                                 ${book.price}

@@ -15,14 +15,13 @@ export async function GET(req: NextRequest) {
 
     // Build where clause
     const where: any = {
-      published: true,
+      publishedAt: { not: null },
     }
 
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
-        { author: { contains: search, mode: 'insensitive' } },
       ]
     }
 
@@ -44,15 +43,21 @@ export async function GET(req: NextRequest) {
           title: true,
           slug: true,
           description: true,
-          author: true,
           coverImage: true,
           price: true,
-          discountPrice: true,
+          salePrice: true,
           category: true,
           rating: true,
           reviewCount: true,
-          isPremium: true,
+          featured: true,
           createdAt: true,
+          author: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
         },
       }),
       prisma.book.count({ where }),
