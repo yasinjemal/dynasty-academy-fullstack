@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import ListenModeLuxury from './ListenModeLuxury'
+import ReflectionModal from './ReflectionModal'
 
 interface BookReaderProps {
   bookId: string
@@ -36,6 +37,7 @@ export default function BookReader({
   const [readingTime, setReadingTime] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [listenMode, setListenMode] = useState(false)
+  const [showReflectionModal, setShowReflectionModal] = useState(false)
 
   const canReadPage = isPurchased || currentPage <= freePages
   const progressPercentage = (currentPage / totalPages) * 100
@@ -253,6 +255,19 @@ export default function BookReader({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                 </svg>
                 {listenMode ? '📖 Read' : '🎧 Listen'}
+              </Button>
+
+              {/* Reflection Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowReflectionModal(true)}
+                className="hidden sm:flex"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                💭 Reflect
               </Button>
             </div>
           </div>
@@ -476,6 +491,19 @@ export default function BookReader({
           </div>
         </div>
       </footer>
+
+      {/* Reflection Modal */}
+      {showReflectionModal && (
+        <ReflectionModal
+          bookId={bookId}
+          bookTitle={bookTitle}
+          chapter={currentPage}
+          onClose={() => setShowReflectionModal(false)}
+          onSuccess={() => {
+            // Optional: Add any additional logic after successful reflection save
+          }}
+        />
+      )}
     </div>
   )
 }
