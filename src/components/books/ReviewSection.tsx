@@ -5,6 +5,15 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+// Format date consistently to avoid hydration errors
+function formatDate(dateString: string) {
+  const date = new Date(dateString)
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const year = date.getFullYear()
+  return `${month}/${day}/${year}`
+}
+
 interface Review {
   id: string
   rating: number
@@ -199,7 +208,7 @@ export default function ReviewSection({ bookId, reviews: initialReviews }: Revie
                             ))}
                           </div>
                           <span className="text-xs text-gray-500 dark:text-gray-400">
-                            {new Date(review.createdAt).toLocaleDateString()}
+                            {formatDate(review.createdAt)}
                           </span>
                         </div>
                       </div>

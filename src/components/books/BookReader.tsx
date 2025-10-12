@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import ListenModeLuxury from './ListenModeLuxury'
+import ReflectionModal, { type ReflectionData } from './ReflectionModal'
 
 interface BookReaderProps {
   bookId: string
@@ -36,6 +37,7 @@ export default function BookReader({
   const [readingTime, setReadingTime] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [listenMode, setListenMode] = useState(false)
+  const [showReflectionModal, setShowReflectionModal] = useState(false)
 
   const canReadPage = isPurchased || currentPage <= freePages
   const progressPercentage = (currentPage / totalPages) * 100
@@ -140,6 +142,46 @@ export default function BookReader({
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page)
+    }
+  }
+
+  const handleReflectionSubmit = async (reflection: ReflectionData) => {
+    try {
+      const res = await fetch('/api/community/reflections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookId,
+          bookTitle,
+          chapterNumber: currentPage,
+          content: reflection.content,
+          postToCommunity: reflection.postToCommunity,
+          category: reflection.category,
+          isPublic: reflection.isPublic,
+        }),
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('API Error:', errorData)
+        throw new Error(errorData.error || 'Failed to save reflection')
+      }
+
+      const data = await res.json()
+      console.log('Reflection saved:', data)
+      
+      // Optional: Track analytics
+      if (typeof window !== 'undefined' && (window as any).analytics) {
+        (window as any).analytics.track('reflection_submitted', {
+          bookId,
+          chapterNumber: currentPage,
+          postToCommunity: reflection.postToCommunity,
+          category: reflection.category,
+        })
+      }
+    } catch (error) {
+      console.error('Error submitting reflection:', error)
+      throw error
     }
   }
 
@@ -418,14 +460,53 @@ export default function BookReader({
                     isPremiumUser={isPurchased}
                   />
                 ) : (
-                  /* Reading Content */
-                  <article
-                    className={`prose prose-lg max-w-none leading-relaxed transition-opacity duration-300 ${
-                      isTransitioning ? 'opacity-0' : 'opacity-100'
-                    }`}
-                    style={{ fontSize: `${fontSize}px` }}
-                    dangerouslySetInnerHTML={{ __html: pageContent }}
-                  />
+                  <>
+                    {/* Reading Content */}
+                    <article
+                      className={`prose prose-lg max-w-none leading-relaxed transition-opacity duration-300 ${
+                        isTransitioning ? 'opacity-0' : 'opacity-100'
+                      }`}
+                      style={{ fontSize: `${fontSize}px` }}
+                      dangerouslySetInnerHTML={{ __html: pageContent }}
+                    />
+
+                    {/* Reflect & Share Button */}
+                    {!isTransitioning && pageContent && (
+                      <div className="mt-12 pt-8 border-t border-purple-200 dark:border-purple-800">
+                        <div className="bg-gradient-to-br from-purple-50 via-blue-50 to-purple-50 dark:from-purple-900/20 dark:via-blue-900/20 dark:to-purple-900/20 rounded-2xl p-8 border border-purple-200 dark:border-purple-800">
+                          <div className="text-center">
+                            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full mb-4">
+                              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                              </svg>
+                            </div>
+                            
+                            <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
+                              ✨ Reflect on this Chapter
+                            </h3>
+                            
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                              What was your biggest realization? Share your insight with the Dynasty community and transform reading into wisdom.
+                            </p>
+
+                            <button
+                              onClick={() => setShowReflectionModal(true)}
+                              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
+                            >
+                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                              </svg>
+                              Share Your Reflection
+                            </button>
+
+                            <p className="text-xs text-purple-600 dark:text-purple-400 font-medium mt-4">
+                              💡 Earn Dynasty Points + "Chapter Contributor" badge
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )
                 }
               </div>
@@ -433,6 +514,16 @@ export default function BookReader({
           </div>
         </div>
       </main>
+
+      {/* Reflection Modal */}
+      <ReflectionModal
+        isOpen={showReflectionModal}
+        onClose={() => setShowReflectionModal(false)}
+        bookId={bookId}
+        bookTitle={bookTitle}
+        chapterNumber={currentPage}
+        onSubmit={handleReflectionSubmit}
+      />
 
       {/* Reader Footer Navigation */}
       <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 sticky bottom-0 z-50">

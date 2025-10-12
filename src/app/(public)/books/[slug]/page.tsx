@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import BookActions from '@/components/books/BookActions'
 import ReviewSection from '@/components/books/ReviewSection'
+import Navigation from '@/components/shared/Navigation'
 
 async function getBook(slug: string) {
   try {
@@ -29,29 +30,7 @@ export default async function BookDetailPage({ params }: { params: Promise<{ slu
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Navigation */}
-      <nav className="border-b border-purple-100 dark:border-purple-900 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">DB</span>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Dynasty Built Academy
-              </span>
-            </Link>
-            
-            <div className="flex items-center space-x-4">
-              <Link href="/login">
-                <Button variant="ghost" size="sm">Sign In</Button>
-              </Link>
-              <Link href="/register">
-                <Button size="sm">Get Started</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Breadcrumbs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -92,7 +71,21 @@ export default async function BookDetailPage({ params }: { params: Promise<{ slu
                       </div>
                     )}
                   </div>
-                  <CardContent className="p-6">
+                  <CardContent className="p-6 space-y-4">
+                    {/* Read Now Button */}
+                    {book.totalPages && book.totalPages > 0 && (
+                      <Link href={`/books/${book.slug}/read`}>
+                        <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-6 text-lg">
+                          📖 Read Now
+                          {book.previewPages && (
+                            <span className="ml-2 text-sm opacity-90">
+                              (First {book.previewPages} pages free!)
+                            </span>
+                          )}
+                        </Button>
+                      </Link>
+                    )}
+                    
                     <BookActions 
                       bookId={book.id}
                       price={book.price}

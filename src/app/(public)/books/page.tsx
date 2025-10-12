@@ -1,11 +1,22 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import BookFilters from '@/components/books/BookFilters'
+import Pagination from '@/components/books/Pagination'
+import QuickViewButton from '@/components/books/QuickViewButton'
+import Navigation from '@/components/shared/Navigation'
+import AddToCartButton from '@/components/books/AddToCartButton'
 
-async function getBooks() {
+async function getBooks(searchParams: { [key: string]: string | string[] | undefined }) {
   try {
-    const res = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/books?limit=12`, {
+    const params = new URLSearchParams()
+    params.set('limit', '50')
+    
+    if (searchParams.search) params.set('search', searchParams.search as string)
+    if (searchParams.category) params.set('category', searchParams.category as string)
+    if (searchParams.sort) params.set('sortBy', searchParams.sort as string)
+    
+    const res = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/books?${params.toString()}`, {
       cache: 'no-store',
     })
     if (!res.ok) return { books: [], pagination: null }
@@ -15,57 +26,17 @@ async function getBooks() {
   }
 }
 
-export default async function BooksPage() {
-  const { books, pagination } = await getBooks()
+export default async function BooksPage({ 
+  searchParams 
+}: { 
+  searchParams: { [key: string]: string | string[] | undefined } 
+}) {
+  const { books, pagination } = await getBooks(searchParams)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Navigation */}
-      <nav className="border-b border-purple-100 dark:border-purple-900 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">DB</span>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Dynasty Built Academy
-              </span>
-            </Link>
-            
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/about" className="text-gray-600 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400 transition-colors">
-                About
-              </Link>
-              <Link href="/books" className="text-purple-600 dark:text-purple-400 font-semibold">
-                Books
-              </Link>
-              <Link href="/blog" className="text-gray-600 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400 transition-colors">
-                Blog
-              </Link>
-              <Link href="/works" className="text-gray-600 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400 transition-colors">
-                Works
-              </Link>
-              <Link href="/contact" className="text-gray-600 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400 transition-colors">
-                Contact
-              </Link>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <Link href="/login">
-                <Button variant="ghost" size="sm">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button size="sm">
-                  Get Started
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Page Header */}
       <section className="py-12 bg-gradient-to-r from-purple-600 to-blue-600">
@@ -82,37 +53,7 @@ export default async function BooksPage() {
       </section>
 
       {/* Search and Filter Section */}
-      <section className="py-8 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="w-full md:w-96">
-              <Input
-                type="search"
-                placeholder="Search books..."
-                className="w-full"
-              />
-            </div>
-            
-            <div className="flex gap-3">
-              <select className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                <option value="">All Categories</option>
-                <option value="programming">Programming</option>
-                <option value="design">Design</option>
-                <option value="business">Business</option>
-                <option value="marketing">Marketing</option>
-              </select>
-              
-              <select className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Highest Rated</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </section>
+      <BookFilters />
 
       {/* Books Grid */}
       <section className="py-12">
@@ -201,15 +142,16 @@ export default async function BooksPage() {
                       </div>
                     </CardContent>
                     
-                    <CardFooter className="flex gap-2">
-                      <Link href={`/books/${book.slug}`} className="flex-1">
-                        <Button variant="outline" className="w-full">
-                          View Details
-                        </Button>
-                      </Link>
-                      <Button className="flex-1">
-                        Add to Cart
-                      </Button>
+                    <CardFooter className="flex flex-col gap-2">
+                      <div className="flex gap-2 w-full">
+                        <Link href={`/books/${book.slug}`} className="flex-1">
+                          <Button variant="outline" className="w-full">
+                            View Details
+                          </Button>
+                        </Link>
+                        <AddToCartButton bookId={book.id} bookTitle={book.title} />
+                      </div>
+                      <QuickViewButton book={book} />
                     </CardFooter>
                   </Card>
                 ))}
@@ -217,25 +159,11 @@ export default async function BooksPage() {
 
               {/* Pagination */}
               {pagination && pagination.totalPages > 1 && (
-                <div className="mt-12 flex justify-center gap-2">
-                  <Button variant="outline" disabled={pagination.page === 1}>
-                    Previous
-                  </Button>
-                  <div className="flex items-center gap-2">
-                    {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => i + 1).map((pageNum) => (
-                      <Button
-                        key={pageNum}
-                        variant={pageNum === pagination.page ? 'default' : 'outline'}
-                        size="sm"
-                      >
-                        {pageNum}
-                      </Button>
-                    ))}
-                  </div>
-                  <Button variant="outline" disabled={!pagination.hasMore}>
-                    Next
-                  </Button>
-                </div>
+                <Pagination 
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
+                  totalItems={pagination.total}
+                />
               )}
             </>
           )}

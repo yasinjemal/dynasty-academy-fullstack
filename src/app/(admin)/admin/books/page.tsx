@@ -10,18 +10,25 @@ import { Alert } from '@/components/ui/alert'
 interface Book {
   id: string
   title: string
-  author: string
-  isbn: string
+  slug: string
+  description: string
   category: string
   price: number
-  compareAtPrice: number | null
+  salePrice: number | null
   coverImage: string | null
-  stockQuantity: number
-  status: string
+  contentType: string
   featured: boolean
+  publishedAt: string | null
+  totalPages: number | null
+  previewPages: number | null
+  author?: {
+    id: string
+    name: string | null
+    email: string
+  }
   _count?: {
     reviews: number
-    orderItems: number
+    orders: number
   }
 }
 
@@ -39,16 +46,13 @@ export default function AdminBooksPage() {
 
   const [formData, setFormData] = useState({
     title: '',
-    author: '',
-    isbn: '',
     description: '',
     category: '',
     price: '',
-    compareAtPrice: '',
+    salePrice: '',
     coverImage: '',
-    pdfFile: '',
-    contentType: 'EBOOK',
-    stockQuantity: '0',
+    contentType: 'PDF',
+    tags: '',
     status: 'PUBLISHED',
     featured: false,
   })
@@ -111,7 +115,7 @@ export default function AdminBooksPage() {
 
     try {
       // Validate required fields
-      if (!formData.title || !formData.author || !formData.isbn || !formData.category || !formData.price) {
+      if (!formData.title || !formData.category || !formData.price) {
         showAlert('error', 'Please fill in all required fields')
         setSubmitting(false)
         return
@@ -121,10 +125,16 @@ export default function AdminBooksPage() {
       const method = editingBook ? 'PATCH' : 'POST'
 
       const payload = {
-        ...formData,
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
         price: parseFloat(formData.price),
-        compareAtPrice: formData.compareAtPrice ? parseFloat(formData.compareAtPrice) : null,
-        stockQuantity: parseInt(formData.stockQuantity),
+        salePrice: formData.salePrice ? parseFloat(formData.salePrice) : null,
+        coverImage: formData.coverImage || null,
+        contentType: formData.contentType,
+        tags: formData.tags ? formData.tags.split(',').map((t: string) => t.trim()) : [],
+        status: formData.status,
+        featured: formData.featured,
       }
 
       const res = await fetch(url, {
@@ -169,38 +179,20 @@ export default function AdminBooksPage() {
   }
 
   const openEditModal = (book: Book) => {
-    setEditingBook(book)
-    setFormData({
-      title: book.title,
-      author: book.author,
-      isbn: book.isbn,
-      description: '',
-      category: book.category,
-      price: book.price.toString(),
-      compareAtPrice: book.compareAtPrice?.toString() || '',
-      coverImage: book.coverImage || '',
-      pdfFile: '',
-      contentType: 'EBOOK',
-      stockQuantity: book.stockQuantity.toString(),
-      status: book.status,
-      featured: book.featured,
-    })
-    setShowModal(true)
+    // Note: For now, editing is not available in the modal. Use the manage page instead.
+    window.location.href = `/admin/books/${book.id}`
   }
 
   const resetForm = () => {
     setFormData({
       title: '',
-      author: '',
-      isbn: '',
       description: '',
       category: '',
       price: '',
-      compareAtPrice: '',
+      salePrice: '',
       coverImage: '',
-      pdfFile: '',
-      contentType: 'EBOOK',
-      stockQuantity: '0',
+      contentType: 'PDF',
+      tags: '',
       status: 'PUBLISHED',
       featured: false,
     })
@@ -308,7 +300,7 @@ export default function AdminBooksPage() {
                     <th className="text-left p-4 text-sm font-medium text-gray-900 dark:text-white">Author</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-900 dark:text-white">Category</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-900 dark:text-white">Price</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-900 dark:text-white">Stock</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-900 dark:text-white">Pages</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-900 dark:text-white">Status</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-900 dark:text-white">Actions</th>
                   </tr>
@@ -327,26 +319,30 @@ export default function AdminBooksPage() {
                           )}
                           <div>
                             <div className="font-medium text-gray-900 dark:text-white">{book.title}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">ISBN: {book.isbn}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">{book.slug}</div>
                           </div>
                         </div>
                       </td>
-                      <td className="p-4 text-sm text-gray-700 dark:text-gray-300">{book.author}</td>
+                      <td className="p-4 text-sm text-gray-700 dark:text-gray-300">{book.author?.name || 'Unknown'}</td>
                       <td className="p-4 text-sm text-gray-700 dark:text-gray-300">{book.category}</td>
                       <td className="p-4 text-sm text-gray-700 dark:text-gray-300">${book.price}</td>
-                      <td className="p-4 text-sm text-gray-700 dark:text-gray-300">{book.stockQuantity}</td>
+                      <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
+                        {book.totalPages ? `${book.totalPages} pages` : 'No content'}
+                      </td>
                       <td className="p-4">
                         <span className={`px-2 py-1 text-xs rounded ${
-                          book.status === 'PUBLISHED' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                          book.publishedAt ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
                         }`}>
-                          {book.status}
+                          {book.publishedAt ? 'Published' : 'Draft'}
                         </span>
                       </td>
                       <td className="p-4">
                         <div className="flex space-x-2">
-                          <Button size="sm" variant="outline" onClick={() => openEditModal(book)}>
-                            Edit
-                          </Button>
+                          <a href={`/admin/books/${book.id}`}>
+                            <Button size="sm" variant="outline">
+                              📖 Manage
+                            </Button>
+                          </a>
                           <Button size="sm" variant="destructive" onClick={() => handleDelete(book.id)}>
                             Delete
                           </Button>
@@ -377,22 +373,7 @@ export default function AdminBooksPage() {
                       required
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label>Author *</Label>
-                    <Input
-                      required
-                      value={formData.author}
-                      onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label>ISBN *</Label>
-                    <Input
-                      required
-                      value={formData.isbn}
-                      onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
+                      placeholder="Enter book title"
                     />
                   </div>
                   <div className="col-span-2">
@@ -441,20 +422,13 @@ export default function AdminBooksPage() {
                     />
                   </div>
                   <div>
-                    <Label>Compare At Price</Label>
+                    <Label>Sale Price (optional)</Label>
                     <Input
                       type="number"
                       step="0.01"
-                      value={formData.compareAtPrice}
-                      onChange={(e) => setFormData({ ...formData, compareAtPrice: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label>Stock Quantity</Label>
-                    <Input
-                      type="number"
-                      value={formData.stockQuantity}
-                      onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
+                      value={formData.salePrice}
+                      onChange={(e) => setFormData({ ...formData, salePrice: e.target.value })}
+                      placeholder="Discounted price"
                     />
                   </div>
                   <div className="col-span-2">
@@ -525,11 +499,11 @@ export default function AdminBooksPage() {
                     </div>
                   </div>
                   <div className="col-span-2">
-                    <Label>PDF File URL</Label>
+                    <Label>Tags (comma-separated)</Label>
                     <Input
-                      value={formData.pdfFile}
-                      onChange={(e) => setFormData({ ...formData, pdfFile: e.target.value })}
-                      placeholder="https://example.com/book.pdf"
+                      value={formData.tags}
+                      onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                      placeholder="business, wealth, success"
                     />
                   </div>
                   <div className="col-span-2">
@@ -542,6 +516,9 @@ export default function AdminBooksPage() {
                       />
                       <span className="text-sm text-gray-700 dark:text-gray-300">Featured Book</span>
                     </label>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                      💡 After creating the book, use the "📖 Manage" button to upload the book file (PDF, DOCX, MD, or TXT)
+                    </p>
                   </div>
                 </div>
 
