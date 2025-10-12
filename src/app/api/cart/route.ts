@@ -21,10 +21,9 @@ export async function GET() {
             title: true,
             author: true,
             price: true,
-            compareAtPrice: true,
+            salePrice: true,
             coverImage: true,
             slug: true,
-            stockQuantity: true,
           },
         },
       },
@@ -69,36 +68,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Book not found' }, { status: 404 })
     }
 
-    // For now, return success - you can implement actual cart storage later
-    return NextResponse.json({ 
-      message: 'Book added to cart successfully',
-      book: {
-        id: book.id,
-        title: book.title,
-        price: book.price,
-      }
-    })
-  } catch (error: any) {
-    console.error('Add to cart error:', error)
-    return NextResponse.json({ message: 'Failed to add to cart' }, { status: 500 })
-  }
-}
-
-// Original POST handler (backup)
-export async function POST_OLD(request: Request) {
-  try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { bookId, quantity = 1 } = await request.json()
-
-    if (!bookId) {
-      return NextResponse.json({ error: 'Book ID is required' }, { status: 400 })
-    }
-
     // Check if item already in cart
     const existingItem = await prisma.cartItem.findFirst({
       where: {
@@ -119,14 +88,17 @@ export async function POST_OLD(request: Request) {
               title: true,
               author: true,
               price: true,
-              compareAtPrice: true,
+              salePrice: true,
               coverImage: true,
               slug: true,
             },
           },
         },
       })
-      return NextResponse.json(updatedItem)
+      return NextResponse.json({ 
+        message: 'Cart updated successfully',
+        item: updatedItem 
+      })
     }
 
     // Create new cart item
@@ -143,7 +115,7 @@ export async function POST_OLD(request: Request) {
             title: true,
             author: true,
             price: true,
-            compareAtPrice: true,
+            salePrice: true,
             coverImage: true,
             slug: true,
           },
@@ -151,9 +123,97 @@ export async function POST_OLD(request: Request) {
       },
     })
 
-    return NextResponse.json(cartItem, { status: 201 })
-  } catch (error) {
-    console.error('Error adding to cart:', error)
-    return NextResponse.json({ error: 'Failed to add to cart' }, { status: 500 })
+    return NextResponse.json({ 
+      message: 'Book added to cart successfully',
+      item: cartItem 
+    }, { status: 201 })
+  } catch (error: any) {
+    console.error('Add to cart error:', error)
+    return NextResponse.json({ 
+      message: error.message || 'Failed to add to cart' 
+    }, { status: 500 })
+  }
+}
+
+// PATCH update cart item quantity
+export async function PATCH(request: Request) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { itemId, quantity } = await request.json()
+
+    if (!itemId || quantity === undefined) {
+      return NextResponse.json({ error: 'Item ID and quantity are required' }, { status: 400 })
+    }
+
+    if (quantity < 1) {
+      return NextResponse.json({ error: 'Quantity must be at least 1' }, { status: 400 })
+    }
+
+    // Update cart item
+    const updatedItem = await prisma.cartItem.update({
+      where: { 
+        id: itemId,
+        userId: session.user.id // Ensure user owns this cart item
+      },
+      data: { quantity },
+      include: {
+        book: {
+          select: {
+            id: true,
+            title: true,
+            price: true,
+            salePrice: true,
+          },
+        },
+      },
+    })
+
+    return NextResponse.json({ 
+      message: 'Cart updated successfully',
+      item: updatedItem 
+    })
+  } catch (error: any) {
+    console.error('Update cart error:', error)
+    return NextResponse.json({ 
+      error: error.message || 'Failed to update cart' 
+    }, { status: 500 })
+  }
+}
+
+// DELETE remove item from cart
+export async function DELETE(request: Request) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const itemId = searchParams.get('itemId')
+
+    if (!itemId) {
+      return NextResponse.json({ error: 'Item ID is required' }, { status: 400 })
+    }
+
+    // Delete cart item
+    await prisma.cartItem.delete({
+      where: { 
+        id: itemId,
+        userId: session.user.id // Ensure user owns this cart item
+      },
+    })
+
+    return NextResponse.json({ message: 'Item removed from cart' })
+  } catch (error: any) {
+    console.error('Delete cart item error:', error)
+    return NextResponse.json({ 
+      error: error.message || 'Failed to remove item from cart' 
+    }, { status: 500 })
   }
 }

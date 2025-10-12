@@ -42,6 +42,7 @@ model User {
   sessions      Session[]
   books         Book[]       // Created books (if author)
   blogPosts     BlogPost[]   // Created posts
+  cartItems     CartItem[]   @relation("CartItems")
   orders        Order[]
   comments      Comment[]
   likes         Like[]
@@ -165,6 +166,7 @@ model Book {
   updatedAt   DateTime @updatedAt
   
   // Relations
+  cartItems   CartItem[]     @relation("CartItems")
   orders      OrderItem[]
   reviews     Review[]
   bookmarks   Bookmark[]
@@ -227,6 +229,24 @@ model BlogPost {
 // ============================================
 // E-COMMERCE
 // ============================================
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation("CartItems", fields: [userId], references: [id], onDelete: Cascade)
+  
+  bookId    String
+  book      Book     @relation("CartItems", fields: [bookId], references: [id], onDelete: Cascade)
+  
+  quantity  Int      @default(1)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, bookId])
+  @@index([userId])
+  @@map("cart_items")
+}
 
 model Order {
   id          String      @id @default(cuid())
