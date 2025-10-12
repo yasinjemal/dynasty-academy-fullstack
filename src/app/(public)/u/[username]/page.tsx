@@ -34,13 +34,13 @@ async function getUserProfile(username: string) {
       image: true,
       bio: true,
       createdAt: true,
-      userProgress: {
+      progress: {
         select: {
-          xp: true,
-          level: true,
+          bookId: true,
+          progress: true,
         },
       },
-      reflections: {
+      bookReflections: {
         where: { isPublic: true },
         select: {
           id: true,
@@ -74,25 +74,18 @@ async function getUserProfile(username: string) {
 
   if (!user) return null
 
-  // Get books read count
-  const booksRead = await prisma.userProgress.count({
-    where: {
-      userId: user.id,
-      progress: 100,
-    },
-  })
-
-  // Calculate total stats
-  const totalXP = user.userProgress.reduce((sum, prog) => sum + (prog.xp || 0), 0)
-  const level = user.userProgress[0]?.level || 1
+  // Calculate stats from progress
+  const booksRead = user.progress.filter((p: { progress: number }) => p.progress >= 100).length
+  const totalPoints = user.progress.length * 10 // Simple calculation
+  const level = Math.floor(totalPoints / 100) + 1
 
   return {
     ...user,
     stats: {
       level,
-      xp: totalXP,
+      xp: totalPoints,
       booksRead,
-      reflections: user.reflections.length,
+      reflections: user.bookReflections.length,
       achievements: user.achievements.length,
     },
   }
@@ -102,9 +95,10 @@ async function getUserProfile(username: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { username: string }
+  params: Promise<{ username: string }>
 }): Promise<Metadata> {
-  const profile = await getUserProfile(params.username)
+  const { username } = await params
+  const profile = await getUserProfile(username)
 
   if (!profile) {
     return {
@@ -145,9 +139,10 @@ export async function generateMetadata({
 export default async function PublicProfilePage({
   params,
 }: {
-  params: { username: string }
+  params: Promise<{ username: string }>
 }) {
-  const profile = await getUserProfile(params.username)
+  const { username } = await params
+  const profile = await getUserProfile(username)
 
   if (!profile) {
     notFound()
@@ -243,7 +238,7 @@ export default async function PublicProfilePage({
               <span>🏆</span> Achievements Unlocked
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {profile.achievements.map(({ achievement }) => (
+              {profile.achievements.map(({ achievement }: { achievement: { id: string; name: string; description: string | null; icon: string | null } }) => (
                 <Card
                   key={achievement.id}
                   className="border-0 shadow-lg bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 p-4 hover:scale-105 transition-transform cursor-pointer"
@@ -262,13 +257,13 @@ export default async function PublicProfilePage({
         )}
 
         {/* Public Reflections */}
-        {profile.reflections.length > 0 && (
+        {profile.bookReflections.length > 0 && (
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <span>💭</span> Public Reflections
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {profile.reflections.map((reflection) => (
+              {profile.bookReflections.map((reflection: any) => (
                 <Card
                   key={reflection.id}
                   className="border-0 shadow-lg hover:shadow-xl transition-shadow bg-white dark:bg-gray-800 overflow-hidden"
@@ -312,7 +307,7 @@ export default async function PublicProfilePage({
         )}
 
         {/* Empty State */}
-        {profile.reflections.length === 0 && profile.achievements.length === 0 && (
+        {profile.bookReflections.length === 0 && profile.achievements.length === 0 && (
           <Card className="border-0 shadow-lg p-12 text-center bg-white dark:bg-gray-800">
             <div className="text-6xl mb-4">📖</div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">

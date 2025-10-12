@@ -195,14 +195,14 @@ export default function ProfilePage() {
               <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                 <div className="flex items-center justify-between gap-3">
                   <code className="text-sm text-purple-800 dark:text-purple-300 font-mono flex-1">
-                    {typeof window !== 'undefined' ? window.location.origin : 'https://dynastybuilt.com'}/u/{(session?.user?.name || '').toLowerCase().replace(/\s+/g, '-')}
+                    /u/{(session?.user?.name || '').toLowerCase().replace(/\s+/g, '-')}
                   </code>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => {
                       const urlFriendlyUsername = (session?.user?.name || '').toLowerCase().replace(/\s+/g, '-')
-                      const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://dynastybuilt.com'}/u/${urlFriendlyUsername}`
+                      const url = `${window.location.origin}/u/${urlFriendlyUsername}`
                       navigator.clipboard.writeText(url)
                       setMessage({ type: 'success', text: 'Profile link copied to clipboard!' })
                       setTimeout(() => setMessage(null), 3000)
