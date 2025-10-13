@@ -3,7 +3,9 @@
 ## 🎯 Features to Test
 
 ### 1. **Admin Book Upload** 📤
+
 ### 2. **Book Reading Mode** 📖
+
 ### 3. **Listen Mode (Text-to-Speech)** 🎧
 
 ---
@@ -11,6 +13,7 @@
 ## 🔧 TESTING INSTRUCTIONS
 
 ### **Prerequisites:**
+
 - ✅ Dev server running: `npm run dev`
 - ✅ Database connected (Supabase)
 - ✅ Admin user created (use `make-admin.mjs` if needed)
@@ -21,6 +24,7 @@
 ## 1️⃣ ADMIN BOOK UPLOAD
 
 ### **Step 1: Navigate to Admin Panel**
+
 ```
 URL: http://localhost:3000/admin/books
 ```
@@ -46,12 +50,14 @@ Featured: ✓ (optional)
 #### **Upload Book Content File:**
 
 **Supported Formats:**
+
 - ✅ **PDF** (.pdf) - Auto-parses to pages
 - ✅ **DOCX** (.docx) - Converts to HTML pages
 - ✅ **Markdown** (.md) - Converts with formatting
 - ✅ **Text** (.txt) - Plain text split into pages
 
 **File Upload Process:**
+
 1. Click "Choose File" button
 2. Select your book file
 3. System automatically:
@@ -61,13 +67,15 @@ Featured: ✓ (optional)
    - Creates JSON file in `data/book-content/{bookId}/content.json`
 
 #### **Upload Cover Image:**
-1. Click "Upload Image" 
+
+1. Click "Upload Image"
 2. Select cover image (JPG, PNG)
 3. System saves to `public/uploads/books/`
 
 ### **Step 3: Verify Upload**
 
 After clicking **"Create Book"**, verify:
+
 - ✅ Book appears in admin books list
 - ✅ Total pages count shown
 - ✅ Preview pages set (default: 3 pages free)
@@ -79,11 +87,13 @@ After clicking **"Create Book"**, verify:
 ## 2️⃣ BOOK READING MODE
 
 ### **Step 1: Navigate to Book**
+
 ```
 URL: http://localhost:3000/books/{book-slug}
 ```
 
 ### **Step 2: Click "Read Now"**
+
 ```
 URL: http://localhost:3000/books/{book-slug}/read
 ```
@@ -91,19 +101,23 @@ URL: http://localhost:3000/books/{book-slug}/read
 ### **Features to Test:**
 
 #### **📄 Page Navigation:**
+
 - ✅ Left/Right arrow keys to navigate
 - ✅ Page number indicator (Page 1 of X)
 - ✅ Next/Previous page buttons
 - ✅ Page progress bar at top
 
 #### **🎨 Reading Controls:**
+
 - ✅ **Font Size:** Small / Medium / Large / XL
 - ✅ **Theme:** Light / Sepia / Dark
 - ✅ **Font Family:** Sans-serif / Serif / Mono
 - ✅ **Line Height:** Compact / Normal / Relaxed
 
 #### **🔒 Paywall (Free Preview):**
+
 - **Free Users:**
+
   - Can read first 3 pages (or `previewPages` value)
   - See paywall overlay on page 4+
   - "Unlock Full Book" CTA shows price
@@ -115,11 +129,13 @@ URL: http://localhost:3000/books/{book-slug}/read
   - Can download book (optional)
 
 #### **💾 Reading Progress:**
+
 - ✅ Progress auto-saved every page change
 - ✅ Resume from last page on revisit
 - ✅ Progress bar shows completion percentage
 
 #### **📱 Responsive Design:**
+
 - ✅ Mobile-friendly layout
 - ✅ Touch swipe to change pages
 - ✅ Pinch to zoom (optional)
@@ -137,6 +153,7 @@ From reading page, click **"Listen Mode"** button in top-right
 #### **🎙️ Voice Selection:**
 
 Available voices:
+
 1. **Josh** (Deep, Natural) - Default
 2. **Rachel** (Warm, Expressive)
 3. **Antoni** (Authoritative)
@@ -144,6 +161,7 @@ Available voices:
 5. **Sam** (Dynamic, Energetic)
 
 **Test:**
+
 - ✅ Click each voice option
 - ✅ Verify voice preview plays
 - ✅ Select preferred voice
@@ -152,6 +170,7 @@ Available voices:
 #### **▶️ Audio Playback:**
 
 **Test Controls:**
+
 - ✅ Play button starts audio
 - ✅ Pause button stops audio
 - ✅ Skip forward/backward buttons (10s)
@@ -163,6 +182,7 @@ Available voices:
 #### **📝 Text Highlighting:**
 
 **Real-time Features:**
+
 - ✅ Current sentence highlights in purple
 - ✅ Completed sentences show in gray
 - ✅ Upcoming sentences in light gray
@@ -172,6 +192,7 @@ Available voices:
 #### **⚡ Speed Control:**
 
 Test all speeds:
+
 - ✅ 0.5x (Slow)
 - ✅ 0.75x (Relaxed)
 - ✅ 1.0x (Normal) - Default
@@ -180,6 +201,7 @@ Test all speeds:
 - ✅ 2.0x (Very Fast)
 
 Each speed has personality:
+
 - Slow: 🐢 "Take your time"
 - Relaxed: ☕ "Easy pace"
 - Normal: ⚡ "Perfect flow"
@@ -190,6 +212,7 @@ Each speed has personality:
 #### **🎨 Visual Effects:**
 
 **Test Animations:**
+
 - ✅ Floating particles in background
 - ✅ Glow effects on active elements
 - ✅ Smooth transitions between sentences
@@ -199,6 +222,7 @@ Each speed has personality:
 #### **🔒 Paywall (3-Minute Preview):**
 
 **Free Users:**
+
 - ✅ Can listen for 3 minutes
 - ✅ Timer shows countdown
 - ✅ Paywall modal appears after 3 minutes
@@ -207,6 +231,7 @@ Each speed has personality:
 - ✅ "Unlock Premium" CTA visible
 
 **Premium Users:**
+
 - ✅ Unlimited listening time
 - ✅ No timer restrictions
 - ✅ Download audio option (optional)
@@ -215,6 +240,7 @@ Each speed has personality:
 #### **📱 Mobile Experience:**
 
 **Test on Mobile:**
+
 - ✅ Touch-friendly controls (44px minimum)
 - ✅ Responsive layout
 - ✅ Works in portrait/landscape
@@ -228,21 +254,25 @@ Each speed has personality:
 ### **Issue 1: Book Content Not Showing**
 
 **Symptoms:**
+
 - "Book Content Not Available" error
 - `totalPages` is 0 or null
 
 **Fix:**
+
 ```bash
 # Re-upload book content file in admin panel
 # Or manually create content.json:
 ```
 
 **File Location:**
+
 ```
 data/book-content/{bookId}/content.json
 ```
 
 **Format:**
+
 ```json
 {
   "pages": [
@@ -261,10 +291,12 @@ data/book-content/{bookId}/content.json
 ### **Issue 2: Listen Mode Audio Not Generating**
 
 **Symptoms:**
+
 - "Failed to generate audio" error
 - Audio URL is null
 
 **Fix:**
+
 ```bash
 # Check .env file has ElevenLabs API key:
 ELEVENLABS_API_KEY=your_api_key_here
@@ -273,6 +305,7 @@ ELEVENLABS_API_KEY=your_api_key_here
 ```
 
 **Test API Key:**
+
 ```bash
 curl -X GET "https://api.elevenlabs.io/v1/voices" \
   -H "xi-api-key: YOUR_API_KEY"
@@ -281,10 +314,12 @@ curl -X GET "https://api.elevenlabs.io/v1/voices" \
 ### **Issue 3: Images Not Loading**
 
 **Symptoms:**
+
 - Cover images show broken
 - Book content images missing
 
 **Fix:**
+
 ```bash
 # Ensure uploads directory exists:
 mkdir -p public/uploads/books
@@ -297,10 +332,12 @@ mkdir -p public/uploads/books
 ### **Issue 4: Admin Access Denied**
 
 **Symptoms:**
+
 - Can't access /admin/books
 - "Unauthorized" error
 
 **Fix:**
+
 ```bash
 # Run make-admin script:
 node make-admin.mjs
@@ -314,6 +351,7 @@ node make-admin.mjs
 ## ✅ TESTING CHECKLIST
 
 ### **Admin Panel:**
+
 - [ ] Can access /admin/books
 - [ ] Can create new book
 - [ ] Can upload PDF file
@@ -327,6 +365,7 @@ node make-admin.mjs
 - [ ] Filter by category works
 
 ### **Reading Mode:**
+
 - [ ] Can open book reader
 - [ ] Pages load correctly
 - [ ] Navigation arrows work
@@ -339,6 +378,7 @@ node make-admin.mjs
 - [ ] Mobile responsive
 
 ### **Listen Mode:**
+
 - [ ] Can open listen mode
 - [ ] Voice selection works
 - [ ] Audio generates successfully
@@ -359,6 +399,7 @@ node make-admin.mjs
 ## 🚀 TESTING WORKFLOW
 
 ### **Quick Test (5 minutes):**
+
 1. Login as admin
 2. Upload a small text file (< 1000 words)
 3. Navigate to book page
@@ -366,6 +407,7 @@ node make-admin.mjs
 5. Test listen mode (30 seconds)
 
 ### **Full Test (20 minutes):**
+
 1. Upload book with each file type (PDF, DOCX, MD, TXT)
 2. Test all reading mode features
 3. Test all 5 voices in listen mode
@@ -375,6 +417,7 @@ node make-admin.mjs
 7. Test reading progress persistence
 
 ### **Stress Test (1 hour):**
+
 1. Upload large book (100+ pages)
 2. Test performance with long audio
 3. Test multiple books simultaneously
@@ -388,18 +431,21 @@ node make-admin.mjs
 ## 📊 SUCCESS CRITERIA
 
 ### **Admin Upload:**
+
 ✅ Upload completes in < 10 seconds (small files)
 ✅ Content properly parsed into pages
 ✅ Images display correctly
 ✅ Book searchable immediately
 
 ### **Reading Mode:**
+
 ✅ Page loads in < 1 second
 ✅ Smooth navigation (< 300ms)
 ✅ No content flash/reflow
 ✅ Reading progress saves automatically
 
 ### **Listen Mode:**
+
 ✅ Audio generates in < 5 seconds
 ✅ Playback starts immediately
 ✅ Text highlights sync perfectly
@@ -419,6 +465,7 @@ After testing, if everything works:
 5. ✅ Optimize based on usage
 
 If issues found:
+
 1. 🐛 Document bugs in GitHub Issues
 2. 🔧 Fix critical issues first
 3. 📝 Update this guide with solutions
@@ -450,4 +497,4 @@ A: Yes! Change `wordsPerPage` in `upload-file/route.ts` (default: 300 words).
 **Last Updated:** October 13, 2025  
 **Author:** Dynasty Built Academy Team
 
-*Now go test those features!* 🚀📚🎧
+_Now go test those features!_ 🚀📚🎧

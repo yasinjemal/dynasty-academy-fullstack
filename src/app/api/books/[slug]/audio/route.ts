@@ -36,18 +36,23 @@ export async function POST(
 
     const { chapterNumber, content, voiceId = 'EXAVITQu4vr4xnSDxMaL' } = await req.json()
 
-    // Check if audio already exists
-    const existingAudio = await prisma.bookAudio.findFirst({
+    const chapterId = `chapter-${chapterNumber}`
+
+    // Check if audio already exists in AudioAsset table
+    const existingAudio = await prisma.audioAsset.findFirst({
       where: {
         bookId: book.id,
-        chapterNumber,
+        chapterId,
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
     })
 
     if (existingAudio) {
       return NextResponse.json({
         success: true,
-        audioUrl: existingAudio.audioUrl,
+        audioUrl: existingAudio.storageUrl,
         cached: true
       })
     }
@@ -83,28 +88,37 @@ export async function POST(
     const audioBuffer = await response.arrayBuffer()
     const audioBase64 = Buffer.from(audioBuffer).toString('base64')
     
-    // In production, upload to S3/Supabase Storage
-    // For now, store as base64 data URL
+    // Store as base64 data URL (for now - in production should upload to Supabase Storage)
     const audioUrl = `data:audio/mpeg;base64,${audioBase64}`
 
-    // Save to database
-    const bookAudio = await prisma.bookAudio.create({
+    const wordCount = cleanText.split(/\s+/).length
+    const estimatedDuration = (wordCount / 150) * 60 // ~150 words per minute
+
+    // Save to database using AudioAsset model
+    const bookAudio = await prisma.audioAsset.create({
       data: {
         bookId: book.id,
-        chapterNumber,
-        audioUrl,
+        chapterId: `chapter-${chapterNumber}`,
+        contentHash: `simple-${book.id}-${chapterNumber}-${voiceId}`, // Simple hash for now
         voiceId,
-        duration: 0, // Calculate from audio file
+        model: 'eleven_multilingual_v2',
+        speakingRate: 1.0,
+        format: 'mp3_44100_128',
+        storageUrl: audioUrl,
+        durationSec: estimatedDuration,
+        wordCount,
         metadata: {
           generatedAt: new Date().toISOString(),
-          wordCount: cleanText.split(/\s+/).length,
+          wordCount,
+          chapterNumber,
+          bookTitle: book.title,
         }
       }
     })
 
     return NextResponse.json({
       success: true,
-      audioUrl: bookAudio.audioUrl,
+      audioUrl: bookAudio.storageUrl,
       cached: false
     })
   } catch (error) {
@@ -138,10 +152,15 @@ export async function GET(
       )
     }
 
-    const audio = await prisma.bookAudio.findFirst({
+    const chapterId = `chapter-${chapterNumber}`
+    
+    const audio = await prisma.audioAsset.findFirst({
       where: {
         bookId: book.id,
-        chapterNumber,
+        chapterId,
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
     })
 
@@ -154,8 +173,8 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      audioUrl: audio.audioUrl,
-      duration: audio.duration,
+      audioUrl: audio.storageUrl,
+      duration: audio.durationSec,
     })
   } catch (error) {
     console.error('Audio fetch error:', error)
