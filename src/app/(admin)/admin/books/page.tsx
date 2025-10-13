@@ -13,6 +13,8 @@ import AdvancedFilters, {
 import BulkActions from "@/components/admin/BulkActions";
 import QuickActions from "@/components/admin/QuickActions";
 import AIContentAnalyzer from "@/components/admin/AIContentAnalyzer";
+import IntelligentBookUploader from "@/components/admin/IntelligentBookUploader";
+import { Sparkles, Upload } from "lucide-react";
 
 interface Book {
   id: string;
@@ -44,6 +46,7 @@ export default function AdminBooksPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showIntelligentUpload, setShowIntelligentUpload] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -238,6 +241,46 @@ export default function AdminBooksPage() {
     });
   };
 
+  const handleIntelligentUploadComplete = async (bookData: any) => {
+    // Create book from intelligent upload
+    setSubmitting(true);
+    try {
+      const payload = {
+        title: bookData.title,
+        description: bookData.description,
+        category: bookData.category,
+        price: parseFloat(bookData.price),
+        salePrice: null,
+        coverImage: bookData.coverImage || null,
+        contentType: 'PDF',
+        tags: bookData.tags || [],
+        status: 'PUBLISHED',
+        featured: false,
+      };
+
+      const res = await fetch('/api/admin/books', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        showAlert('success', '🎉 Book published successfully via Intelligent Upload!');
+        setShowIntelligentUpload(false);
+        fetchBooks();
+      } else {
+        showAlert('error', data.error || 'Failed to publish book');
+      }
+    } catch (error) {
+      console.error('Error publishing book:', error);
+      showAlert('error', 'An error occurred while publishing the book');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const openEditModal = (book: Book) => {
     // Note: For now, editing is not available in the modal. Use the manage page instead.
     window.location.href = `/admin/books/${book.id}`;
@@ -326,18 +369,28 @@ export default function AdminBooksPage() {
             Books Management
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Manage your book catalog
+            Manage your book catalog with AI-powered intelligence
           </p>
         </div>
-        <Button
-          onClick={() => {
-            resetForm();
-            setShowModal(true);
-          }}
-        >
-          <span className="mr-2">➕</span>
-          Add New Book
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            onClick={() => {
+              resetForm();
+              setShowModal(true);
+            }}
+            variant="outline"
+          >
+            <span className="mr-2">➕</span>
+            Add Manually
+          </Button>
+          <Button
+            onClick={() => setShowIntelligentUpload(true)}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+          >
+            <Sparkles className="mr-2 h-4 w-4" />
+            🚀 Intelligent Upload
+          </Button>
+        </div>
       </div>
 
       {/* Advanced Filters */}
@@ -757,6 +810,36 @@ export default function AdminBooksPage() {
                   </Button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Intelligent Upload Modal */}
+      {showIntelligentUpload && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Sparkles className="h-6 w-6 text-purple-600" />
+                    🚀 Intelligent Book Upload
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">
+                    Upload your book file and let AI do all the work!
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowIntelligentUpload(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ✕
+                </Button>
+              </div>
+
+              <IntelligentBookUploader onComplete={handleIntelligentUploadComplete} />
             </div>
           </div>
         </div>
