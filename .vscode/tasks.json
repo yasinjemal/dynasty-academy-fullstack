@@ -1,0 +1,85 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "💾 Quick Save to GitHub",
+      "type": "shell",
+      "command": "git add . && git commit -m \"💾 Auto-save: $(date '+%Y-%m-%d %H:%M:%S')\" && git push",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "📝 Commit with Message",
+      "type": "shell",
+      "command": "git",
+      "args": [
+        "add",
+        ".",
+        "&&",
+        "git",
+        "commit",
+        "-m",
+        "${input:commitMessage}",
+        "&&",
+        "git",
+        "push"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    {
+      "label": "🔄 Pull Latest Changes",
+      "type": "shell",
+      "command": "git pull",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    },
+    {
+      "label": "📊 Git Status",
+      "type": "shell",
+      "command": "git status",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "commitMessage",
+      "type": "promptString",
+      "description": "Enter commit message:",
+      "default": "Update project files"
+    }
+  ]
+}
