@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/auth-options';
-import { prisma } from '@/lib/db/prisma';
-import { grantDynastyScore } from '@/lib/dynasty-score';
-import { calculateHotScore } from '@/lib/hot-score';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
+import { prisma } from "@/lib/db/prisma";
+import { grantDynastyScore } from "@/lib/dynasty-score";
+import { calculateHotScore } from "@/lib/hot-score";
 
 interface RouteParams {
   params: {
@@ -15,16 +15,13 @@ interface RouteParams {
  * POST /api/posts/[id]/like
  * Toggle like on a post (like if not liked, unlike if already liked)
  */
-export async function POST(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Unauthorized - Please sign in to like posts' },
+        { error: "Unauthorized - Please sign in to like posts" },
         { status: 401 }
       );
     }
@@ -34,8 +31,8 @@ export async function POST(
     // Check if post exists
     const post = await prisma.post.findUnique({
       where: { id: postId },
-      select: { 
-        id: true, 
+      select: {
+        id: true,
         authorId: true,
         likeCount: true,
         commentCount: true,
@@ -45,10 +42,7 @@ export async function POST(
     });
 
     if (!post) {
-      return NextResponse.json(
-        { error: 'Post not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
     // Check if user already liked this post
@@ -85,7 +79,6 @@ export async function POST(
 
       liked = false;
       newLikeCount = post.likeCount - 1;
-
     } else {
       // Like: Create like, increment counter, award DS, send notification, update hot score
       const result = await prisma.$transaction(async (tx) => {
@@ -132,9 +125,9 @@ export async function POST(
         if (post.authorId !== session.user.id) {
           await grantDynastyScore({
             userId: post.authorId,
-            action: 'LIKE_RECEIVED',
+            action: "LIKE_RECEIVED",
             points: 1,
-            entityType: 'POST_LIKE',
+            entityType: "POST_LIKE",
             entityId: postId,
             metadata: {
               likedBy: session.user.id,
@@ -147,8 +140,8 @@ export async function POST(
             data: {
               userId: post.authorId,
               actorId: session.user.id,
-              type: 'LIKE',
-              entityType: 'POST',
+              type: "LIKE",
+              entityType: "POST",
               entityId: postId,
               message: `${session.user.name} liked your post`,
               seen: false,
@@ -167,13 +160,12 @@ export async function POST(
       success: true,
       liked,
       likeCount: newLikeCount,
-      message: liked ? 'Post liked' : 'Post unliked',
+      message: liked ? "Post liked" : "Post unliked",
     });
-
   } catch (error) {
-    console.error('Error toggling post like:', error);
+    console.error("Error toggling post like:", error);
     return NextResponse.json(
-      { error: 'Failed to toggle like' },
+      { error: "Failed to toggle like" },
       { status: 500 }
     );
   }
@@ -183,13 +175,10 @@ export async function POST(
  * GET /api/posts/[id]/like
  * Check if current user has liked this post
  */
-export async function GET(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({
         success: true,
@@ -212,11 +201,10 @@ export async function GET(
       success: true,
       liked: !!like,
     });
-
   } catch (error) {
-    console.error('Error checking like status:', error);
+    console.error("Error checking like status:", error);
     return NextResponse.json(
-      { error: 'Failed to check like status' },
+      { error: "Failed to check like status" },
       { status: 500 }
     );
   }

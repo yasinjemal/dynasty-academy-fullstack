@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/auth-options';
-import { prisma } from '@/lib/db/prisma';
-import { z } from 'zod';
-import { grantDynastyScore } from '@/lib/dynasty-score';
-import { calculateHotScore } from '@/lib/hot-score';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
+import { prisma } from "@/lib/db/prisma";
+import { z } from "zod";
+import { grantDynastyScore } from "@/lib/dynasty-score";
+import { calculateHotScore } from "@/lib/hot-score";
 
 const createCommentSchema = z.object({
-  content: z.string().min(1, 'Comment cannot be empty').max(2000),
+  content: z.string().min(1, "Comment cannot be empty").max(2000),
   parentId: z.string().optional().nullable(),
 });
 
@@ -27,16 +27,13 @@ interface RouteParams {
  * POST /api/posts/[id]/comments
  * Create a comment on a post
  */
-export async function POST(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Unauthorized - Please sign in to comment' },
+        { error: "Unauthorized - Please sign in to comment" },
         { status: 401 }
       );
     }
@@ -48,8 +45,8 @@ export async function POST(
     // Check if post exists
     const post = await prisma.post.findUnique({
       where: { id: postId },
-      select: { 
-        id: true, 
+      select: {
+        id: true,
         authorId: true,
         commentCount: true,
         likeCount: true,
@@ -60,10 +57,7 @@ export async function POST(
     });
 
     if (!post) {
-      return NextResponse.json(
-        { error: 'Post not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
     // If parentId provided, check if parent comment exists
@@ -75,21 +69,21 @@ export async function POST(
 
       if (!parentComment || parentComment.postId !== postId) {
         return NextResponse.json(
-          { error: 'Parent comment not found' },
+          { error: "Parent comment not found" },
           { status: 404 }
         );
       }
     }
 
     // Determine if this is user's first comment (for FIRST_COMMENT bonus)
-    const isFirstComment = !parentId && (
-      await prisma.postComment.count({
+    const isFirstComment =
+      !parentId &&
+      (await prisma.postComment.count({
         where: {
           authorId: session.user.id,
           postId,
         },
-      })
-    ) === 0;
+      })) === 0;
 
     // Create comment, update counters, award DS, send notifications
     const result = await prisma.$transaction(async (tx) => {
@@ -153,14 +147,14 @@ export async function POST(
       }
 
       // Award Dynasty Score to commenter
-      const dsAction = isFirstComment ? 'FIRST_COMMENT' : 'COMMENT';
+      const dsAction = isFirstComment ? "FIRST_COMMENT" : "COMMENT";
       const dsPoints = isFirstComment ? 3 : 2;
 
       await grantDynastyScore({
         userId: session.user.id,
         action: dsAction,
         points: dsPoints,
-        entityType: 'POST_COMMENT',
+        entityType: "POST_COMMENT",
         entityId: comment.id,
         metadata: {
           postId,
@@ -172,9 +166,9 @@ export async function POST(
       if (post.authorId !== session.user.id) {
         await grantDynastyScore({
           userId: post.authorId,
-          action: 'COMMENT_RECEIVED',
+          action: "COMMENT_RECEIVED",
           points: 4,
-          entityType: 'POST_COMMENT',
+          entityType: "POST_COMMENT",
           entityId: comment.id,
           metadata: {
             commentedBy: session.user.id,
@@ -187,8 +181,8 @@ export async function POST(
           data: {
             userId: post.authorId,
             actorId: session.user.id,
-            type: 'COMMENT',
-            entityType: 'POST',
+            type: "COMMENT",
+            entityType: "POST",
             entityId: postId,
             message: `${session.user.name} commented on your post`,
             seen: false,
@@ -208,8 +202,8 @@ export async function POST(
             data: {
               userId: parentComment.authorId,
               actorId: session.user.id,
-              type: 'REPLY',
-              entityType: 'POST_COMMENT',
+              type: "REPLY",
+              entityType: "POST_COMMENT",
               entityId: comment.id,
               message: `${session.user.name} replied to your comment`,
               seen: false,
@@ -221,24 +215,26 @@ export async function POST(
       return comment;
     });
 
-    return NextResponse.json({
-      success: true,
-      comment: result,
-      message: `Comment posted! +${isFirstComment ? 3 : 2} Dynasty Score`,
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        comment: result,
+        message: `Comment posted! +${isFirstComment ? 3 : 2} Dynasty Score`,
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Error creating comment:', error);
+    console.error("Error creating comment:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
+        { error: "Validation failed", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to create comment' },
+      { error: "Failed to create comment" },
       { status: 500 }
     );
   }
@@ -248,15 +244,12 @@ export async function POST(
  * GET /api/posts/[id]/comments
  * List comments for a post
  */
-export async function GET(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
     const { id: postId } = params;
     const { searchParams } = new URL(req.url);
     const queryParams = Object.fromEntries(searchParams.entries());
-    
+
     const { page, limit, parentId } = listCommentsSchema.parse(queryParams);
 
     const skip = (page - 1) * limit;
@@ -272,7 +265,7 @@ export async function GET(
       prisma.postComment.findMany({
         where,
         orderBy: {
-          createdAt: 'desc',
+          createdAt: "desc",
         },
         skip,
         take: limit,
@@ -311,19 +304,18 @@ export async function GET(
         hasMore,
       },
     });
-
   } catch (error) {
-    console.error('Error fetching comments:', error);
+    console.error("Error fetching comments:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid query parameters', details: error.errors },
+        { error: "Invalid query parameters", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to fetch comments' },
+      { error: "Failed to fetch comments" },
       { status: 500 }
     );
   }

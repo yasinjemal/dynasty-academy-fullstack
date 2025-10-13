@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/auth-options';
-import { prisma } from '@/lib/db/prisma';
-import { z } from 'zod';
-import { calculateHotScore } from '@/lib/hot-score';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
+import { prisma } from "@/lib/db/prisma";
+import { z } from "zod";
+import { calculateHotScore } from "@/lib/hot-score";
 
 const updatePostSchema = z.object({
   title: z.string().min(3).max(200).optional(),
@@ -24,10 +24,7 @@ interface RouteParams {
  * GET /api/posts/[id]
  * Get a single post by ID and increment view count
  */
-export async function GET(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
     const { id } = params;
 
@@ -64,7 +61,7 @@ export async function GET(
               parentId: null, // Only top-level comments
             },
             orderBy: {
-              createdAt: 'desc',
+              createdAt: "desc",
             },
             take: 5, // Initial load
             include: {
@@ -95,10 +92,7 @@ export async function GET(
     });
 
     if (!post) {
-      return NextResponse.json(
-        { error: 'Post not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
     // Check if user has liked this post (if authenticated)
@@ -122,11 +116,10 @@ export async function GET(
       post,
       hasLiked,
     });
-
   } catch (error) {
-    console.error('Error fetching post:', error);
+    console.error("Error fetching post:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch post' },
+      { error: "Failed to fetch post" },
       { status: 500 }
     );
   }
@@ -136,18 +129,12 @@ export async function GET(
  * PATCH /api/posts/[id]
  * Update a post (author only)
  */
-export async function PATCH(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function PATCH(req: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = params;
@@ -161,15 +148,12 @@ export async function PATCH(
     });
 
     if (!existingPost) {
-      return NextResponse.json(
-        { error: 'Post not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
     if (existingPost.authorId !== session.user.id) {
       return NextResponse.json(
-        { error: 'Forbidden - You can only edit your own posts' },
+        { error: "Forbidden - You can only edit your own posts" },
         { status: 403 }
       );
     }
@@ -179,18 +163,20 @@ export async function PATCH(
     if (validatedData.title) {
       const baseSlug = validatedData.title
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-      
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
       // Ensure slug uniqueness
       slug = baseSlug;
       let counter = 1;
-      while (await prisma.post.findFirst({ 
-        where: { 
-          slug,
-          id: { not: id },
-        },
-      })) {
+      while (
+        await prisma.post.findFirst({
+          where: {
+            slug,
+            id: { not: id },
+          },
+        })
+      ) {
         slug = `${baseSlug}-${counter}`;
         counter++;
       }
@@ -234,7 +220,7 @@ export async function PATCH(
 
         await tx.feedItem.create({
           data: {
-            type: 'POST',
+            type: "POST",
             postId: post.id,
             authorId: session.user.id,
             publishedAt: post.publishedAt!,
@@ -256,21 +242,20 @@ export async function PATCH(
     return NextResponse.json({
       success: true,
       post: updatedPost,
-      message: 'Post updated successfully',
+      message: "Post updated successfully",
     });
-
   } catch (error) {
-    console.error('Error updating post:', error);
+    console.error("Error updating post:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
+        { error: "Validation failed", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to update post' },
+      { error: "Failed to update post" },
       { status: 500 }
     );
   }
@@ -280,18 +265,12 @@ export async function PATCH(
  * DELETE /api/posts/[id]
  * Delete a post (author only)
  */
-export async function DELETE(
-  req: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(req: NextRequest, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = params;
@@ -303,15 +282,12 @@ export async function DELETE(
     });
 
     if (!post) {
-      return NextResponse.json(
-        { error: 'Post not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
     if (post.authorId !== session.user.id) {
       return NextResponse.json(
-        { error: 'Forbidden - You can only delete your own posts' },
+        { error: "Forbidden - You can only delete your own posts" },
         { status: 403 }
       );
     }
@@ -323,13 +299,12 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Post deleted successfully',
+      message: "Post deleted successfully",
     });
-
   } catch (error) {
-    console.error('Error deleting post:', error);
+    console.error("Error deleting post:", error);
     return NextResponse.json(
-      { error: 'Failed to delete post' },
+      { error: "Failed to delete post" },
       { status: 500 }
     );
   }

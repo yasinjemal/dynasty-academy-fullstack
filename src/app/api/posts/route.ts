@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/auth-options';
-import { prisma } from '@/lib/db/prisma';
-import { z } from 'zod';
-import { grantDynastyScore } from '@/lib/dynasty-score';
-import { calculateHotScore } from '@/lib/hot-score';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
+import { prisma } from "@/lib/db/prisma";
+import { z } from "zod";
+import { grantDynastyScore } from "@/lib/dynasty-score";
+import { calculateHotScore } from "@/lib/hot-score";
 
 // Validation schemas
 const createPostSchema = z.object({
-  title: z.string().min(3, 'Title must be at least 3 characters').max(200),
-  content: z.string().min(10, 'Content must be at least 10 characters'),
+  title: z.string().min(3, "Title must be at least 3 characters").max(200),
+  content: z.string().min(10, "Content must be at least 10 characters"),
   excerpt: z.string().max(300).optional(),
   coverImage: z.string().url().optional().nullable(),
   tags: z.array(z.string().min(1).max(30)).max(5).default([]),
@@ -22,7 +22,7 @@ const listPostsSchema = z.object({
   authorId: z.string().optional(),
   tag: z.string().optional(),
   published: z.coerce.boolean().default(true),
-  sortBy: z.enum(['hot', 'latest', 'popular']).default('hot'),
+  sortBy: z.enum(["hot", "latest", "popular"]).default("hot"),
 });
 
 type CreatePostInput = z.infer<typeof createPostSchema>;
@@ -35,10 +35,10 @@ type ListPostsInput = z.infer<typeof listPostsSchema>;
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Unauthorized - Please sign in to create posts' },
+        { error: "Unauthorized - Please sign in to create posts" },
         { status: 401 }
       );
     }
@@ -49,9 +49,9 @@ export async function POST(req: NextRequest) {
     // Generate unique slug from title
     const baseSlug = validatedData.title
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-    
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
     // Ensure slug uniqueness
     let slug = baseSlug;
     let counter = 1;
@@ -61,12 +61,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Create excerpt if not provided
-    const excerpt = validatedData.excerpt || 
-      validatedData.content.substring(0, 200) + '...';
+    const excerpt =
+      validatedData.excerpt || validatedData.content.substring(0, 200) + "...";
 
     // Calculate initial hot score
     const publishedAt = validatedData.published ? new Date() : null;
-    const hotScore = validatedData.published 
+    const hotScore = validatedData.published
       ? calculateHotScore({
           likes: 0,
           comments: 0,
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
       if (validatedData.published) {
         await tx.feedItem.create({
           data: {
-            type: 'POST',
+            type: "POST",
             postId: post.id,
             authorId: session.user.id,
             publishedAt: publishedAt!,
@@ -121,9 +121,9 @@ export async function POST(req: NextRequest) {
         // Award Dynasty Score for creating a post
         await grantDynastyScore({
           userId: session.user.id,
-          action: 'CREATE_POST',
+          action: "CREATE_POST",
           points: 10,
-          entityType: 'POST',
+          entityType: "POST",
           entityId: post.id,
           metadata: {
             postTitle: post.title,
@@ -135,26 +135,28 @@ export async function POST(req: NextRequest) {
       return post;
     });
 
-    return NextResponse.json({
-      success: true,
-      post: result,
-      message: validatedData.published 
-        ? 'Post published successfully! +10 Dynasty Score' 
-        : 'Post saved as draft',
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        post: result,
+        message: validatedData.published
+          ? "Post published successfully! +10 Dynasty Score"
+          : "Post saved as draft",
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Error creating post:', error);
+    console.error("Error creating post:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
+        { error: "Validation failed", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to create post' },
+      { error: "Failed to create post" },
       { status: 500 }
     );
   }
@@ -168,15 +170,9 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const params = Object.fromEntries(searchParams.entries());
-    
-    const {
-      page,
-      limit,
-      authorId,
-      tag,
-      published,
-      sortBy,
-    } = listPostsSchema.parse(params);
+
+    const { page, limit, authorId, tag, published, sortBy } =
+      listPostsSchema.parse(params);
 
     const skip = (page - 1) * limit;
 
@@ -198,17 +194,14 @@ export async function GET(req: NextRequest) {
     // Build orderBy clause
     let orderBy: any = {};
     switch (sortBy) {
-      case 'hot':
-        orderBy = { hotScore: 'desc' };
+      case "hot":
+        orderBy = { hotScore: "desc" };
         break;
-      case 'latest':
-        orderBy = { publishedAt: 'desc' };
+      case "latest":
+        orderBy = { publishedAt: "desc" };
         break;
-      case 'popular':
-        orderBy = [
-          { likeCount: 'desc' },
-          { commentCount: 'desc' },
-        ];
+      case "popular":
+        orderBy = [{ likeCount: "desc" }, { commentCount: "desc" }];
         break;
     }
 
@@ -256,19 +249,18 @@ export async function GET(req: NextRequest) {
         hasMore,
       },
     });
-
   } catch (error) {
-    console.error('Error fetching posts:', error);
+    console.error("Error fetching posts:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid query parameters', details: error.errors },
+        { error: "Invalid query parameters", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to fetch posts' },
+      { error: "Failed to fetch posts" },
       { status: 500 }
     );
   }

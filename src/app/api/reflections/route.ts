@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/auth-options';
-import { prisma } from '@/lib/db/prisma';
-import { z } from 'zod';
-import { grantDynastyScore } from '@/lib/dynasty-score';
-import { calculateHotScore } from '@/lib/hot-score';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
+import { prisma } from "@/lib/db/prisma";
+import { z } from "zod";
+import { grantDynastyScore } from "@/lib/dynasty-score";
+import { calculateHotScore } from "@/lib/hot-score";
 
 // Validation schemas
 const createReflectionSchema = z.object({
@@ -12,7 +12,10 @@ const createReflectionSchema = z.object({
   bookTitle: z.string().min(1).max(200),
   pageNumber: z.number().int().positive().optional().nullable(),
   excerpt: z.string().max(500).optional().nullable(),
-  content: z.string().min(10, 'Reflection must be at least 10 characters').max(5000),
+  content: z
+    .string()
+    .min(10, "Reflection must be at least 10 characters")
+    .max(5000),
 });
 
 const listReflectionsSchema = z.object({
@@ -20,7 +23,7 @@ const listReflectionsSchema = z.object({
   limit: z.coerce.number().int().positive().max(50).default(20),
   bookId: z.string().optional(),
   authorId: z.string().optional(),
-  sortBy: z.enum(['hot', 'latest', 'popular']).default('hot'),
+  sortBy: z.enum(["hot", "latest", "popular"]).default("hot"),
 });
 
 type CreateReflectionInput = z.infer<typeof createReflectionSchema>;
@@ -33,10 +36,10 @@ type ListReflectionsInput = z.infer<typeof listReflectionsSchema>;
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Unauthorized - Please sign in to write reflections' },
+        { error: "Unauthorized - Please sign in to write reflections" },
         { status: 401 }
       );
     }
@@ -51,10 +54,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!book) {
-      return NextResponse.json(
-        { error: 'Book not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
     // Calculate initial hot score
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
       // Create feed item
       await tx.feedItem.create({
         data: {
-          type: 'REFLECTION',
+          type: "REFLECTION",
           reflectionId: reflection.id,
           authorId: session.user.id,
           publishedAt,
@@ -116,9 +116,9 @@ export async function POST(req: NextRequest) {
       // Award Dynasty Score for writing a reflection (higher than post)
       await grantDynastyScore({
         userId: session.user.id,
-        action: 'WRITE_REFLECTION',
+        action: "WRITE_REFLECTION",
         points: 12,
-        entityType: 'REFLECTION',
+        entityType: "REFLECTION",
         entityId: reflection.id,
         metadata: {
           bookId: reflection.bookId,
@@ -129,24 +129,26 @@ export async function POST(req: NextRequest) {
       return reflection;
     });
 
-    return NextResponse.json({
-      success: true,
-      reflection: result,
-      message: 'Reflection published successfully! +12 Dynasty Score',
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        reflection: result,
+        message: "Reflection published successfully! +12 Dynasty Score",
+      },
+      { status: 201 }
+    );
   } catch (error) {
-    console.error('Error creating reflection:', error);
+    console.error("Error creating reflection:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
+        { error: "Validation failed", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to create reflection' },
+      { error: "Failed to create reflection" },
       { status: 500 }
     );
   }
@@ -160,14 +162,9 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const params = Object.fromEntries(searchParams.entries());
-    
-    const {
-      page,
-      limit,
-      bookId,
-      authorId,
-      sortBy,
-    } = listReflectionsSchema.parse(params);
+
+    const { page, limit, bookId, authorId, sortBy } =
+      listReflectionsSchema.parse(params);
 
     const skip = (page - 1) * limit;
 
@@ -185,17 +182,14 @@ export async function GET(req: NextRequest) {
     // Build orderBy clause
     let orderBy: any = {};
     switch (sortBy) {
-      case 'hot':
-        orderBy = { hotScore: 'desc' };
+      case "hot":
+        orderBy = { hotScore: "desc" };
         break;
-      case 'latest':
-        orderBy = { createdAt: 'desc' };
+      case "latest":
+        orderBy = { createdAt: "desc" };
         break;
-      case 'popular':
-        orderBy = [
-          { likeCount: 'desc' },
-          { commentCount: 'desc' },
-        ];
+      case "popular":
+        orderBy = [{ likeCount: "desc" }, { commentCount: "desc" }];
         break;
     }
 
@@ -251,19 +245,18 @@ export async function GET(req: NextRequest) {
         hasMore,
       },
     });
-
   } catch (error) {
-    console.error('Error fetching reflections:', error);
+    console.error("Error fetching reflections:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid query parameters', details: error.errors },
+        { error: "Invalid query parameters", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to fetch reflections' },
+      { error: "Failed to fetch reflections" },
       { status: 500 }
     );
   }

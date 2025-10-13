@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/auth-options';
-import { prisma } from '@/lib/db/prisma';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
+import { prisma } from "@/lib/db/prisma";
+import { z } from "zod";
 
 const feedQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(50).default(20),
-  tab: z.enum(['hot', 'following', 'topic']).default('hot'),
+  tab: z.enum(["hot", "following", "topic"]).default("hot"),
   topic: z.string().optional(), // For topic tab
-  type: z.enum(['all', 'posts', 'reflections']).default('all'),
+  type: z.enum(["all", "posts", "reflections"]).default("all"),
 });
 
 type FeedQuery = z.infer<typeof feedQuerySchema>;
@@ -23,14 +23,8 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const params = Object.fromEntries(searchParams.entries());
-    
-    const {
-      page,
-      limit,
-      tab,
-      topic,
-      type,
-    } = feedQuerySchema.parse(params);
+
+    const { page, limit, tab, topic, type } = feedQuerySchema.parse(params);
 
     const skip = (page - 1) * limit;
     const session = await getServerSession(authOptions);
@@ -39,14 +33,16 @@ export async function GET(req: NextRequest) {
     const where: any = {};
 
     switch (tab) {
-      case 'hot':
+      case "hot":
         // No additional filters - show all content ranked by hot score
         break;
 
-      case 'following':
+      case "following":
         if (!session?.user?.id) {
           return NextResponse.json(
-            { error: 'Unauthorized - Please sign in to see your following feed' },
+            {
+              error: "Unauthorized - Please sign in to see your following feed",
+            },
             { status: 401 }
           );
         }
@@ -63,7 +59,8 @@ export async function GET(req: NextRequest) {
           },
         });
 
-        const followedUserIds = followedUsers?.following.map(f => f.followingId) || [];
+        const followedUserIds =
+          followedUsers?.following.map((f) => f.followingId) || [];
 
         if (followedUserIds.length === 0) {
           // User follows nobody - return empty feed
@@ -85,10 +82,10 @@ export async function GET(req: NextRequest) {
         };
         break;
 
-      case 'topic':
+      case "topic":
         if (!topic) {
           return NextResponse.json(
-            { error: 'Topic parameter is required for topic tab' },
+            { error: "Topic parameter is required for topic tab" },
             { status: 400 }
           );
         }
@@ -100,8 +97,8 @@ export async function GET(req: NextRequest) {
     }
 
     // Filter by content type if specified
-    if (type !== 'all') {
-      where.type = type === 'posts' ? 'POST' : 'REFLECTION';
+    if (type !== "all") {
+      where.type = type === "posts" ? "POST" : "REFLECTION";
     }
 
     // Fetch feed items
@@ -109,7 +106,7 @@ export async function GET(req: NextRequest) {
       prisma.feedItem.findMany({
         where,
         orderBy: {
-          hotScore: 'desc', // Always rank by hot score
+          hotScore: "desc", // Always rank by hot score
         },
         skip,
         take: limit,
@@ -169,12 +166,12 @@ export async function GET(req: NextRequest) {
 
     if (session?.user?.id) {
       const postIds = feedItems
-        .filter(item => item.type === 'POST' && item.postId)
-        .map(item => item.postId!);
+        .filter((item) => item.type === "POST" && item.postId)
+        .map((item) => item.postId!);
 
       const reflectionIds = feedItems
-        .filter(item => item.type === 'REFLECTION' && item.reflectionId)
-        .map(item => item.reflectionId!);
+        .filter((item) => item.type === "REFLECTION" && item.reflectionId)
+        .map((item) => item.reflectionId!);
 
       const [postLikes, reflectionLikes] = await Promise.all([
         prisma.postLike.findMany({
@@ -193,13 +190,13 @@ export async function GET(req: NextRequest) {
         }),
       ]);
 
-      postLikes.forEach(like => likedItems.add(like.postId));
-      reflectionLikes.forEach(like => likedItems.add(like.reflectionId));
+      postLikes.forEach((like) => likedItems.add(like.postId));
+      reflectionLikes.forEach((like) => likedItems.add(like.reflectionId));
     }
 
     // Transform feed items to include hasLiked flag
-    const enrichedFeedItems = feedItems.map(item => {
-      const itemId = item.type === 'POST' ? item.postId : item.reflectionId;
+    const enrichedFeedItems = feedItems.map((item) => {
+      const itemId = item.type === "POST" ? item.postId : item.reflectionId;
       return {
         ...item,
         hasLiked: itemId ? likedItems.has(itemId) : false,
@@ -220,19 +217,18 @@ export async function GET(req: NextRequest) {
         hasMore,
       },
     });
-
   } catch (error) {
-    console.error('Error fetching feed:', error);
+    console.error("Error fetching feed:", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid query parameters', details: error.errors },
+        { error: "Invalid query parameters", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: 'Failed to fetch feed' },
+      { error: "Failed to fetch feed" },
       { status: 500 }
     );
   }
