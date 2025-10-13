@@ -1,39 +1,39 @@
-'use client'
+"use client";
 
-import { useEffect, useCallback } from 'react'
-import { toast } from 'sonner'
-import { Trophy, Zap, Crown, Star, Flame } from 'lucide-react'
+import { useEffect, useCallback } from "react";
+import { toast } from "sonner";
+import { Trophy, Zap, Crown, Star, Flame } from "lucide-react";
 
 interface Achievement {
-  id: string
-  key: string
-  name: string
-  description: string
-  icon: string
-  category: string
-  rarity: 'COMMON' | 'RARE' | 'EPIC' | 'LEGENDARY'
-  dynastyPoints: number
+  id: string;
+  key: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: string;
+  rarity: "COMMON" | "RARE" | "EPIC" | "LEGENDARY";
+  dynastyPoints: number;
 }
 
 const rarityColors = {
-  COMMON: 'from-gray-400 to-gray-600',
-  RARE: 'from-blue-400 to-blue-600',
-  EPIC: 'from-purple-400 to-purple-600',
-  LEGENDARY: 'from-yellow-400 to-orange-600',
-}
+  COMMON: "from-gray-400 to-gray-600",
+  RARE: "from-blue-400 to-blue-600",
+  EPIC: "from-purple-400 to-purple-600",
+  LEGENDARY: "from-yellow-400 to-orange-600",
+};
 
 const rarityIcons = {
   COMMON: Star,
   RARE: Zap,
   EPIC: Crown,
   LEGENDARY: Flame,
-}
+};
 
 export function useAchievementToasts() {
   // Show achievement unlock toast
   const showAchievementToast = useCallback((achievement: Achievement) => {
-    const Icon = rarityIcons[achievement.rarity]
-    const gradient = rarityColors[achievement.rarity]
+    const Icon = rarityIcons[achievement.rarity];
+    const gradient = rarityColors[achievement.rarity];
 
     toast.custom(
       (t) => (
@@ -66,7 +66,9 @@ export function useAchievementToasts() {
                     +{achievement.dynastyPoints} Dynasty Points
                   </span>
                 </div>
-                <div className={`text-xs font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent uppercase`}>
+                <div
+                  className={`text-xs font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent uppercase`}
+                >
                   {achievement.rarity}
                 </div>
               </div>
@@ -76,31 +78,34 @@ export function useAchievementToasts() {
       ),
       {
         duration: 6000,
-        position: 'top-center',
+        position: "top-center",
       }
-    )
-  }, [])
+    );
+  }, []);
 
   // Listen for achievement events from API
   useEffect(() => {
     const handleAchievement = (event: CustomEvent<Achievement>) => {
-      showAchievementToast(event.detail)
-    }
+      showAchievementToast(event.detail);
+    };
 
-    window.addEventListener('achievement-unlocked' as any, handleAchievement)
+    window.addEventListener("achievement-unlocked" as any, handleAchievement);
 
     return () => {
-      window.removeEventListener('achievement-unlocked' as any, handleAchievement)
-    }
-  }, [showAchievementToast])
+      window.removeEventListener(
+        "achievement-unlocked" as any,
+        handleAchievement
+      );
+    };
+  }, [showAchievementToast]);
 
-  return { showAchievementToast }
+  return { showAchievementToast };
 }
 
 // Helper to trigger achievement unlock
 export function triggerAchievement(achievement: Achievement) {
-  const event = new CustomEvent('achievement-unlocked', {
+  const event = new CustomEvent("achievement-unlocked", {
     detail: achievement,
-  })
-  window.dispatchEvent(event)
+  });
+  window.dispatchEvent(event);
 }

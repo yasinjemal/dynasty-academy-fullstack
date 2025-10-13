@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Clock,
   Zap,
@@ -12,38 +12,38 @@ import {
   Calendar,
   Award,
   Activity,
-} from 'lucide-react'
+} from "lucide-react";
 
 interface AnalyticsDashboardProps {
-  bookId?: string
-  timeRange?: number // days
+  bookId?: string;
+  timeRange?: number; // days
 }
 
 export default function AnalyticsDashboard({
   bookId,
   timeRange = 30,
 }: AnalyticsDashboardProps) {
-  const [insights, setInsights] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const [insights, setInsights] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadAnalytics() {
       try {
         const response = await fetch(
           `/api/listening/analytics/dashboard?range=${timeRange}`
-        )
-        if (!response.ok) throw new Error('Failed to load analytics')
-        const data = await response.json()
-        setInsights(data.insights)
+        );
+        if (!response.ok) throw new Error("Failed to load analytics");
+        const data = await response.json();
+        setInsights(data.insights);
       } catch (error) {
-        console.error('[Analytics Dashboard] Error:', error)
+        console.error("[Analytics Dashboard] Error:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    loadAnalytics()
-  }, [timeRange])
+    loadAnalytics();
+  }, [timeRange]);
 
   if (loading) {
     return (
@@ -54,10 +54,10 @@ export default function AnalyticsDashboard({
           </Card>
         ))}
       </div>
-    )
+    );
   }
 
-  if (!insights) return null
+  if (!insights) return null;
 
   return (
     <div className="space-y-6">
@@ -158,29 +158,31 @@ export default function AnalyticsDashboard({
             <h3 className="text-lg font-bold text-white">Speed Distribution</h3>
           </div>
           <div className="space-y-3">
-            {Object.entries(insights.speedDistribution).map(([range, count]: [string, any]) => {
-              const total = Object.values(insights.speedDistribution).reduce(
-                (sum: number, val: any) => sum + val,
-                0
-              ) as number
-              const percentage = Math.round((count / total) * 100)
-              return (
-                <div key={range} className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-300">{range}</span>
-                    <span className="text-gray-400">
-                      {count} ({percentage}%)
-                    </span>
+            {Object.entries(insights.speedDistribution).map(
+              ([range, count]: [string, any]) => {
+                const total = Object.values(insights.speedDistribution).reduce(
+                  (sum: number, val: any) => sum + val,
+                  0
+                ) as number;
+                const percentage = Math.round((count / total) * 100);
+                return (
+                  <div key={range} className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-300">{range}</span>
+                      <span className="text-gray-400">
+                        {count} ({percentage}%)
+                      </span>
+                    </div>
+                    <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-500"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-500"
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                </div>
-              )
-            })}
+                );
+              }
+            )}
           </div>
         </Card>
       </div>
@@ -218,9 +220,11 @@ export default function AnalyticsDashboard({
                   {idx + 1}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium truncate">{book.title}</p>
+                  <p className="text-white font-medium truncate">
+                    {book.title}
+                  </p>
                   <p className="text-sm text-gray-400">
-                    {book.author} • {book.totalMinutes}m • {book.sessions}{' '}
+                    {book.author} • {book.totalMinutes}m • {book.sessions}{" "}
                     sessions
                   </p>
                 </div>
@@ -251,7 +255,7 @@ export default function AnalyticsDashboard({
         </Card>
       )}
     </div>
-  )
+  );
 }
 
 // Helper Components
@@ -261,10 +265,10 @@ function StatCard({
   value,
   gradient,
 }: {
-  icon: any
-  label: string
-  value: string | number
-  gradient: string
+  icon: any;
+  label: string;
+  value: string | number;
+  gradient: string;
 }) {
   return (
     <Card className={`p-6 bg-gradient-to-br ${gradient} border-0`}>
@@ -276,13 +280,13 @@ function StatCard({
         </div>
       </div>
     </Card>
-  )
+  );
 }
 
 function getHeatmapColor(minutes: number): string {
-  if (minutes === 0) return '#1f2937' // gray-800
-  if (minutes < 15) return '#3b82f6' // blue-500
-  if (minutes < 30) return '#8b5cf6' // purple-500
-  if (minutes < 60) return '#ec4899' // pink-500
-  return '#f59e0b' // amber-500
+  if (minutes === 0) return "#1f2937"; // gray-800
+  if (minutes < 15) return "#3b82f6"; // blue-500
+  if (minutes < 30) return "#8b5cf6"; // purple-500
+  if (minutes < 60) return "#ec4899"; // pink-500
+  return "#f59e0b"; // amber-500
 }

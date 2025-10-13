@@ -1,53 +1,57 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Flame, TrendingUp, Clock, Zap } from 'lucide-react'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useEffect, useState } from "react";
+import { Flame, TrendingUp, Clock, Zap } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface StreakData {
-  currentStreak: number
-  longestStreak: number
-  totalMinutes: number
-  totalSessions: number
-  isActive: boolean
-  daysUntilBreak: number
+  currentStreak: number;
+  longestStreak: number;
+  totalMinutes: number;
+  totalSessions: number;
+  isActive: boolean;
+  daysUntilBreak: number;
 }
 
-export default function StreakCounter({ compact = false }: { compact?: boolean }) {
-  const [streak, setStreak] = useState<StreakData | null>(null)
-  const [loading, setLoading] = useState(true)
+export default function StreakCounter({
+  compact = false,
+}: {
+  compact?: boolean;
+}) {
+  const [streak, setStreak] = useState<StreakData | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadStreak() {
       try {
-        const response = await fetch('/api/listening/streaks')
-        if (!response.ok) throw new Error('Failed to load streak')
-        const data = await response.json()
-        setStreak(data.streak)
+        const response = await fetch("/api/listening/streaks");
+        if (!response.ok) throw new Error("Failed to load streak");
+        const data = await response.json();
+        setStreak(data.streak);
       } catch (error) {
-        console.error('[Streak Counter] Error:', error)
+        console.error("[Streak Counter] Error:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    loadStreak()
+    loadStreak();
 
     // Refresh every minute
-    const interval = setInterval(loadStreak, 60000)
-    return () => clearInterval(interval)
-  }, [])
+    const interval = setInterval(loadStreak, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading) {
     return (
       <Card className="p-4 bg-gray-900 border-gray-800 animate-pulse">
         <div className="h-16 bg-gray-800 rounded"></div>
       </Card>
-    )
+    );
   }
 
-  if (!streak) return null
+  if (!streak) return null;
 
   if (compact) {
     return (
@@ -55,7 +59,9 @@ export default function StreakCounter({ compact = false }: { compact?: boolean }
         <div className="flex items-center gap-1.5">
           <Flame
             className={`w-5 h-5 ${
-              streak.isActive ? 'text-orange-500 animate-pulse' : 'text-gray-500'
+              streak.isActive
+                ? "text-orange-500 animate-pulse"
+                : "text-gray-500"
             }`}
           />
           <span className="text-lg font-bold text-white">
@@ -64,7 +70,7 @@ export default function StreakCounter({ compact = false }: { compact?: boolean }
           <span className="text-sm text-gray-400">day streak</span>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -74,7 +80,9 @@ export default function StreakCounter({ compact = false }: { compact?: boolean }
           <div className="flex items-center gap-2 mb-1">
             <Flame
               className={`w-6 h-6 ${
-                streak.isActive ? 'text-orange-500 animate-pulse' : 'text-gray-500'
+                streak.isActive
+                  ? "text-orange-500 animate-pulse"
+                  : "text-gray-500"
               }`}
             />
             <h3 className="text-lg font-bold text-white">Listening Streak</h3>
@@ -86,7 +94,8 @@ export default function StreakCounter({ compact = false }: { compact?: boolean }
           )}
           {!streak.isActive && streak.currentStreak > 0 && (
             <p className="text-sm text-yellow-400">
-              ⚠️ Your streak will break in {Math.abs(streak.daysUntilBreak)} days!
+              ⚠️ Your streak will break in {Math.abs(streak.daysUntilBreak)}{" "}
+              days!
             </p>
           )}
           {streak.isActive && (
@@ -97,11 +106,11 @@ export default function StreakCounter({ compact = false }: { compact?: boolean }
           variant="outline"
           className={`${
             streak.isActive
-              ? 'border-orange-500 bg-orange-500/20 text-orange-400'
-              : 'border-gray-600 bg-gray-800 text-gray-400'
+              ? "border-orange-500 bg-orange-500/20 text-orange-400"
+              : "border-gray-600 bg-gray-800 text-gray-400"
           }`}
         >
-          {streak.isActive ? 'ACTIVE' : 'INACTIVE'}
+          {streak.isActive ? "ACTIVE" : "INACTIVE"}
         </Badge>
       </div>
 
@@ -143,7 +152,9 @@ export default function StreakCounter({ compact = false }: { compact?: boolean }
             <Zap className="w-4 h-4" />
             <span className="text-xs uppercase tracking-wider">Sessions</span>
           </div>
-          <p className="text-2xl font-bold text-white">{streak.totalSessions}</p>
+          <p className="text-2xl font-bold text-white">
+            {streak.totalSessions}
+          </p>
         </div>
       </div>
 
@@ -154,25 +165,27 @@ export default function StreakCounter({ compact = false }: { compact?: boolean }
         </div>
       )}
     </Card>
-  )
+  );
 }
 
 function StreakMilestone({ currentStreak }: { currentStreak: number }) {
-  const milestones = [3, 7, 30, 100]
-  const nextMilestone = milestones.find((m) => m > currentStreak) || 100
-  const progress = (currentStreak / nextMilestone) * 100
+  const milestones = [3, 7, 30, 100];
+  const nextMilestone = milestones.find((m) => m > currentStreak) || 100;
+  const progress = (currentStreak / nextMilestone) * 100;
 
   const rewards = {
-    3: '30 Dynasty Points',
-    7: '75 Dynasty Points',
-    30: '300 Dynasty Points',
-    100: '1000 Dynasty Points',
-  } as Record<number, string>
+    3: "30 Dynasty Points",
+    7: "75 Dynasty Points",
+    30: "300 Dynasty Points",
+    100: "1000 Dynasty Points",
+  } as Record<number, string>;
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-sm">
-        <span className="text-gray-400">Next Milestone: {nextMilestone} days</span>
+        <span className="text-gray-400">
+          Next Milestone: {nextMilestone} days
+        </span>
         <span className="text-yellow-400 font-bold">
           🏆 {rewards[nextMilestone as keyof typeof rewards]}
         </span>
@@ -187,5 +200,5 @@ function StreakMilestone({ currentStreak }: { currentStreak: number }) {
         {nextMilestone - currentStreak} days to go
       </p>
     </div>
-  )
+  );
 }

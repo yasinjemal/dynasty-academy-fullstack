@@ -23,7 +23,10 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useCloudSync } from "@/hooks/useCloudSync";
-import { useAchievementToasts, triggerAchievement } from "@/hooks/useAchievementToasts";
+import {
+  useAchievementToasts,
+  triggerAchievement,
+} from "@/hooks/useAchievementToasts";
 import { useMobileGestures } from "@/hooks/useMobileGestures";
 
 interface ListenModeLuxuryProps {
@@ -108,7 +111,9 @@ export default function ListenModeLuxury({
   const storageKey = `listen_${bookSlug}_${chapterNumber}_${selectedVoice}`;
 
   // 🎯 PHASE 2 HOOKS: Cloud Sync + Achievements + Mobile Gestures
-  const { saveProgress, loadProgress } = useCloudSync({ enabled: isPremiumUser });
+  const { saveProgress, loadProgress } = useCloudSync({
+    enabled: isPremiumUser,
+  });
   const { showAchievementToast } = useAchievementToasts();
 
   // 📱 Mobile gesture handlers
@@ -142,21 +147,25 @@ export default function ListenModeLuxury({
     },
     onPinchIn: () => {
       // Decrease font size
-      document.body.style.fontSize = 
-        `${Math.max(12, parseInt(getComputedStyle(document.body).fontSize) - 1)}px`;
+      document.body.style.fontSize = `${Math.max(
+        12,
+        parseInt(getComputedStyle(document.body).fontSize) - 1
+      )}px`;
     },
     onPinchOut: () => {
       // Increase font size
-      document.body.style.fontSize = 
-        `${Math.min(24, parseInt(getComputedStyle(document.body).fontSize) + 1)}px`;
+      document.body.style.fontSize = `${Math.min(
+        24,
+        parseInt(getComputedStyle(document.body).fontSize) + 1
+      )}px`;
     },
     onShake: () => {
       // Random chapter (placeholder)
-      console.log('🎲 Shake detected! Random chapter feature');
+      console.log("🎲 Shake detected! Random chapter feature");
     },
     onLongPress: (x, y) => {
       // Show context menu
-      console.log('📱 Long press detected at', x, y);
+      console.log("📱 Long press detected at", x, y);
     },
   });
 
@@ -619,10 +628,10 @@ export default function ListenModeLuxury({
           audioRef.current.currentTime = savedProgress.position;
           setPlaybackRate(savedProgress.speed);
           setSelectedVoice(savedProgress.voiceId);
-          console.log('✅ Progress restored from cloud:', savedProgress);
+          console.log("✅ Progress restored from cloud:", savedProgress);
         }
       } catch (error) {
-        console.error('[Cloud Sync] Failed to load progress:', error);
+        console.error("[Cloud Sync] Failed to load progress:", error);
       }
     }
 
@@ -662,7 +671,7 @@ export default function ListenModeLuxury({
           }
         }
       } catch (error) {
-        console.error('[Cloud Sync] Auto-save failed:', error);
+        console.error("[Cloud Sync] Auto-save failed:", error);
       }
     }, 10000); // Every 10 seconds
 
@@ -688,12 +697,12 @@ export default function ListenModeLuxury({
     } else if (!isPlaying && sessionStartTime) {
       // Session ended - track analytics
       const sessionDuration = (Date.now() - sessionStartTime.getTime()) / 1000;
-      
+
       if (sessionDuration > 5) {
         // Only track if listened for more than 5 seconds
-        fetch('/api/listening/analytics', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        fetch("/api/listening/analytics", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             bookId: bookSlug,
             chapterNumber,
@@ -703,15 +712,27 @@ export default function ListenModeLuxury({
             speed: playbackRate,
             voiceId: selectedVoice,
             completionRate: Math.round((currentTime / duration) * 100),
-            deviceType: /mobile/i.test(navigator.userAgent) ? 'mobile' : 
-                       /tablet/i.test(navigator.userAgent) ? 'tablet' : 'desktop',
+            deviceType: /mobile/i.test(navigator.userAgent)
+              ? "mobile"
+              : /tablet/i.test(navigator.userAgent)
+              ? "tablet"
+              : "desktop",
           }),
-        }).catch((error) => console.error('[Analytics] Track failed:', error));
+        }).catch((error) => console.error("[Analytics] Track failed:", error));
       }
 
       setSessionStartTime(null);
     }
-  }, [isPlaying, sessionStartTime, bookSlug, chapterNumber, playbackRate, selectedVoice, currentTime, duration]);
+  }, [
+    isPlaying,
+    sessionStartTime,
+    bookSlug,
+    chapterNumber,
+    playbackRate,
+    selectedVoice,
+    currentTime,
+    duration,
+  ]);
 
   // �🎵 NEW: Sleep Timer
   useEffect(() => {
@@ -993,8 +1014,12 @@ export default function ListenModeLuxury({
               <div className="bg-gray-900 rounded-xl px-6 py-3 flex items-center gap-3">
                 <Flame className="w-6 h-6 text-orange-400 animate-bounce" />
                 <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-wider">Streak Updated!</p>
-                  <p className="text-lg font-bold text-white">{currentStreak} Days</p>
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Streak Updated!
+                  </p>
+                  <p className="text-lg font-bold text-white">
+                    {currentStreak} Days
+                  </p>
                 </div>
                 <TrendingUp className="w-5 h-5 text-green-400" />
               </div>
@@ -1006,7 +1031,9 @@ export default function ListenModeLuxury({
         {isPremiumUser && (
           <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
             <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-2xl px-6 py-3 text-center shadow-2xl animate-in fade-in duration-1000">
-              <p className="text-xs text-gray-400 mb-1">Mobile Gestures Active</p>
+              <p className="text-xs text-gray-400 mb-1">
+                Mobile Gestures Active
+              </p>
               <div className="flex items-center gap-4 text-xs text-gray-300">
                 <span>↔️ Swipe: Skip 15s</span>
                 <span>👆👆 Double-tap: Sentence</span>
@@ -1028,7 +1055,9 @@ export default function ListenModeLuxury({
               <>
                 <span className="text-gray-500">•</span>
                 <Flame className="w-4 h-4 text-orange-400 animate-pulse" />
-                <span className="text-orange-400 font-bold text-sm">{currentStreak} Day Streak</span>
+                <span className="text-orange-400 font-bold text-sm">
+                  {currentStreak} Day Streak
+                </span>
               </>
             )}
           </div>
