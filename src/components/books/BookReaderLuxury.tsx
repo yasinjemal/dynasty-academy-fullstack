@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ListenModeLuxury from "./ListenModeLuxury";
 import ReflectionModal, { type ReflectionData } from "./ReflectionModal";
+import { useLiveCoReading } from "@/hooks/useLiveCoReading";
+import LivePresenceIndicator from "./LivePresenceIndicator";
+import LiveChatWidget from "./LiveChatWidget";
+import LiveReactions from "./LiveReactions";
 import {
   BookOpen,
   ChevronLeft,
@@ -146,6 +150,21 @@ export default function BookReaderLuxury({
   const [streak, setStreak] = useState(0);
   const [dailyGoal, setDailyGoal] = useState(30); // minutes
   const [completionPercentage, setCompletionPercentage] = useState(0);
+
+  // ===========================================
+  // 🔥 LIVE CO-READING (NEW!)
+  // ===========================================
+  const {
+    isConnected,
+    pageReaders,
+    readerCount,
+    messages,
+    reactions,
+    typingUsers,
+    sendMessage,
+    sendReaction,
+    startTyping,
+  } = useLiveCoReading(slug, currentPage);
 
   // ===========================================
   // BOOKMARKS & HIGHLIGHTS
@@ -1424,6 +1443,34 @@ export default function BookReaderLuxury({
             </div>
           </div>
         </div>
+      )}
+
+      {/* ===========================================
+          🔥 LIVE CO-READING FEATURES (NEW!)
+          =========================================== */}
+      {!zenMode && (
+        <>
+          {/* Live Presence Indicator */}
+          <LivePresenceIndicator
+            readers={pageReaders}
+            count={readerCount}
+            isConnected={isConnected}
+          />
+
+          {/* Live Chat Widget */}
+          <LiveChatWidget
+            messages={messages}
+            typingUsers={typingUsers}
+            onSendMessage={sendMessage}
+            onStartTyping={startTyping}
+          />
+
+          {/* Live Reactions */}
+          <LiveReactions
+            reactions={reactions}
+            onReact={sendReaction}
+          />
+        </>
       )}
     </div>
   );
