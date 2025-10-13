@@ -32,6 +32,9 @@ export default function AdminBookEditPage({ params }: { params: Promise<{ id: st
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [alert, setAlert] = useState<{ type: 'success' | 'error', message: string } | null>(null)
+  
+  // Editable fields
+  const [editedBook, setEditedBook] = useState<Book | null>(null)
 
   useEffect(() => {
     fetchBook()
@@ -44,6 +47,7 @@ export default function AdminBookEditPage({ params }: { params: Promise<{ id: st
       if (!res.ok) throw new Error('Failed to fetch book')
       const data = await res.json()
       setBook(data.book)
+      setEditedBook(data.book) // Initialize edited book
     } catch (error) {
       console.error('Error fetching book:', error)
       showAlert('error', 'Failed to load book details')
@@ -61,6 +65,49 @@ export default function AdminBookEditPage({ params }: { params: Promise<{ id: st
     showAlert('success', `File uploaded! ${data.totalPages} pages processed.`)
     // Refresh book data
     fetchBook()
+  }
+
+  const handleSave = async () => {
+    if (!editedBook) return
+
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/admin/books/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editedBook.title,
+          description: editedBook.description,
+          price: editedBook.price,
+          salePrice: editedBook.salePrice,
+          category: editedBook.category,
+          tags: editedBook.tags,
+          featured: editedBook.featured,
+          previewPages: editedBook.previewPages,
+        }),
+      })
+
+      if (!res.ok) throw new Error('Failed to save changes')
+      
+      const data = await res.json()
+      setBook(data.book)
+      setEditedBook(data.book)
+      showAlert('success', '✅ Book updated successfully!')
+    } catch (error) {
+      console.error('Error saving book:', error)
+      showAlert('error', 'Failed to save changes')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleFieldChange = (field: keyof Book, value: any) => {
+    setEditedBook(prev => prev ? { ...prev, [field]: value } : null)
+  }
+
+  const handleTagsChange = (tagsString: string) => {
+    const tags = tagsString.split(',').map(t => t.trim()).filter(Boolean)
+    handleFieldChange('tags', tags)
   }
 
   if (loading) {
@@ -119,43 +166,87 @@ export default function AdminBookEditPage({ params }: { params: Promise<{ id: st
           <div className="lg:col-span-2 space-y-6">
             {/* Book Info Card */}
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Book Information</CardTitle>
+                <Button
+                  onClick={handleSave}
+                  disabled={saving || !editedBook}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                >
+                  {saving ? '💾 Saving...' : '💾 Save Changes'}
+                </Button>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label>Title</Label>
-                  <Input value={book.title} disabled className="bg-gray-100 dark:bg-gray-800" />
+                  <Label htmlFor="title">Title</Label>
+                  <Input
+                    id="title"
+                    value={editedBook?.title || ''}
+                    onChange={(e) => handleFieldChange('title', e.target.value)}
+                    className="font-semibold"
+                  />
                 </div>
                 <div>
-                  <Label>Category</Label>
-                  <Input value={book.category} disabled className="bg-gray-100 dark:bg-gray-800" />
+                  <Label htmlFor="category">Category</Label>
+                  <Input
+                    id="category"
+                    value={editedBook?.category || ''}
+                    onChange={(e) => handleFieldChange('category', e.target.value)}
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Price</Label>
+                    <Label htmlFor="price">Price ($)</Label>
                     <Input
-                      value={`$${book.price}`}
-                      disabled
-                      className="bg-gray-100 dark:bg-gray-800"
+                      id="price"
+                      type="number"
+                      step="0.01"
+                      value={editedBook?.price || 0}
+                      onChange={(e) => handleFieldChange('price', parseFloat(e.target.value))}
                     />
                   </div>
                   <div>
-                    <Label>Sale Price</Label>
+                    <Label htmlFor="salePrice">Sale Price ($)</Label>
                     <Input
-                      value={book.salePrice ? `$${book.salePrice}` : 'None'}
-                      disabled
-                      className="bg-gray-100 dark:bg-gray-800"
+                      id="salePrice"
+                      type="number"
+                      step="0.01"
+                      value={editedBook?.salePrice || ''}
+                      onChange={(e) => handleFieldChange('salePrice', e.target.value ? parseFloat(e.target.value) : null)}
+                      placeholder="Optional"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label>Description</Label>
+                  <Label htmlFor="previewPages">Free Preview Pages</Label>
+                  <Input
+                    id="previewPages"
+                    type="number"
+                    min="0"
+                    value={editedBook?.previewPages || 0}
+                    onChange={(e) => handleFieldChange('previewPages', parseInt(e.target.value))}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Number of pages users can read for free
+                  </p>
+                </div>
+                <div>
+                  <Label htmlFor="tags">Tags (comma-separated)</Label>
+                  <Input
+                    id="tags"
+                    value={editedBook?.tags.join(', ') || ''}
+                    onChange={(e) => handleTagsChange(e.target.value)}
+                    placeholder="finance, success, wealth"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="description">Description</Label>
                   <textarea
-                    value={book.description}
-                    disabled
-                    rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-800"
+                    id="description"
+                    value={editedBook?.description || ''}
+                    onChange={(e) => handleFieldChange('description', e.target.value)}
+                    rows={6}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
               </CardContent>
@@ -271,15 +362,18 @@ export default function AdminBookEditPage({ params }: { params: Promise<{ id: st
                 <div>
                   <Label>Featured</Label>
                   <div className="mt-2">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        book.featured
-                          ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                      }`}
-                    >
-                      {book.featured ? '⭐ Featured' : 'Not Featured'}
-                    </span>
+                    <label className="inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={editedBook?.featured || false}
+                        onChange={(e) => handleFieldChange('featured', e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 dark:peer-focus:ring-purple-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600"></div>
+                      <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                        {editedBook?.featured ? '⭐ Featured' : 'Not Featured'}
+                      </span>
+                    </label>
                   </div>
                 </div>
                 <div>

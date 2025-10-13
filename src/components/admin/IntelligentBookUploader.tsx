@@ -621,11 +621,7 @@ export default function IntelligentBookUploader({
               <Button
                 variant={isEditing ? "default" : "outline"}
                 onClick={handleEditToggle}
-                className={
-                  isEditing
-                    ? "bg-purple-600 hover:bg-purple-700"
-                    : ""
-                }
+                className={isEditing ? "bg-purple-600 hover:bg-purple-700" : ""}
               >
                 <Edit3 className="mr-2 h-4 w-4" />
                 {isEditing ? "Done Editing" : "✏️ Edit Details"}
@@ -687,8 +683,8 @@ export default function IntelligentBookUploader({
                         Pages / Reading Time
                       </label>
                       <p>
-                        {bookData.totalPages} pages • ~{bookData.readingTime} min
-                        read
+                        {bookData.totalPages} pages • ~{bookData.readingTime}{" "}
+                        min read
                       </p>
                     </div>
                   </div>
@@ -753,7 +749,9 @@ export default function IntelligentBookUploader({
                   <Input
                     id="author"
                     value={editedData.author}
-                    onChange={(e) => handleFieldChange("author", e.target.value)}
+                    onChange={(e) =>
+                      handleFieldChange("author", e.target.value)
+                    }
                   />
                 </div>
 
@@ -762,7 +760,9 @@ export default function IntelligentBookUploader({
                   <Label htmlFor="category">Category</Label>
                   <Select
                     value={editedData.category}
-                    onValueChange={(value) => handleFieldChange("category", value)}
+                    onValueChange={(value) =>
+                      handleFieldChange("category", value)
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -869,7 +869,10 @@ export default function IntelligentBookUploader({
                       type="number"
                       value={editedData.totalPages}
                       onChange={(e) =>
-                        handleFieldChange("totalPages", parseInt(e.target.value))
+                        handleFieldChange(
+                          "totalPages",
+                          parseInt(e.target.value)
+                        )
                       }
                     />
                   </div>
@@ -880,7 +883,10 @@ export default function IntelligentBookUploader({
                       type="number"
                       value={editedData.readingTime}
                       onChange={(e) =>
-                        handleFieldChange("readingTime", parseInt(e.target.value))
+                        handleFieldChange(
+                          "readingTime",
+                          parseInt(e.target.value)
+                        )
                       }
                     />
                   </div>
@@ -895,8 +901,7 @@ export default function IntelligentBookUploader({
                 className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
                 size="lg"
               >
-                <CheckCircle2 className="mr-2 h-5 w-5" />
-                ✅ Publish Book
+                <CheckCircle2 className="mr-2 h-5 w-5" />✅ Publish Book
               </Button>
               <Button
                 variant="outline"
