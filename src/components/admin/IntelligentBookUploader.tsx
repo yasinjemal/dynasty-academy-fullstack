@@ -11,6 +11,16 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Upload,
   FileText,
@@ -29,6 +39,9 @@ import {
   TrendingUp,
   Users,
   AlertCircle,
+  Edit3,
+  X,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -126,6 +139,9 @@ export default function IntelligentBookUploader({
   ]);
   const [bookData, setBookData] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState<any>(null);
+  const [newTag, setNewTag] = useState("");
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -327,6 +343,7 @@ export default function IntelligentBookUploader({
       };
 
       setBookData(finalBookData);
+      setEditedData(finalBookData); // Initialize edited data
       updateStage(11, "complete", finalBookData);
       setShowPreview(true);
 
@@ -341,11 +358,71 @@ export default function IntelligentBookUploader({
   };
 
   const handlePublish = () => {
-    if (bookData) {
-      onComplete(bookData);
+    const dataToPublish = isEditing ? editedData : bookData;
+    if (dataToPublish) {
+      onComplete(dataToPublish);
       toast.success("📚 Book published successfully!");
     }
   };
+
+  const handleEditToggle = () => {
+    if (!isEditing) {
+      setEditedData({ ...bookData });
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const handleFieldChange = (field: string, value: any) => {
+    setEditedData((prev: any) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleAddTag = () => {
+    if (newTag.trim() && editedData) {
+      setEditedData({
+        ...editedData,
+        tags: [...(editedData.tags || []), newTag.trim()],
+      });
+      setNewTag("");
+    }
+  };
+
+  const handleRemoveTag = (index: number) => {
+    if (editedData) {
+      setEditedData({
+        ...editedData,
+        tags: editedData.tags.filter((_: any, i: number) => i !== index),
+      });
+    }
+  };
+
+  const categories = [
+    "Business",
+    "Technology",
+    "Self-Help",
+    "Fiction",
+    "Non-Fiction",
+    "Science",
+    "History",
+    "Biography",
+    "Health",
+    "Cooking",
+    "Art",
+    "Travel",
+    "Religion",
+    "Philosophy",
+    "Psychology",
+    "Education",
+    "Children",
+    "Young Adult",
+    "Romance",
+    "Mystery",
+    "Fantasy",
+    "Science Fiction",
+    "Horror",
+  ];
 
   const progress = Math.round(
     (stages.filter((s) => s.status === "complete").length / stages.length) * 100
@@ -529,109 +606,287 @@ export default function IntelligentBookUploader({
       {showPreview && bookData && (
         <Card className="border-green-200 dark:border-green-800">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-              🎉 Book Processed Successfully!
-            </CardTitle>
-            <CardDescription>
-              Review the AI-generated data below and publish your book
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  🎉 Book Processed Successfully!
+                </CardTitle>
+                <CardDescription>
+                  {isEditing
+                    ? "Edit the AI-generated data below"
+                    : "Review the AI-generated data below and publish your book"}
+                </CardDescription>
+              </div>
+              <Button
+                variant={isEditing ? "default" : "outline"}
+                onClick={handleEditToggle}
+                className={
+                  isEditing
+                    ? "bg-purple-600 hover:bg-purple-700"
+                    : ""
+                }
+              >
+                <Edit3 className="mr-2 h-4 w-4" />
+                {isEditing ? "Done Editing" : "✏️ Edit Details"}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
-              {/* Cover */}
-              {bookData.coverImage && (
+            {/* Display Mode */}
+            {!isEditing && (
+              <>
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Cover */}
+                  {bookData.coverImage && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Cover Image</label>
+                      <img
+                        src={bookData.coverImage}
+                        alt="Book cover"
+                        className="w-full rounded-lg shadow-lg"
+                      />
+                    </div>
+                  )}
+
+                  {/* Details */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Title
+                      </label>
+                      <p className="text-lg font-bold">{bookData.title}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Author
+                      </label>
+                      <p className="font-medium">{bookData.author}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Category
+                      </label>
+                      <p className="font-medium">{bookData.category}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Price
+                      </label>
+                      <p className="text-2xl font-bold text-green-600">
+                        ${bookData.price}
+                      </p>
+                      {bookData.priceReasoning && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {bookData.priceReasoning}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Pages / Reading Time
+                      </label>
+                      <p>
+                        {bookData.totalPages} pages • ~{bookData.readingTime} min
+                        read
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Description
+                  </label>
+                  <p className="mt-2 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    {bookData.description}
+                  </p>
+                </div>
+
+                {/* Tags */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Tags
+                  </label>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {bookData.tags?.map((tag: string, index: number) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Target Audience */}
+                <div>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    Target Audience
+                  </label>
+                  <p className="mt-2 text-gray-700 dark:text-gray-300">
+                    {bookData.targetAudience}
+                  </p>
+                </div>
+              </>
+            )}
+
+            {/* Edit Mode */}
+            {isEditing && editedData && (
+              <div className="space-y-6">
+                {/* Title */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Cover Image</label>
-                  <img
-                    src={bookData.coverImage}
-                    alt="Book cover"
-                    className="w-full rounded-lg shadow-lg"
+                  <Label htmlFor="title">Title</Label>
+                  <Input
+                    id="title"
+                    value={editedData.title}
+                    onChange={(e) => handleFieldChange("title", e.target.value)}
+                    className="text-lg font-semibold"
                   />
                 </div>
-              )}
 
-              {/* Details */}
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Title
-                  </label>
-                  <p className="text-lg font-bold">{bookData.title}</p>
+                {/* Author */}
+                <div className="space-y-2">
+                  <Label htmlFor="author">Author</Label>
+                  <Input
+                    id="author"
+                    value={editedData.author}
+                    onChange={(e) => handleFieldChange("author", e.target.value)}
+                  />
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Author
-                  </label>
-                  <p className="font-medium">{bookData.author}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Category
-                  </label>
-                  <p className="font-medium">{bookData.category}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Price
-                  </label>
-                  <p className="text-2xl font-bold text-green-600">
-                    ${bookData.price}
-                  </p>
-                  {bookData.priceReasoning && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {bookData.priceReasoning}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Pages / Reading Time
-                  </label>
-                  <p>
-                    {bookData.totalPages} pages • ~{bookData.readingTime} min
-                    read
-                  </p>
-                </div>
-              </div>
-            </div>
 
-            {/* Description */}
-            <div>
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Description
-              </label>
-              <p className="mt-2 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                {bookData.description}
-              </p>
-            </div>
-
-            {/* Tags */}
-            <div>
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Tags
-              </label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {bookData.tags?.map((tag: string, index: number) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm"
+                {/* Category */}
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category</Label>
+                  <Select
+                    value={editedData.category}
+                    onValueChange={(value) => handleFieldChange("category", value)}
                   >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat} value={cat}>
+                          {cat}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            {/* Target Audience */}
-            <div>
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Target Audience
-              </label>
-              <p className="mt-2 text-gray-700 dark:text-gray-300">
-                {bookData.targetAudience}
-              </p>
-            </div>
+                {/* Price */}
+                <div className="space-y-2">
+                  <Label htmlFor="price">Price ($)</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    value={editedData.price}
+                    onChange={(e) =>
+                      handleFieldChange("price", parseFloat(e.target.value))
+                    }
+                    className="text-xl font-bold"
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={editedData.description}
+                    onChange={(e) =>
+                      handleFieldChange("description", e.target.value)
+                    }
+                    rows={8}
+                    className="font-normal"
+                  />
+                </div>
+
+                {/* Tags */}
+                <div className="space-y-2">
+                  <Label>Tags</Label>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {editedData.tags?.map((tag: string, index: number) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm flex items-center gap-2"
+                      >
+                        {tag}
+                        <button
+                          onClick={() => handleRemoveTag(index)}
+                          className="hover:text-red-600"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add new tag..."
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddTag();
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleAddTag}
+                      variant="outline"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Target Audience */}
+                <div className="space-y-2">
+                  <Label htmlFor="targetAudience">Target Audience</Label>
+                  <Textarea
+                    id="targetAudience"
+                    value={editedData.targetAudience}
+                    onChange={(e) =>
+                      handleFieldChange("targetAudience", e.target.value)
+                    }
+                    rows={3}
+                  />
+                </div>
+
+                {/* Pages & Reading Time */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="totalPages">Total Pages</Label>
+                    <Input
+                      id="totalPages"
+                      type="number"
+                      value={editedData.totalPages}
+                      onChange={(e) =>
+                        handleFieldChange("totalPages", parseInt(e.target.value))
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="readingTime">Reading Time (min)</Label>
+                    <Input
+                      id="readingTime"
+                      type="number"
+                      value={editedData.readingTime}
+                      onChange={(e) =>
+                        handleFieldChange("readingTime", parseInt(e.target.value))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex gap-3 pt-4 border-t">
@@ -640,14 +895,17 @@ export default function IntelligentBookUploader({
                 className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
                 size="lg"
               >
-                <CheckCircle2 className="mr-2 h-5 w-5" />✅ Publish Book
+                <CheckCircle2 className="mr-2 h-5 w-5" />
+                ✅ Publish Book
               </Button>
               <Button
                 variant="outline"
                 onClick={() => {
                   setFile(null);
                   setBookData(null);
+                  setEditedData(null);
                   setShowPreview(false);
+                  setIsEditing(false);
                   setStages(
                     stages.map((s) => ({
                       ...s,
