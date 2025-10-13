@@ -1,57 +1,21 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Plus, Loader2, TrendingUp, Users, Hash } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { FeedItem, type FeedItemData } from '@/components/community/FeedItem';
+import { CreatePostModal } from '@/components/community/CreatePostModal';
+import { useToast } from '@/hooks/use-toast';
 
-interface Category {
-  id: string
-  name: string
-  slug: string
-  description: string | null
-  icon: string | null
-  color: string | null
-  topicCount: number
-  postCount: number
-}
-
-interface Topic {
-  id: string
-  title: string
-  slug: string
-  content: string
-  author: {
-    id: string
-    name: string | null
-    email: string | null
-    image: string | null
-  }
-  category: {
-    name: string
-    slug: string
-    icon: string | null
-    color: string | null
-  }
-  replies: number
-  views: number
-  likes: number
-  isPinned: boolean
-  isLocked: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-interface Stats {
-  totalTopics: number
-  totalPosts: number
-  activeUsers: number
-}
+type Tab = 'hot' | 'following' | 'topic';
 
 export default function CommunityPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  const { data: session } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
   const [categories, setCategories] = useState<Category[]>([])
   const [topics, setTopics] = useState<Topic[]>([])
   const [stats, setStats] = useState<Stats>({ totalTopics: 0, totalPosts: 0, activeUsers: 0 })
