@@ -142,13 +142,65 @@ export default function ListenModeLuxury({
     const totalWords = sentencesWithWords.reduce((sum, s) => sum + s.wordCount, 0)
     if (totalWords === 0) return []
 
+    // ============================================================================
+    // ADVANCED TIMING ALGORITHM - Character-based with punctuation awareness
+    // ============================================================================
+    
+    // Calculate total characters (more accurate than words for TTS timing)
+    const totalChars = sentencesWithWords.reduce((sum, s) => sum + s.text.length, 0)
+    
+    // Base timing: distribute duration by character count
+    const baseCharSpeed = duration / totalChars // seconds per character
+    
+    // Punctuation pause weights (relative to character speed)
+    const pauseWeights: Record<string, number> = {
+      '.': 8,   // Period: longer pause
+      '!': 8,   // Exclamation: longer pause
+      '?': 8,   // Question: longer pause
+      ',': 3,   // Comma: medium pause
+      ';': 4,   // Semicolon: medium-long pause
+      ':': 4,   // Colon: medium-long pause
+      '-': 2,   // Dash: short pause
+      '—': 2,   // Em dash: short pause
+      '\n': 5,  // Newline: medium pause
+    }
+    
+    // Calculate punctuation pauses for each sentence
+    const sentenceTimings = sentencesWithWords.map((sentence) => {
+      let pauseTime = 0
+      for (const char of sentence.text) {
+        if (pauseWeights[char]) {
+          pauseTime += pauseWeights[char] * baseCharSpeed
+        }
+      }
+      return {
+        charCount: sentence.text.length,
+        pauseTime,
+      }
+    })
+    
+    // Calculate total time including pauses
+    const totalBaseTime = totalChars * baseCharSpeed
+    const totalPauseTime = sentenceTimings.reduce((sum, t) => sum + t.pauseTime, 0)
+    const totalCalculatedTime = totalBaseTime + totalPauseTime
+    
+    // Apply calibration to match actual audio duration
+    const calibrationFactor = duration / totalCalculatedTime
+    
+    // Build sentence timeline with realistic timing
     let cumulativeTime = 0
-    return sentencesWithWords.map((sentence) => {
-      const ratio = sentence.wordCount / totalWords
-      const sentenceDuration = duration * ratio
-      const startTime = cumulativeTime
-      const endTime = cumulativeTime + sentenceDuration
-      cumulativeTime = endTime
+    return sentencesWithWords.map((sentence, index) => {
+      const timing = sentenceTimings[index]
+      
+      // Calculate sentence duration: (chars * char_speed + pauses) * calibration
+      const baseDuration = (timing.charCount * baseCharSpeed + timing.pauseTime) * calibrationFactor
+      
+      // Apply slight lookahead (50ms) for better perceived sync
+      const lookahead = 0.05 // 50ms early feels more natural to users
+      const startTime = Math.max(0, cumulativeTime - lookahead)
+      const endTime = cumulativeTime + baseDuration - lookahead
+      
+      cumulativeTime += baseDuration
 
       return {
         text: sentence.text,
@@ -208,8 +260,9 @@ export default function ListenModeLuxury({
 
     const activeIndex = sentences.findIndex(
       (sentence) => {
-        const progress = (currentTime - sentence.startTime) / (sentence.endTime - sentence.startTime)
-        return progress >= 0.6 && progress <= 1.0 // 60-70% threshold to prevent flicker
+        // Highlight sentence as soon as it starts (0% threshold)
+        // This provides immediate visual feedback with audio
+        return currentTime >= sentence.startTime && currentTime < sentence.endTime
       }
     )
 
@@ -392,8 +445,7 @@ export default function ListenModeLuxury({
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         console.error('API error:', errorData)
-        const errorMessage = errorData.details || errorData.error || 'Failed to generate audio'
-        throw new Error(errorMessage)
+        throw new Error('Failed to generate audio')
       }
 
       const data = await response.json()
@@ -408,9 +460,8 @@ export default function ListenModeLuxury({
       setAudioUrl(data.audioUrl)
       setHasGenerated(true)
       console.log('Audio URL set successfully, cached:', data.cached)
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to generate audio. Please try again.'
-      setError(errorMessage)
+    } catch (err) {
+      setError('Failed to generate audio. Please try again.')
       console.error('Audio generation error:', err)
     } finally {
       setIsLoading(false)
@@ -925,7 +976,7 @@ export default function ListenModeLuxury({
 
             <div
               ref={containerRef}
-              className="prose prose-lg prose-invert max-w-none overflow-y-auto max-h-[600px] leading-relaxed"
+              className="prose prose-lg prose-invert max-w-none overflow-y-auto max-h-[600px] leading-relaxed luxury-scrollbar"
               style={{ scrollBehavior: 'smooth' }}
             >
               {sentences.map((sentence, index) => (
@@ -959,17 +1010,30 @@ export default function ListenModeLuxury({
                     textShadow: index === activeSentenceIndex ? '0 0 20px rgba(168, 85, 247, 0.5)' : 'none'
                   }}
                 >
-                  {index === activeSentenceIndex && (
-                    <span className="absolute -left-8 top-1/2 -translate-y-1/2">
-                      <span className="inline-flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-                      </span>
-                    </span>
-                  )}
                   {sentence.text}{' '}
-                  {index === activeSentenceIndex && (
-                    <span className="inline-block w-0.5 h-5 bg-gradient-to-b from-purple-400 to-violet-500 animate-pulse ml-1 shadow-lg shadow-purple-400/50" />
+                  {index === activeSentenceIndex && followText && (
+                    <span className="inline-flex items-center gap-1 ml-2 animate-bounce-gentle">
+                      <span className="relative inline-flex">
+                        {/* Outer glow ring */}
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-violet-400 opacity-75 animate-ping-slow"></span>
+                        {/* Inner glow ring */}
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-violet-500 opacity-50 animate-pulse"></span>
+                        {/* Core icon */}
+                        <span className="relative inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-purple-600 via-violet-600 to-fuchsia-600 shadow-2xl shadow-purple-500/50">
+                          <svg 
+                            className="w-3 h-3 text-white animate-scroll-bounce" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="3" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+                          </svg>
+                        </span>
+                      </span>
+                      {/* Sparkle trail */}
+                      <span className="text-purple-400 text-xs animate-sparkle">✨</span>
+                    </span>
                   )}
                 </span>
               ))}
@@ -1063,6 +1127,145 @@ export default function ListenModeLuxury({
 
         .scale-102 {
           transform: scale(1.02);
+        }
+
+        /* Beautiful Scroll Indicator Animations */
+        .animate-bounce-gentle {
+          animation: bounce-gentle 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce-gentle {
+          0%, 100% { 
+            transform: translateY(0); 
+          }
+          50% { 
+            transform: translateY(-8px); 
+          }
+        }
+
+        .animate-ping-slow {
+          animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes ping-slow {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          75%, 100% {
+            transform: scale(2);
+            opacity: 0;
+          }
+        }
+
+        .animate-scroll-bounce {
+          animation: scroll-bounce 1.5s ease-in-out infinite;
+        }
+
+        @keyframes scroll-bounce {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(4px);
+          }
+        }
+
+        .animate-sparkle {
+          animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+          0%, 100% {
+            opacity: 0.3;
+            transform: scale(0.8) rotate(0deg);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.2) rotate(180deg);
+          }
+        }
+
+        /* ============================================ */
+        /* LUXURY SCROLLBAR DESIGN */
+        /* ============================================ */
+        .luxury-scrollbar::-webkit-scrollbar {
+          width: 12px;
+          background: transparent;
+        }
+
+        .luxury-scrollbar::-webkit-scrollbar-track {
+          background: linear-gradient(
+            180deg,
+            rgba(30, 27, 75, 0.3) 0%,
+            rgba(88, 28, 135, 0.2) 50%,
+            rgba(30, 27, 75, 0.3) 100%
+          );
+          border-radius: 10px;
+          border: 1px solid rgba(139, 92, 246, 0.2);
+          box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+          margin: 4px 0;
+        }
+
+        .luxury-scrollbar::-webkit-scrollbar-thumb {
+          background: linear-gradient(
+            180deg,
+            #a855f7 0%,
+            #8b5cf6 25%,
+            #7c3aed 50%,
+            #8b5cf6 75%,
+            #a855f7 100%
+          );
+          border-radius: 10px;
+          border: 2px solid rgba(168, 85, 247, 0.3);
+          box-shadow: 
+            0 0 20px rgba(168, 85, 247, 0.6),
+            0 0 40px rgba(168, 85, 247, 0.3),
+            inset 0 0 10px rgba(255, 255, 255, 0.2);
+          transition: all 0.3s ease;
+        }
+
+        .luxury-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(
+            180deg,
+            #c084fc 0%,
+            #a855f7 25%,
+            #9333ea 50%,
+            #a855f7 75%,
+            #c084fc 100%
+          );
+          border-color: rgba(192, 132, 252, 0.5);
+          box-shadow: 
+            0 0 30px rgba(168, 85, 247, 0.9),
+            0 0 60px rgba(168, 85, 247, 0.5),
+            inset 0 0 15px rgba(255, 255, 255, 0.3);
+          transform: scaleX(1.2);
+        }
+
+        .luxury-scrollbar::-webkit-scrollbar-thumb:active {
+          background: linear-gradient(
+            180deg,
+            #e9d5ff 0%,
+            #c084fc 25%,
+            #a855f7 50%,
+            #c084fc 75%,
+            #e9d5ff 100%
+          );
+          box-shadow: 
+            0 0 40px rgba(168, 85, 247, 1),
+            0 0 80px rgba(168, 85, 247, 0.6),
+            inset 0 0 20px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Scrollbar corner */
+        .luxury-scrollbar::-webkit-scrollbar-corner {
+          background: transparent;
+        }
+
+        /* Firefox scrollbar */
+        .luxury-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #8b5cf6 rgba(30, 27, 75, 0.3);
         }
       `}</style>
 

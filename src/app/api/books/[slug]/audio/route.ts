@@ -84,12 +84,14 @@ export async function POST(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('ElevenLabs API error:', {
+      console.error("ElevenLabs API error:", {
         status: response.status,
         statusText: response.statusText,
-        body: errorText
+        body: errorText,
       });
-      throw new Error(`ElevenLabs API error: ${response.status} - ${errorText}`);
+      throw new Error(
+        `ElevenLabs API error: ${response.status} - ${errorText}`
+      );
     }
 
     // Get audio buffer
@@ -109,7 +111,11 @@ export async function POST(
         chapterNumber: parseInt(chapterNumber),
         audioUrl,
         voiceId,
-        duration: `${Math.floor(estimatedDuration / 60)}:${Math.floor(estimatedDuration % 60).toString().padStart(2, '0')}`,
+        duration: `${Math.floor(estimatedDuration / 60)}:${Math.floor(
+          estimatedDuration % 60
+        )
+          .toString()
+          .padStart(2, "0")}`,
         metadata: {
           generatedAt: new Date().toISOString(),
           wordCount,
@@ -127,10 +133,10 @@ export async function POST(
   } catch (error: any) {
     console.error("Audio generation error:", error);
     return NextResponse.json(
-      { 
+      {
         error: "Failed to generate audio",
         details: error.message || String(error),
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
       },
       { status: 500 }
     );
