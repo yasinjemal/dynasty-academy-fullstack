@@ -1,4 +1,16 @@
-# 🚀 QUICK START: LISTENMODE PHASE 2
+// src/app/layout.tsx
+import { Toaster } from 'sonner'
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Toaster position="top-center" richColors />
+      </body>
+    </html>
+  )
+}# 🚀 QUICK START: LISTENMODE PHASE 2
 
 ## **5-Minute Setup Guide**
 
