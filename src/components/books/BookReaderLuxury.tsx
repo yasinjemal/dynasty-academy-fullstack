@@ -150,15 +150,12 @@ export default function BookReaderLuxury({
   // ===========================================
   const [bookmarks, setBookmarks] = useState<number[]>([]);
   const [currentPageBookmarked, setCurrentPageBookmarked] = useState(false);
-  const [highlights, setHighlights] = useState<Map<number, string[]>>(
-    new Map()
-  );
 
   // ===========================================
   // REFS
   // ===========================================
   const contentRef = useRef<HTMLDivElement>(null);
-  const autoScrollIntervalRef = useRef<NodeJS.Timeout>();
+  const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const canReadPage = isPurchased || currentPage <= freePages;
   const progressPercentage = (currentPage / totalPages) * 100;
