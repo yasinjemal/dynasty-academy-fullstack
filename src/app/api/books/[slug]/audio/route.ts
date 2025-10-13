@@ -34,13 +34,11 @@ export async function POST(
       voiceId = "EXAVITQu4vr4xnSDxMaL",
     } = await req.json();
 
-    const chapterId = `chapter-${chapterNumber}`;
-
     // Check if audio already exists in AudioAsset table
     const existingAudio = await prisma.audioAsset.findFirst({
       where: {
         bookId: book.id,
-        chapterId,
+        chapterNumber: parseInt(chapterNumber),
       },
       orderBy: {
         createdAt: "desc",
@@ -50,7 +48,7 @@ export async function POST(
     if (existingAudio) {
       return NextResponse.json({
         success: true,
-        audioUrl: existingAudio.storageUrl,
+        audioUrl: existingAudio.audioUrl,
         cached: true,
       });
     }
@@ -108,15 +106,10 @@ export async function POST(
     const bookAudio = await prisma.audioAsset.create({
       data: {
         bookId: book.id,
-        chapterId: `chapter-${chapterNumber}`,
-        contentHash: `simple-${book.id}-${chapterNumber}-${voiceId}`, // Simple hash for now
+        chapterNumber: parseInt(chapterNumber),
+        audioUrl,
         voiceId,
-        model: "eleven_multilingual_v2",
-        speakingRate: 1.0,
-        format: "mp3_44100_128",
-        storageUrl: audioUrl,
-        durationSec: estimatedDuration,
-        wordCount,
+        duration: `${Math.floor(estimatedDuration / 60)}:${Math.floor(estimatedDuration % 60).toString().padStart(2, '0')}`,
         metadata: {
           generatedAt: new Date().toISOString(),
           wordCount,
@@ -128,7 +121,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      audioUrl: bookAudio.storageUrl,
+      audioUrl: bookAudio.audioUrl,
       cached: false,
     });
   } catch (error: any) {
@@ -163,12 +156,10 @@ export async function GET(
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const chapterId = `chapter-${chapterNumber}`;
-
     const audio = await prisma.audioAsset.findFirst({
       where: {
         bookId: book.id,
-        chapterId,
+        chapterNumber,
       },
       orderBy: {
         createdAt: "desc",
@@ -181,8 +172,8 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      audioUrl: audio.storageUrl,
-      duration: audio.durationSec,
+      audioUrl: audio.audioUrl,
+      duration: audio.duration,
     });
   } catch (error) {
     console.error("Audio fetch error:", error);
