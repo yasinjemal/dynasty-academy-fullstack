@@ -94,6 +94,13 @@ model User {
   reportsCreated Report[]      @relation("UserReports")
   reportsReviewed Report[]     @relation("ReviewedReports")
   
+  // ListenMode Phase 2
+  listeningProgress ListeningProgress[] @relation("UserListeningProgress")
+  listeningStreak   ListeningStreak?    @relation("UserListeningStreak")
+  userAchievements  UserAchievement[]   @relation("UserAchievements")
+  sentenceHighlights SentenceHighlight[] @relation("UserSentenceHighlights")
+  listeningAnalytics ListeningAnalytics[] @relation("UserListeningAnalytics")
+  
   @@index([email])
   @@index([role])
   @@index([username])
@@ -206,6 +213,11 @@ model Book {
   audioAssets AudioAsset[]
   bookReflections BookReflection[] @relation("BookReflections")
   reflections Reflection[]   // Dynasty Vision reflections
+  
+  // ListenMode Phase 2
+  listeningProgress  ListeningProgress[]  @relation("BookListeningProgress")
+  sentenceHighlights SentenceHighlight[]  @relation("BookSentenceHighlights")
+  listeningAnalytics ListeningAnalytics[] @relation("BookListeningAnalytics")
   
   @@index([slug])
   @@index([category])
@@ -1082,4 +1094,136 @@ enum ReportStatus {
   REVIEWING
   RESOLVED
   DISMISSED
+}
+
+// ============================================
+// LISTENMODE PHASE 2: Cloud Sync + Gamification
+// ============================================
+
+// Listening Progress (Multi-Device Cloud Sync)
+model ListeningProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation("UserListeningProgress", fields: [userId], references: [id], onDelete: Cascade)
+  bookId         String
+  book           Book     @relation("BookListeningProgress", fields: [bookId], references: [id], onDelete: Cascade)
+  chapterNumber  Int
+  position       Float    @default(0)
+  duration       Float    @default(0)
+  speed          Float    @default(1.0)
+  voiceId        String
+  completed      Boolean  @default(false)
+  lastListened   DateTime @default(now())
+  deviceId       String?
+  deviceName     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@unique([userId, bookId, chapterNumber])
+  @@index([userId])
+  @@index([lastListened])
+  @@map("listening_progress")
+}
+
+// Listening Streaks
+model ListeningStreak {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation("UserListeningStreak", fields: [userId], references: [id], onDelete: Cascade)
+  currentStreak  Int      @default(0)
+  longestStreak  Int      @default(0)
+  lastListenDate DateTime
+  totalMinutes   Int      @default(0)
+  totalSessions  Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@map("listening_streaks")
+}
+
+// Achievements
+model Achievement {
+  id            String            @id @default(cuid())
+  key           String            @unique
+  name          String
+  description   String
+  icon          String
+  category      AchievementCategory
+  requirement   Int
+  dynastyPoints Int               @default(0)
+  rarity        AchievementRarity @default(COMMON)
+  createdAt     DateTime          @default(now())
+  
+  userAchievements UserAchievement[]
+  
+  @@map("achievements")
+}
+
+enum AchievementCategory {
+  LISTENING
+  READING
+  ENGAGEMENT
+  MILESTONE
+}
+
+enum AchievementRarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+// User Achievements
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation("UserAchievements", fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  unlockedAt    DateTime    @default(now())
+  progress      Int         @default(0)
+  
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@map("user_achievements")
+}
+
+// Sentence Highlights (Cross-Device Sync)
+model SentenceHighlight {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation("UserSentenceHighlights", fields: [userId], references: [id], onDelete: Cascade)
+  bookId        String
+  book          Book     @relation("BookSentenceHighlights", fields: [bookId], references: [id], onDelete: Cascade)
+  chapterNumber Int
+  sentenceIndex Int
+  sentenceText  String   @db.Text
+  note          String?  @db.Text
+  createdAt     DateTime @default(now())
+  
+  @@unique([userId, bookId, chapterNumber, sentenceIndex])
+  @@index([userId, bookId])
+  @@map("sentence_highlights")
+}
+
+// Listening Analytics (Advanced Dashboard)
+model ListeningAnalytics {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation("UserListeningAnalytics", fields: [userId], references: [id], onDelete: Cascade)
+  bookId         String
+  book           Book     @relation("BookListeningAnalytics", fields: [bookId], references: [id], onDelete: Cascade)
+  sessionId      String
+  startTime      DateTime
+  endTime        DateTime?
+  duration       Int      @default(0) // seconds
+  speed          Float
+  voiceId        String
+  completionRate Float    @default(0)
+  device         String?
+  createdAt      DateTime @default(now())
+  
+  @@index([userId, startTime])
+  @@index([bookId])
+  @@map("listening_analytics")
 }
