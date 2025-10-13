@@ -100,6 +100,10 @@ model User {
   sentenceHighlights SentenceHighlight[] @relation("UserSentenceHighlights")
   listeningAnalytics ListeningAnalytics[] @relation("UserListeningAnalytics")
   
+  // Live Co-Reading
+  readingPresence   ReadingPresence[]   @relation("UserReadingPresence")
+  pageChats         PageChat[]          @relation("UserPageChat")
+  
   @@index([email])
   @@index([role])
   @@index([username])
@@ -217,6 +221,12 @@ model Book {
   listeningProgress  ListeningProgress[]  @relation("BookListeningProgress")
   sentenceHighlights SentenceHighlight[]  @relation("BookSentenceHighlights")
   listeningAnalytics ListeningAnalytics[] @relation("BookListeningAnalytics")
+  
+  // Live Co-Reading
+  readingPresence    ReadingPresence[]    @relation("BookReadingPresence")
+  pageChats          PageChat[]           @relation("BookPageChat")
+  pageReactions      PageReaction[]       @relation("BookPageReaction")
+  coReadingAnalytics CoReadingAnalytics[] @relation("BookCoReadingAnalytics")
   
   @@index([slug])
   @@index([category])
@@ -1200,4 +1210,82 @@ model ListeningAnalytics {
   @@index([userId, startTime])
   @@index([bookId])
   @@map("listening_analytics")
+}
+
+// ============================================
+// LIVE CO-READING SYSTEM
+// ============================================
+
+// Reading Presence (Who's reading what page RIGHT NOW)
+model ReadingPresence {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation("UserReadingPresence", fields: [userId], references: [id], onDelete: Cascade)
+  bookId     String
+  book       Book     @relation("BookReadingPresence", fields: [bookId], references: [id], onDelete: Cascade)
+  bookSlug   String
+  page       Int
+  socketId   String   // For reconnection tracking
+  lastSeenAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  
+  @@unique([userId, bookId]) // One presence per user per book
+  @@index([bookId, page, lastSeenAt]) // Fast page queries
+  @@index([lastSeenAt]) // For TTL cleanup
+  @@map("reading_presence")
+}
+
+// Page Chat (Persisted messages by page)
+model PageChat {
+  id        String   @id @default(cuid())
+  bookId    String
+  book      Book     @relation("BookPageChat", fields: [bookId], references: [id], onDelete: Cascade)
+  bookSlug  String
+  page      Int
+  userId    String
+  user      User     @relation("UserPageChat", fields: [userId], references: [id], onDelete: Cascade)
+  message   String   @db.Text
+  edited    Boolean  @default(false)
+  editedAt  DateTime?
+  createdAt DateTime @default(now())
+  
+  @@index([bookId, page, createdAt]) // Fast page history
+  @@index([userId, createdAt]) // User message history
+  @@map("page_chat")
+}
+
+// Page Reactions (High-level counters per page)
+model PageReaction {
+  id        String   @id @default(cuid())
+  bookId    String
+  book      Book     @relation("BookPageReaction", fields: [bookId], references: [id], onDelete: Cascade)
+  bookSlug  String
+  page      Int
+  emote     String   // 👍🔥💡❤️
+  count     Int      @default(1)
+  userIds   String[] // Track who reacted (prevent duplicates)
+  updatedAt DateTime @updatedAt
+  
+  @@unique([bookId, page, emote])
+  @@index([bookId, page])
+  @@map("page_reactions")
+}
+
+// Co-Reading Analytics
+model CoReadingAnalytics {
+  id                 String   @id @default(cuid())
+  bookId             String
+  book               Book     @relation("BookCoReadingAnalytics", fields: [bookId], references: [id], onDelete: Cascade)
+  page               Int
+  date               DateTime @default(now())
+  peakConcurrent     Int      @default(0)
+  avgConcurrent      Float    @default(0)
+  totalMessages      Int      @default(0)
+  totalReactions     Int      @default(0)
+  uniqueUsers        Int      @default(0)
+  avgTimeToFirstMsg  Float?   // seconds
+  
+  @@unique([bookId, page, date])
+  @@index([bookId, date])
+  @@map("co_reading_analytics")
 }
