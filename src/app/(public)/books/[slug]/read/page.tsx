@@ -23,10 +23,9 @@ export default async function BookReadPage({ params }: PageProps) {
     redirect("/books");
   }
 
-  // Check if user has purchased this book
-  // For now, treat all users as not having purchased (free preview only)
-  // TODO: Implement proper purchase checking after fixing enum issue
-  const isPurchased = false;
+  // Check if user has purchased this book or is premium
+  const isPurchased = false; // TODO: Implement proper purchase checking
+  const isPremium = session?.user?.isPremium || false;
 
   // Check if book content exists
   if (!book.totalPages || book.totalPages === 0) {
@@ -73,6 +72,7 @@ export default async function BookReadPage({ params }: PageProps) {
       totalPages={book.totalPages}
       freePages={book.previewPages || 0}
       isPurchased={isPurchased}
+      isPremium={isPremium}
       price={book.price}
       salePrice={book.salePrice}
     />

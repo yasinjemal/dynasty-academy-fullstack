@@ -72,6 +72,7 @@ interface BookReaderLuxuryProps {
   totalPages: number;
   freePages: number;
   isPurchased: boolean;
+  isPremium: boolean;
   price: number;
   salePrice?: number | null;
 }
@@ -83,6 +84,7 @@ export default function BookReaderLuxury({
   totalPages,
   freePages,
   isPurchased,
+  isPremium,
   price,
   salePrice,
 }: BookReaderLuxuryProps) {
@@ -1187,7 +1189,7 @@ export default function BookReaderLuxury({
                     bookSlug={slug}
                     chapterNumber={currentPage}
                     pageContent={pageContent}
-                    isPremiumUser={isPurchased}
+                    isPremiumUser={isPremium}
                   />
                 ) : (
                   <>
