@@ -65,7 +65,6 @@ model User {
   following     Follow[]     @relation("Follower")
   notifications Notification[] @relation("Recipient")
   notificationsSent Notification[] @relation("NotificationActors")
-  achievements  UserAchievement[]
   progress      UserProgress[]
   reviews       Review[]
   purchases     Purchase[]     @relation("UserPurchases")
@@ -518,32 +517,7 @@ enum NotificationType {
 // GAMIFICATION
 // ============================================
 
-model Achievement {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String
-  icon        String
-  points      Int
-  requirement String   // JSON describing requirement
-  
-  users       UserAchievement[]
-  
-  @@map("achievements")
-}
-
-model UserAchievement {
-  id            String      @id @default(cuid())
-  userId        String
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  achievementId String
-  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-  
-  unlockedAt    DateTime    @default(now())
-  
-  @@unique([userId, achievementId])
-  @@map("user_achievements")
-}
+// Achievement models moved to ListenMode Phase 2 section (line 1145+)
 
 // ============================================
 // PROGRESS TRACKING

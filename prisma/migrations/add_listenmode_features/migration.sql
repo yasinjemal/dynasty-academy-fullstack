@@ -2,6 +2,10 @@
 -- LISTENMODE PHASE 2: Cloud Sync + Gamification
 -- ============================================
 
+-- Drop old achievements tables if they exist (old schema)
+DROP TABLE IF EXISTS "user_achievements" CASCADE;
+DROP TABLE IF EXISTS "achievements" CASCADE;
+
 -- 1. LISTENING PROGRESS TABLE (Multi-Device Cloud Sync)
 CREATE TABLE IF NOT EXISTS "listening_progress" (
   "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,

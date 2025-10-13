@@ -3,11 +3,13 @@
 ## **5-Minute Setup Guide**
 
 ### **Step 1: Install Dependencies**
+
 ```powershell
 npm install sonner
 ```
 
 ### **Step 2: Run Database Migration**
+
 ```powershell
 npx prisma migrate deploy
 npx prisma generate
@@ -18,7 +20,7 @@ npx prisma generate
 Edit `src/app/layout.tsx`:
 
 ```typescript
-import { Toaster } from 'sonner'
+import { Toaster } from "sonner";
 
 export default function RootLayout({ children }) {
   return (
@@ -28,7 +30,7 @@ export default function RootLayout({ children }) {
         <Toaster position="top-center" richColors />
       </body>
     </html>
-  )
+  );
 }
 ```
 
@@ -39,6 +41,7 @@ export default function RootLayout({ children }) {
 3. **Start listening**
 
 You should see:
+
 - ✅ Progress auto-saves every 10 seconds
 - ✅ Streak badge appears (if new streak)
 - ✅ Mobile gesture hints show up
@@ -53,6 +56,7 @@ You should see:
 ### **Step 6: Unlock Achievements**
 
 Try these to test:
+
 - Listen at 10 PM → **Night Owl** (25 pts)
 - Listen before 6 AM → **Early Bird** (25 pts)
 - Listen at 2x speed for 30 min → **Speed Demon** (50 pts)
@@ -64,17 +68,21 @@ Try these to test:
 ## **Troubleshooting**
 
 ### **Achievements not showing?**
+
 Check browser console for API errors. Verify Prisma migration ran successfully.
 
 ### **Cloud sync not working?**
+
 1. Check if user is logged in
 2. Verify `isPremiumUser` is true
 3. Check Network tab for API calls
 
 ### **Mobile gestures not working?**
+
 Enable DeviceMotionEvent permissions in mobile browser settings.
 
 ### **Streak not updating?**
+
 Check that `listening_streaks` table exists in database.
 
 ---
