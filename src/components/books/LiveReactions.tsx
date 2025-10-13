@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Smile } from 'lucide-react';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Smile } from "lucide-react";
 
 interface Reaction {
   id: string;
@@ -19,18 +19,23 @@ interface LiveReactionsProps {
   onReact: (emoji: string, textIndex: number) => void;
 }
 
-const EMOJI_OPTIONS = ['🔥', '💡', '😮', '❤️', '👏', '🎯', '💯', '🤔'];
+const EMOJI_OPTIONS = ["🔥", "💡", "😮", "❤️", "👏", "🎯", "💯", "🤔"];
 
-export default function LiveReactions({ reactions, onReact }: LiveReactionsProps) {
+export default function LiveReactions({
+  reactions,
+  onReact,
+}: LiveReactionsProps) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [selectedTextIndex, setSelectedTextIndex] = useState<number | null>(null);
+  const [selectedTextIndex, setSelectedTextIndex] = useState<number | null>(
+    null
+  );
 
   const handleTextSelection = () => {
     const selection = window.getSelection();
     if (selection && selection.toString().length > 0) {
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
-      
+
       // Calculate text index (simplified)
       const textIndex = Date.now(); // In production, use actual text position
       setSelectedTextIndex(textIndex);
@@ -43,7 +48,7 @@ export default function LiveReactions({ reactions, onReact }: LiveReactionsProps
       onReact(emoji, selectedTextIndex);
       setShowEmojiPicker(false);
       setSelectedTextIndex(null);
-      
+
       // Clear selection
       window.getSelection()?.removeAllRanges();
     }
@@ -57,22 +62,22 @@ export default function LiveReactions({ reactions, onReact }: LiveReactionsProps
           {reactions.map((reaction) => (
             <motion.div
               key={reaction.id}
-              initial={{ 
-                opacity: 1, 
-                y: 0, 
+              initial={{
+                opacity: 1,
+                y: 0,
                 scale: 0,
-                x: Math.random() * window.innerWidth * 0.8 
+                x: Math.random() * window.innerWidth * 0.8,
               }}
-              animate={{ 
-                opacity: 0, 
-                y: -200, 
+              animate={{
+                opacity: 0,
+                y: -200,
                 scale: [0, 1.5, 1],
-                rotate: [0, 10, -10, 0]
+                rotate: [0, 10, -10, 0],
               }}
               exit={{ opacity: 0 }}
-              transition={{ 
+              transition={{
                 duration: 3,
-                ease: 'easeOut'
+                ease: "easeOut",
               }}
               className="absolute bottom-1/4 text-4xl"
             >
@@ -91,9 +96,9 @@ export default function LiveReactions({ reactions, onReact }: LiveReactionsProps
             exit={{ opacity: 0, scale: 0.8, y: 10 }}
             className="fixed z-50 bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-3 border-2 border-purple-500"
             style={{
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)'
+              left: "50%",
+              top: "50%",
+              transform: "translate(-50%, -50%)",
             }}
           >
             <div className="flex items-center gap-2 mb-2">

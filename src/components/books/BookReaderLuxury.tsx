@@ -1466,10 +1466,7 @@ export default function BookReaderLuxury({
           />
 
           {/* Live Reactions */}
-          <LiveReactions
-            reactions={reactions}
-            onReact={sendReaction}
-          />
+          <LiveReactions reactions={reactions} onReact={sendReaction} />
         </>
       )}
     </div>

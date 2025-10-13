@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Eye } from 'lucide-react';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Users, Eye } from "lucide-react";
 
 interface Reader {
   userId: string;
@@ -16,7 +16,11 @@ interface LivePresenceIndicatorProps {
   isConnected: boolean;
 }
 
-export default function LivePresenceIndicator({ readers, count, isConnected }: LivePresenceIndicatorProps) {
+export default function LivePresenceIndicator({
+  readers,
+  count,
+  isConnected,
+}: LivePresenceIndicatorProps) {
   if (!isConnected) {
     return null;
   }
@@ -45,7 +49,7 @@ export default function LivePresenceIndicator({ readers, count, isConnected }: L
         </div>
 
         <span className="font-bold text-sm">
-          {count} {count === 1 ? 'reader' : 'readers'} here
+          {count} {count === 1 ? "reader" : "readers"} here
         </span>
 
         {/* Avatar stack */}
@@ -94,7 +98,10 @@ export default function LivePresenceIndicator({ readers, count, isConnected }: L
           </div>
           <div className="space-y-1">
             {readers.map((reader) => (
-              <div key={reader.userId} className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+              <div
+                key={reader.userId}
+                className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300"
+              >
                 {reader.userAvatar ? (
                   <img
                     src={reader.userAvatar}

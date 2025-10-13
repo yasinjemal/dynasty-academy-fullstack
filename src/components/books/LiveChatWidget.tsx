@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, Send, X, Minimize2, Maximize2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageCircle, Send, X, Minimize2, Maximize2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface ChatMessage {
   id: string;
@@ -23,22 +23,22 @@ interface LiveChatWidgetProps {
   onStartTyping: () => void;
 }
 
-export default function LiveChatWidget({ 
-  messages, 
-  typingUsers, 
-  onSendMessage, 
-  onStartTyping 
+export default function LiveChatWidget({
+  messages,
+  typingUsers,
+  onSendMessage,
+  onStartTyping,
 }: LiveChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-scroll to bottom
   useEffect(() => {
     if (messagesEndRef.current && !isMinimized) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isMinimized]);
 
@@ -52,12 +52,12 @@ export default function LiveChatWidget({
   const handleSend = () => {
     if (newMessage.trim()) {
       onSendMessage(newMessage);
-      setNewMessage('');
+      setNewMessage("");
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -87,7 +87,7 @@ export default function LiveChatWidget({
                 animate={{ scale: 1 }}
                 className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
               >
-                {messages.length > 9 ? '9+' : messages.length}
+                {messages.length > 9 ? "9+" : messages.length}
               </motion.div>
             )}
           </motion.button>
@@ -102,7 +102,7 @@ export default function LiveChatWidget({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
             className={`fixed bottom-6 right-6 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col ${
-              isMinimized ? 'w-80 h-14' : 'w-96 h-[500px]'
+              isMinimized ? "w-80 h-14" : "w-96 h-[500px]"
             } transition-all duration-300`}
           >
             {/* Header */}
@@ -121,7 +121,11 @@ export default function LiveChatWidget({
                   onClick={() => setIsMinimized(!isMinimized)}
                   className="hover:bg-white/20 p-1 rounded transition-colors"
                 >
-                  {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+                  {isMinimized ? (
+                    <Maximize2 className="w-4 h-4" />
+                  ) : (
+                    <Minimize2 className="w-4 h-4" />
+                  )}
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
@@ -167,9 +171,9 @@ export default function LiveChatWidget({
                               {msg.userName}
                             </span>
                             <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(msg.timestamp).toLocaleTimeString([], { 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
+                              {new Date(msg.timestamp).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
                               })}
                             </span>
                           </div>
@@ -186,7 +190,8 @@ export default function LiveChatWidget({
                 {/* Typing Indicator */}
                 {typingUsers.length > 0 && (
                   <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 italic">
-                    {typingUsers.slice(0, 3).join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
+                    {typingUsers.slice(0, 3).join(", ")}{" "}
+                    {typingUsers.length === 1 ? "is" : "are"} typing...
                   </div>
                 )}
 

@@ -1,5 +1,8 @@
-import { NextApiRequest } from 'next';
-import { NextApiResponseWithSocket, initializeSocketIO } from '@/lib/socketio/server';
+import { NextApiRequest } from "next";
+import {
+  NextApiResponseWithSocket,
+  initializeSocketIO,
+} from "@/lib/socketio/server";
 
 export const config = {
   api: {
@@ -7,11 +10,14 @@ export const config = {
   },
 };
 
-export default function handler(req: NextApiRequest, res: NextApiResponseWithSocket) {
-  if (req.method === 'GET' || req.method === 'POST') {
+export default function handler(
+  req: NextApiRequest,
+  res: NextApiResponseWithSocket
+) {
+  if (req.method === "GET" || req.method === "POST") {
     initializeSocketIO(res);
-    res.status(200).json({ message: 'Socket.IO server is running' });
+    res.status(200).json({ message: "Socket.IO server is running" });
   } else {
-    res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: "Method not allowed" });
   }
 }
