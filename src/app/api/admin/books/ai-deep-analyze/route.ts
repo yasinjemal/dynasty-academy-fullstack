@@ -1,31 +1,28 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/auth-options'
-import OpenAI from 'openai'
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
+import OpenAI from "openai";
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(req: NextRequest) {
   try {
     // Auth check
-    const session = await getServerSession(authOptions)
-    if (!session?.user || session.user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { 
-      fileId,
-      title,
-      author,
-      contentPreview,
-      totalPages,
-      wordCount
-    } = await req.json()
+    const { fileId, title, author, contentPreview, totalPages, wordCount } =
+      await req.json();
 
     if (!title || !contentPreview) {
-      return NextResponse.json({ error: 'Missing required data' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Missing required data" },
+        { status: 400 }
+      );
     }
 
     // Create comprehensive AI prompt
@@ -105,64 +102,67 @@ Respond ONLY with valid JSON (no markdown, no code blocks):
   "slug": "url-friendly-slug",
   "marketValue": "Medium",
   "keySellingPoints": ["point1", "point2", "point3"]
-}`
+}`;
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: "gpt-4-turbo-preview",
       messages: [
         {
-          role: 'system',
-          content: 'You are an expert book analyst and publisher. Always respond with valid JSON only, no markdown formatting. Provide comprehensive, professional analysis.'
+          role: "system",
+          content:
+            "You are an expert book analyst and publisher. Always respond with valid JSON only, no markdown formatting. Provide comprehensive, professional analysis.",
         },
         {
-          role: 'user',
-          content: prompt
-        }
+          role: "user",
+          content: prompt,
+        },
       ],
       temperature: 0.7,
       max_tokens: 2500,
-      response_format: { type: 'json_object' }
-    })
+      response_format: { type: "json_object" },
+    });
 
-    const responseText = completion.choices[0].message.content
+    const responseText = completion.choices[0].message.content;
     if (!responseText) {
-      throw new Error('No response from OpenAI')
+      throw new Error("No response from OpenAI");
     }
 
     // Parse JSON response
-    let analysis
+    let analysis;
     try {
-      analysis = JSON.parse(responseText)
+      analysis = JSON.parse(responseText);
     } catch (parseError) {
-      console.error('Failed to parse OpenAI response:', responseText)
-      throw new Error('Invalid response format from AI')
+      console.error("Failed to parse OpenAI response:", responseText);
+      throw new Error("Invalid response format from AI");
     }
 
     // Validate required fields
     const requiredFields = [
-      'description', 
-      'category', 
-      'tags', 
-      'targetAudience', 
-      'readingLevel',
-      'themes',
-      'suggestedPrice',
-      'metaTitle',
-      'metaDescription',
-      'slug'
-    ]
-    
-    const missingFields = requiredFields.filter(field => !analysis[field])
-    
+      "description",
+      "category",
+      "tags",
+      "targetAudience",
+      "readingLevel",
+      "themes",
+      "suggestedPrice",
+      "metaTitle",
+      "metaDescription",
+      "slug",
+    ];
+
+    const missingFields = requiredFields.filter((field) => !analysis[field]);
+
     if (missingFields.length > 0) {
-      console.error('Missing fields in AI response:', missingFields)
-      throw new Error(`AI response missing required fields: ${missingFields.join(', ')}`)
+      console.error("Missing fields in AI response:", missingFields);
+      throw new Error(
+        `AI response missing required fields: ${missingFields.join(", ")}`
+      );
     }
 
     // Add cover image generation option (placeholder for now)
     // TODO: Implement DALL-E 3 cover generation if needed
-    analysis.coverImage = null // Will add DALL-E integration later
+    analysis.coverImage = null; // Will add DALL-E integration later
 
     return NextResponse.json({
       success: true,
@@ -170,32 +170,33 @@ Respond ONLY with valid JSON (no markdown, no code blocks):
       usage: {
         promptTokens: completion.usage?.prompt_tokens,
         completionTokens: completion.usage?.completion_tokens,
-        totalTokens: completion.usage?.total_tokens
-      }
-    })
-
+        totalTokens: completion.usage?.total_tokens,
+      },
+    });
   } catch (error) {
-    console.error('AI Deep Analysis Error:', error)
-    
+    console.error("AI Deep Analysis Error:", error);
+
     if (error instanceof Error) {
-      if (error.message.includes('API key')) {
+      if (error.message.includes("API key")) {
         return NextResponse.json(
-          { error: 'OpenAI API key not configured' },
+          { error: "OpenAI API key not configured" },
           { status: 500 }
-        )
+        );
       }
-      
-      if (error.message.includes('rate limit')) {
+
+      if (error.message.includes("rate limit")) {
         return NextResponse.json(
-          { error: 'AI service rate limit exceeded. Please wait and try again.' },
+          {
+            error: "AI service rate limit exceeded. Please wait and try again.",
+          },
           { status: 429 }
-        )
+        );
       }
     }
 
     return NextResponse.json(
-      { error: 'Failed to analyze book content. Please try again.' },
+      { error: "Failed to analyze book content. Please try again." },
       { status: 500 }
-    )
+    );
   }
 }

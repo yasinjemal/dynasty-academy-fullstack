@@ -252,30 +252,33 @@ export default function AdminBooksPage() {
         price: parseFloat(bookData.price),
         salePrice: null,
         coverImage: bookData.coverImage || null,
-        contentType: 'PDF',
+        contentType: "PDF",
         tags: bookData.tags || [],
-        status: 'PUBLISHED',
+        status: "PUBLISHED",
         featured: false,
       };
 
-      const res = await fetch('/api/admin/books', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/books", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        showAlert('success', '🎉 Book published successfully via Intelligent Upload!');
+        showAlert(
+          "success",
+          "🎉 Book published successfully via Intelligent Upload!"
+        );
         setShowIntelligentUpload(false);
         fetchBooks();
       } else {
-        showAlert('error', data.error || 'Failed to publish book');
+        showAlert("error", data.error || "Failed to publish book");
       }
     } catch (error) {
-      console.error('Error publishing book:', error);
-      showAlert('error', 'An error occurred while publishing the book');
+      console.error("Error publishing book:", error);
+      showAlert("error", "An error occurred while publishing the book");
     } finally {
       setSubmitting(false);
     }
@@ -839,7 +842,9 @@ export default function AdminBooksPage() {
                 </Button>
               </div>
 
-              <IntelligentBookUploader onComplete={handleIntelligentUploadComplete} />
+              <IntelligentBookUploader
+                onComplete={handleIntelligentUploadComplete}
+              />
             </div>
           </div>
         </div>
