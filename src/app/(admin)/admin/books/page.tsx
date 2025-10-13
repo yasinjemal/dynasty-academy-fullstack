@@ -6,6 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert } from '@/components/ui/alert'
+import BookAnalyticsDashboard from '@/components/admin/BookAnalyticsDashboard'
+import AdvancedFilters, { BookFilters } from '@/components/admin/AdvancedFilters'
+import BulkActions from '@/components/admin/BulkActions'
+import QuickActions from '@/components/admin/QuickActions'
 
 interface Book {
   id: string
@@ -43,6 +47,8 @@ export default function AdminBooksPage() {
   const [alert, setAlert] = useState<{ type: 'success' | 'error', message: string } | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>('')
+  const [selectedBooks, setSelectedBooks] = useState<string[]>([])
+  const [filters, setFilters] = useState<BookFilters>({})
 
   const [formData, setFormData] = useState({
     title: '',
@@ -59,14 +65,20 @@ export default function AdminBooksPage() {
 
   useEffect(() => {
     fetchBooks()
-  }, [search, category])
+  }, [filters])
 
   const fetchBooks = async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams()
-      if (search) params.append('search', search)
-      if (category) params.append('category', category)
+      if (filters.search) params.append('search', filters.search)
+      if (filters.category) params.append('category', filters.category)
+      if (filters.minPrice) params.append('minPrice', filters.minPrice.toString())
+      if (filters.maxPrice) params.append('maxPrice', filters.maxPrice.toString())
+      if (filters.featured !== undefined && filters.featured !== null) params.append('featured', filters.featured.toString())
+      if (filters.published !== undefined && filters.published !== null) params.append('published', filters.published.toString())
+      if (filters.minRating) params.append('minRating', filters.minRating.toString())
+      if (filters.sortBy) params.append('sortBy', filters.sortBy)
 
       const res = await fetch(`/api/admin/books?${params}`)
       const data = await res.json()
@@ -76,6 +88,22 @@ export default function AdminBooksPage() {
       showAlert('error', 'Failed to fetch books')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const toggleBookSelection = (bookId: string) => {
+    setSelectedBooks((prev) =>
+      prev.includes(bookId)
+        ? prev.filter((id) => id !== bookId)
+        : [...prev, bookId]
+    )
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedBooks.length === books.length) {
+      setSelectedBooks([])
+    } else {
+      setSelectedBooks(books.map((b) => b.id))
     }
   }
 
@@ -203,6 +231,9 @@ export default function AdminBooksPage() {
 
   return (
     <div className="p-4 sm:p-6 md:p-8">
+      {/* Analytics Dashboard */}
+      <BookAnalyticsDashboard />
+
       {/* Alert Toast */}
       {alert && (
         <div className="fixed top-4 right-4 z-50 animate-fade-in">
@@ -246,40 +277,8 @@ export default function AdminBooksPage() {
         </Button>
       </div>
 
-      {/* Filters */}
-      <Card className="mb-6">
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <Label>Search</Label>
-              <Input
-                placeholder="Title, author, or ISBN..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>Category</Label>
-              <select
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                <option value="">All Categories</option>
-                <option value="Programming">Programming</option>
-                <option value="Web Development">Web Development</option>
-                <option value="Data Science">Data Science</option>
-                <option value="Business">Business</option>
-              </select>
-            </div>
-            <div className="flex items-end">
-              <Button variant="outline" onClick={() => { setSearch(''); setCategory('') }}>
-                Clear Filters
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Advanced Filters */}
+      <AdvancedFilters onFilterChange={setFilters} activeFilters={filters} />
 
       {/* Books List */}
       <Card>
@@ -296,6 +295,14 @@ export default function AdminBooksPage() {
               <table className="w-full">
                 <thead className="border-b border-gray-200 dark:border-gray-700">
                   <tr>
+                    <th className="p-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedBooks.length === books.length && books.length > 0}
+                        onChange={toggleSelectAll}
+                        className="rounded"
+                      />
+                    </th>
                     <th className="text-left p-4 text-sm font-medium text-gray-900 dark:text-white">Book</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-900 dark:text-white">Author</th>
                     <th className="text-left p-4 text-sm font-medium text-gray-900 dark:text-white">Category</th>
@@ -307,7 +314,15 @@ export default function AdminBooksPage() {
                 </thead>
                 <tbody>
                   {books.map((book) => (
-                    <tr key={book.id} className="border-b border-gray-200 dark:border-gray-700">
+                    <tr key={book.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                      <td className="p-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedBooks.includes(book.id)}
+                          onChange={() => toggleBookSelection(book.id)}
+                          className="rounded"
+                        />
+                      </td>
                       <td className="p-4">
                         <div className="flex items-center space-x-3">
                           {book.coverImage ? (
@@ -337,15 +352,22 @@ export default function AdminBooksPage() {
                         </span>
                       </td>
                       <td className="p-4">
-                        <div className="flex space-x-2">
+                        <div className="flex items-center space-x-2">
+                          {book.featured && (
+                            <span className="text-amber-500 text-lg" title="Featured">⭐</span>
+                          )}
                           <a href={`/admin/books/${book.id}`}>
                             <Button size="sm" variant="outline">
                               📖 Manage
                             </Button>
                           </a>
-                          <Button size="sm" variant="destructive" onClick={() => handleDelete(book.id)}>
-                            Delete
-                          </Button>
+                          <QuickActions
+                            bookId={book.id}
+                            bookTitle={book.title}
+                            isFeatured={book.featured}
+                            isPublished={!!book.publishedAt}
+                            onActionComplete={fetchBooks}
+                          />
                         </div>
                       </td>
                     </tr>
@@ -556,6 +578,16 @@ export default function AdminBooksPage() {
           </div>
         </div>
       )}
+
+      {/* Bulk Actions */}
+      <BulkActions
+        selectedBooks={selectedBooks}
+        onActionComplete={() => {
+          fetchBooks()
+          setSelectedBooks([])
+        }}
+        onClearSelection={() => setSelectedBooks([])}
+      />
     </div>
   )
 }
