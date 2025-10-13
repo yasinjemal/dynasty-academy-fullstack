@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   TrendingUp,
   DollarSign,
@@ -15,7 +15,7 @@ import {
   Zap,
   Award,
   Flame,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface AnalyticsData {
   totalBooks: number;
@@ -48,13 +48,13 @@ export default function BookAnalyticsDashboard() {
 
   const fetchAnalytics = async () => {
     try {
-      const res = await fetch('/api/admin/books/analytics');
+      const res = await fetch("/api/admin/books/analytics");
       if (res.ok) {
         const data = await res.json();
         setAnalytics(data);
       }
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      console.error("Error fetching analytics:", error);
     } finally {
       setLoading(false);
     }
@@ -82,60 +82,60 @@ export default function BookAnalyticsDashboard() {
 
   const stats = [
     {
-      title: 'Total Books',
+      title: "Total Books",
       value: analytics.totalBooks,
       icon: Book,
-      color: 'text-blue-500',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
-      suffix: '',
+      color: "text-blue-500",
+      bgColor: "bg-blue-100 dark:bg-blue-900/30",
+      suffix: "",
       subtitle: `${analytics.publishedBooks} published`,
     },
     {
-      title: 'Total Revenue',
+      title: "Total Revenue",
       value: `$${analytics.totalRevenue.toLocaleString()}`,
       icon: DollarSign,
-      color: 'text-green-500',
-      bgColor: 'bg-green-100 dark:bg-green-900/30',
-      suffix: '',
+      color: "text-green-500",
+      bgColor: "bg-green-100 dark:bg-green-900/30",
+      suffix: "",
       growth: analytics.revenueGrowth,
       subtitle: `$${analytics.monthlyRevenue.toLocaleString()} this month`,
     },
     {
-      title: 'Total Views',
+      title: "Total Views",
       value: analytics.totalViews.toLocaleString(),
       icon: Eye,
-      color: 'text-purple-500',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/30',
-      suffix: '',
+      color: "text-purple-500",
+      bgColor: "bg-purple-100 dark:bg-purple-900/30",
+      suffix: "",
       growth: analytics.viewsGrowth,
-      subtitle: 'All-time views',
+      subtitle: "All-time views",
     },
     {
-      title: 'Average Rating',
+      title: "Average Rating",
       value: analytics.averageRating.toFixed(1),
       icon: Star,
-      color: 'text-amber-500',
-      bgColor: 'bg-amber-100 dark:bg-amber-900/30',
-      suffix: '/5.0',
+      color: "text-amber-500",
+      bgColor: "bg-amber-100 dark:bg-amber-900/30",
+      suffix: "/5.0",
       subtitle: `${analytics.totalReviews} reviews`,
     },
     {
-      title: 'Featured Books',
+      title: "Featured Books",
       value: analytics.featuredBooks,
       icon: Award,
-      color: 'text-pink-500',
-      bgColor: 'bg-pink-100 dark:bg-pink-900/30',
-      suffix: '',
-      subtitle: 'Premium showcase',
+      color: "text-pink-500",
+      bgColor: "bg-pink-100 dark:bg-pink-900/30",
+      suffix: "",
+      subtitle: "Premium showcase",
     },
     {
-      title: 'Engagement Rate',
+      title: "Engagement Rate",
       value: `${analytics.engagementRate}%`,
       icon: Flame,
-      color: 'text-orange-500',
-      bgColor: 'bg-orange-100 dark:bg-orange-900/30',
-      suffix: '',
-      subtitle: 'Reader activity',
+      color: "text-orange-500",
+      bgColor: "bg-orange-100 dark:bg-orange-900/30",
+      suffix: "",
+      subtitle: "Reader activity",
     },
   ];
 
@@ -147,7 +147,7 @@ export default function BookAnalyticsDashboard() {
           <Card
             key={index}
             className="relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-105 border-l-4"
-            style={{ borderLeftColor: stat.color.replace('text-', '#') }}
+            style={{ borderLeftColor: stat.color.replace("text-", "#") }}
           >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
@@ -175,12 +175,12 @@ export default function BookAnalyticsDashboard() {
                 {stat.growth !== undefined && (
                   <div
                     className={`flex items-center text-xs font-medium ${
-                      stat.growth >= 0 ? 'text-green-600' : 'text-red-600'
+                      stat.growth >= 0 ? "text-green-600" : "text-red-600"
                     }`}
                   >
                     <TrendingUp
                       className={`w-3 h-3 mr-1 ${
-                        stat.growth < 0 ? 'rotate-180' : ''
+                        stat.growth < 0 ? "rotate-180" : ""
                       }`}
                     />
                     {Math.abs(stat.growth)}%
@@ -232,7 +232,9 @@ export default function BookAnalyticsDashboard() {
                     <p className="text-lg font-bold text-green-600 dark:text-green-400">
                       ${book.revenue.toLocaleString()}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Revenue</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Revenue
+                    </p>
                   </div>
                 </div>
               ))}

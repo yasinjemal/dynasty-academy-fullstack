@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   DollarSign,
   TrendingUp,
@@ -13,7 +13,7 @@ import {
   X,
   ChevronDown,
   Sparkles,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface AdvancedFiltersProps {
   onFilterChange: (filters: BookFilters) => void;
@@ -28,7 +28,13 @@ export interface BookFilters {
   featured?: boolean | null;
   published?: boolean | null;
   minRating?: number;
-  sortBy?: 'newest' | 'oldest' | 'price-low' | 'price-high' | 'views' | 'revenue';
+  sortBy?:
+    | "newest"
+    | "oldest"
+    | "price-low"
+    | "price-high"
+    | "views"
+    | "revenue";
 }
 
 export default function AdvancedFilters({
@@ -53,7 +59,9 @@ export default function AdvancedFilters({
   };
 
   const activeFilterCount = Object.keys(localFilters).filter(
-    (key) => localFilters[key as keyof BookFilters] !== undefined && localFilters[key as keyof BookFilters] !== ''
+    (key) =>
+      localFilters[key as keyof BookFilters] !== undefined &&
+      localFilters[key as keyof BookFilters] !== ""
   ).length;
 
   return (
@@ -70,7 +78,7 @@ export default function AdvancedFilters({
               Advanced Filters
               <ChevronDown
                 className={`w-4 h-4 transition-transform ${
-                  isExpanded ? 'rotate-180' : ''
+                  isExpanded ? "rotate-180" : ""
                 }`}
               />
             </Button>
@@ -99,16 +107,16 @@ export default function AdvancedFilters({
                 </Label>
                 <Input
                   placeholder="Title, author, ISBN..."
-                  value={localFilters.search || ''}
-                  onChange={(e) => updateFilter('search', e.target.value)}
+                  value={localFilters.search || ""}
+                  onChange={(e) => updateFilter("search", e.target.value)}
                 />
               </div>
               <div>
                 <Label className="mb-2 block">Category</Label>
                 <select
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  value={localFilters.category || ''}
-                  onChange={(e) => updateFilter('category', e.target.value)}
+                  value={localFilters.category || ""}
+                  onChange={(e) => updateFilter("category", e.target.value)}
                 >
                   <option value="">All Categories</option>
                   <option value="Programming">Programming</option>
@@ -117,7 +125,9 @@ export default function AdvancedFilters({
                   <option value="Business">Business</option>
                   <option value="Design">Design</option>
                   <option value="Marketing">Marketing</option>
-                  <option value="Personal Development">Personal Development</option>
+                  <option value="Personal Development">
+                    Personal Development
+                  </option>
                 </select>
               </div>
             </div>
@@ -132,17 +142,23 @@ export default function AdvancedFilters({
                 <Input
                   type="number"
                   placeholder="Min price"
-                  value={localFilters.minPrice || ''}
+                  value={localFilters.minPrice || ""}
                   onChange={(e) =>
-                    updateFilter('minPrice', parseFloat(e.target.value) || undefined)
+                    updateFilter(
+                      "minPrice",
+                      parseFloat(e.target.value) || undefined
+                    )
                   }
                 />
                 <Input
                   type="number"
                   placeholder="Max price"
-                  value={localFilters.maxPrice || ''}
+                  value={localFilters.maxPrice || ""}
                   onChange={(e) =>
-                    updateFilter('maxPrice', parseFloat(e.target.value) || undefined)
+                    updateFilter(
+                      "maxPrice",
+                      parseFloat(e.target.value) || undefined
+                    )
                   }
                 />
               </div>
@@ -157,7 +173,7 @@ export default function AdvancedFilters({
                     type="checkbox"
                     checked={localFilters.featured === true}
                     onChange={(e) =>
-                      updateFilter('featured', e.target.checked ? true : null)
+                      updateFilter("featured", e.target.checked ? true : null)
                     }
                     className="rounded"
                   />
@@ -168,7 +184,7 @@ export default function AdvancedFilters({
                     type="checkbox"
                     checked={localFilters.published === true}
                     onChange={(e) =>
-                      updateFilter('published', e.target.checked ? true : null)
+                      updateFilter("published", e.target.checked ? true : null)
                     }
                     className="rounded"
                   />
@@ -189,14 +205,14 @@ export default function AdvancedFilters({
                     key={rating}
                     onClick={() =>
                       updateFilter(
-                        'minRating',
+                        "minRating",
                         localFilters.minRating === rating ? undefined : rating
                       )
                     }
                     className={`px-4 py-2 rounded-lg font-medium transition-all ${
                       localFilters.minRating === rating
-                        ? 'bg-amber-500 text-white scale-110'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        ? "bg-amber-500 text-white scale-110"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                     }`}
                   >
                     {rating}★+
@@ -210,9 +226,12 @@ export default function AdvancedFilters({
               <Label className="mb-2 block">Sort By</Label>
               <select
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                value={localFilters.sortBy || 'newest'}
+                value={localFilters.sortBy || "newest"}
                 onChange={(e) =>
-                  updateFilter('sortBy', e.target.value as BookFilters['sortBy'])
+                  updateFilter(
+                    "sortBy",
+                    e.target.value as BookFilters["sortBy"]
+                  )
                 }
               >
                 <option value="newest">Newest First</option>

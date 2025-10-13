@@ -37,7 +37,10 @@ export async function GET() {
     const monthlyRevenue = totalRevenue * 0.3; // Placeholder
 
     // Views
-    const totalViews = books.reduce((sum, book) => sum + (book.viewCount || 0), 0);
+    const totalViews = books.reduce(
+      (sum, book) => sum + (book.viewCount || 0),
+      0
+    );
 
     // Rating
     const booksWithRatings = books.filter((b) => b.rating && b.rating > 0);
@@ -83,7 +86,10 @@ export async function GET() {
     });
 
     // Engagement rate (views to purchases ratio)
-    const totalSales = books.reduce((sum, book) => sum + (book.salesCount || 0), 0);
+    const totalSales = books.reduce(
+      (sum, book) => sum + (book.salesCount || 0),
+      0
+    );
     const engagementRate =
       totalViews > 0 ? ((totalSales / totalViews) * 100).toFixed(1) : 0;
 

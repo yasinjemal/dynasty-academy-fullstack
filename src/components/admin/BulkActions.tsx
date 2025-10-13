@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Check,
   X,
@@ -14,8 +14,8 @@ import {
   Eye,
   EyeOff,
   Sparkles,
-} from 'lucide-react';
-import { toast } from 'sonner';
+} from "lucide-react";
+import { toast } from "sonner";
 
 interface BulkActionsProps {
   selectedBooks: string[];
@@ -31,8 +31,8 @@ export default function BulkActions({
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPriceModal, setShowPriceModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
-  const [bulkPrice, setBulkPrice] = useState('');
-  const [bulkCategory, setBulkCategory] = useState('');
+  const [bulkPrice, setBulkPrice] = useState("");
+  const [bulkCategory, setBulkCategory] = useState("");
 
   const performBulkAction = async (
     action: string,
@@ -40,9 +40,9 @@ export default function BulkActions({
   ) => {
     setIsProcessing(true);
     try {
-      const res = await fetch('/api/admin/books/bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/books/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action,
           bookIds: selectedBooks,
@@ -52,15 +52,15 @@ export default function BulkActions({
 
       if (res.ok) {
         const result = await res.json();
-        toast.success(result.message || 'Bulk action completed!');
+        toast.success(result.message || "Bulk action completed!");
         onActionComplete();
         onClearSelection();
       } else {
         const error = await res.json();
-        toast.error(error.message || 'Failed to perform bulk action');
+        toast.error(error.message || "Failed to perform bulk action");
       }
     } catch (error) {
-      toast.error('An error occurred');
+      toast.error("An error occurred");
       console.error(error);
     } finally {
       setIsProcessing(false);
@@ -69,22 +69,22 @@ export default function BulkActions({
 
   const handlePriceUpdate = () => {
     if (!bulkPrice || parseFloat(bulkPrice) < 0) {
-      toast.error('Please enter a valid price');
+      toast.error("Please enter a valid price");
       return;
     }
-    performBulkAction('updatePrice', { price: parseFloat(bulkPrice) });
+    performBulkAction("updatePrice", { price: parseFloat(bulkPrice) });
     setShowPriceModal(false);
-    setBulkPrice('');
+    setBulkPrice("");
   };
 
   const handleCategoryUpdate = () => {
     if (!bulkCategory) {
-      toast.error('Please select a category');
+      toast.error("Please select a category");
       return;
     }
-    performBulkAction('updateCategory', { category: bulkCategory });
+    performBulkAction("updateCategory", { category: bulkCategory });
     setShowCategoryModal(false);
-    setBulkCategory('');
+    setBulkCategory("");
   };
 
   if (selectedBooks.length === 0) return null;
@@ -125,7 +125,7 @@ export default function BulkActions({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => performBulkAction('toggleFeatured')}
+                onClick={() => performBulkAction("toggleFeatured")}
                 disabled={isProcessing}
                 className="flex items-center gap-2"
               >
@@ -136,7 +136,7 @@ export default function BulkActions({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => performBulkAction('publish')}
+                onClick={() => performBulkAction("publish")}
                 disabled={isProcessing}
                 className="flex items-center gap-2"
               >
@@ -147,7 +147,7 @@ export default function BulkActions({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => performBulkAction('unpublish')}
+                onClick={() => performBulkAction("unpublish")}
                 disabled={isProcessing}
                 className="flex items-center gap-2"
               >
@@ -159,8 +159,12 @@ export default function BulkActions({
                 size="sm"
                 variant="destructive"
                 onClick={() => {
-                  if (confirm(`Delete ${selectedBooks.length} books? This cannot be undone.`)) {
-                    performBulkAction('delete');
+                  if (
+                    confirm(
+                      `Delete ${selectedBooks.length} books? This cannot be undone.`
+                    )
+                  ) {
+                    performBulkAction("delete");
                   }
                 }}
                 disabled={isProcessing}
@@ -212,7 +216,7 @@ export default function BulkActions({
                     variant="outline"
                     onClick={() => {
                       setShowPriceModal(false);
-                      setBulkPrice('');
+                      setBulkPrice("");
                     }}
                   >
                     Cancel
@@ -250,7 +254,9 @@ export default function BulkActions({
                     <option value="Business">Business</option>
                     <option value="Design">Design</option>
                     <option value="Marketing">Marketing</option>
-                    <option value="Personal Development">Personal Development</option>
+                    <option value="Personal Development">
+                      Personal Development
+                    </option>
                   </select>
                 </div>
                 <div className="flex justify-end gap-3">
@@ -258,12 +264,14 @@ export default function BulkActions({
                     variant="outline"
                     onClick={() => {
                       setShowCategoryModal(false);
-                      setBulkCategory('');
+                      setBulkCategory("");
                     }}
                   >
                     Cancel
                   </Button>
-                  <Button onClick={handleCategoryUpdate}>Update Category</Button>
+                  <Button onClick={handleCategoryUpdate}>
+                    Update Category
+                  </Button>
                 </div>
               </div>
             </CardContent>

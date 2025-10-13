@@ -13,7 +13,12 @@ export async function POST(req: NextRequest) {
 
     const { action, bookIds, data } = await req.json();
 
-    if (!action || !bookIds || !Array.isArray(bookIds) || bookIds.length === 0) {
+    if (
+      !action ||
+      !bookIds ||
+      !Array.isArray(bookIds) ||
+      bookIds.length === 0
+    ) {
       return NextResponse.json(
         { error: "Invalid request data" },
         { status: 400 }
@@ -26,10 +31,7 @@ export async function POST(req: NextRequest) {
     switch (action) {
       case "updatePrice":
         if (!data?.price || isNaN(parseFloat(data.price))) {
-          return NextResponse.json(
-            { error: "Invalid price" },
-            { status: 400 }
-          );
+          return NextResponse.json({ error: "Invalid price" }, { status: 400 });
         }
         result = await prisma.book.updateMany({
           where: { id: { in: bookIds } },
@@ -94,10 +96,7 @@ export async function POST(req: NextRequest) {
         break;
 
       default:
-        return NextResponse.json(
-          { error: "Invalid action" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
 
     return NextResponse.json({

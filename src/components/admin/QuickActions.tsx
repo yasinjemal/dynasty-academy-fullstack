@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   MoreVertical,
   Edit,
@@ -14,8 +14,8 @@ import {
   BarChart,
   Zap,
   BookOpen,
-} from 'lucide-react';
-import { toast } from 'sonner';
+} from "lucide-react";
+import { toast } from "sonner";
 
 interface QuickActionsProps {
   bookId: string;
@@ -39,20 +39,20 @@ export default function QuickActions({
   const performAction = async (action: string) => {
     try {
       const res = await fetch(`/api/admin/books/${bookId}/action`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action }),
       });
 
       if (res.ok) {
         const data = await res.json();
-        toast.success(data.message || 'Action completed!');
+        toast.success(data.message || "Action completed!");
         onActionComplete();
       } else {
-        toast.error('Action failed');
+        toast.error("Action failed");
       }
     } catch (error) {
-      toast.error('An error occurred');
+      toast.error("An error occurred");
       console.error(error);
     } finally {
       setShowMenu(false);
@@ -68,72 +68,74 @@ export default function QuickActions({
         setShowStats(true);
       }
     } catch (error) {
-      toast.error('Failed to load stats');
+      toast.error("Failed to load stats");
     }
   };
 
   const actions = [
     {
       icon: Edit,
-      label: 'Edit Book',
-      action: 'edit',
-      color: 'text-blue-500',
+      label: "Edit Book",
+      action: "edit",
+      color: "text-blue-500",
       onClick: () => (window.location.href = `/admin/books/${bookId}`),
     },
     {
       icon: Copy,
-      label: 'Duplicate',
-      action: 'duplicate',
-      color: 'text-green-500',
-      onClick: () => performAction('duplicate'),
+      label: "Duplicate",
+      action: "duplicate",
+      color: "text-green-500",
+      onClick: () => performAction("duplicate"),
     },
     {
       icon: isPublished ? EyeOff : Eye,
-      label: isPublished ? 'Unpublish' : 'Publish',
-      action: 'togglePublish',
-      color: isPublished ? 'text-orange-500' : 'text-green-500',
-      onClick: () => performAction('togglePublish'),
+      label: isPublished ? "Unpublish" : "Publish",
+      action: "togglePublish",
+      color: isPublished ? "text-orange-500" : "text-green-500",
+      onClick: () => performAction("togglePublish"),
     },
     {
       icon: Star,
-      label: isFeatured ? 'Unfeature' : 'Feature',
-      action: 'toggleFeatured',
-      color: 'text-amber-500',
-      onClick: () => performAction('toggleFeatured'),
+      label: isFeatured ? "Unfeature" : "Feature",
+      action: "toggleFeatured",
+      color: "text-amber-500",
+      onClick: () => performAction("toggleFeatured"),
     },
     {
       icon: BarChart,
-      label: 'View Stats',
-      action: 'stats',
-      color: 'text-purple-500',
+      label: "View Stats",
+      action: "stats",
+      color: "text-purple-500",
       onClick: fetchStats,
     },
     {
       icon: BookOpen,
-      label: 'View Public Page',
-      action: 'view',
-      color: 'text-indigo-500',
-      onClick: () => window.open(`/books/${bookId}`, '_blank'),
+      label: "View Public Page",
+      action: "view",
+      color: "text-indigo-500",
+      onClick: () => window.open(`/books/${bookId}`, "_blank"),
     },
     {
       icon: Share2,
-      label: 'Share Link',
-      action: 'share',
-      color: 'text-blue-500',
+      label: "Share Link",
+      action: "share",
+      color: "text-blue-500",
       onClick: () => {
-        navigator.clipboard.writeText(`${window.location.origin}/books/${bookId}`);
-        toast.success('Link copied to clipboard!');
+        navigator.clipboard.writeText(
+          `${window.location.origin}/books/${bookId}`
+        );
+        toast.success("Link copied to clipboard!");
         setShowMenu(false);
       },
     },
     {
       icon: Trash2,
-      label: 'Delete',
-      action: 'delete',
-      color: 'text-red-500',
+      label: "Delete",
+      action: "delete",
+      color: "text-red-500",
       onClick: () => {
         if (confirm(`Delete "${bookTitle}"? This cannot be undone.`)) {
-          performAction('delete');
+          performAction("delete");
         }
         setShowMenu(false);
       },
@@ -232,7 +234,7 @@ export default function QuickActions({
                   </span>
                 </div>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {stats.rating?.toFixed(1) || '0.0'} ★
+                  {stats.rating?.toFixed(1) || "0.0"} ★
                 </p>
               </div>
 
