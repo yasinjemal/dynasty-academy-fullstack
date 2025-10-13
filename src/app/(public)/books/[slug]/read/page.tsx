@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/auth-options'
 import { prisma } from '@/lib/db/prisma'
-import BookReader from '@/components/books/BookReader'
+import BookReaderLuxury from '@/components/books/BookReaderLuxury'
 
 interface PageProps {
   params: Promise<{
@@ -66,7 +66,7 @@ export default async function BookReadPage({ params }: PageProps) {
   }
 
   return (
-    <BookReader
+    <BookReaderLuxury
       bookId={book.id}
       slug={slug}
       bookTitle={book.title}
