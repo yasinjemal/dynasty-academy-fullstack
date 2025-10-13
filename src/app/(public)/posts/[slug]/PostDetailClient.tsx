@@ -1,185 +1,193 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { formatDistanceToNow } from 'date-fns'
-import { 
-  Heart, 
-  MessageCircle, 
-  Share2, 
-  Bookmark, 
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  Bookmark,
   MoreHorizontal,
   ArrowLeft,
   Eye,
   TrendingUp,
-  Send
-} from 'lucide-react'
-import { toast } from 'sonner'
+  Send,
+} from "lucide-react";
+import { toast } from "sonner";
 
 interface Comment {
-  id: string
-  content: string
-  createdAt: Date
+  id: string;
+  content: string;
+  createdAt: Date;
   user: {
-    id: string
-    name: string | null
-    image: string | null
-    dynastyScore: number
-  }
-  replies?: Comment[]
+    id: string;
+    name: string | null;
+    image: string | null;
+    dynastyScore: number;
+  };
+  replies?: Comment[];
 }
 
 interface Post {
-  id: string
-  slug: string
-  title: string
-  content: string
-  excerpt: string | null
-  image: string | null
-  createdAt: Date
-  views: number
-  hotScore: number
+  id: string;
+  slug: string;
+  title: string;
+  content: string;
+  excerpt: string | null;
+  image: string | null;
+  createdAt: Date;
+  views: number;
+  hotScore: number;
   author: {
-    id: string
-    name: string | null
-    email: string
-    image: string | null
-    dynastyScore: number
+    id: string;
+    name: string | null;
+    email: string;
+    image: string | null;
+    dynastyScore: number;
     _count: {
-      posts: number
-      followers: number
-    }
-  }
-  comments: Comment[]
+      posts: number;
+      followers: number;
+    };
+  };
+  comments: Comment[];
   _count: {
-    likes: number
-    comments: number
-    saves: number
-  }
-  userLiked: boolean
-  isAuthor: boolean
+    likes: number;
+    comments: number;
+    saves: number;
+  };
+  userLiked: boolean;
+  isAuthor: boolean;
 }
 
-export default function PostDetailClient({ post, currentUser }: { post: Post, currentUser: any }) {
-  const [liked, setLiked] = useState(post.userLiked)
-  const [likeCount, setLikeCount] = useState(post._count.likes)
-  const [saved, setSaved] = useState(false)
-  const [commentText, setCommentText] = useState('')
-  const [comments, setComments] = useState(post.comments)
-  const [replyTo, setReplyTo] = useState<string | null>(null)
-  const [submitting, setSubmitting] = useState(false)
+export default function PostDetailClient({
+  post,
+  currentUser,
+}: {
+  post: Post;
+  currentUser: any;
+}) {
+  const [liked, setLiked] = useState(post.userLiked);
+  const [likeCount, setLikeCount] = useState(post._count.likes);
+  const [saved, setSaved] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState(post.comments);
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleLike = async () => {
     if (!currentUser) {
-      toast.error('Please sign in to like posts')
-      return
+      toast.error("Please sign in to like posts");
+      return;
     }
 
     try {
       const response = await fetch(`/api/posts/${post.id}/like`, {
-        method: 'POST'
-      })
+        method: "POST",
+      });
 
       if (response.ok) {
-        setLiked(!liked)
-        setLikeCount(prev => liked ? prev - 1 : prev + 1)
+        setLiked(!liked);
+        setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
       }
     } catch (error) {
-      toast.error('Failed to like post')
+      toast.error("Failed to like post");
     }
-  }
+  };
 
   const handleSave = async () => {
     if (!currentUser) {
-      toast.error('Please sign in to save posts')
-      return
+      toast.error("Please sign in to save posts");
+      return;
     }
 
     try {
       const response = await fetch(`/api/posts/${post.id}/save`, {
-        method: 'POST'
-      })
+        method: "POST",
+      });
 
       if (response.ok) {
-        setSaved(!saved)
-        toast.success(saved ? 'Removed from saved' : 'Post saved!')
+        setSaved(!saved);
+        toast.success(saved ? "Removed from saved" : "Post saved!");
       }
     } catch (error) {
-      toast.error('Failed to save post')
+      toast.error("Failed to save post");
     }
-  }
+  };
 
   const handleComment = async () => {
     if (!currentUser) {
-      toast.error('Please sign in to comment')
-      return
+      toast.error("Please sign in to comment");
+      return;
     }
 
-    if (!commentText.trim()) return
+    if (!commentText.trim()) return;
 
-    setSubmitting(true)
+    setSubmitting(true);
     try {
       const response = await fetch(`/api/posts/${post.id}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           content: commentText,
-          parentId: replyTo
-        })
-      })
+          parentId: replyTo,
+        }),
+      });
 
       if (response.ok) {
-        const newComment = await response.json()
-        
+        const newComment = await response.json();
+
         if (replyTo) {
           // Add reply to parent comment
-          setComments(prev => prev.map(comment => {
-            if (comment.id === replyTo) {
-              return {
-                ...comment,
-                replies: [...(comment.replies || []), newComment]
+          setComments((prev) =>
+            prev.map((comment) => {
+              if (comment.id === replyTo) {
+                return {
+                  ...comment,
+                  replies: [...(comment.replies || []), newComment],
+                };
               }
-            }
-            return comment
-          }))
+              return comment;
+            })
+          );
         } else {
           // Add new top-level comment
-          setComments(prev => [newComment, ...prev])
+          setComments((prev) => [newComment, ...prev]);
         }
 
-        setCommentText('')
-        setReplyTo(null)
-        toast.success('Comment posted!')
+        setCommentText("");
+        setReplyTo(null);
+        toast.success("Comment posted!");
       }
     } catch (error) {
-      toast.error('Failed to post comment')
+      toast.error("Failed to post comment");
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   const handleShare = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
           title: post.title,
-          text: post.excerpt || 'Check out this post!',
-          url: window.location.href
-        })
+          text: post.excerpt || "Check out this post!",
+          url: window.location.href,
+        });
       } catch (error) {
         // User cancelled share
       }
     } else {
-      navigator.clipboard.writeText(window.location.href)
-      toast.success('Link copied to clipboard!')
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
     }
-  }
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Back Button */}
-      <Link 
+      <Link
         href="/community"
         className="inline-flex items-center gap-2 text-slate-600 hover:text-purple-600 mb-6 transition-colors"
       >
@@ -213,18 +221,21 @@ export default function PostDetailClient({ post, currentUser }: { post: Post, cu
           <div className="flex items-center justify-between mb-6 pb-6 border-b border-slate-200">
             <div className="flex items-center gap-4">
               {/* Author */}
-              <Link href={`/profile/${post.author.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <Link
+                href={`/profile/${post.author.id}`}
+                className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+              >
                 {post.author.image ? (
                   <Image
                     src={post.author.image}
-                    alt={post.author.name || 'User'}
+                    alt={post.author.name || "User"}
                     width={48}
                     height={48}
                     className="rounded-full"
                   />
                 ) : (
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                    {post.author.name?.[0] || 'U'}
+                    {post.author.name?.[0] || "U"}
                   </div>
                 )}
                 <div>
@@ -266,17 +277,15 @@ export default function PostDetailClient({ post, currentUser }: { post: Post, cu
               onClick={handleLike}
               className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition-all ${
                 liked
-                  ? 'bg-red-500 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-red-50 hover:text-red-500'
+                  ? "bg-red-500 text-white"
+                  : "bg-slate-100 text-slate-700 hover:bg-red-50 hover:text-red-500"
               }`}
             >
-              <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+              <Heart className={`w-5 h-5 ${liked ? "fill-current" : ""}`} />
               <span>{likeCount}</span>
             </button>
 
-            <button
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-500 font-semibold transition-all"
-            >
+            <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-500 font-semibold transition-all">
               <MessageCircle className="w-5 h-5" />
               <span>{comments.length}</span>
             </button>
@@ -293,11 +302,11 @@ export default function PostDetailClient({ post, currentUser }: { post: Post, cu
               onClick={handleSave}
               className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition-all ${
                 saved
-                  ? 'bg-amber-500 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-amber-50 hover:text-amber-500'
+                  ? "bg-amber-500 text-white"
+                  : "bg-slate-100 text-slate-700 hover:bg-amber-50 hover:text-amber-500"
               }`}
             >
-              <Bookmark className={`w-5 h-5 ${saved ? 'fill-current' : ''}`} />
+              <Bookmark className={`w-5 h-5 ${saved ? "fill-current" : ""}`} />
             </button>
           </div>
         </div>
@@ -314,7 +323,9 @@ export default function PostDetailClient({ post, currentUser }: { post: Post, cu
           <div className="mb-8">
             {replyTo && (
               <div className="flex items-center justify-between mb-2 p-2 bg-purple-50 rounded-lg">
-                <span className="text-sm text-purple-700">Replying to comment</span>
+                <span className="text-sm text-purple-700">
+                  Replying to comment
+                </span>
                 <button
                   onClick={() => setReplyTo(null)}
                   className="text-xs text-purple-600 hover:text-purple-800 font-semibold"
@@ -325,8 +336,8 @@ export default function PostDetailClient({ post, currentUser }: { post: Post, cu
             )}
             <div className="flex gap-3">
               <Image
-                src={currentUser.image || '/default-avatar.png'}
-                alt={currentUser.name || 'You'}
+                src={currentUser.image || "/default-avatar.png"}
+                alt={currentUser.name || "You"}
                 width={40}
                 height={40}
                 className="rounded-full"
@@ -346,7 +357,7 @@ export default function PostDetailClient({ post, currentUser }: { post: Post, cu
                     className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50"
                   >
                     <Send className="w-4 h-4" />
-                    {submitting ? 'Posting...' : 'Post Comment'}
+                    {submitting ? "Posting..." : "Post Comment"}
                   </button>
                 </div>
               </div>
@@ -355,10 +366,13 @@ export default function PostDetailClient({ post, currentUser }: { post: Post, cu
         ) : (
           <div className="mb-8 p-4 bg-slate-50 rounded-xl text-center">
             <p className="text-slate-600">
-              <Link href="/auth/signin" className="text-purple-600 font-semibold hover:underline">
+              <Link
+                href="/auth/signin"
+                className="text-purple-600 font-semibold hover:underline"
+              >
                 Sign in
-              </Link>
-              {' '}to join the conversation
+              </Link>{" "}
+              to join the conversation
             </p>
           </div>
         )}
@@ -369,15 +383,17 @@ export default function PostDetailClient({ post, currentUser }: { post: Post, cu
             <div key={comment.id} className="border-l-2 border-slate-200 pl-4">
               <div className="flex gap-3 mb-3">
                 <Image
-                  src={comment.user.image || '/default-avatar.png'}
-                  alt={comment.user.name || 'User'}
+                  src={comment.user.image || "/default-avatar.png"}
+                  alt={comment.user.name || "User"}
                   width={40}
                   height={40}
                   className="rounded-full"
                 />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="font-bold text-slate-900">{comment.user.name}</span>
+                    <span className="font-bold text-slate-900">
+                      {comment.user.name}
+                    </span>
                     <span className="text-xs text-slate-500">
                       {formatDistanceToNow(new Date(comment.createdAt))} ago
                     </span>
@@ -398,20 +414,24 @@ export default function PostDetailClient({ post, currentUser }: { post: Post, cu
                   {comment.replies.map((reply) => (
                     <div key={reply.id} className="flex gap-3">
                       <Image
-                        src={reply.user.image || '/default-avatar.png'}
-                        alt={reply.user.name || 'User'}
+                        src={reply.user.image || "/default-avatar.png"}
+                        alt={reply.user.name || "User"}
                         width={32}
                         height={32}
                         className="rounded-full"
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-bold text-sm text-slate-900">{reply.user.name}</span>
+                          <span className="font-bold text-sm text-slate-900">
+                            {reply.user.name}
+                          </span>
                           <span className="text-xs text-slate-500">
                             {formatDistanceToNow(new Date(reply.createdAt))} ago
                           </span>
                         </div>
-                        <p className="text-sm text-slate-700">{reply.content}</p>
+                        <p className="text-sm text-slate-700">
+                          {reply.content}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -423,11 +443,13 @@ export default function PostDetailClient({ post, currentUser }: { post: Post, cu
           {comments.length === 0 && (
             <div className="text-center py-8">
               <MessageCircle className="w-12 h-12 mx-auto mb-3 text-slate-300" />
-              <p className="text-slate-500">No comments yet. Be the first to share your thoughts!</p>
+              <p className="text-slate-500">
+                No comments yet. Be the first to share your thoughts!
+              </p>
             </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

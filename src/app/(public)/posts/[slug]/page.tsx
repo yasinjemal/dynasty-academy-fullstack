@@ -1,14 +1,14 @@
-import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/auth-options'
-import { prisma } from '@/lib/db/prisma'
-import PostDetailClient from './PostDetailClient'
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
+import { prisma } from "@/lib/db/prisma";
+import PostDetailClient from "./PostDetailClient";
 
 interface PostPageProps {
   params: {
-    slug: string
-  }
+    slug: string;
+  };
 }
 
 async function getPost(slug: string) {
@@ -25,19 +25,19 @@ async function getPost(slug: string) {
           _count: {
             select: {
               posts: true,
-              followers: true
-            }
-          }
-        }
+              followers: true,
+            },
+          },
+        },
       },
       likes: {
         select: {
-          userId: true
-        }
+          userId: true,
+        },
       },
       comments: {
         where: {
-          parentId: null // Only top-level comments
+          parentId: null, // Only top-level comments
         },
         include: {
           user: {
@@ -45,8 +45,8 @@ async function getPost(slug: string) {
               id: true,
               name: true,
               image: true,
-              dynastyScore: true
-            }
+              dynastyScore: true,
+            },
           },
           replies: {
             include: {
@@ -55,39 +55,41 @@ async function getPost(slug: string) {
                   id: true,
                   name: true,
                   image: true,
-                  dynastyScore: true
-                }
-              }
+                  dynastyScore: true,
+                },
+              },
             },
             orderBy: {
-              createdAt: 'asc'
-            }
-          }
+              createdAt: "asc",
+            },
+          },
         },
         orderBy: {
-          createdAt: 'desc'
-        }
+          createdAt: "desc",
+        },
       },
       _count: {
         select: {
           likes: true,
           comments: true,
-          saves: true
-        }
-      }
-    }
-  })
+          saves: true,
+        },
+      },
+    },
+  });
 
-  return post
+  return post;
 }
 
-export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
-  const post = await getPost(params.slug)
+export async function generateMetadata({
+  params,
+}: PostPageProps): Promise<Metadata> {
+  const post = await getPost(params.slug);
 
   if (!post) {
     return {
-      title: 'Post Not Found'
-    }
+      title: "Post Not Found",
+    };
   }
 
   return {
@@ -97,37 +99,37 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
       title: post.title,
       description: post.excerpt || post.content.substring(0, 160),
       images: post.image ? [post.image] : [],
-      type: 'article',
+      type: "article",
       publishedTime: post.createdAt.toISOString(),
-      authors: [post.author.name || 'Anonymous']
+      authors: [post.author.name || "Anonymous"],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: post.title,
       description: post.excerpt || post.content.substring(0, 160),
-      images: post.image ? [post.image] : []
-    }
-  }
+      images: post.image ? [post.image] : [],
+    },
+  };
 }
 
 export default async function PostPage({ params }: PostPageProps) {
-  const session = await getServerSession(authOptions)
-  const post = await getPost(params.slug)
+  const session = await getServerSession(authOptions);
+  const post = await getPost(params.slug);
 
   if (!post || !post.published) {
-    notFound()
+    notFound();
   }
 
   // Check if user has liked the post
   const userLiked = session?.user?.id
-    ? post.likes.some(like => like.userId === session.user.id)
-    : false
+    ? post.likes.some((like) => like.userId === session.user.id)
+    : false;
 
   // Increment view count
   await prisma.post.update({
     where: { id: post.id },
-    data: { views: { increment: 1 } }
-  })
+    data: { views: { increment: 1 } },
+  });
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -135,10 +137,10 @@ export default async function PostPage({ params }: PostPageProps) {
         post={{
           ...post,
           userLiked,
-          isAuthor: session?.user?.id === post.authorId
+          isAuthor: session?.user?.id === post.authorId,
         }}
         currentUser={session?.user}
       />
     </div>
-  )
+  );
 }
