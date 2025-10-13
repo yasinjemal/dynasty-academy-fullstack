@@ -348,6 +348,41 @@ export default function IntelligentBookUploader({
       setShowPreview(true);
 
       toast.success("🎉 Book processed successfully! Review and publish.");
+
+      // 🤖 AUTO-GENERATE FEED CONTENT IN BACKGROUND
+      try {
+        console.log("🤖 Triggering AI feed generation...");
+        const feedResponse = await fetch(
+          "/api/admin/books/generate-feed-content",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              bookId: uploadData.fileId,
+              bookTitle: finalBookData.title,
+              bookAuthor: finalBookData.author,
+              bookDescription: finalBookData.description,
+              contentPreview: uploadData.contentPreview,
+              category: finalBookData.category,
+            }),
+          }
+        );
+
+        if (feedResponse.ok) {
+          const feedData = await feedResponse.json();
+          console.log(
+            `✅ Generated ${feedData.posts?.length || 0} community posts!`
+          );
+          toast.success(
+            `🔥 Bonus: ${
+              feedData.posts?.length || 0
+            } community posts auto-created!`
+          );
+        }
+      } catch (feedError) {
+        console.error("Feed generation error (non-critical):", feedError);
+        // Don't fail the upload if feed generation fails
+      }
     } catch (error) {
       console.error("Processing error:", error);
       toast.error("Failed to process book. Please try again.");

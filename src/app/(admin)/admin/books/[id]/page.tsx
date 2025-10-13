@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import BookFileUploader from "@/components/admin/BookFileUploader";
+import BookAIPostsManager from "@/components/admin/BookAIPostsManager";
 
 interface Book {
   id: string;
@@ -623,6 +624,11 @@ export default function AdminBookEditPage({
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* AI-Generated Posts Section */}
+        <div className="mt-8">
+          <BookAIPostsManager bookId={book.id} bookTitle={book.title} />
         </div>
       </div>
     </div>
