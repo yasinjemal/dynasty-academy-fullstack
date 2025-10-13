@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const notifications = await prisma.notification.findMany({
       where: {
         userId: session.user.id,
-        ...(unreadOnly && { read: false }),
+        ...(unreadOnly && { seen: false }),
       },
       orderBy: { createdAt: 'desc' },
       take: limit,
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     const unreadCount = await prisma.notification.count({
       where: {
         userId: session.user.id,
-        read: false,
+        seen: false,
       },
     })
 
@@ -51,28 +51,28 @@ export async function POST(request: Request) {
     const { notificationId, markAllRead } = await request.json()
 
     if (markAllRead) {
-      // Mark all notifications as read
+      // Mark all notifications as seen
       await prisma.notification.updateMany({
         where: {
           userId: session.user.id,
-          read: false,
+          seen: false,
         },
-        data: { read: true },
+        data: { seen: true },
       })
-      return NextResponse.json({ message: 'All notifications marked as read' })
+      return NextResponse.json({ message: 'All notifications marked as seen' })
     }
 
     if (!notificationId) {
       return NextResponse.json({ error: 'Missing notificationId' }, { status: 400 })
     }
 
-    // Mark single notification as read
+    // Mark single notification as seen
     await prisma.notification.update({
       where: {
         id: notificationId,
         userId: session.user.id,
       },
-      data: { read: true },
+      data: { seen: true },
     })
 
     return NextResponse.json({ message: 'Notification marked as read' })

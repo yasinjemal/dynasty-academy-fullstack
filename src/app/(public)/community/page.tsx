@@ -463,8 +463,12 @@ export default function CommunityPage() {
             <div className="lg:hidden bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-4 mb-4 text-white shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-xs opacity-90 mb-1">Your Dynasty Score</div>
-                  <div className="text-3xl font-black">{dynastyScore.toLocaleString()}</div>
+                  <div className="text-xs opacity-90 mb-1">
+                    Your Dynasty Score
+                  </div>
+                  <div className="text-3xl font-black">
+                    {dynastyScore.toLocaleString()}
+                  </div>
                   <div className="text-xs flex items-center gap-2 mt-1">
                     <span>Level {level}</span>
                     {streak > 0 && (
@@ -479,7 +483,11 @@ export default function CommunityPage() {
                 </div>
                 <div className="text-right">
                   <Link href="/dashboard/profile">
-                    <Button variant="ghost" size="sm" className="bg-white/20 hover:bg-white/30 text-white border-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="bg-white/20 hover:bg-white/30 text-white border-0"
+                    >
                       View Profile
                     </Button>
                   </Link>
