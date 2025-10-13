@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/authOptions';
-import prisma from '@/lib/db/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/authOptions";
+import prisma from "@/lib/db/prisma";
 
 // GET - Fetch all AI-generated posts for a specific book
 export async function GET(
@@ -10,9 +10,9 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== 'ADMIN') {
+    if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: 'Unauthorized - Admin access required' },
+        { error: "Unauthorized - Admin access required" },
         { status: 401 }
       );
     }
@@ -31,10 +31,7 @@ export async function GET(
     });
 
     if (!book) {
-      return NextResponse.json(
-        { error: 'Book not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
     // Find posts that mention this book in tags or are created around the same time
@@ -44,13 +41,13 @@ export async function GET(
         OR: [
           {
             tags: {
-              hasSome: [book.title, book.author || ''],
+              hasSome: [book.title, book.author || ""],
             },
           },
           {
             AND: [
               { coverImage: book.coverImage },
-              { author: { role: 'ADMIN' } },
+              { author: { role: "ADMIN" } },
             ],
           },
         ],
@@ -72,7 +69,7 @@ export async function GET(
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
@@ -82,11 +79,10 @@ export async function GET(
       posts,
       totalPosts: posts.length,
     });
-
   } catch (error: any) {
-    console.error('Error fetching AI posts:', error);
+    console.error("Error fetching AI posts:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch AI posts', details: error.message },
+      { error: "Failed to fetch AI posts", details: error.message },
       { status: 500 }
     );
   }
@@ -99,19 +95,19 @@ export async function DELETE(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== 'ADMIN') {
+    if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: 'Unauthorized - Admin access required' },
+        { error: "Unauthorized - Admin access required" },
         { status: 401 }
       );
     }
 
     const { searchParams } = new URL(request.url);
-    const postId = searchParams.get('postId');
+    const postId = searchParams.get("postId");
 
     if (!postId) {
       return NextResponse.json(
-        { error: 'Post ID is required' },
+        { error: "Post ID is required" },
         { status: 400 }
       );
     }
@@ -123,14 +119,13 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: 'Post deleted successfully',
+      message: "Post deleted successfully",
       postId,
     });
-
   } catch (error: any) {
-    console.error('Error deleting post:', error);
+    console.error("Error deleting post:", error);
     return NextResponse.json(
-      { error: 'Failed to delete post', details: error.message },
+      { error: "Failed to delete post", details: error.message },
       { status: 500 }
     );
   }
@@ -143,9 +138,9 @@ export async function PATCH(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== 'ADMIN') {
+    if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: 'Unauthorized - Admin access required' },
+        { error: "Unauthorized - Admin access required" },
         { status: 401 }
       );
     }
@@ -155,7 +150,7 @@ export async function PATCH(
 
     if (!postId) {
       return NextResponse.json(
-        { error: 'Post ID is required' },
+        { error: "Post ID is required" },
         { status: 400 }
       );
     }
@@ -185,14 +180,13 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      message: 'Post updated successfully',
+      message: "Post updated successfully",
       post: updatedPost,
     });
-
   } catch (error: any) {
-    console.error('Error updating post:', error);
+    console.error("Error updating post:", error);
     return NextResponse.json(
-      { error: 'Failed to update post', details: error.message },
+      { error: "Failed to update post", details: error.message },
       { status: 500 }
     );
   }

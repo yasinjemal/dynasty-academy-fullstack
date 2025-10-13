@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/authOptions';
-import prisma from '@/lib/db/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/authOptions";
+import prisma from "@/lib/db/prisma";
 
 // POST - Schedule posts to be published over time
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== 'ADMIN') {
+    if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: 'Unauthorized - Admin access required' },
+        { error: "Unauthorized - Admin access required" },
         { status: 401 }
       );
     }
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     if (!postIds || !Array.isArray(postIds) || postIds.length === 0) {
       return NextResponse.json(
-        { error: 'Post IDs array is required' },
+        { error: "Post IDs array is required" },
         { status: 400 }
       );
     }
@@ -29,23 +29,23 @@ export async function POST(request: NextRequest) {
 
     // Schedule posts
     const scheduledPosts = [];
-    
+
     for (let i = 0; i < postIds.length; i++) {
       const postId = postIds[i];
       const publishDate = new Date(start);
-      
-      if (scheduleType === 'staggered') {
+
+      if (scheduleType === "staggered") {
         // Stagger posts: publish one every X days
-        publishDate.setDate(publishDate.getDate() + (i * interval));
-      } else if (scheduleType === 'immediate') {
+        publishDate.setDate(publishDate.getDate() + i * interval);
+      } else if (scheduleType === "immediate") {
         // Publish all immediately
         publishDate.setTime(Date.now());
-      } else if (scheduleType === 'daily') {
+      } else if (scheduleType === "daily") {
         // One per day
         publishDate.setDate(publishDate.getDate() + i);
-      } else if (scheduleType === 'weekly') {
+      } else if (scheduleType === "weekly") {
         // One per week
-        publishDate.setDate(publishDate.getDate() + (i * 7));
+        publishDate.setDate(publishDate.getDate() + i * 7);
       }
 
       // Update post with scheduled publish date
@@ -69,11 +69,10 @@ export async function POST(request: NextRequest) {
       startDate: start,
       intervalDays: interval,
     });
-
   } catch (error: any) {
-    console.error('Error scheduling posts:', error);
+    console.error("Error scheduling posts:", error);
     return NextResponse.json(
-      { error: 'Failed to schedule posts', details: error.message },
+      { error: "Failed to schedule posts", details: error.message },
       { status: 500 }
     );
   }
@@ -83,9 +82,9 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== 'ADMIN') {
+    if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json(
-        { error: 'Unauthorized - Admin access required' },
+        { error: "Unauthorized - Admin access required" },
         { status: 401 }
       );
     }
@@ -109,7 +108,7 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        publishedAt: 'asc',
+        publishedAt: "asc",
       },
     });
 
@@ -118,11 +117,10 @@ export async function GET(request: NextRequest) {
       posts: scheduledPosts,
       totalScheduled: scheduledPosts.length,
     });
-
   } catch (error: any) {
-    console.error('Error fetching scheduled posts:', error);
+    console.error("Error fetching scheduled posts:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch scheduled posts', details: error.message },
+      { error: "Failed to fetch scheduled posts", details: error.message },
       { status: 500 }
     );
   }
