@@ -1,87 +1,105 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Sparkles, Loader2, BookOpen, Tag, DollarSign, FileText, TrendingUp, AlertCircle } from 'lucide-react'
-import { toast } from 'sonner'
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Sparkles,
+  Loader2,
+  BookOpen,
+  Tag,
+  DollarSign,
+  FileText,
+  TrendingUp,
+  AlertCircle,
+} from "lucide-react";
+import { toast } from "sonner";
 
 interface AIAnalysisResult {
-  description: string
-  category: string
-  suggestedPrice: number
-  tags: string[]
-  metaTitle: string
-  metaDescription: string
-  targetAudience: string
-  keyPoints: string[]
+  description: string;
+  category: string;
+  suggestedPrice: number;
+  tags: string[];
+  metaTitle: string;
+  metaDescription: string;
+  targetAudience: string;
+  keyPoints: string[];
 }
 
 interface AIContentAnalyzerProps {
-  bookTitle: string
-  currentDescription?: string
-  onAnalysisComplete: (result: AIAnalysisResult) => void
-  disabled?: boolean
+  bookTitle: string;
+  currentDescription?: string;
+  onAnalysisComplete: (result: AIAnalysisResult) => void;
+  disabled?: boolean;
 }
 
 export default function AIContentAnalyzer({
   bookTitle,
   currentDescription,
   onAnalysisComplete,
-  disabled = false
+  disabled = false,
 }: AIContentAnalyzerProps) {
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [showResults, setShowResults] = useState(false)
-  const [analysis, setAnalysis] = useState<AIAnalysisResult | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [analysis, setAnalysis] = useState<AIAnalysisResult | null>(null);
 
   const analyzeContent = async () => {
     if (!bookTitle.trim()) {
-      toast.error('Please enter a book title first')
-      return
+      toast.error("Please enter a book title first");
+      return;
     }
 
-    setIsAnalyzing(true)
+    setIsAnalyzing(true);
     try {
-      const res = await fetch('/api/admin/books/ai-analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/books/ai-analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: bookTitle,
-          existingDescription: currentDescription
-        })
-      })
+          existingDescription: currentDescription,
+        }),
+      });
 
       if (!res.ok) {
-        const error = await res.json()
-        throw new Error(error.error || 'Failed to analyze content')
+        const error = await res.json();
+        throw new Error(error.error || "Failed to analyze content");
       }
 
-      const result = await res.json()
-      setAnalysis(result.analysis)
-      setShowResults(true)
-      toast.success('✨ AI analysis complete!')
+      const result = await res.json();
+      setAnalysis(result.analysis);
+      setShowResults(true);
+      toast.success("✨ AI analysis complete!");
     } catch (error) {
-      console.error('AI Analysis error:', error)
-      toast.error(error instanceof Error ? error.message : 'Failed to analyze content')
+      console.error("AI Analysis error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to analyze content"
+      );
     } finally {
-      setIsAnalyzing(false)
+      setIsAnalyzing(false);
     }
-  }
+  };
 
   const applyAnalysis = () => {
     if (analysis) {
-      onAnalysisComplete(analysis)
-      toast.success('✅ AI suggestions applied to form!')
-      setShowResults(false)
+      onAnalysisComplete(analysis);
+      toast.success("✅ AI suggestions applied to form!");
+      setShowResults(false);
     }
-  }
+  };
 
   const regenerate = () => {
-    setShowResults(false)
-    setAnalysis(null)
-    analyzeContent()
-  }
+    setShowResults(false);
+    setAnalysis(null);
+    analyzeContent();
+  };
 
   return (
     <div className="space-y-4">
@@ -93,7 +111,8 @@ export default function AIContentAnalyzer({
             AI Content Analyzer
           </CardTitle>
           <CardDescription>
-            Let AI generate compelling book descriptions, suggest optimal categories, pricing, and SEO metadata
+            Let AI generate compelling book descriptions, suggest optimal
+            categories, pricing, and SEO metadata
           </CardDescription>
         </CardHeader>
         <CardFooter>
@@ -214,7 +233,9 @@ export default function AIContentAnalyzer({
                     className="flex items-start gap-2 p-2 bg-pink-50 dark:bg-pink-950/20 rounded-lg"
                   >
                     <span className="text-pink-600 font-bold mt-0.5">•</span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{point}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      {point}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -225,13 +246,17 @@ export default function AIContentAnalyzer({
               <Label className="text-base font-semibold">SEO Metadata</Label>
               <div className="space-y-2">
                 <div>
-                  <Label className="text-xs text-gray-600 dark:text-gray-400">Meta Title</Label>
+                  <Label className="text-xs text-gray-600 dark:text-gray-400">
+                    Meta Title
+                  </Label>
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {analysis.metaTitle}
                   </p>
                 </div>
                 <div>
-                  <Label className="text-xs text-gray-600 dark:text-gray-400">Meta Description</Label>
+                  <Label className="text-xs text-gray-600 dark:text-gray-400">
+                    Meta Description
+                  </Label>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
                     {analysis.metaDescription}
                   </p>
@@ -247,11 +272,7 @@ export default function AIContentAnalyzer({
               <Sparkles className="mr-2 h-4 w-4" />
               Apply to Form
             </Button>
-            <Button
-              onClick={regenerate}
-              variant="outline"
-              className="flex-1"
-            >
+            <Button onClick={regenerate} variant="outline" className="flex-1">
               <Loader2 className="mr-2 h-4 w-4" />
               Regenerate
             </Button>
@@ -259,5 +280,5 @@ export default function AIContentAnalyzer({
         </Card>
       )}
     </div>
-  )
+  );
 }
