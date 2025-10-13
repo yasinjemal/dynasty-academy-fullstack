@@ -26,7 +26,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (!bookId) {
-      return NextResponse.json({ error: "No book ID provided" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No book ID provided" },
+        { status: 400 }
+      );
     }
 
     // Validate file type
@@ -116,7 +119,10 @@ export async function DELETE(request: NextRequest) {
     const { bookId } = await request.json();
 
     if (!bookId) {
-      return NextResponse.json({ error: "No book ID provided" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No book ID provided" },
+        { status: 400 }
+      );
     }
 
     // Get book

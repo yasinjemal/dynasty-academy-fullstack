@@ -41,8 +41,8 @@ export default function AdminBookEditPage({
   } | null>(null);
 
   // Editable fields
-  const [editedBook, setEditedBook] = useState<Book | null>(null)
-  const [uploadingCover, setUploadingCover] = useState(false)
+  const [editedBook, setEditedBook] = useState<Book | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [coverFile, setCoverFile] = useState<File | null>(null);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export default function AdminBookEditPage({
     setSaving(true);
     try {
       const res = await fetch(`/api/admin/books/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: editedBook.title,
@@ -96,15 +96,18 @@ export default function AdminBookEditPage({
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to save changes");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to save changes");
+      }
 
-      const data = await res.json();
-      setBook(data.book);
-      setEditedBook(data.book);
+      const updatedBook = await res.json();
+      setBook(updatedBook);
+      setEditedBook(updatedBook);
       showAlert("success", "✅ Book updated successfully!");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving book:", error);
-      showAlert("error", "Failed to save changes");
+      showAlert("error", error.message || "Failed to save changes");
     } finally {
       setSaving(false);
     }

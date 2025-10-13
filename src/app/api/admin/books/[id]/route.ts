@@ -97,6 +97,7 @@ export async function PATCH(
     if (data.tags !== undefined) updateData.tags = data.tags
     if (data.pages !== undefined) updateData.pages = data.pages ? parseInt(data.pages) : null
     if (data.duration !== undefined) updateData.duration = data.duration ? parseInt(data.duration) : null
+    if (data.previewPages !== undefined) updateData.preview_pages = data.previewPages ? parseInt(data.previewPages) : null
     if (data.status !== undefined) {
       updateData.publishedAt = data.status === 'PUBLISHED' ? new Date() : null
     }
