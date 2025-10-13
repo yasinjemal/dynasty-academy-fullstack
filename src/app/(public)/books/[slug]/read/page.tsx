@@ -1,32 +1,32 @@
-import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/auth-options'
-import { prisma } from '@/lib/db/prisma'
-import BookReaderLuxury from '@/components/books/BookReaderLuxury'
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
+import { prisma } from "@/lib/db/prisma";
+import BookReaderLuxury from "@/components/books/BookReaderLuxury";
 
 interface PageProps {
   params: Promise<{
-    slug: string
-  }>
+    slug: string;
+  }>;
 }
 
 export default async function BookReadPage({ params }: PageProps) {
-  const { slug } = await params
-  const session = await getServerSession(authOptions)
+  const { slug } = await params;
+  const session = await getServerSession(authOptions);
 
   // Get book details
   const book = await prisma.book.findUnique({
     where: { slug },
-  })
+  });
 
   if (!book) {
-    redirect('/books')
+    redirect("/books");
   }
 
-  // Check if user has purchased this book  
+  // Check if user has purchased this book
   // For now, treat all users as not having purchased (free preview only)
   // TODO: Implement proper purchase checking after fixing enum issue
-  const isPurchased = false
+  const isPurchased = false;
 
   // Check if book content exists
   if (!book.totalPages || book.totalPages === 0) {
@@ -62,7 +62,7 @@ export default async function BookReadPage({ params }: PageProps) {
           </a>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -76,5 +76,5 @@ export default async function BookReadPage({ params }: PageProps) {
       price={book.price}
       salePrice={book.salePrice}
     />
-  )
+  );
 }
