@@ -3,6 +3,7 @@
 ## 🎯 How to Access Admin Panel
 
 ### **Quick Answer:**
+
 ```
 URL: http://localhost:3000/admin/books
 ```
@@ -27,18 +28,22 @@ But first, you need to be an ADMIN user! 👇
 ### **Step 2: Sign In / Register**
 
 #### **Option A: Sign In with Google OAuth**
+
 ```
 URL: http://localhost:3000/auth/signin
 ```
+
 1. Click "Sign in with Google"
 2. Choose your Google account
 3. Allow permissions
 4. You'll be redirected to homepage
 
 #### **Option B: Register New Account**
+
 ```
 URL: http://localhost:3000/auth/signup
 ```
+
 1. Enter your email
 2. Create password
 3. Fill in your name
@@ -61,6 +66,7 @@ node make-admin.mjs
 ```
 
 **What it does:**
+
 - Looks for user with email: `yasinyutbr@gmail.com`
 - Updates their role to `ADMIN`
 - Shows success message
@@ -72,11 +78,11 @@ If you used a different email, edit the script first:
 1. Open `make-admin.mjs`
 2. Find line 6:
    ```javascript
-   const email = 'yasinyutbr@gmail.com' // Change this to your email
+   const email = "yasinyutbr@gmail.com"; // Change this to your email
    ```
 3. Change to YOUR email:
    ```javascript
-   const email = 'your-email@gmail.com' // Your actual email
+   const email = "your-email@gmail.com"; // Your actual email
    ```
 4. Save file
 5. Run: `node make-admin.mjs`
@@ -117,6 +123,7 @@ http://localhost:3000/admin/books/{bookId}
 ```
 
 #### **What You Can Do:**
+
 - ✅ Upload new books (PDF, DOCX, Markdown, Text)
 - ✅ Edit book details
 - ✅ Set prices and sale prices
@@ -133,6 +140,7 @@ http://localhost:3000/admin/books/{bookId}
 ### **Problem: "Unauthorized" Error**
 
 **Symptoms:**
+
 - Can't access `/admin` routes
 - Redirected to home page
 - "Access denied" message
@@ -140,23 +148,27 @@ http://localhost:3000/admin/books/{bookId}
 **Solutions:**
 
 1. **Check if you're signed in:**
+
    ```
    Look at top-right corner of website
    Should see your profile picture
    ```
 
 2. **Run make-admin script:**
+
    ```bash
    node make-admin.mjs
    ```
 
 3. **Verify in database:**
+
    - Open Supabase dashboard
    - Go to Table Editor → users
    - Find your user
    - Check `role` column = `ADMIN`
 
 4. **Clear browser cookies:**
+
    - Press F12 (Dev Tools)
    - Application tab → Cookies
    - Delete all cookies for localhost:3000
@@ -173,6 +185,7 @@ http://localhost:3000/admin/books/{bookId}
 ### **Problem: "User not found" in Script**
 
 **Symptoms:**
+
 ```
 ❌ User not found. Please register first.
 ```
@@ -180,11 +193,13 @@ http://localhost:3000/admin/books/{bookId}
 **Solutions:**
 
 1. **Check your email is correct:**
+
    - Open `make-admin.mjs`
    - Verify email matches the one you registered with
    - Check for typos (case-sensitive!)
 
 2. **Register an account first:**
+
    - Go to: http://localhost:3000/auth/signup
    - Complete registration
    - Then run script again
@@ -200,6 +215,7 @@ http://localhost:3000/admin/books/{bookId}
 ### **Problem: Script Already Says "User is Admin"**
 
 **Symptoms:**
+
 ```
 ✅ User is already an ADMIN!
 ```
@@ -209,11 +225,13 @@ http://localhost:3000/admin/books/{bookId}
 **Solutions:**
 
 1. **Sign out and sign back in:**
+
    - Click profile → Sign Out
    - Sign in again
    - Try accessing admin
 
 2. **Check middleware:**
+
    - Session might be cached
    - Clear cookies
    - Restart dev server
@@ -230,18 +248,23 @@ http://localhost:3000/admin/books/{bookId}
 After making yourself admin, test access:
 
 ### **1. Access Admin Dashboard:**
+
 ```bash
 http://localhost:3000/admin
 ```
+
 **Expected:** See admin interface (not redirected)
 
 ### **2. Access Books Management:**
+
 ```bash
 http://localhost:3000/admin/books
 ```
+
 **Expected:** See "Add New Book" button and books list
 
 ### **3. Try Creating a Book:**
+
 1. Click "Add New Book"
 2. See form with all fields
 3. Can upload files
@@ -266,6 +289,7 @@ http://localhost:3000/admin/books
 ## 💡 **Pro Tips**
 
 ### **Multiple Admins:**
+
 Want to make another user admin?
 
 ```bash
@@ -287,14 +311,18 @@ await prisma.\$disconnect();
 ```
 
 ### **Remove Admin Rights:**
+
 Change role back to USER:
 
 ```javascript
 // Edit make-admin.mjs
-data: { role: 'USER' } // Change ADMIN to USER
+data: {
+  role: "USER";
+} // Change ADMIN to USER
 ```
 
 ### **Check Your Current Role:**
+
 Run this to see your role:
 
 ```bash
@@ -328,14 +356,15 @@ await prisma.\$disconnect();
 
 **Common Issues:**
 
-| Issue | Solution |
-|-------|----------|
-| Can't sign in | Check OAuth credentials in `.env` |
-| Script fails | Check database connection |
-| Still can't access | Clear cookies and retry |
-| Wrong email | Edit `make-admin.mjs` with correct email |
+| Issue              | Solution                                 |
+| ------------------ | ---------------------------------------- |
+| Can't sign in      | Check OAuth credentials in `.env`        |
+| Script fails       | Check database connection                |
+| Still can't access | Clear cookies and retry                  |
+| Wrong email        | Edit `make-admin.mjs` with correct email |
 
 **Check these files:**
+
 - `.env` - Has all credentials
 - `make-admin.mjs` - Has correct email
 - Database - User exists with correct email

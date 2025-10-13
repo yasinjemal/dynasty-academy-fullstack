@@ -392,7 +392,8 @@ export default function ListenModeLuxury({
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         console.error('API error:', errorData)
-        throw new Error('Failed to generate audio')
+        const errorMessage = errorData.details || errorData.error || 'Failed to generate audio'
+        throw new Error(errorMessage)
       }
 
       const data = await response.json()
@@ -407,8 +408,9 @@ export default function ListenModeLuxury({
       setAudioUrl(data.audioUrl)
       setHasGenerated(true)
       console.log('Audio URL set successfully, cached:', data.cached)
-    } catch (err) {
-      setError('Failed to generate audio. Please try again.')
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to generate audio. Please try again.'
+      setError(errorMessage)
       console.error('Audio generation error:', err)
     } finally {
       setIsLoading(false)
