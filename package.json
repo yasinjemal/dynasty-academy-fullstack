@@ -32,7 +32,7 @@
     "next": "15.5.4",
     "next-auth": "^4.24.11",
     "openai": "^6.3.0",
-    "pdf-parse": "^2.2.6",
+    "pdf-parse": "^2.3.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-dropzone": "^14.3.8",

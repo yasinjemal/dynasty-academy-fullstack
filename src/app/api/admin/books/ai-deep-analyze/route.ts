@@ -18,11 +18,17 @@ export async function POST(req: NextRequest) {
     const { fileId, title, author, contentPreview, totalPages, wordCount } =
       await req.json();
 
-    if (!title || !contentPreview) {
+    if (!title) {
       return NextResponse.json(
-        { error: "Missing required data" },
+        { error: "Missing required data: title is required" },
         { status: 400 }
       );
+    }
+
+    // If no content preview, use title and author for analysis
+    const hasContent = contentPreview && contentPreview.trim().length > 0;
+    if (!hasContent) {
+      console.log("No content preview available, analyzing based on title and metadata only");
     }
 
     // Create comprehensive AI prompt
@@ -30,13 +36,10 @@ export async function POST(req: NextRequest) {
 
 BOOK INFORMATION:
 Title: "${title}"
-Author: "${author}"
-Pages: ${totalPages}
-Word Count: ${wordCount}
-Content Preview (first 2000 characters):
-"""
-${contentPreview}
-"""
+Author: "${author || 'Unknown'}"
+Pages: ${totalPages || 'Unknown'}
+Word Count: ${wordCount || 'Unknown'}
+${hasContent ? `Content Preview (first 2000 characters):\n"""\n${contentPreview}\n"""` : 'Note: No content preview available. Please analyze based on the title and metadata provided.'}
 
 PROVIDE A COMPREHENSIVE ANALYSIS:
 
