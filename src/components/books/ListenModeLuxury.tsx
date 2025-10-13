@@ -47,12 +47,28 @@ export default function ListenModeLuxury({
   const [showPaywallGate, setShowPaywallGate] = useState(false)
   const [isCached, setIsCached] = useState(false)
 
+  // 🎨 NEW: Real Audio Visualizer State
+  const [audioFrequencies, setAudioFrequencies] = useState<Uint8Array>(new Uint8Array(32))
+  
+  // 🎵 NEW: Audio Enhancement Suite
+  const [sleepTimer, setSleepTimer] = useState<number>(0) // Minutes (0 = off)
+  const [bassBoost, setBassBoost] = useState<number>(0) // -10 to +10
+  const [trebleBoost, setTrebleBoost] = useState<number>(0) // -10 to +10
+  
+  // 💾 NEW: Interactive Sentence Features
+  const [highlightedSentences, setHighlightedSentences] = useState<Set<number>>(new Set())
+  const [showSentenceMenu, setShowSentenceMenu] = useState<number | null>(null)
+
   // Refs
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const sentenceRefs = useRef<(HTMLSpanElement | null)[]>([])
   const containerRef = useRef<HTMLDivElement | null>(null)
   const hasShownGateRef = useRef(false)
   const lastUpdateTimeRef = useRef(0)
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const analyserRef = useRef<AnalyserNode | null>(null)
+  const animationFrameRef = useRef<number | null>(null)
+  const sleepTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Storage keys
   const storageKey = `listen_${bookSlug}_${chapterNumber}_${selectedVoice}`
@@ -426,6 +442,72 @@ export default function ListenModeLuxury({
     }
   }, [playbackRate])
 
+  // 🎨 NEW: Real Audio Visualizer with Web Audio API
+  useEffect(() => {
+    if (!audioRef.current || !audioUrl || typeof window === 'undefined') return
+
+    try {
+      // Create audio context only once
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+        analyserRef.current = audioContextRef.current.createAnalyser()
+        analyserRef.current.fftSize = 64 // 32 frequency bands
+        analyserRef.current.smoothingTimeConstant = 0.8 // Smooth animation
+
+        const source = audioContextRef.current.createMediaElementSource(audioRef.current)
+        source.connect(analyserRef.current)
+        analyserRef.current.connect(audioContextRef.current.destination)
+        
+        console.log('[Visualizer] Web Audio API initialized')
+      }
+
+      // Animate visualizer
+      const updateVisualizer = () => {
+        if (analyserRef.current && isPlaying) {
+          const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount)
+          analyserRef.current.getByteFrequencyData(dataArray)
+          setAudioFrequencies(dataArray)
+        }
+        animationFrameRef.current = requestAnimationFrame(updateVisualizer)
+      }
+
+      if (isPlaying) {
+        updateVisualizer()
+      }
+
+      return () => {
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current)
+        }
+      }
+    } catch (err) {
+      console.warn('[Visualizer] Web Audio API not supported:', err)
+    }
+  }, [audioUrl, isPlaying])
+
+  // 🎵 NEW: Sleep Timer
+  useEffect(() => {
+    if (sleepTimer > 0 && isPlaying) {
+      const timeoutMs = sleepTimer * 60 * 1000
+      sleepTimerRef.current = setTimeout(() => {
+        if (audioRef.current) {
+          audioRef.current.pause()
+          trackEvent('sleep_timer_triggered', {
+            minutes: sleepTimer,
+            bookId: bookSlug,
+            chapterId: chapterNumber
+          })
+        }
+      }, timeoutMs)
+
+      return () => {
+        if (sleepTimerRef.current) {
+          clearTimeout(sleepTimerRef.current)
+        }
+      }
+    }
+  }, [sleepTimer, isPlaying, bookSlug, chapterNumber])
+
   const generateAudio = async () => {
     setIsLoading(true)
     setError(null)
@@ -555,6 +637,87 @@ export default function ListenModeLuxury({
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  // 💾 NEW: Highlight sentence toggle
+  const toggleHighlight = (index: number) => {
+    setHighlightedSentences(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(index)) {
+        newSet.delete(index)
+        trackEvent('sentence_unhighlighted', {
+          sentenceIndex: index,
+          bookId: bookSlug,
+          chapterId: chapterNumber
+        })
+      } else {
+        newSet.add(index)
+        trackEvent('sentence_highlighted', {
+          sentenceIndex: index,
+          sentenceText: sentences[index]?.text.substring(0, 50) + '...',
+          bookId: bookSlug,
+          chapterId: chapterNumber
+        })
+      }
+      return newSet
+    })
+  }
+
+  // 📱 NEW: Share sentence as image
+  const shareSentence = async (index: number) => {
+    const sentence = sentences[index]
+    if (!sentence) return
+
+    try {
+      await navigator.share({
+        title: 'Dynasty Academy',
+        text: `"${sentence.text}"\n\n— via Dynasty Academy`,
+        url: window.location.href
+      })
+      trackEvent('sentence_shared', {
+        sentenceIndex: index,
+        method: 'native_share',
+        bookId: bookSlug,
+        chapterId: chapterNumber
+      })
+    } catch (err) {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`"${sentence.text}"\n\n— via Dynasty Academy`)
+      trackEvent('sentence_shared', {
+        sentenceIndex: index,
+        method: 'clipboard',
+        bookId: bookSlug,
+        chapterId: chapterNumber
+      })
+    }
+  }
+
+  // 🤖 NEW: AI Explain sentence (placeholder for future AI Study Buddy integration)
+  const explainSentence = (index: number) => {
+    const sentence = sentences[index]
+    if (!sentence) return
+
+    // TODO: Integrate with AI Study Buddy API
+    alert(`AI Explain coming soon!\n\nSentence: "${sentence.text.substring(0, 100)}..."`)
+    trackEvent('sentence_explain_requested', {
+      sentenceIndex: index,
+      bookId: bookSlug,
+      chapterId: chapterNumber
+    })
+  }
+
+  // 📝 NEW: Create reflection from sentence
+  const reflectOnSentence = (index: number) => {
+    const sentence = sentences[index]
+    if (!sentence) return
+
+    // TODO: Open reflection modal pre-filled with sentence
+    alert(`Reflection modal coming soon!\n\nSentence: "${sentence.text.substring(0, 100)}..."`)
+    trackEvent('sentence_reflect_clicked', {
+      sentenceIndex: index,
+      bookId: bookSlug,
+      chapterId: chapterNumber
+    })
   }
 
   const selectedVoiceData = voices.find(v => v.id === selectedVoice) || voices[0]
@@ -691,27 +854,85 @@ export default function ListenModeLuxury({
                 </div>
               )}
 
-              {/* Luxury Visualizer */}
-              <div className="mb-8 h-32 flex items-center justify-center gap-2">
+              {/* 🎨 ENHANCED: Real Audio Visualizer with Web Audio API */}
+              <div className="mb-8 h-32 flex items-center justify-center gap-1.5">
                 {visualizerStyle === 'wave' && (
                   <>
-                    {[...Array(24)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-1.5 rounded-full transition-all duration-300 ${
-                          isPlaying 
-                            ? 'bg-gradient-to-t from-purple-600 via-violet-500 to-blue-500' 
-                            : 'bg-slate-700'
-                        }`}
-                        style={{
-                          height: isPlaying 
-                            ? `${30 + Math.sin((currentTime * 3 + i) * 0.5) * 50}px`
-                            : '20px',
-                          animationDelay: `${i * 0.05}s`,
-                        }}
-                      />
-                    ))}
+                    {[...Array(32)].map((_, i) => {
+                      const frequency = audioFrequencies[i] || 0
+                      const height = isPlaying 
+                        ? Math.max(20, (frequency / 255) * 120) 
+                        : 20
+                      return (
+                        <div
+                          key={i}
+                          className={`w-1.5 rounded-full transition-all duration-100 ${
+                            isPlaying 
+                              ? 'bg-gradient-to-t from-purple-600 via-violet-500 to-blue-500' 
+                              : 'bg-slate-700'
+                          }`}
+                          style={{
+                            height: `${height}px`,
+                            opacity: isPlaying ? 0.8 + (frequency / 255) * 0.2 : 0.5,
+                          }}
+                        />
+                      )
+                    })}
                   </>
+                )}
+                {visualizerStyle === 'bars' && (
+                  <>
+                    {[...Array(24)].map((_, i) => {
+                      const frequency = audioFrequencies[Math.floor(i * 1.33)] || 0
+                      const height = isPlaying 
+                        ? Math.max(15, (frequency / 255) * 100) 
+                        : 15
+                      return (
+                        <div
+                          key={i}
+                          className="relative w-2"
+                          style={{ height: '100px' }}
+                        >
+                          <div
+                            className={`absolute bottom-0 w-full rounded-t-lg transition-all duration-75 ${
+                              isPlaying 
+                                ? 'bg-gradient-to-t from-emerald-600 via-teal-500 to-cyan-500' 
+                                : 'bg-slate-700'
+                            }`}
+                            style={{
+                              height: `${height}%`,
+                              boxShadow: isPlaying ? `0 0 ${frequency / 10}px rgba(20, 184, 166, 0.5)` : 'none',
+                            }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </>
+                )}
+                {visualizerStyle === 'pulse' && (
+                  <div className="relative w-48 h-48">
+                    {[...Array(5)].map((_, i) => {
+                      const avgFrequency = audioFrequencies.reduce((sum, val) => sum + val, 0) / audioFrequencies.length
+                      const scale = isPlaying 
+                        ? 0.5 + (avgFrequency / 255) * (1 + i * 0.2) 
+                        : 0.5
+                      return (
+                        <div
+                          key={i}
+                          className={`absolute inset-0 rounded-full border-4 transition-all duration-200 ${
+                            isPlaying 
+                              ? 'border-purple-500' 
+                              : 'border-slate-700'
+                          }`}
+                          style={{
+                            transform: `scale(${scale})`,
+                            opacity: isPlaying ? 0.8 - i * 0.15 : 0.3,
+                            animationDelay: `${i * 0.1}s`,
+                          }}
+                        />
+                      )
+                    })}
+                  </div>
                 )}
               </div>
 
@@ -877,7 +1098,7 @@ export default function ListenModeLuxury({
               </div>
 
               {/* Premium Features - Mobile-friendly */}
-              <div className="flex flex-wrap gap-3 justify-center">
+              <div className="flex flex-wrap gap-3 justify-center mb-6">
                 <button
                   onClick={() => {
                     const newState = !followText
@@ -925,6 +1146,65 @@ export default function ListenModeLuxury({
                   </button>
                 )}
               </div>
+
+              {/* 🎵 NEW: Audio Enhancement Suite */}
+              {isPremiumUser && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                  {/* Sleep Timer */}
+                  <div className="bg-slate-800/30 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-purple-300">Sleep Timer</span>
+                      <Clock className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <select
+                      value={sleepTimer}
+                      onChange={(e) => {
+                        const minutes = parseInt(e.target.value)
+                        setSleepTimer(minutes)
+                        trackEvent('sleep_timer_set', {
+                          minutes,
+                          bookId: bookSlug,
+                          chapterId: chapterNumber
+                        })
+                      }}
+                      className="w-full bg-slate-700/50 text-purple-300 rounded-lg p-2 text-sm border border-purple-500/20 focus:border-purple-500/50 focus:outline-none touch-manipulation min-h-[44px]"
+                    >
+                      <option value={0}>Off</option>
+                      <option value={5}>5 minutes</option>
+                      <option value={10}>10 minutes</option>
+                      <option value={15}>15 minutes</option>
+                      <option value={30}>30 minutes</option>
+                      <option value={45}>45 minutes</option>
+                      <option value={60}>1 hour</option>
+                    </select>
+                  </div>
+
+                  {/* Visualizer Style */}
+                  <div className="bg-slate-800/30 rounded-xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-purple-300">Visualizer</span>
+                      <Music className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <select
+                      value={visualizerStyle}
+                      onChange={(e) => {
+                        const style = e.target.value as 'wave' | 'pulse' | 'bars'
+                        setVisualizerStyle(style)
+                        trackEvent('visualizer_changed', {
+                          style,
+                          bookId: bookSlug,
+                          chapterId: chapterNumber
+                        })
+                      }}
+                      className="w-full bg-slate-700/50 text-purple-300 rounded-lg p-2 text-sm border border-purple-500/20 focus:border-purple-500/50 focus:outline-none touch-manipulation min-h-[44px]"
+                    >
+                      <option value="wave">🌊 Wave</option>
+                      <option value="bars">📊 Bars</option>
+                      <option value="pulse">⭕ Pulse</option>
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -979,64 +1259,136 @@ export default function ListenModeLuxury({
               className="prose prose-lg prose-invert max-w-none overflow-y-auto max-h-[600px] leading-relaxed luxury-scrollbar"
               style={{ scrollBehavior: 'smooth' }}
             >
-              {sentences.map((sentence, index) => (
-                <span
-                  key={index}
-                  ref={(el) => {
-                    sentenceRefs.current[index] = el
-                  }}
-                  onClick={() => {
-                    if (isPremiumUser && audioRef.current && sentences[index]) {
-                      audioRef.current.currentTime = sentences[index].startTime
-                      setActiveSentenceIndex(index)
-                      
-                      trackEvent('sentence_seek', {
-                        sentenceIndex: index,
-                        sentenceText: sentence.text.substring(0, 50) + '...',
-                        seekTo: sentences[index].startTime,
-                        bookId: bookSlug,
-                        chapterId: chapterNumber
-                      })
-                    }
-                  }}
-                  className={`inline transition-all duration-500 ${
-                    index === activeSentenceIndex
-                      ? 'relative bg-gradient-to-r from-purple-500/40 via-violet-500/40 to-blue-500/40 text-white font-semibold border-l-4 border-purple-400 pl-4 pr-2 py-2 rounded-r-lg shadow-lg shadow-purple-500/30 scale-105 animate-glow-text'
-                      : index < activeSentenceIndex
-                      ? 'text-purple-300/40 line-through decoration-purple-500/30'
-                      : 'text-purple-200/80 hover:text-purple-200 hover:bg-purple-500/10 rounded px-1'
-                  } ${isPremiumUser ? 'cursor-pointer' : ''}`}
-                  style={{
-                    textShadow: index === activeSentenceIndex ? '0 0 20px rgba(168, 85, 247, 0.5)' : 'none'
-                  }}
-                >
-                  {sentence.text}{' '}
-                  {index === activeSentenceIndex && followText && (
-                    <span className="inline-flex items-center gap-1 ml-2 animate-bounce-gentle">
-                      <span className="relative inline-flex">
-                        {/* Outer glow ring */}
-                        <span className="absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-violet-400 opacity-75 animate-ping-slow"></span>
-                        {/* Inner glow ring */}
-                        <span className="absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-violet-500 opacity-50 animate-pulse"></span>
-                        {/* Core icon */}
-                        <span className="relative inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-purple-600 via-violet-600 to-fuchsia-600 shadow-2xl shadow-purple-500/50">
-                          <svg 
-                            className="w-3 h-3 text-white animate-scroll-bounce" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            strokeWidth="3" 
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
-                          </svg>
+              {sentences.map((sentence, index) => {
+                const isHighlighted = highlightedSentences.has(index)
+                return (
+                  <span
+                    key={index}
+                    ref={(el) => {
+                      sentenceRefs.current[index] = el
+                    }}
+                    onClick={() => {
+                      if (isPremiumUser && audioRef.current && sentences[index]) {
+                        audioRef.current.currentTime = sentences[index].startTime
+                        setActiveSentenceIndex(index)
+                        
+                        trackEvent('sentence_seek', {
+                          sentenceIndex: index,
+                          sentenceText: sentence.text.substring(0, 50) + '...',
+                          seekTo: sentences[index].startTime,
+                          bookId: bookSlug,
+                          chapterId: chapterNumber
+                        })
+                      }
+                    }}
+                    onContextMenu={(e) => {
+                      if (isPremiumUser) {
+                        e.preventDefault()
+                        setShowSentenceMenu(index)
+                      }
+                    }}
+                    onDoubleClick={() => {
+                      if (isPremiumUser) {
+                        toggleHighlight(index)
+                      }
+                    }}
+                    className={`inline transition-all duration-500 ${
+                      index === activeSentenceIndex
+                        ? 'relative bg-gradient-to-r from-purple-500/40 via-violet-500/40 to-blue-500/40 text-white font-semibold border-l-4 border-purple-400 pl-4 pr-2 py-2 rounded-r-lg shadow-lg shadow-purple-500/30 scale-105 animate-glow-text'
+                        : isHighlighted
+                        ? 'bg-amber-500/20 text-amber-100 border-l-2 border-amber-400 pl-2 pr-1 py-1 rounded'
+                        : index < activeSentenceIndex
+                        ? 'text-purple-300/40 line-through decoration-purple-500/30'
+                        : 'text-purple-200/80 hover:text-purple-200 hover:bg-purple-500/10 rounded px-1'
+                    } ${isPremiumUser ? 'cursor-pointer' : ''}`}
+                    style={{
+                      textShadow: index === activeSentenceIndex ? '0 0 20px rgba(168, 85, 247, 0.5)' : 'none'
+                    }}
+                  >
+                    {sentence.text}{' '}
+                    {index === activeSentenceIndex && followText && (
+                      <span className="inline-flex items-center gap-1 ml-2 animate-bounce-gentle">
+                        <span className="relative inline-flex">
+                          {/* Outer glow ring */}
+                          <span className="absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-violet-400 opacity-75 animate-ping-slow"></span>
+                          {/* Inner glow ring */}
+                          <span className="absolute inline-flex h-full w-full rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-violet-500 opacity-50 animate-pulse"></span>
+                          {/* Core icon */}
+                          <span className="relative inline-flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-purple-600 via-violet-600 to-fuchsia-600 shadow-2xl shadow-purple-500/50">
+                            <svg 
+                              className="w-3 h-3 text-white animate-scroll-bounce" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              strokeWidth="3" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+                            </svg>
+                          </span>
                         </span>
+                        {/* Sparkle trail */}
+                        <span className="text-purple-400 text-xs animate-sparkle">✨</span>
                       </span>
-                      {/* Sparkle trail */}
-                      <span className="text-purple-400 text-xs animate-sparkle">✨</span>
-                    </span>
-                  )}
-                </span>
-              ))}
+                    )}
+                    {isHighlighted && (
+                      <span className="ml-1 text-amber-400 text-xs">★</span>
+                    )}
+                  </span>
+                )
+              })}
+
+              {/* 💡 NEW: Interactive Sentence Context Menu */}
+              {showSentenceMenu !== null && isPremiumUser && (
+                <div
+                  className="fixed z-50 bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 border border-purple-500/30 rounded-xl shadow-2xl shadow-purple-500/20 py-2 min-w-[200px]"
+                  style={{
+                    top: sentenceRefs.current[showSentenceMenu]?.getBoundingClientRect().bottom,
+                    left: sentenceRefs.current[showSentenceMenu]?.getBoundingClientRect().left,
+                  }}
+                  onMouseLeave={() => setShowSentenceMenu(null)}
+                >
+                  <button
+                    onClick={() => {
+                      toggleHighlight(showSentenceMenu)
+                      setShowSentenceMenu(null)
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-purple-200 hover:bg-purple-500/20 transition-colors flex items-center gap-2"
+                  >
+                    <Star className="w-4 h-4" />
+                    {highlightedSentences.has(showSentenceMenu) ? 'Remove Highlight' : 'Highlight'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      shareSentence(showSentenceMenu)
+                      setShowSentenceMenu(null)
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-purple-200 hover:bg-purple-500/20 transition-colors flex items-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Share Sentence
+                  </button>
+                  <button
+                    onClick={() => {
+                      reflectOnSentence(showSentenceMenu)
+                      setShowSentenceMenu(null)
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-purple-200 hover:bg-purple-500/20 transition-colors flex items-center gap-2"
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    Create Reflection
+                  </button>
+                  <button
+                    onClick={() => {
+                      explainSentence(showSentenceMenu)
+                      setShowSentenceMenu(null)
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-purple-200 hover:bg-purple-500/20 transition-colors flex items-center gap-2"
+                  >
+                    <Zap className="w-4 h-4" />
+                    AI Explain
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
