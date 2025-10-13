@@ -182,20 +182,26 @@ export default function BookReaderLuxury({
   // LOAD SAVED PREFERENCES
   // ===========================================
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     try {
       const savedPrefs = localStorage.getItem(`reader-prefs-${bookId}`)
-      if (savedPrefs) {
-        const prefs = JSON.parse(savedPrefs)
-        if (prefs.fontSize) setFontSize(prefs.fontSize)
-        if (prefs.lineHeight) setLineHeight(prefs.lineHeight)
-        if (prefs.fontFamily) setFontFamily(prefs.fontFamily)
-        if (prefs.theme) setTheme(prefs.theme)
-        if (prefs.layout) setLayout(prefs.layout)
-        if (prefs.columnMode) setColumnMode(prefs.columnMode)
+      if (savedPrefs && savedPrefs !== '') {
+        try {
+          const prefs = JSON.parse(savedPrefs)
+          if (prefs.fontSize) setFontSize(prefs.fontSize)
+          if (prefs.lineHeight) setLineHeight(prefs.lineHeight)
+          if (prefs.fontFamily) setFontFamily(prefs.fontFamily)
+          if (prefs.theme) setTheme(prefs.theme)
+          if (prefs.layout) setLayout(prefs.layout)
+          if (prefs.columnMode) setColumnMode(prefs.columnMode)
+        } catch (e) {
+          localStorage.removeItem(`reader-prefs-${bookId}`)
+        }
       }
 
       const savedBookmark = localStorage.getItem(`bookmark-${bookId}`)
-      if (savedBookmark) {
+      if (savedBookmark && savedBookmark !== '') {
         const page = parseInt(savedBookmark)
         if (page >= 1 && page <= totalPages) {
           setCurrentPage(page)
@@ -203,16 +209,24 @@ export default function BookReaderLuxury({
       }
 
       const savedBookmarks = localStorage.getItem(`bookmarks-${bookId}`)
-      if (savedBookmarks) {
-        setBookmarks(JSON.parse(savedBookmarks))
+      if (savedBookmarks && savedBookmarks !== '') {
+        try {
+          setBookmarks(JSON.parse(savedBookmarks))
+        } catch (e) {
+          localStorage.removeItem(`bookmarks-${bookId}`)
+        }
       }
 
       const savedStats = localStorage.getItem(`reading-stats-${bookId}`)
-      if (savedStats) {
-        const stats = JSON.parse(savedStats)
-        setTotalReadingTime(stats.totalTime || 0)
-        setWordsRead(stats.wordsRead || 0)
-        setStreak(stats.streak || 0)
+      if (savedStats && savedStats !== '') {
+        try {
+          const stats = JSON.parse(savedStats)
+          setTotalReadingTime(stats.totalTime || 0)
+          setWordsRead(stats.wordsRead || 0)
+          setStreak(stats.streak || 0)
+        } catch (e) {
+          localStorage.removeItem(`reading-stats-${bookId}`)
+        }
       }
     } catch (err) {
       console.error('Error loading preferences:', err)
@@ -223,33 +237,45 @@ export default function BookReaderLuxury({
   // SAVE PREFERENCES
   // ===========================================
   useEffect(() => {
-    const prefs = {
-      fontSize,
-      lineHeight,
-      fontFamily,
-      theme,
-      layout,
-      columnMode
+    if (typeof window === 'undefined') return
+    
+    try {
+      const prefs = {
+        fontSize,
+        lineHeight,
+        fontFamily,
+        theme,
+        layout,
+        columnMode
+      }
+      localStorage.setItem(`reader-prefs-${bookId}`, JSON.stringify(prefs))
+    } catch (err) {
+      console.error('Error saving preferences:', err)
     }
-    localStorage.setItem(`reader-prefs-${bookId}`, JSON.stringify(prefs))
   }, [fontSize, lineHeight, fontFamily, theme, layout, columnMode, bookId])
 
   // ===========================================
   // TRACK READING TIME
   // ===========================================
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    
     const interval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000 / 60)
-      setTotalReadingTime(prev => prev + 1)
-      
-      // Save stats every minute
-      const stats = {
-        totalTime: totalReadingTime + 1,
-        wordsRead,
-        streak,
-        lastRead: Date.now()
+      try {
+        const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000 / 60)
+        setTotalReadingTime(prev => prev + 1)
+        
+        // Save stats every minute
+        const stats = {
+          totalTime: totalReadingTime + 1,
+          wordsRead,
+          streak,
+          lastRead: Date.now()
+        }
+        localStorage.setItem(`reading-stats-${bookId}`, JSON.stringify(stats))
+      } catch (err) {
+        console.error('Error saving stats:', err)
       }
-      localStorage.setItem(`reading-stats-${bookId}`, JSON.stringify(stats))
     }, 60000) // Every minute
 
     return () => clearInterval(interval)
@@ -366,14 +392,20 @@ export default function BookReaderLuxury({
   }
 
   const toggleBookmark = () => {
-    if (currentPageBookmarked) {
-      const updated = bookmarks.filter(p => p !== currentPage)
-      setBookmarks(updated)
-      localStorage.setItem(`bookmarks-${bookId}`, JSON.stringify(updated))
-    } else {
-      const updated = [...bookmarks, currentPage]
-      setBookmarks(updated)
-      localStorage.setItem(`bookmarks-${bookId}`, JSON.stringify(updated))
+    if (typeof window === 'undefined') return
+    
+    try {
+      if (currentPageBookmarked) {
+        const updated = bookmarks.filter(p => p !== currentPage)
+        setBookmarks(updated)
+        localStorage.setItem(`bookmarks-${bookId}`, JSON.stringify(updated))
+      } else {
+        const updated = [...bookmarks, currentPage]
+        setBookmarks(updated)
+        localStorage.setItem(`bookmarks-${bookId}`, JSON.stringify(updated))
+      }
+    } catch (err) {
+      console.error('Error saving bookmark:', err)
     }
   }
 
