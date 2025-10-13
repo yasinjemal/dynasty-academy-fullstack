@@ -23,7 +23,21 @@ model User {
   password      String?
   role          Role     @default(USER)
   bio           String?
+  username      String?   @unique  // For /@username profiles
   socialLinks   Json?    // {twitter, linkedin, instagram, website}
+  
+  // Dynasty Score System
+  dynastyScore  Int      @default(0)
+  level         Int      @default(1)
+  streakDays    Int      @default(0)
+  lastActiveAt  DateTime?
+  
+  // Mentor & Moderation
+  isMentor      Boolean  @default(false)
+  isSuspended   Boolean  @default(false)
+  suspendedUntil DateTime?
+  isBanned      Boolean  @default(false)
+  banReason     String?
   
   // Subscription
   isPremium     Boolean  @default(false)
@@ -50,24 +64,41 @@ model User {
   followers     Follow[]     @relation("Following")
   following     Follow[]     @relation("Follower")
   notifications Notification[] @relation("Recipient")
+  notificationsSent Notification[] @relation("NotificationActors")
   achievements  UserAchievement[]
   progress      UserProgress[]
   reviews       Review[]
   purchases     Purchase[]     @relation("UserPurchases")
   subscriptions Subscription[] @relation("UserSubscriptions")
   
-  // Forum/Community
+  // Forum/Community (Legacy)
   forumTopics   ForumTopic[]   @relation("ForumTopicAuthor")
   forumPosts    ForumPost[]    @relation("ForumPostAuthor")
   forumTopicLikes ForumTopicLike[] @relation("ForumTopicLikes")
   forumPostLikes  ForumPostLike[]  @relation("ForumPostLikes")
   forumTopicBookmarks ForumTopicBookmark[] @relation("ForumTopicBookmarks")
-  
-  // Social Reading Layer
   bookReflections BookReflection[] @relation("BookReflections")
+  
+  // Dynasty Vision - New Community System
+  posts         Post[]         @relation("UserPosts")
+  reflections   Reflection[]   @relation("UserReflections")
+  postComments  PostComment[]  @relation("UserPostComments")
+  reflectionComments ReflectionComment[] @relation("UserReflectionComments")
+  postLikes     PostLike[]     @relation("UserPostLikes")
+  reflectionLikes ReflectionLike[] @relation("UserReflectionLikes")
+  feedItems     FeedItem[]
+  dynastyActivities DynastyActivity[] @relation("UserActivities")
+  collections   Collection[]   @relation("UserCollections")
+  collectionItems CollectionItem[]
+  userQuests    UserQuest[]
+  reportsCreated Report[]      @relation("UserReports")
+  reportsReviewed Report[]     @relation("ReviewedReports")
   
   @@index([email])
   @@index([role])
+  @@index([username])
+  @@index([dynastyScore])
+  @@index([level])
   @@map("users")
 }
 
@@ -174,6 +205,7 @@ model Book {
   purchases   Purchase[]     @relation("BookPurchases")
   audioAssets AudioAsset[]
   bookReflections BookReflection[] @relation("BookReflections")
+  reflections Reflection[]   // Dynasty Vision reflections
   
   @@index([slug])
   @@index([category])
@@ -436,20 +468,25 @@ model Follow {
 // ============================================
 
 model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation("Recipient", fields: [userId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation("Recipient", fields: [userId], references: [id], onDelete: Cascade)
   
-  type      NotificationType
-  title     String
-  message   String?
-  link      String?
+  type       NotificationType
+  actorId    String?
+  actor      User?    @relation("NotificationActors", fields: [actorId], references: [id], onDelete: SetNull)
+  entityType String?  // "POST", "COMMENT", "REFLECTION"
+  entityId   String?
+  title      String
+  message    String?
+  link       String?
   
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  seen       Boolean  @default(false)
+  createdAt  DateTime @default(now())
   
   @@index([userId])
-  @@index([read])
+  @@index([seen])
+  @@index([createdAt])
   @@map("notifications")
 }
 
@@ -460,6 +497,9 @@ enum NotificationType {
   PURCHASE
   SYSTEM
   ACHIEVEMENT
+  LEVEL_UP
+  MENTION
+  REPLY
 }
 
 // ============================================
@@ -724,4 +764,322 @@ model BookReflection {
   @@index([chapterNumber])
   @@index([createdAt])
   @@map("book_reflections")
+}
+
+// ============================================
+// DYNASTY VISION - NEW COMMUNITY SYSTEM
+// ============================================
+
+// Posts (Community Content)
+model Post {
+  id            String   @id @default(cuid())
+  authorId      String
+  author        User     @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
+  title         String
+  slug          String   @unique
+  content       String   @db.Text
+  excerpt       String?
+  coverImage    String?
+  tags          String[]
+  
+  viewCount     Int      @default(0)
+  likeCount     Int      @default(0)
+  commentCount  Int      @default(0)
+  saveCount     Int      @default(0)
+  hotScore      Float    @default(0)
+  
+  published     Boolean  @default(true)
+  publishedAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  comments      PostComment[]
+  likes         PostLike[]
+  feedItems     FeedItem[]
+  collections   CollectionItem[]
+  
+  @@index([slug])
+  @@index([authorId])
+  @@index([hotScore])
+  @@index([publishedAt])
+  @@map("posts")
+}
+
+// Reflections (Book-linked posts)
+model Reflection {
+  id            String   @id @default(cuid())
+  authorId      String
+  author        User     @relation("UserReflections", fields: [authorId], references: [id], onDelete: Cascade)
+  bookId        String
+  book          Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookTitle     String
+  pageNumber    Int?
+  excerpt       String?  @db.Text
+  content       String   @db.Text
+  
+  likeCount     Int      @default(0)
+  commentCount  Int      @default(0)
+  hotScore      Float    @default(0)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  comments      ReflectionComment[]
+  likes         ReflectionLike[]
+  feedItems     FeedItem[]
+  
+  @@index([authorId])
+  @@index([bookId])
+  @@index([hotScore])
+  @@index([createdAt])
+  @@map("reflections")
+}
+
+// Post Comments
+model PostComment {
+  id         String   @id @default(cuid())
+  authorId   String
+  author     User     @relation("UserPostComments", fields: [authorId], references: [id], onDelete: Cascade)
+  postId     String
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parentId   String?
+  parent     PostComment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies    PostComment[] @relation("CommentReplies")
+  
+  content    String   @db.Text
+  likeCount  Int      @default(0)
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@index([postId])
+  @@index([authorId])
+  @@index([parentId])
+  @@map("post_comments")
+}
+
+// Reflection Comments
+model ReflectionComment {
+  id           String   @id @default(cuid())
+  authorId     String
+  author       User     @relation("UserReflectionComments", fields: [authorId], references: [id], onDelete: Cascade)
+  reflectionId String
+  reflection   Reflection @relation(fields: [reflectionId], references: [id], onDelete: Cascade)
+  parentId     String?
+  parent       ReflectionComment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies      ReflectionComment[] @relation("CommentReplies")
+  
+  content      String   @db.Text
+  likeCount    Int      @default(0)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@index([reflectionId])
+  @@index([authorId])
+  @@index([parentId])
+  @@map("reflection_comments")
+}
+
+// Post Likes
+model PostLike {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation("UserPostLikes", fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  
+  @@unique([userId, postId])
+  @@index([postId])
+  @@map("post_likes")
+}
+
+// Reflection Likes
+model ReflectionLike {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation("UserReflectionLikes", fields: [userId], references: [id], onDelete: Cascade)
+  reflectionId String
+  reflection   Reflection @relation(fields: [reflectionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  
+  @@unique([userId, reflectionId])
+  @@index([reflectionId])
+  @@map("reflection_likes")
+}
+
+// Feed Items (Unified Feed)
+model FeedItem {
+  id          String   @id @default(cuid())
+  type        FeedType
+  postId      String?
+  post        Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reflectionId String?
+  reflection  Reflection? @relation(fields: [reflectionId], references: [id], onDelete: Cascade)
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  publishedAt DateTime
+  hotScore    Float    @default(0)
+  tags        String[]
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([hotScore])
+  @@index([publishedAt])
+  @@index([authorId])
+  @@index([type])
+  @@map("feed_items")
+}
+
+enum FeedType {
+  POST
+  REFLECTION
+}
+
+// Dynasty Activity Log (for Dynasty Score tracking)
+model DynastyActivity {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation("UserActivities", fields: [userId], references: [id], onDelete: Cascade)
+  action     String   // "CREATE_POST", "WRITE_REFLECTION", "COMMENT", etc.
+  points     Int
+  entityType String?  // "POST", "REFLECTION", "COMMENT"
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@index([action])
+  @@map("dynasty_activities")
+}
+
+// Collections (Save & Organize)
+model Collection {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation("UserCollections", fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  slug        String
+  description String?
+  isPublic    Boolean  @default(false)
+  items       CollectionItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId, slug])
+  @@index([userId])
+  @@index([slug])
+  @@map("collections")
+}
+
+model CollectionItem {
+  id           String   @id @default(cuid())
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityType   String   // "POST", "REFLECTION"
+  entityId     String
+  postId       String?
+  post         Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  addedAt      DateTime @default(now())
+  
+  @@index([collectionId])
+  @@index([userId])
+  @@map("collection_items")
+}
+
+// Quests (Daily/Weekly Challenges)
+model Quest {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  type        QuestType
+  requirement Json     // {type: "posts", count: 3, period: "weekly"}
+  reward      Int      // Dynasty Score points
+  isActive    Boolean  @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  
+  userQuests  UserQuest[]
+  
+  @@index([type])
+  @@index([isActive])
+  @@map("quests")
+}
+
+enum QuestType {
+  DAILY
+  WEEKLY
+  SPECIAL
+}
+
+model UserQuest {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questId    String
+  quest      Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  progress   Int      @default(0)
+  completed  Boolean  @default(false)
+  completedAt DateTime?
+  createdAt  DateTime @default(now())
+  
+  @@unique([userId, questId])
+  @@index([userId])
+  @@index([questId])
+  @@map("user_quests")
+}
+
+// Reports (Moderation)
+model Report {
+  id              String   @id @default(cuid())
+  type            ReportType
+  reason          ReportReason
+  status          ReportStatus @default(PENDING)
+  reporterId      String
+  reporter        User     @relation("UserReports", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetUserId    String?
+  targetPostId    String?
+  targetCommentId String?
+  description     String?  @db.Text
+  reviewedBy      String?
+  reviewer        User?    @relation("ReviewedReports", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  moderatorNotes  String?  @db.Text
+  resolvedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([status])
+  @@index([type])
+  @@index([reporterId])
+  @@index([reviewedBy])
+  @@map("reports")
+}
+
+enum ReportType {
+  POST
+  USER
+  COMMENT
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  HATE_SPEECH
+  VIOLENCE
+  MISINFORMATION
+  COPYRIGHT
+  INAPPROPRIATE_CONTENT
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWING
+  RESOLVED
+  DISMISSED
 }
