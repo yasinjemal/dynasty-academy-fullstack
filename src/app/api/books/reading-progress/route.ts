@@ -27,26 +27,34 @@ export async function POST(req: NextRequest) {
     const completed = currentPage >= totalPages
 
     // Update or create user progress
-    await prisma.userProgress.upsert({
-      where: {
-        userId_bookId: {
+    try {
+      await prisma.userProgress.upsert({
+        where: {
+          userId_bookId: {
+            userId: session.user.id,
+            bookId,
+          },
+        },
+        update: {
+          lastPage: currentPage,
+          progress,
+          completed,
+        },
+        create: {
           userId: session.user.id,
           bookId,
+          lastPage: currentPage,
+          progress,
+          completed,
         },
-      },
-      update: {
-        lastPage: currentPage,
-        progress,
-        completed,
-      },
-      create: {
-        userId: session.user.id,
-        bookId,
-        lastPage: currentPage,
-        progress,
-        completed,
-      },
-    })
+      })
+    } catch (error) {
+      console.error("Error updating reading progress:", error);
+      return NextResponse.json(
+        { error: 'Failed to update progress' },
+        { status: 500 }
+      )
+    }
 
     // Award achievement for finishing a book
     if (completed) {

@@ -72,27 +72,32 @@ export async function GET(
     const pageContent = contentData.pages[page - 1]
 
     // Track reading progress if user is logged in
-    if (session?.user) {
-      await prisma.userProgress.upsert({
-        where: {
-          userId_bookId: {
+    if (session?.user?.id) {
+      try {
+        await prisma.userProgress.upsert({
+          where: {
+            userId_bookId: {
+              userId: session.user.id,
+              bookId: book.id,
+            },
+          },
+          update: {
+            lastPage: page,
+            progress: Math.round((page / contentData.totalPages) * 100),
+            completed: page >= contentData.totalPages,
+          },
+          create: {
             userId: session.user.id,
             bookId: book.id,
+            lastPage: page,
+            progress: Math.round((page / contentData.totalPages) * 100),
+            completed: page >= contentData.totalPages,
           },
-        },
-        update: {
-          lastPage: page,
-          progress: Math.round((page / contentData.totalPages) * 100),
-          completed: page >= contentData.totalPages,
-        },
-        create: {
-          userId: session.user.id,
-          bookId: book.id,
-          lastPage: page,
-          progress: Math.round((page / contentData.totalPages) * 100),
-          completed: page >= contentData.totalPages,
-        },
-      })
+        });
+      } catch (error) {
+        // Log but don't fail the page load if progress tracking fails
+        console.error("Error tracking reading progress:", error);
+      }
     }
 
     return NextResponse.json({
