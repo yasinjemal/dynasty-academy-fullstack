@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 import { prisma } from '@/lib/db/prisma'
 import { compare } from 'bcryptjs'
+import crypto from 'crypto'
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -58,10 +59,44 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async signIn({ user, account }) {
+      // For Google OAuth, ensure user exists in database
+      if (account?.provider === 'google' && user.email) {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
+
+        if (!existingUser) {
+          // Create user in database if they don't exist
+          await prisma.user.create({
+            data: {
+              id: user.id || crypto.randomUUID(),
+              email: user.email,
+              name: user.name || 'User',
+              image: user.image,
+              role: 'USER',
+              emailVerified: new Date(),
+            },
+          });
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, trigger, session, account }) {
       if (user) {
-        token.id = user.id
-        token.role = user.role
+        // For Google OAuth, fetch the user from database to get the actual ID
+        if (account?.provider === 'google' && user.email) {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: user.email },
+          });
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.role = dbUser.role;
+          }
+        } else {
+          token.id = user.id;
+          token.role = user.role;
+        }
       }
 
       // Handle session update
@@ -82,10 +117,14 @@ export const authOptions: NextAuthOptions = {
   events: {
     async signIn({ user }) {
       // Update last login time
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { lastLoginAt: new Date() },
-      })
+      try {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date() },
+        });
+      } catch (error) {
+        console.error('Error updating last login:', error);
+      }
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
