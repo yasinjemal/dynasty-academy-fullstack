@@ -31,6 +31,11 @@ import { FeedItem, type FeedItemData } from "@/components/community/FeedItem";
 import { CreatePostModal } from "@/components/community/CreatePostModal";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ParticleBackground from "@/components/effects/ParticleBackground";
+import MagneticCursor from "@/components/effects/MagneticCursor";
+import HolographicCard from "@/components/effects/HolographicCard";
+import PulsingGlow from "@/components/effects/PulsingGlow";
+import { motion } from "framer-motion";
 
 type Tab = "hot" | "following" | "topic";
 
@@ -305,17 +310,53 @@ export default function CommunityPage() {
   const progressPercentage = Math.min((nextLevelPoints / 200) * 100, 100);
 
   return (
-    <div className="min-h-screen bg-[#0A1628]">
-      {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-30">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-orange-500/20 rounded-full blur-3xl animate-pulse" />
-        <div
-          className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-500/20 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: "1s" }}
+    <div className="min-h-screen bg-[#0A1628] relative overflow-hidden">
+      {/* INSANE Particle Background */}
+      <ParticleBackground />
+
+      {/* Magnetic Cursor Effect */}
+      <MagneticCursor />
+
+      {/* Animated Background Gradients */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute top-0 right-0 w-[800px] h-[800px] bg-orange-500/20 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
         />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/10 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: "2s" }}
+        <motion.div
+          className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-purple-500/20 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+        />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-pink-500/10 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.4, 1],
+            rotate: [0, 180, 360],
+            opacity: [0.1, 0.2, 0.1],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 2,
+          }}
         />
       </div>
 
@@ -400,102 +441,170 @@ export default function CommunityPage() {
           {/* LEFT SIDEBAR - Hidden on mobile, shown on large screens */}
           <aside className="hidden lg:block lg:col-span-3 space-y-4">
             {/* Topics Section */}
-            <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl border border-slate-700/50 overflow-hidden backdrop-blur-sm">
-              <div className="p-6 border-b border-slate-700/50">
-                <div className="flex items-center gap-2">
-                  <Hash className="w-5 h-5 text-orange-500" />
-                  <h2 className="text-lg font-bold text-white">Topics</h2>
-                </div>
-              </div>
-              <div className="p-3">
-                {TOPICS.map((topic) => (
-                  <button
-                    key={topic.id}
-                    onClick={() => handleTopicClick(topic.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${
-                      selectedTopic === topic.id
-                        ? "bg-gradient-to-r from-orange-500/20 to-orange-600/20 border border-orange-500/50"
-                        : "hover:bg-slate-800/50"
-                    }`}
-                  >
-                    <span className="text-2xl">{topic.icon}</span>
-                    <div className="flex-1 text-left">
-                      <div className="text-sm font-semibold text-white">
-                        {topic.name}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {topic.count} posts
-                      </div>
+            <PulsingGlow color="purple" intensity="medium">
+              <HolographicCard className="bg-gradient-to-br from-purple-900/90 to-indigo-900/90">
+                <div className="overflow-hidden backdrop-blur-sm">
+                  <div className="p-6 border-b border-white/10">
+                    <div className="flex items-center gap-2">
+                      <Hash className="w-5 h-5 text-purple-400" />
+                      <h2 className="text-lg font-bold text-white">Topics</h2>
                     </div>
-                    <ArrowUp className="w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-colors" />
-                  </button>
-                ))}
-              </div>
-            </div>
+                  </div>
+                  <div className="p-3">
+                    {TOPICS.map((topic) => (
+                      <button
+                        key={topic.id}
+                        onClick={() => handleTopicClick(topic.id)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group transform hover:scale-105 ${
+                          selectedTopic === topic.id
+                            ? "bg-gradient-to-r from-orange-500/20 to-orange-600/20 border border-orange-500/50 shadow-lg shadow-orange-500/20"
+                            : "hover:bg-white/10 hover:shadow-lg"
+                        }`}
+                      >
+                        <span className="text-2xl group-hover:scale-125 transition-transform">
+                          {topic.icon}
+                        </span>
+                        <div className="flex-1 text-left">
+                          <div className="text-sm font-semibold text-white">
+                            {topic.name}
+                          </div>
+                          <div className="text-xs text-gray-300">
+                            {topic.count} posts
+                          </div>
+                        </div>
+                        <ArrowUp className="w-4 h-4 text-gray-400 group-hover:text-orange-400 group-hover:rotate-45 transition-all" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </HolographicCard>
+            </PulsingGlow>
 
             {/* Community Stats */}
-            <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl border border-slate-700/50 p-6 backdrop-blur-sm">
-              <h3 className="text-lg font-bold text-white mb-4">
-                Community Stats
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-400">Active Members</span>
-                  <span className="text-lg font-bold text-white">1,234</span>
+            <PulsingGlow color="blue" intensity="medium">
+              <HolographicCard className="bg-gradient-to-br from-cyan-900/90 to-blue-900/90">
+                <div className="p-6 backdrop-blur-sm">
+                  <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-cyan-400" />
+                    Community Stats
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all">
+                      <span className="text-sm text-gray-300">
+                        Active Members
+                      </span>
+                      <span className="text-lg font-bold text-white">
+                        1,234
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all">
+                      <span className="text-sm text-gray-300">Posts Today</span>
+                      <span className="text-lg font-bold text-green-400">
+                        156
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-all">
+                      <span className="text-sm text-gray-300">
+                        Dynasty Points Earned
+                      </span>
+                      <span className="text-lg font-bold text-orange-400">
+                        45,678
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-400">Posts Today</span>
-                  <span className="text-lg font-bold text-green-400">156</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-400">
-                    Dynasty Points Earned
-                  </span>
-                  <span className="text-lg font-bold text-orange-400">
-                    45,678
-                  </span>
-                </div>
-              </div>
-            </div>
+              </HolographicCard>
+            </PulsingGlow>
           </aside>
 
           {/* CENTER - Main Feed - Full width on mobile, 6 cols on large */}
           <main className="col-span-1 lg:col-span-6">
-            {/* Mobile Dynasty Score Banner - Only visible on mobile */}
-            <div className="lg:hidden bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-4 mb-4 text-white shadow-lg">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs opacity-90 mb-1">
-                    Your Dynasty Score
-                  </div>
-                  <div className="text-3xl font-black">
-                    {dynastyScore.toLocaleString()}
-                  </div>
-                  <div className="text-xs flex items-center gap-2 mt-1">
-                    <span>Level {level}</span>
-                    {streak > 0 && (
-                      <>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <Flame className="w-3 h-3" /> {streak} days
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <Link href="/dashboard/profile">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="bg-white/20 hover:bg-white/30 text-white border-0"
+            {/* Mobile Dynasty Score Banner - Only visible on mobile - NOW WITH HOLOGRAPHIC EFFECT! */}
+            <HolographicCard className="lg:hidden mb-4" intensity={1.5}>
+              <motion.div
+                className="bg-gradient-to-r from-orange-500 via-orange-600 to-pink-600 rounded-xl p-4 text-white shadow-2xl relative overflow-hidden"
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              >
+                {/* Animated shine effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                  animate={{
+                    x: ["-100%", "200%"],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+
+                <div className="flex items-center justify-between relative z-10">
+                  <div>
+                    <motion.div
+                      className="text-xs opacity-90 mb-1"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 0.9, y: 0 }}
+                      transition={{ delay: 0.1 }}
                     >
-                      View Profile
-                    </Button>
-                  </Link>
+                      Your Dynasty Score
+                    </motion.div>
+                    <motion.div
+                      className="text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-white to-yellow-200"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 260,
+                        damping: 20,
+                      }}
+                    >
+                      {dynastyScore.toLocaleString()}
+                    </motion.div>
+                    <div className="text-xs flex items-center gap-2 mt-1">
+                      <motion.span
+                        className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/20 rounded-full"
+                        whileHover={{ scale: 1.1 }}
+                      >
+                        Level {level}
+                      </motion.span>
+                      {streak > 0 && (
+                        <>
+                          <span>•</span>
+                          <motion.span
+                            className="flex items-center gap-1 px-2 py-0.5 bg-orange-400/30 rounded-full"
+                            animate={{
+                              boxShadow: [
+                                "0 0 0 0 rgba(251, 146, 60, 0)",
+                                "0 0 0 8px rgba(251, 146, 60, 0)",
+                                "0 0 0 0 rgba(251, 146, 60, 0)",
+                              ],
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                            }}
+                          >
+                            <Flame className="w-3 h-3" /> {streak} days
+                          </motion.span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <Link href="/dashboard/profile">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm"
+                      >
+                        View Profile
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </HolographicCard>
 
             {/* Feed Header with Tabs */}
             <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-xl md:rounded-2xl border border-slate-700/50 p-3 md:p-4 mb-4 backdrop-blur-sm">
@@ -622,102 +731,110 @@ export default function CommunityPage() {
           {/* RIGHT SIDEBAR - Hidden on mobile, shown on large screens */}
           <aside className="hidden lg:block lg:col-span-3 space-y-4">
             {/* Dynasty Score Widget */}
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-2xl shadow-orange-500/30 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
+            <HolographicCard className="bg-gradient-to-br from-orange-500 to-orange-600">
+              <div className="p-6 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
 
-              <div className="relative">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium opacity-90">
-                    Your Dynasty Score
-                  </span>
-                  <Sparkles className="w-5 h-5" />
-                </div>
-
-                <div className="text-5xl font-black mb-1">
-                  {dynastyScore.toLocaleString()}
-                </div>
-
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-sm opacity-90">Level {level}</span>
-                  <Award className="w-4 h-4" />
-                </div>
-
-                {/* Progress Bar */}
-                <div className="mb-3">
-                  <div className="flex justify-between text-xs mb-1 opacity-90">
-                    <span>Level {level}</span>
-                    <span>Level {level + 1}</span>
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium opacity-90">
+                      Your Dynasty Score
+                    </span>
+                    <Sparkles className="w-5 h-5" />
                   </div>
-                  <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-white rounded-full transition-all duration-1000 ease-out"
-                      style={{ width: `${progressPercentage}%` }}
-                    />
-                  </div>
-                  <div className="text-xs text-center mt-1 opacity-90">
-                    {nextLevelPoints} points to next level
-                  </div>
-                </div>
 
-                <Button
-                  variant="ghost"
-                  className="w-full bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm"
-                >
-                  View Full Profile →
-                </Button>
+                  <div className="text-5xl font-black mb-1">
+                    {dynastyScore.toLocaleString()}
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-sm opacity-90">Level {level}</span>
+                    <Award className="w-4 h-4" />
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="mb-3">
+                    <div className="flex justify-between text-xs mb-1 opacity-90">
+                      <span>Level {level}</span>
+                      <span>Level {level + 1}</span>
+                    </div>
+                    <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-white rounded-full transition-all duration-1000 ease-out"
+                        style={{ width: `${progressPercentage}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-center mt-1 opacity-90">
+                      {nextLevelPoints} points to next level
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    className="w-full bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm"
+                  >
+                    View Full Profile →
+                  </Button>
+                </div>
               </div>
-            </div>
+            </HolographicCard>
 
             {/* Streak Tracker */}
             {streak > 0 && (
-              <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl border border-slate-700/50 p-6 backdrop-blur-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-bold text-white">Daily Streak</h3>
-                  <Flame className="w-6 h-6 text-orange-500 animate-pulse" />
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-black text-orange-500 mb-1">
-                    {streak} Days
+              <HolographicCard className="bg-gradient-to-br from-red-600 to-orange-600">
+                <div className="p-6 backdrop-blur-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-lg font-bold text-white">
+                      Daily Streak
+                    </h3>
+                    <Flame className="w-6 h-6 text-orange-200 animate-pulse" />
                   </div>
-                  <p className="text-sm text-gray-400">
-                    Keep it going! +2 DS daily
-                  </p>
+                  <div className="text-center">
+                    <div className="text-4xl font-black text-white mb-1">
+                      {streak} Days
+                    </div>
+                    <p className="text-sm text-orange-100">
+                      Keep it going! +2 DS daily
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </HolographicCard>
             )}
 
             {/* Recent Activity */}
-            <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl border border-slate-700/50 backdrop-blur-sm overflow-hidden">
-              <div className="p-6 border-b border-slate-700/50">
-                <div className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-orange-500" />
-                  <h3 className="text-lg font-bold text-white">
-                    Recent Activity
-                  </h3>
+            <HolographicCard className="bg-gradient-to-br from-purple-900/90 to-blue-900/90">
+              <div className="backdrop-blur-sm overflow-hidden">
+                <div className="p-6 border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-yellow-400 drop-shadow-glow" />
+                    <h3 className="text-lg font-bold text-white">
+                      Recent Activity
+                    </h3>
+                  </div>
+                </div>
+                <div className="p-4 space-y-3">
+                  {recentActivity.map((activity) => (
+                    <div
+                      key={activity.id}
+                      className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all"
+                    >
+                      <div>
+                        <div className="text-sm text-white font-medium">
+                          {activity.action}
+                        </div>
+                        <div className="text-xs text-gray-300">
+                          {activity.time}
+                        </div>
+                      </div>
+                      <div className="text-lg font-bold text-green-400">
+                        +{activity.points}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="p-4 space-y-3">
-                {recentActivity.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="flex items-center justify-between p-3 bg-slate-800/30 rounded-lg"
-                  >
-                    <div>
-                      <div className="text-sm text-white font-medium">
-                        {activity.action}
-                      </div>
-                      <div className="text-xs text-gray-400">
-                        {activity.time}
-                      </div>
-                    </div>
-                    <div className="text-lg font-bold text-green-400">
-                      +{activity.points}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            </HolographicCard>
 
             {/* Earn More Points */}
             <div className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 rounded-2xl border border-slate-700/50 p-6 backdrop-blur-sm">

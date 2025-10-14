@@ -86,6 +86,8 @@ model User {
   moderationActions   ModerationLog[]      @relation("ModeratorActions")
   postComments        PostComment[]        @relation("UserPostComments")
   postLikes           PostLike[]           @relation("UserPostLikes")
+  commentLikes        CommentLike[]        @relation("UserCommentLikes")
+  savedPosts          SavedPost[]          @relation("UserSavedPosts")
   posts               Post[]               @relation("UserPosts")
   purchases           Purchase[]           @relation("UserPurchases")
   readingPresence     ReadingPresence[]    @relation("UserReadingPresence")
@@ -599,6 +601,7 @@ model Post {
   feedItems    FeedItem[]
   comments     PostComment[]
   likes        PostLike[]
+  saves        SavedPost[]
   author       User             @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([slug])
@@ -647,11 +650,25 @@ model PostComment {
   parent    PostComment?  @relation("CommentReplies", fields: [parentId], references: [id])
   replies   PostComment[] @relation("CommentReplies")
   post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  likes     CommentLike[]
 
   @@index([postId])
   @@index([authorId])
   @@index([parentId])
   @@map("post_comments")
+}
+
+model CommentLike {
+  id        String      @id @default(cuid())
+  userId    String
+  commentId String
+  createdAt DateTime    @default(now())
+  comment   PostComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User        @relation("UserCommentLikes", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, commentId])
+  @@index([commentId])
+  @@map("comment_likes")
 }
 
 model ReflectionComment {
@@ -685,6 +702,20 @@ model PostLike {
   @@unique([userId, postId])
   @@index([postId])
   @@map("post_likes")
+}
+
+model SavedPost {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserSavedPosts", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+  @@index([userId, createdAt])
+  @@map("saved_posts")
 }
 
 model ReflectionLike {

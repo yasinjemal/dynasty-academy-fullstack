@@ -98,7 +98,16 @@ export default function PostDetailClient({
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState("");
+  const [isReplySubmitting, setIsReplySubmitting] = useState(false);
   const [commentLikes, setCommentLikes] = useState<Record<string, boolean>>({});
+  const [expandedReplies, setExpandedReplies] = useState<
+    Record<string, boolean>
+  >({});
+  const [replies, setReplies] = useState<Record<string, Comment[]>>({});
+  const [loadingReplies, setLoadingReplies] = useState<Record<string, boolean>>(
+    {}
+  );
 
   // Show loading state if post is not loaded
   if (!post) {
@@ -297,6 +306,102 @@ export default function PostDetailClient({
   // Handle reply click
   const handleReplyClick = (commentId: string) => {
     setReplyingTo(replyingTo === commentId ? null : commentId);
+    setReplyContent(""); // Clear reply content when toggling
+  };
+
+  // Handle reply submission
+  const handleReplySubmit = async (parentId: string) => {
+    if (!session) {
+      router.push("/auth/signin");
+      return;
+    }
+
+    if (!replyContent.trim()) return;
+
+    setIsReplySubmitting(true);
+
+    try {
+      const res = await fetch(`/api/posts/${post.id}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: replyContent,
+          parentId: parentId,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to post reply");
+      }
+
+      const data = await res.json();
+
+      // Update the parent comment's reply count
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id === parentId
+            ? {
+                ...comment,
+                _count: {
+                  ...comment._count,
+                  replies: comment._count.replies + 1,
+                },
+              }
+            : comment
+        )
+      );
+
+      // Update post comment count
+      setPost((prev) => ({ ...prev, commentCount: prev.commentCount + 1 }));
+
+      // Clear reply form
+      setReplyContent("");
+      setReplyingTo(null);
+
+      // Auto-expand replies to show the new reply
+      await fetchReplies(parentId);
+      setExpandedReplies((prev) => ({ ...prev, [parentId]: true }));
+    } catch (error) {
+      console.error("Error posting reply:", error);
+    } finally {
+      setIsReplySubmitting(false);
+    }
+  };
+
+  // Fetch replies for a comment
+  const fetchReplies = async (commentId: string) => {
+    if (loadingReplies[commentId]) return; // Prevent duplicate requests
+
+    setLoadingReplies((prev) => ({ ...prev, [commentId]: true }));
+
+    try {
+      const res = await fetch(
+        `/api/posts/${post.id}/comments?parentId=${commentId}&limit=50`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch replies");
+      }
+
+      const data = await res.json();
+      setReplies((prev) => ({ ...prev, [commentId]: data.comments || [] }));
+    } catch (error) {
+      console.error("Error fetching replies:", error);
+    } finally {
+      setLoadingReplies((prev) => ({ ...prev, [commentId]: false }));
+    }
+  };
+
+  // Toggle replies visibility
+  const toggleReplies = async (commentId: string) => {
+    const isExpanded = expandedReplies[commentId];
+
+    if (!isExpanded && !replies[commentId]) {
+      // Fetch replies if not already loaded
+      await fetchReplies(commentId);
+    }
+
+    setExpandedReplies((prev) => ({ ...prev, [commentId]: !isExpanded }));
   };
 
   // Format time ago
@@ -689,11 +794,27 @@ export default function PostDetailClient({
                           </motion.button>
 
                           {comment._count.replies > 0 && (
-                            <button className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors">
-                              View {comment._count.replies}{" "}
-                              {comment._count.replies === 1
-                                ? "reply"
-                                : "replies"}
+                            <button
+                              onClick={() => toggleReplies(comment.id)}
+                              disabled={loadingReplies[comment.id]}
+                              className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
+                            >
+                              {loadingReplies[comment.id] ? (
+                                <>
+                                  <div className="w-3 h-3 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                                  <span>Loading...</span>
+                                </>
+                              ) : (
+                                <>
+                                  {expandedReplies[comment.id]
+                                    ? "Hide"
+                                    : "View"}{" "}
+                                  {comment._count.replies}{" "}
+                                  {comment._count.replies === 1
+                                    ? "reply"
+                                    : "replies"}
+                                </>
+                              )}
                             </button>
                           )}
                         </div>
@@ -710,7 +831,10 @@ export default function PostDetailClient({
                               <div className="flex gap-3">
                                 <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-purple-200 flex-shrink-0">
                                   <Image
-                                    src={session.user?.image || "/default-avatar.png"}
+                                    src={
+                                      session.user?.image ||
+                                      "/default-avatar.png"
+                                    }
                                     alt={session.user?.name || "You"}
                                     width={32}
                                     height={32}
@@ -719,17 +843,34 @@ export default function PostDetailClient({
                                 </div>
                                 <div className="flex-1">
                                   <textarea
+                                    value={replyContent}
+                                    onChange={(e) =>
+                                      setReplyContent(e.target.value)
+                                    }
                                     placeholder={`Reply to ${comment.author.name}...`}
                                     className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 resize-none text-sm text-slate-900 placeholder:text-slate-400 bg-white"
                                     rows={2}
+                                    disabled={isReplySubmitting}
                                   />
                                   <div className="flex gap-2 mt-2">
-                                    <button className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium hover:shadow-lg transition-all">
-                                      Reply
+                                    <button
+                                      onClick={() =>
+                                        handleReplySubmit(comment.id)
+                                      }
+                                      disabled={
+                                        isReplySubmitting ||
+                                        !replyContent.trim()
+                                      }
+                                      className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      {isReplySubmitting
+                                        ? "Posting..."
+                                        : "Reply"}
                                     </button>
                                     <button
                                       onClick={() => setReplyingTo(null)}
-                                      className="px-4 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200 transition-all"
+                                      disabled={isReplySubmitting}
+                                      className="px-4 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200 transition-all disabled:opacity-50"
                                     >
                                       Cancel
                                     </button>
@@ -738,6 +879,88 @@ export default function PostDetailClient({
                               </div>
                             </motion.div>
                           )}
+                        </AnimatePresence>
+
+                        {/* Nested Replies - Show when expanded */}
+                        <AnimatePresence>
+                          {expandedReplies[comment.id] &&
+                            replies[comment.id] && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="mt-4 pl-4 border-l-2 border-purple-200 space-y-3"
+                              >
+                                {replies[comment.id].map((reply) => (
+                                  <motion.div
+                                    key={reply.id}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="flex gap-3 p-3 rounded-lg bg-gradient-to-br from-white to-purple-50/30 border border-purple-100"
+                                  >
+                                    <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-purple-200 flex-shrink-0">
+                                      <Image
+                                        src={
+                                          reply.author.image ||
+                                          "/default-avatar.png"
+                                        }
+                                        alt={reply.author.name}
+                                        width={32}
+                                        height={32}
+                                        className="object-cover"
+                                      />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="font-semibold text-slate-800 text-sm">
+                                          {reply.author.name}
+                                        </span>
+                                        <span className="text-xs text-slate-400">
+                                          @{reply.author.username}
+                                        </span>
+                                        <span className="text-xs text-slate-400">
+                                          ·
+                                        </span>
+                                        <span className="text-xs text-slate-400">
+                                          {timeAgo(reply.createdAt)}
+                                        </span>
+                                        <div className="ml-auto px-2 py-0.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold">
+                                          L{reply.author.level}
+                                        </div>
+                                      </div>
+                                      <p className="text-slate-700 text-sm leading-relaxed break-words">
+                                        {reply.content}
+                                      </p>
+                                      <div className="flex items-center gap-3 mt-2">
+                                        <motion.button
+                                          whileHover={{ scale: 1.05 }}
+                                          whileTap={{ scale: 0.95 }}
+                                          onClick={() =>
+                                            handleCommentLike(reply.id)
+                                          }
+                                          className={`flex items-center gap-1 text-sm transition-colors ${
+                                            commentLikes[reply.id]
+                                              ? "text-pink-500"
+                                              : "text-slate-500 hover:text-pink-500"
+                                          }`}
+                                        >
+                                          <Heart
+                                            className={`w-3.5 h-3.5 ${
+                                              commentLikes[reply.id]
+                                                ? "fill-current"
+                                                : ""
+                                            }`}
+                                          />
+                                          <span className="font-medium">
+                                            {reply.likeCount}
+                                          </span>
+                                        </motion.button>
+                                      </div>
+                                    </div>
+                                  </motion.div>
+                                ))}
+                              </motion.div>
+                            )}
                         </AnimatePresence>
                       </div>
                     </motion.div>
