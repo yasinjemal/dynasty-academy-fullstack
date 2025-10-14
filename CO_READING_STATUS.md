@@ -1,6 +1,7 @@
 # 🚀 LIVE CO-READING: PRODUCTION IMPLEMENTATION STATUS
 
 ## 📊 Overview
+
 "Twitch for Books" - A revolutionary real-time co-reading experience where readers can see each other, chat, and react while reading the same pages.
 
 ---
@@ -8,9 +9,11 @@
 ## ✅ COMPLETED (Phase 1: Core Infrastructure)
 
 ### 1. **Database Schema** ✨
+
 **Files:** `prisma/schema.prisma`, `add-co-reading-tables.sql`, `run-co-reading-migration.mjs`
 
 **4 New Tables Created:**
+
 ```prisma
 ✅ ReadingPresence (userId, bookId, page, socketId, lastSeenAt)
    - Tracks real-time reader presence
@@ -42,11 +45,13 @@
 ---
 
 ### 2. **Message Persistence API** 💬
+
 **Files:** `src/app/api/co-reading/messages/route.ts`, `src/app/api/co-reading/messages/[id]/route.ts`
 
 **Endpoints:**
 
 #### `GET /api/co-reading/messages?bookId=X&page=Y&limit=50&cursor=abc`
+
 - Cursor-based pagination for performance
 - Returns up to 100 messages per request (default: 50)
 - Includes user info (id, name, image)
@@ -54,6 +59,7 @@
 - Returns: `{ messages[], total, hasMore, nextCursor }`
 
 #### `POST /api/co-reading/messages`
+
 ```json
 {
   "bookId": "abc123",
@@ -62,22 +68,26 @@
   "message": "This insight is amazing!"
 }
 ```
+
 - **Rate Limiting:** 10 messages per minute (enforced server-side)
 - **Validation:** Zod schema (1-1000 chars)
 - **Authentication:** Required (NextAuth session)
 - **Returns:** Full message object with user data
 
 #### `PATCH /api/co-reading/messages/:id`
+
 ```json
 {
   "message": "Updated message text"
 }
 ```
+
 - **Ownership Check:** Can only edit own messages
 - **Tracking:** Sets `edited: true` and `editedAt: timestamp`
 - **Returns:** Updated message object
 
 #### `DELETE /api/co-reading/messages/:id`
+
 - **Ownership Check:** Can only delete own messages
 - **Hard Delete:** Permanently removes from database
 - **Returns:** `{ success: true }`
@@ -85,11 +95,13 @@
 ---
 
 ### 3. **Socket.io Server (Production-Grade)** 🔌
+
 **File:** `src/lib/socketio/server.ts`
 
 **Major Enhancements:**
 
 #### Database Integration
+
 - **Imports Prisma Client** for all DB operations
 - **send-message** handler now:
   1. Checks rate limit (10 msg/min via Prisma query)
@@ -99,6 +111,7 @@
   5. Emits `message-error` event on failure
 
 #### Presence Tracking
+
 - **update-page** handler now:
   1. Updates in-memory Map (for instant broadcast)
   2. Upserts `ReadingPresence` table with socketId + lastSeenAt
@@ -106,22 +119,25 @@
   4. Logs "PRESENCE SAVED" for monitoring
 
 #### TTL Cleanup Job
+
 ```typescript
 // Runs every 30 seconds
 async function cleanupStalePresence() {
   const ttlThreshold = new Date(Date.now() - 45 * 1000);
   const deleted = await prisma.readingPresence.deleteMany({
-    where: { lastSeenAt: { lt: ttlThreshold } }
+    where: { lastSeenAt: { lt: ttlThreshold } },
   });
   console.log(`🧹 Cleaned up ${deleted.count} stale presence records`);
 }
 ```
+
 - **Threshold:** 45 seconds (3x typical heartbeat interval)
 - **Schedule:** Every 30 seconds
 - **Purpose:** Remove ghost readers after disconnection/crash
 - **Logging:** Reports cleanup activity
 
 #### Error Handling
+
 - **try/catch** blocks around all DB operations
 - **User-friendly events:**
   - `rate-limit-exceeded` - "Rate limit exceeded. Please wait..."
@@ -132,12 +148,14 @@ async function cleanupStalePresence() {
 ## 📦 FILES CHANGED
 
 ### New Files Created (7):
+
 1. `add-co-reading-tables.sql` - SQL migration with DO $$ blocks
 2. `run-co-reading-migration.mjs` - Migration execution script
 3. `src/app/api/co-reading/messages/route.ts` - GET & POST handlers
 4. `src/app/api/co-reading/messages/[id]/route.ts` - PATCH & DELETE handlers
 
 ### Modified Files (7):
+
 1. `prisma/schema.prisma` - 4 new models + relations
 2. `src/lib/socketio/server.ts` - DB integration + TTL cleanup
 3. `src/hooks/useLiveCoReading.ts` - (existing, will update next)
@@ -151,6 +169,7 @@ async function cleanupStalePresence() {
 ## 🎯 WHAT'S WORKING NOW
 
 ### Real-Time Features ✅
+
 - **Live presence tracking** - See "2 readers here" indicator
 - **Page-specific presence** - Tracks which page each user is reading
 - **Live chat** - Send messages instantly (MVP working, no DB yet on client)
@@ -159,12 +178,14 @@ async function cleanupStalePresence() {
 - **Join/leave notifications** - "User joined/left book"
 
 ### Database Features ✅
+
 - **Messages persist** - Saved to `page_chats` table
 - **Presence persists** - Saved to `reading_presence` table
 - **Rate limiting enforced** - 10 messages/min per user
 - **TTL cleanup active** - Removes stale presence every 30s
 
 ### What Users See ✅
+
 - Floating presence badge: "2 readers here" with avatars
 - Collapsible chat widget (bottom right)
 - Message history (last 50 in memory, needs API loading)
@@ -178,21 +199,27 @@ async function cleanupStalePresence() {
 ### Immediate Priorities:
 
 #### 1. **Client-Side Message Loading** 🔄
+
 **File:** `src/hooks/useLiveCoReading.ts`
+
 - Load messages from API on mount: `GET /api/co-reading/messages?bookId=X&page=Y`
 - Merge with real-time messages (de-duplicate by ID)
 - Implement cursor-based "Load More" button
 - Handle rate-limit-exceeded events (show toast)
 
 #### 2. **Room Key Refactoring** 🔑
+
 **Files:** `src/lib/socketio/server.ts`, `src/hooks/useLiveCoReading.ts`
+
 - **Current:** `book:{slug}` (global per book)
 - **Target:** `book:{slug}:page:{n}` (per-page rooms)
 - **Benefit:** Broadcast only to readers on same page
 - **Impact:** Reduces message noise, improves performance
 
 #### 3. **Reaction Persistence** 💾
+
 **File:** `src/lib/socketio/server.ts`
+
 - Save reactions to `page_reactions` table
 - Aggregate count by emote
 - Track userIds array (prevent duplicates)
@@ -200,7 +227,9 @@ async function cleanupStalePresence() {
 - Load existing reactions on page load
 
 #### 4. **Edit/Delete UI** ✏️
+
 **File:** `src/components/books/LiveChatWidget.tsx`
+
 - Show "..." menu on own messages
 - Edit modal with textarea
 - Delete confirmation dialog
@@ -208,7 +237,9 @@ async function cleanupStalePresence() {
 - Broadcast updates via Socket.io
 
 #### 5. **Auth Tokens** 🔐
+
 **New File:** `src/lib/socketio/tokens.ts`
+
 - Generate JWT with: `userId, bookId, page, exp (5min)`
 - Sign with `process.env.SOCKETIO_SECRET`
 - Verify on Socket.io connection
@@ -219,13 +250,16 @@ async function cleanupStalePresence() {
 ## 📈 ANALYTICS (Future)
 
 ### Daily Aggregation Job
+
 **Table:** `co_reading_analytics`
+
 - Run nightly via CRON or Vercel Cron Job
 - Aggregate yesterday's data per book/page
 - Calculate: peak concurrent, avg concurrent, total messages, total reactions, unique users
 - Store in `co_reading_analytics` table for dashboard
 
 ### Metrics to Track:
+
 - Pages triggering most chat activity
 - Average time to first message
 - Chat → Reflection conversion rate
@@ -237,17 +271,20 @@ async function cleanupStalePresence() {
 ## 🔒 SECURITY & SAFETY (Future)
 
 ### Rate Limiting ✅ (Done)
+
 - **Messages:** 10 per minute
 - **Reactions:** (pending) 20 per minute
 - Enforced server-side with Prisma queries
 
 ### Content Moderation (Pending)
+
 - **Profanity Filter:** Use `bad-words` npm package
 - **Report System:** New API endpoints + UI
 - **Block User:** Prevent viewing blocked user's messages
 - **Shadow Mute:** Moderator tool (message hidden from all but author)
 
 ### Authentication (Partially Done)
+
 - ✅ NextAuth session required for API routes
 - 🚧 JWT tokens for Socket.io connections (pending)
 - 🚧 Token refresh mechanism (pending)
@@ -257,11 +294,13 @@ async function cleanupStalePresence() {
 ## 🎨 UX POLISH (Future)
 
 ### Presence Indicator
+
 - 🚧 Avatar stack: "John, Sarah, Mike and +3" (show first 3 + count)
 - ✅ Pulse animation on badge
 - ✅ Tooltip with all reader names
 
 ### Chat Widget
+
 - 🚧 Virtualized list (react-window) for 100+ messages
 - 🚧 "Load More" button (cursor pagination)
 - 🚧 Edit/delete buttons on hover
@@ -270,6 +309,7 @@ async function cleanupStalePresence() {
 - ✅ Auto-scroll to bottom
 
 ### Reactions
+
 - 🚧 Quick reactions without opening selector (👍🔥💡)
 - 🚧 Reaction counts below text
 - 🚧 De-duplicate per user
@@ -277,6 +317,7 @@ async function cleanupStalePresence() {
 - ✅ 8 emoji options
 
 ### Deep Links
+
 - 🚧 "Invite to this page" button
 - 🚧 Generate URL: `/books/slug/read?page=5&invite=true`
 - 🚧 Show "Join N readers on page 5" toast on arrival
@@ -286,6 +327,7 @@ async function cleanupStalePresence() {
 ## 🔌 TECHNICAL DETAILS
 
 ### Stack
+
 - **WebSocket:** Socket.io (client + server)
 - **Database:** PostgreSQL (Supabase)
 - **ORM:** Prisma
@@ -294,12 +336,14 @@ async function cleanupStalePresence() {
 - **UI:** React + Framer Motion
 
 ### Performance Optimizations (Future)
+
 - **Debounce presence pings** - Batch updates every 2s
 - **Separate channels** - `presence` vs `chat` channels
 - **RequestAnimationFrame** - Smooth reaction animations
 - **Virtualized lists** - Render only visible messages
 
 ### Reliability (Future)
+
 - **Reconnection:** Exponential backoff (1s, 2s, 4s, 8s max)
 - **Fallback polling:** Short polling (8-12s) after 3 WS failures
 - **Idempotent ops:** De-duplicate join/leave events
@@ -311,6 +355,7 @@ async function cleanupStalePresence() {
 ## 🎯 NEXT STEPS
 
 ### Immediate (This Session):
+
 1. ✅ Database schema - DONE
 2. ✅ Message persistence API - DONE
 3. ✅ Presence tracking & TTL - DONE
@@ -319,6 +364,7 @@ async function cleanupStalePresence() {
 6. 🔄 Add reaction persistence
 
 ### Short-Term (This Week):
+
 - Edit/delete message UI
 - JWT auth tokens for Socket.io
 - Rate limiting for reactions
@@ -326,6 +372,7 @@ async function cleanupStalePresence() {
 - "Load More" pagination
 
 ### Medium-Term (This Month):
+
 - Profanity filter
 - Report/block system
 - Analytics dashboard
@@ -337,12 +384,14 @@ async function cleanupStalePresence() {
 ## 🏆 SUCCESS METRICS
 
 ### User Engagement:
+
 - **% of readers using chat:** Target >15%
 - **Messages per book:** Avg 50+ messages on popular books
 - **Return rate:** Users who chat come back 2x more
 - **Time on page:** +30% when co-reading active
 
 ### Technical Performance:
+
 - **Message latency:** <100ms real-time delivery
 - **Presence accuracy:** 99% (with TTL cleanup)
 - **API response time:** <200ms for message fetch
@@ -353,6 +402,7 @@ async function cleanupStalePresence() {
 ## 📝 COMMIT HISTORY
 
 ### Commit 1: Database Schema
+
 ```
 feat: Add production database schema for co-reading system
 
@@ -364,6 +414,7 @@ feat: Add production database schema for co-reading system
 ```
 
 ### Commit 2: Message Persistence & Presence
+
 ```
 feat: Add production-grade message persistence & presence tracking
 

@@ -19,20 +19,27 @@ interface ChatMessage {
 interface LiveChatWidgetProps {
   messages: ChatMessage[];
   typingUsers: string[];
+  isLoadingMessages?: boolean;
+  hasMoreMessages?: boolean;
   onSendMessage: (message: string) => void;
   onStartTyping: () => void;
+  onLoadMore?: () => void;
 }
 
 export default function LiveChatWidget({
   messages,
   typingUsers,
+  isLoadingMessages = false,
+  hasMoreMessages = false,
   onSendMessage,
   onStartTyping,
+  onLoadMore,
 }: LiveChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-scroll to bottom
@@ -139,8 +146,31 @@ export default function LiveChatWidget({
             {/* Messages */}
             {!isMinimized && (
               <>
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                  {messages.length === 0 ? (
+                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+                  {/* Load More Button */}
+                  {hasMoreMessages && onLoadMore && (
+                    <div className="text-center pb-2">
+                      <Button
+                        onClick={onLoadMore}
+                        disabled={isLoadingMessages}
+                        size="sm"
+                        variant="outline"
+                        className="text-xs"
+                      >
+                        {isLoadingMessages ? "Loading..." : "Load Earlier Messages"}
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Loading Indicator */}
+                  {isLoadingMessages && messages.length === 0 && (
+                    <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                      <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-2" />
+                      <p className="text-sm">Loading messages...</p>
+                    </div>
+                  )}
+
+                  {messages.length === 0 && !isLoadingMessages ? (
                     <div className="text-center text-gray-500 dark:text-gray-400 py-8">
                       <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
                       <p className="text-sm">No messages yet.</p>

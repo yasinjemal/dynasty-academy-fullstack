@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 interface Reader {
   userId: string;
@@ -18,6 +19,9 @@ interface ChatMessage {
   message: string;
   page: number;
   timestamp: number;
+  edited?: boolean;
+  editedAt?: string;
+  createdAt?: string;
 }
 
 interface Reaction {
@@ -36,7 +40,14 @@ interface PagePresence {
   count: number;
 }
 
-export function useLiveCoReading(bookSlug: string, currentPage: number) {
+interface MessageResponse {
+  messages: ChatMessage[];
+  total: number;
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
+export function useLiveCoReading(bookSlug: string, currentPage: number, bookId?: string) {
   const { data: session } = useSession();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -45,9 +56,65 @@ export function useLiveCoReading(bookSlug: string, currentPage: number) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const [hasMoreMessages, setHasMoreMessages] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   const socketRef = useRef<Socket | null>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const messageIdsRef = useRef<Set<string>>(new Set()); // Prevent duplicates
+
+  // Load messages from API
+  const loadMessages = useCallback(async (cursor?: string) => {
+    if (!bookId || !currentPage) return;
+
+    setIsLoadingMessages(true);
+    try {
+      const params = new URLSearchParams({
+        bookId,
+        page: currentPage.toString(),
+        limit: '50',
+      });
+      
+      if (cursor) {
+        params.append('cursor', cursor);
+      }
+
+      const response = await fetch(`/api/co-reading/messages?${params}`);
+      if (!response.ok) throw new Error('Failed to load messages');
+
+      const data: MessageResponse = await response.json();
+      
+      // Convert createdAt to timestamp for consistency
+      const formattedMessages = data.messages.map(msg => ({
+        ...msg,
+        timestamp: msg.createdAt ? new Date(msg.createdAt).getTime() : msg.timestamp,
+      }));
+
+      // Merge with existing messages, avoiding duplicates
+      setMessages(prev => {
+        const newMessages = formattedMessages.filter(
+          msg => !messageIdsRef.current.has(msg.id)
+        );
+        newMessages.forEach(msg => messageIdsRef.current.add(msg.id));
+        
+        // If loading more (cursor exists), prepend old messages
+        if (cursor) {
+          return [...newMessages, ...prev];
+        }
+        // Initial load, replace all
+        return newMessages;
+      });
+
+      setHasMoreMessages(data.hasMore);
+      setNextCursor(data.nextCursor);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      toast.error('Failed to load message history');
+    } finally {
+      setIsLoadingMessages(false);
+    }
+  }, [bookId, currentPage]);
 
   // Initialize socket connection
   useEffect(() => {
@@ -101,8 +168,25 @@ export function useLiveCoReading(bookSlug: string, currentPage: number) {
     // Listen for new messages
     socketInstance.on("new-message", (message: ChatMessage) => {
       if (message.page === currentPage) {
-        setMessages((prev) => [...prev, message].slice(-50)); // Keep last 50
+        // Avoid duplicates
+        if (!messageIdsRef.current.has(message.id)) {
+          messageIdsRef.current.add(message.id);
+          setMessages((prev) => [...prev, message].slice(-100)); // Keep last 100
+        }
       }
+    });
+
+    // Handle rate limit exceeded
+    socketInstance.on("rate-limit-exceeded", ({ message: errorMsg, cooldown }: { message: string; cooldown: number }) => {
+      toast.error(errorMsg, {
+        description: `Please wait ${cooldown} seconds before sending more messages.`,
+        duration: 5000,
+      });
+    });
+
+    // Handle message errors
+    socketInstance.on("message-error", ({ message: errorMsg }: { message: string }) => {
+      toast.error(errorMsg);
     });
 
     // Listen for reactions
@@ -154,6 +238,7 @@ export function useLiveCoReading(bookSlug: string, currentPage: number) {
   useEffect(() => {
     if (socket && isConnected && session?.user) {
       socket.emit("update-page", {
+        bookId: bookId || bookSlug,
         bookSlug,
         page: currentPage,
         userId: session.user.id,
@@ -174,14 +259,21 @@ export function useLiveCoReading(bookSlug: string, currentPage: number) {
       // Clear messages and reactions when page changes
       setMessages([]);
       setReactions([]);
+      messageIdsRef.current.clear();
+      setNextCursor(null);
+      setHasMoreMessages(false);
+
+      // Load messages from API for this page
+      loadMessages();
     }
-  }, [currentPage, socket, isConnected, session?.user, bookSlug]);
+  }, [currentPage, socket, isConnected, session?.user, bookSlug, bookId, loadMessages]);
 
   // Send message
   const sendMessage = useCallback(
     (message: string) => {
       if (socket && session?.user && message.trim()) {
         socket.emit("send-message", {
+          bookId: bookId || bookSlug,
           bookSlug,
           page: currentPage,
           message: message.trim(),
@@ -191,8 +283,15 @@ export function useLiveCoReading(bookSlug: string, currentPage: number) {
         });
       }
     },
-    [socket, session?.user, bookSlug, currentPage]
+    [socket, session?.user, bookSlug, bookId, currentPage]
   );
+
+  // Load more messages (pagination)
+  const loadMoreMessages = useCallback(() => {
+    if (nextCursor && !isLoadingMessages) {
+      loadMessages(nextCursor);
+    }
+  }, [nextCursor, isLoadingMessages, loadMessages]);
 
   // Send reaction
   const sendReaction = useCallback(
@@ -239,8 +338,11 @@ export function useLiveCoReading(bookSlug: string, currentPage: number) {
     messages,
     reactions,
     typingUsers,
+    isLoadingMessages,
+    hasMoreMessages,
     sendMessage,
     sendReaction,
     startTyping,
+    loadMoreMessages,
   };
 }

@@ -161,10 +161,13 @@ export default function BookReaderLuxury({
     messages,
     reactions,
     typingUsers,
+    isLoadingMessages,
+    hasMoreMessages,
     sendMessage,
     sendReaction,
     startTyping,
-  } = useLiveCoReading(slug, currentPage);
+    loadMoreMessages,
+  } = useLiveCoReading(slug, currentPage, bookId);
 
   // ===========================================
   // BOOKMARKS & HIGHLIGHTS
@@ -1461,8 +1464,11 @@ export default function BookReaderLuxury({
           <LiveChatWidget
             messages={messages}
             typingUsers={typingUsers}
+            isLoadingMessages={isLoadingMessages}
+            hasMoreMessages={hasMoreMessages}
             onSendMessage={sendMessage}
             onStartTyping={startTyping}
+            onLoadMore={loadMoreMessages}
           />
 
           {/* Live Reactions */}
