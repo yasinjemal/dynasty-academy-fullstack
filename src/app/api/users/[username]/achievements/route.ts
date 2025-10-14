@@ -5,15 +5,16 @@ import { prisma } from "@/lib/db/prisma";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ) {
   try {
-    const username = params.username.replace("@", "");
+    const { username } = await params;
+    const cleanUsername = username.replace("@", "");
     const session = await getServerSession(authOptions);
 
     // Find user
     const user = await prisma.user.findUnique({
-      where: { username },
+      where: { username: cleanUsername },
       select: {
         id: true,
         isPrivate: true,
@@ -59,11 +60,14 @@ export async function GET(
         achievement: {
           select: {
             id: true,
-            slug: true,
-            title: true,
+            key: true,
+            name: true,
             description: true,
-            tier: true,
-            iconUrl: true,
+            icon: true,
+            rarity: true,
+            category: true,
+            requirement: true,
+            dynastyPoints: true,
           },
         },
       },
@@ -92,11 +96,14 @@ export async function GET(
         },
         select: {
           id: true,
-          slug: true,
-          title: true,
+          key: true,
+          name: true,
           description: true,
-          tier: true,
-          iconUrl: true,
+          icon: true,
+          rarity: true,
+          category: true,
+          requirement: true,
+          dynastyPoints: true,
         },
         orderBy: {
           tier: "desc",
@@ -105,45 +112,41 @@ export async function GET(
 
       lockedAchievements = allAchievements.map((achievement) => ({
         id: achievement.id,
-        slug: achievement.slug,
-        title: achievement.title,
+        key: achievement.key,
+        name: achievement.name,
         description: achievement.description,
-        tier: achievement.tier,
-        iconUrl: achievement.iconUrl,
+        icon: achievement.icon,
+        rarity: achievement.rarity,
         locked: true,
-        progress: Math.floor(Math.random() * 80), // TODO: Calculate real progress
+        progressPercent: 0, // TODO: Calculate real progress based on category
       }));
     }
 
-    const achievements = [
-      ...userAchievements.map((ua) => ({
-        id: ua.achievement.id,
-        slug: ua.achievement.slug,
-        title: ua.achievement.title,
-        description: ua.achievement.description,
-        tier: ua.achievement.tier,
-        iconUrl: ua.achievement.iconUrl,
-        awardedAt: ua.awardedAt.toISOString(),
-        locked: false,
-      })),
-      ...lockedAchievements,
-    ];
+    const unlocked = userAchievements.map((ua) => ({
+      id: ua.achievement.id,
+      key: ua.achievement.key,
+      name: ua.achievement.name,
+      description: ua.achievement.description,
+      icon: ua.achievement.icon,
+      rarity: ua.achievement.rarity,
+      unlockedAt: ua.awardedAt.toISOString(),
+    }));
+
+    const locked = lockedAchievements;
+
+    // Calculate rarity breakdown
+    const rarityCount = unlocked.reduce((acc, a) => {
+      acc[a.rarity.toLowerCase()] = (acc[a.rarity.toLowerCase()] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
     return NextResponse.json({
-      achievements,
-      stats: {
-        total: userAchievements.length,
-        elite: userAchievements.filter((ua) => ua.achievement.tier === "ELITE")
-          .length,
-        gold: userAchievements.filter((ua) => ua.achievement.tier === "GOLD")
-          .length,
-        silver: userAchievements.filter(
-          (ua) => ua.achievement.tier === "SILVER"
-        ).length,
-        bronze: userAchievements.filter(
-          (ua) => ua.achievement.tier === "BRONZE"
-        ).length,
-      },
+      achievements: { unlocked, locked },
+      total: unlocked.length + locked.length,
+      completionPercent: Math.round(
+        (unlocked.length / (unlocked.length + locked.length)) * 100
+      ),
+      rarityBreakdown: rarityCount,
     });
   } catch (error) {
     console.error("Error fetching achievements:", error);

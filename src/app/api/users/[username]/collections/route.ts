@@ -52,7 +52,7 @@ export async function GET(
       },
       select: {
         id: true,
-        name: true,
+        title: true,
         slug: true,
         description: true,
         itemCount: true,
@@ -66,7 +66,7 @@ export async function GET(
     return NextResponse.json({
       collections: collections.map((col) => ({
         id: col.id,
-        name: col.name,
+        name: col.title,
         slug: col.slug,
         description: col.description,
         itemCount: col.itemCount,

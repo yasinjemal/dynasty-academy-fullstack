@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/authOptions";
+import { authOptions } from "@/lib/auth/auth-options";
 import { prisma } from "@/lib/db/prisma";
 
 /**
@@ -152,38 +152,106 @@ export async function GET(
       });
     }
 
+    // Fetch recent posts
+    const recentPosts = await prisma.post.findMany({
+      where: { authorId: user.id },
+      take: 3,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        createdAt: true,
+        likesCount: true,
+        commentsCount: true,
+      },
+    });
+
+    // Fetch recent reflections
+    const recentReflections = await prisma.reflection.findMany({
+      where: { userId: user.id },
+      take: 3,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+        book: {
+          select: {
+            id: true,
+            title: true,
+            coverImage: true,
+          },
+        },
+      },
+    });
+
+    // Fetch top achievements
+    const topAchievements = await prisma.userAchievement.findMany({
+      where: { userId: user.id },
+      take: 6,
+      orderBy: { unlockedAt: "desc" },
+      select: {
+        id: true,
+        achievement: {
+          select: {
+            id: true,
+            slug: true,
+            name: true,
+            description: true,
+            rarity: true,
+            icon: true,
+          },
+        },
+      },
+    });
+
     // Calculate reading progress percentage
     const readingProgress =
       currentBook?.totalPages && user.currentPage
         ? Math.round((user.currentPage / currentBook.totalPages) * 100)
         : null;
 
-    // Return comprehensive profile overview
+    // Return in the structure that OverviewTab expects
     return NextResponse.json({
-      ...user,
-      isOwnProfile,
-      isFollowing: !!isFollowing,
-      currentBook: currentBook
-        ? {
-            ...currentBook,
-            currentPage: user.currentPage,
-            progress: readingProgress,
-          }
-        : null,
-      stats: {
-        dynastyScore: user.dynastyScore,
-        level: user.level,
-        streakDays: user.streakDays,
-        readingMinutes: user.readingMinutesLifetime,
+      readingStats: {
         booksCompleted: user.booksCompleted,
-        followers: user.followersCount,
-        following: user.followingCount,
-        thanksReceived: user.thanksReceived,
-        posts: user._count.posts,
-        reflections: user._count.reflections,
-        collections: user._count.collections,
-        booksAuthored: user._count.books,
+        readingMinutesLifetime: user.readingMinutesLifetime,
+        currentStreak: user.streakDays,
+        weeklyMinutes: 0, // TODO: Calculate from reading sessions
+        currentBook: currentBook
+          ? {
+              id: currentBook.id,
+              title: currentBook.title,
+              coverImage: currentBook.coverImage,
+              currentPage: user.currentPage,
+              totalPages: currentBook.totalPages,
+              progress: readingProgress,
+            }
+          : null,
       },
+      recentPosts: recentPosts.map((post) => ({
+        id: post.id,
+        title: post.title,
+        excerpt: post.content.substring(0, 150),
+        createdAt: post.createdAt,
+        likes: post.likesCount,
+        comments: post.commentsCount,
+      })),
+      recentReflections: recentReflections.map((ref) => ({
+        id: ref.id,
+        content: ref.content,
+        createdAt: ref.createdAt,
+        book: ref.book,
+      })),
+      topAchievements: topAchievements.map((ua) => ({
+        id: ua.achievement.id,
+        slug: ua.achievement.slug,
+        title: ua.achievement.name,
+        description: ua.achievement.description,
+        tier: ua.achievement.rarity,
+        iconUrl: ua.achievement.icon,
+      })),
     });
   } catch (error) {
     console.error("Error fetching profile overview:", error);

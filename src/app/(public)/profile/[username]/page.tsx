@@ -186,8 +186,85 @@ export default async function ProfilePage({
     });
   }
 
-  // Sample data for all features (in production, fetch from DB)
+  // Fetch real data from APIs (only for owner or public profiles)
+  let achievements: any = {
+    achievements: { unlocked: [], locked: [] },
+    total: 0,
+  };
+  let challenges: any = { challenges: [], stats: { completed: 0, total: 4 } };
+  let powerUps: any = { catalog: [], active: [], coinBalance: 0 };
+  let visitors: any = { recent: [], older: [], totalViews: 0 };
+  let metrics: any = null;
+
+  // Only fetch for owner
+  if (isOwner) {
+    try {
+      // Fetch achievements
+      const achRes = await fetch(
+        `${
+          process.env.NEXTAUTH_URL || "http://localhost:3000"
+        }/api/users/${username}/achievements`,
+        { cache: "no-store" }
+      );
+      if (achRes.ok) achievements = await achRes.json();
+
+      // Fetch daily challenges
+      const chalRes = await fetch(
+        `${
+          process.env.NEXTAUTH_URL || "http://localhost:3000"
+        }/api/users/${username}/challenges/today`,
+        { cache: "no-store" }
+      );
+      if (chalRes.ok) challenges = await chalRes.json();
+
+      // Fetch power-ups
+      const pwrRes = await fetch(
+        `${
+          process.env.NEXTAUTH_URL || "http://localhost:3000"
+        }/api/users/${username}/powerups`,
+        { cache: "no-store" }
+      );
+      if (pwrRes.ok) powerUps = await pwrRes.json();
+
+      // Fetch visitors
+      const visRes = await fetch(
+        `${
+          process.env.NEXTAUTH_URL || "http://localhost:3000"
+        }/api/users/${username}/visitors?limit=20`,
+        { cache: "no-store" }
+      );
+      if (visRes.ok) visitors = await visRes.json();
+
+      // Fetch metrics
+      const metRes = await fetch(
+        `${
+          process.env.NEXTAUTH_URL || "http://localhost:3000"
+        }/api/users/${username}/metrics?window=30d`,
+        { cache: "no-store" }
+      );
+      if (metRes.ok) metrics = await metRes.json();
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+    }
+  } else {
+    // For non-owners, only fetch achievements if not private
+    try {
+      const achRes = await fetch(
+        `${
+          process.env.NEXTAUTH_URL || "http://localhost:3000"
+        }/api/users/${username}/achievements`,
+        { cache: "no-store" }
+      );
+      if (achRes.ok) achievements = await achRes.json();
+    } catch (error) {
+      console.error("Error fetching achievements:", error);
+    }
+  }
+
+  // Generate activity data (for now - can be enhanced with real reading history)
   const activityData = generateSampleActivityData(365);
+
+  // Comparison stats (yesterday vs today - for now using sample, can be enhanced)
   const comparisonStats = [
     {
       label: "Dynasty Score",
@@ -247,29 +324,105 @@ export default async function ProfilePage({
           <div className="mt-8 space-y-8">
             {/* Achievements */}
             <AchievementShowcase
-              achievements={sampleAchievements}
-              totalPossible={50}
+              achievements={[
+                ...(achievements?.achievements?.unlocked || []).map(
+                  (a: any) => ({
+                    id: a.id,
+                    name: a.name,
+                    icon: a.icon,
+                    rarity: a.rarity?.toLowerCase() || "common",
+                    unlockedAt: a.unlockedAt,
+                  })
+                ),
+                ...(achievements?.achievements?.locked || [])
+                  .slice(0, 2)
+                  .map((a: any) => ({
+                    id: a.id,
+                    name: a.name,
+                    icon: a.icon,
+                    rarity: a.rarity?.toLowerCase() || "common",
+                    locked: true,
+                    progress: a.progressPercent || 0,
+                  })),
+              ]}
+              totalPossible={achievements?.total || 30}
             />
 
             {/* Activity Heatmap */}
             <ActivityHeatmap data={activityData} totalDays={365} />
 
-            {/* Daily Challenges */}
-            <DailyChallenges challenges={sampleChallenges} completedToday={2} />
+            {/* Daily Challenges - Only show for owner */}
+            {isOwner && (
+              <DailyChallenges
+                challenges={challenges.challenges.map((c: any) => ({
+                  id: c.id,
+                  name: c.name,
+                  description: c.description,
+                  progress: c.progress,
+                  target: c.target,
+                  completed: c.completed,
+                  claimed: c.claimed,
+                  icon: c.icon,
+                  xpReward: c.xpReward,
+                  coinReward: c.coinReward,
+                  difficulty: c.difficulty,
+                  timeLeft: challenges.reset?.hoursUntilReset
+                    ? `${challenges.reset.hoursUntilReset}h ${challenges.reset.minutesUntilReset}m`
+                    : "24h",
+                }))}
+                completedToday={challenges.stats.completed}
+              />
+            )}
 
-            {/* Power-Ups & Events */}
-            <PowerUpsSystem
-              powerUps={samplePowerUps}
-              events={sampleEvents}
-              userCoins={2500}
-            />
+            {/* Power-Ups & Events - Only show for owner */}
+            {isOwner && (
+              <PowerUpsSystem
+                powerUps={[
+                  ...powerUps.active.map((p: any) => ({
+                    id: p.id,
+                    name: p.powerUp.name,
+                    description: p.powerUp.description,
+                    rarity: p.powerUp.rarity.toLowerCase(),
+                    icon: p.powerUp.icon,
+                    active: true,
+                    expiresIn: p.timeRemaining.total,
+                  })),
+                  ...powerUps.catalog.slice(0, 2).map((p: any) => ({
+                    id: p.id,
+                    name: p.name,
+                    description: p.description,
+                    rarity: p.rarity.toLowerCase(),
+                    cost: p.coinCost,
+                    icon: p.icon,
+                    duration: `${p.duration}h`,
+                    canAfford: p.canAfford,
+                  })),
+                ]}
+                events={sampleEvents}
+                userCoins={powerUps.coinBalance || 0}
+              />
+            )}
 
-            {/* Profile Visitors */}
-            <ProfileVisitors
-              visitors={sampleVisitors}
-              totalViews={12543}
-              newVisitorsToday={47}
-            />
+            {/* Profile Visitors - Only show for owner */}
+            {isOwner && (
+              <ProfileVisitors
+                visitors={[...visitors.recent, ...visitors.older]
+                  .slice(0, 10)
+                  .map((v: any) => ({
+                    id: v.id,
+                    name: v.name || v.username,
+                    username: v.username,
+                    avatar: v.image || "",
+                    location: v.location || "",
+                    timeAgo: v.timeAgo,
+                    isNew: v.isNew,
+                  }))}
+                totalViews={visitors.totalViews || 0}
+                newVisitorsToday={
+                  visitors.recent?.filter((v: any) => v.isNew).length || 0
+                }
+              />
+            )}
           </div>
         </div>
 
@@ -286,8 +439,13 @@ export default async function ProfilePage({
               readingMinutes={user.readingMinutesLifetime}
             />
 
-            {/* Live Profile Views */}
-            <LiveProfileViews initialViews={12543} isLive={true} />
+            {/* Live Profile Views - Only show for owner with real metrics */}
+            {isOwner && metrics && (
+              <LiveProfileViews
+                initialViews={metrics.totalViews}
+                isLive={true}
+              />
+            )}
 
             {/* Comparison Stats */}
             <ComparisonStats
