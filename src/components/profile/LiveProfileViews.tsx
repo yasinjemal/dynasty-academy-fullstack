@@ -1,16 +1,19 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card } from '@/components/ui/card';
-import { Eye, TrendingUp, Sparkles } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { Eye, TrendingUp, Sparkles } from "lucide-react";
 
 interface LiveProfileViewsProps {
   initialViews: number;
   isLive?: boolean;
 }
 
-export default function LiveProfileViews({ initialViews, isLive = true }: LiveProfileViewsProps) {
+export default function LiveProfileViews({
+  initialViews,
+  isLive = true,
+}: LiveProfileViewsProps) {
   const [views, setViews] = useState(initialViews);
   const [showPulse, setShowPulse] = useState(false);
   const [recentIncrease, setRecentIncrease] = useState<number | null>(null);
@@ -23,10 +26,10 @@ export default function LiveProfileViews({ initialViews, isLive = true }: LivePr
       // Random chance of new view (20%)
       if (Math.random() > 0.8) {
         const increase = Math.floor(Math.random() * 3) + 1;
-        setViews(prev => prev + increase);
+        setViews((prev) => prev + increase);
         setRecentIncrease(increase);
         setShowPulse(true);
-        
+
         setTimeout(() => {
           setShowPulse(false);
           setRecentIncrease(null);
@@ -67,7 +70,7 @@ export default function LiveProfileViews({ initialViews, isLive = true }: LivePr
               <h3 className="text-sm font-medium flex items-center gap-2">
                 Profile Views
                 {isLive && (
-                  <motion.span 
+                  <motion.span
                     className="flex items-center gap-1 text-xs text-green-500"
                     animate={{ opacity: [1, 0.5, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
@@ -93,7 +96,7 @@ export default function LiveProfileViews({ initialViews, isLive = true }: LivePr
 
         {/* Main counter */}
         <div className="flex items-end gap-2 mb-4">
-          <motion.div 
+          <motion.div
             className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 text-transparent bg-clip-text"
             key={views}
             initial={{ scale: 1 }}
@@ -113,8 +116,7 @@ export default function LiveProfileViews({ initialViews, isLive = true }: LivePr
                 exit={{ opacity: 0, y: -40 }}
                 transition={{ duration: 1.5 }}
               >
-                <Sparkles className="w-4 h-4" />
-                +{recentIncrease}
+                <Sparkles className="w-4 h-4" />+{recentIncrease}
               </motion.div>
             )}
           </AnimatePresence>
@@ -122,7 +124,7 @@ export default function LiveProfileViews({ initialViews, isLive = true }: LivePr
 
         {/* Time breakdown */}
         <div className="grid grid-cols-3 gap-3">
-          <motion.div 
+          <motion.div
             className="text-center p-2 rounded-lg bg-background/50"
             whileHover={{ scale: 1.05 }}
           >
@@ -132,7 +134,7 @@ export default function LiveProfileViews({ initialViews, isLive = true }: LivePr
             <div className="text-xs text-muted-foreground">Today</div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="text-center p-2 rounded-lg bg-background/50"
             whileHover={{ scale: 1.05 }}
           >
@@ -142,7 +144,7 @@ export default function LiveProfileViews({ initialViews, isLive = true }: LivePr
             <div className="text-xs text-muted-foreground">This Week</div>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="text-center p-2 rounded-lg bg-background/50"
             whileHover={{ scale: 1.05 }}
           >
@@ -161,19 +163,19 @@ export default function LiveProfileViews({ initialViews, isLive = true }: LivePr
                 <motion.div
                   key={i}
                   className="absolute w-2 h-2 bg-yellow-400 rounded-full"
-                  initial={{ 
+                  initial={{
                     opacity: 1,
-                    x: '50%',
-                    y: '50%',
-                    scale: 0
+                    x: "50%",
+                    y: "50%",
+                    scale: 0,
                   }}
-                  animate={{ 
+                  animate={{
                     opacity: 0,
-                    x: `${50 + Math.cos(i * Math.PI / 4) * 100}%`,
-                    y: `${50 + Math.sin(i * Math.PI / 4) * 100}%`,
-                    scale: 1
+                    x: `${50 + Math.cos((i * Math.PI) / 4) * 100}%`,
+                    y: `${50 + Math.sin((i * Math.PI) / 4) * 100}%`,
+                    scale: 1,
                   }}
-                  transition={{ duration: 1, ease: 'easeOut' }}
+                  transition={{ duration: 1, ease: "easeOut" }}
                 />
               ))}
             </>

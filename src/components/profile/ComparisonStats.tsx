@@ -1,17 +1,24 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Minus, Trophy, Target } from 'lucide-react';
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { TrendingUp, TrendingDown, Minus, Trophy, Target, BookOpen, Clock, Users } from "lucide-react";
 
 interface ComparisonStat {
   label: string;
   current: number;
   previous: number;
   unit: string;
-  icon: any;
+  icon: string;
 }
+
+const iconMap: Record<string, any> = {
+  trendingUp: TrendingUp,
+  bookOpen: BookOpen,
+  clock: Clock,
+  users: Users,
+};
 
 interface ComparisonStatsProps {
   stats: ComparisonStat[];
@@ -20,7 +27,12 @@ interface ComparisonStatsProps {
   percentile?: number;
 }
 
-export default function ComparisonStats({ stats, userRank, totalUsers, percentile }: ComparisonStatsProps) {
+export default function ComparisonStats({
+  stats,
+  userRank,
+  totalUsers,
+  percentile,
+}: ComparisonStatsProps) {
   return (
     <div className="space-y-6">
       {/* Rank Card */}
@@ -32,15 +44,17 @@ export default function ComparisonStats({ stats, userRank, totalUsers, percentil
                 <Trophy className="w-5 h-5 text-yellow-500" />
                 Your Rank
               </h3>
-              <p className="text-sm text-muted-foreground">Among all Dynasty readers</p>
+              <p className="text-sm text-muted-foreground">
+                Among all Dynasty readers
+              </p>
             </div>
-            
+
             <div className="text-right">
-              <motion.div 
+              <motion.div
                 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 text-transparent bg-clip-text"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: 'spring', bounce: 0.5 }}
+                transition={{ type: "spring", bounce: 0.5 }}
               >
                 #{userRank.toLocaleString()}
               </motion.div>
@@ -48,7 +62,10 @@ export default function ComparisonStats({ stats, userRank, totalUsers, percentil
                 of {totalUsers.toLocaleString()} users
               </div>
               {percentile && (
-                <Badge variant="outline" className="mt-2 border-yellow-500/50 text-yellow-500">
+                <Badge
+                  variant="outline"
+                  className="mt-2 border-yellow-500/50 text-yellow-500"
+                >
                   Top {percentile}%
                 </Badge>
               )}
@@ -88,21 +105,30 @@ export default function ComparisonStats({ stats, userRank, totalUsers, percentil
   );
 }
 
-function ComparisonCard({ stat, index }: { stat: ComparisonStat; index: number }) {
-  const Icon = stat.icon;
+function ComparisonCard({
+  stat,
+  index,
+}: {
+  stat: ComparisonStat;
+  index: number;
+}) {
+  const Icon = iconMap[stat.icon] || TrendingUp;
   const change = stat.current - stat.previous;
-  const changePercent = stat.previous > 0 
-    ? Math.round((change / stat.previous) * 100) 
-    : stat.current > 0 ? 100 : 0;
-  
+  const changePercent =
+    stat.previous > 0
+      ? Math.round((change / stat.previous) * 100)
+      : stat.current > 0
+      ? 100
+      : 0;
+
   const isPositive = change > 0;
   const isNegative = change < 0;
   const isNeutral = change === 0;
 
   const getTrendColor = () => {
-    if (isPositive) return 'text-green-500';
-    if (isNegative) return 'text-red-500';
-    return 'text-muted-foreground';
+    if (isPositive) return "text-green-500";
+    if (isNegative) return "text-red-500";
+    return "text-muted-foreground";
   };
 
   const getTrendIcon = () => {
@@ -117,20 +143,24 @@ function ComparisonCard({ stat, index }: { stat: ComparisonStat; index: number }
     <motion.div
       initial={{ scale: 0.9, opacity: 0, x: -20 }}
       animate={{ scale: 1, opacity: 1, x: 0 }}
-      transition={{ 
+      transition={{
         delay: index * 0.1,
         duration: 0.4,
-        type: 'spring'
+        type: "spring",
       }}
       whileHover={{ scale: 1.03, y: -4 }}
     >
       <Card className="p-5 relative overflow-hidden">
         {/* Background gradient */}
-        <div className={`absolute inset-0 opacity-10 ${
-          isPositive ? 'bg-gradient-to-br from-green-500 to-emerald-500' :
-          isNegative ? 'bg-gradient-to-br from-red-500 to-rose-500' :
-          'bg-gradient-to-br from-gray-500 to-slate-500'
-        }`} />
+        <div
+          className={`absolute inset-0 opacity-10 ${
+            isPositive
+              ? "bg-gradient-to-br from-green-500 to-emerald-500"
+              : isNegative
+              ? "bg-gradient-to-br from-red-500 to-rose-500"
+              : "bg-gradient-to-br from-gray-500 to-slate-500"
+          }`}
+        />
 
         <div className="relative">
           {/* Icon and Label */}
@@ -141,38 +171,46 @@ function ComparisonCard({ stat, index }: { stat: ComparisonStat; index: number }
               </div>
               <span className="text-sm font-medium">{stat.label}</span>
             </div>
-            
+
             <TrendIcon className={`w-5 h-5 ${getTrendColor()}`} />
           </div>
 
           {/* Current Value */}
           <div className="mb-2">
-            <motion.span 
+            <motion.span
               className="text-3xl font-bold"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: index * 0.1 + 0.2, type: 'spring' }}
+              transition={{ delay: index * 0.1 + 0.2, type: "spring" }}
             >
               {stat.current.toLocaleString()}
             </motion.span>
-            <span className="text-sm text-muted-foreground ml-2">{stat.unit}</span>
+            <span className="text-sm text-muted-foreground ml-2">
+              {stat.unit}
+            </span>
           </div>
 
           {/* Comparison */}
           <div className="flex items-center justify-between text-sm">
             <div className="text-muted-foreground">
-              vs yesterday: <span className="font-medium">{stat.previous.toLocaleString()}</span>
+              vs yesterday:{" "}
+              <span className="font-medium">
+                {stat.previous.toLocaleString()}
+              </span>
             </div>
-            
-            <Badge 
-              variant="outline" 
+
+            <Badge
+              variant="outline"
               className={`${
-                isPositive ? 'border-green-500/50 text-green-500' :
-                isNegative ? 'border-red-500/50 text-red-500' :
-                'border-muted text-muted-foreground'
+                isPositive
+                  ? "border-green-500/50 text-green-500"
+                  : isNegative
+                  ? "border-red-500/50 text-red-500"
+                  : "border-muted text-muted-foreground"
               }`}
             >
-              {isPositive && '+'}{change.toLocaleString()} ({changePercent}%)
+              {isPositive && "+"}
+              {change.toLocaleString()} ({changePercent}%)
             </Badge>
           </div>
 
@@ -180,13 +218,19 @@ function ComparisonCard({ stat, index }: { stat: ComparisonStat; index: number }
           <div className="mt-3 h-1 bg-muted rounded-full overflow-hidden">
             <motion.div
               className={`h-full ${
-                isPositive ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
-                isNegative ? 'bg-gradient-to-r from-red-500 to-rose-500' :
-                'bg-gradient-to-r from-gray-500 to-slate-500'
+                isPositive
+                  ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                  : isNegative
+                  ? "bg-gradient-to-r from-red-500 to-rose-500"
+                  : "bg-gradient-to-r from-gray-500 to-slate-500"
               }`}
-              initial={{ width: '0%' }}
+              initial={{ width: "0%" }}
               animate={{ width: `${Math.min(100, Math.abs(changePercent))}%` }}
-              transition={{ duration: 1, ease: 'easeOut', delay: index * 0.1 + 0.3 }}
+              transition={{
+                duration: 1,
+                ease: "easeOut",
+                delay: index * 0.1 + 0.3,
+              }}
             />
           </div>
         </div>
@@ -196,9 +240,9 @@ function ComparisonCard({ stat, index }: { stat: ComparisonStat; index: number }
 }
 
 function getMotivationalMessage(stats: ComparisonStat[]): string {
-  const positiveChanges = stats.filter(s => s.current > s.previous).length;
+  const positiveChanges = stats.filter((s) => s.current > s.previous).length;
   const total = stats.length;
-  
+
   if (positiveChanges === total) {
     return "🔥 You're on fire! All metrics are up!";
   } else if (positiveChanges >= total / 2) {

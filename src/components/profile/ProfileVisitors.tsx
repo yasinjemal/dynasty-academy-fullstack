@@ -1,13 +1,18 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Eye, Users, TrendingUp, Clock, 
-  MapPin, Star, Sparkles 
-} from 'lucide-react';
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Eye,
+  Users,
+  TrendingUp,
+  Clock,
+  MapPin,
+  Star,
+  Sparkles,
+} from "lucide-react";
 
 interface Visitor {
   id: string;
@@ -27,15 +32,21 @@ interface ProfileVisitorsProps {
   newVisitorsToday: number;
 }
 
-export default function ProfileVisitors({ visitors, totalViews, newVisitorsToday }: ProfileVisitorsProps) {
+export default function ProfileVisitors({
+  visitors,
+  totalViews,
+  newVisitorsToday,
+}: ProfileVisitorsProps) {
   // Group visitors by time
-  const recentVisitors = visitors.filter(v => {
-    const hoursSinceVisit = (Date.now() - v.visitedAt.getTime()) / (1000 * 60 * 60);
+  const recentVisitors = visitors.filter((v) => {
+    const hoursSinceVisit =
+      (Date.now() - v.visitedAt.getTime()) / (1000 * 60 * 60);
     return hoursSinceVisit < 24;
   });
 
-  const olderVisitors = visitors.filter(v => {
-    const hoursSinceVisit = (Date.now() - v.visitedAt.getTime()) / (1000 * 60 * 60);
+  const olderVisitors = visitors.filter((v) => {
+    const hoursSinceVisit =
+      (Date.now() - v.visitedAt.getTime()) / (1000 * 60 * 60);
     return hoursSinceVisit >= 24;
   });
 
@@ -56,7 +67,9 @@ export default function ProfileVisitors({ visitors, totalViews, newVisitorsToday
                 <Eye className="w-5 h-5 text-purple-500" />
               </div>
             </div>
-            <div className="text-2xl font-bold">{totalViews.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {totalViews.toLocaleString()}
+            </div>
             <div className="text-xs text-muted-foreground">Total Views</div>
           </motion.div>
 
@@ -72,7 +85,9 @@ export default function ProfileVisitors({ visitors, totalViews, newVisitorsToday
                 <Users className="w-5 h-5 text-pink-500" />
               </div>
             </div>
-            <div className="text-2xl font-bold">{visitors.length.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {visitors.length.toLocaleString()}
+            </div>
             <div className="text-xs text-muted-foreground">Unique Visitors</div>
           </motion.div>
 
@@ -105,9 +120,9 @@ export default function ProfileVisitors({ visitors, totalViews, newVisitorsToday
           </h3>
           <div className="space-y-3">
             {recentVisitors.map((visitor, index) => (
-              <VisitorCard 
-                key={visitor.id} 
-                visitor={visitor} 
+              <VisitorCard
+                key={visitor.id}
+                visitor={visitor}
                 index={index}
                 isRecent={true}
               />
@@ -125,9 +140,9 @@ export default function ProfileVisitors({ visitors, totalViews, newVisitorsToday
           </h3>
           <div className="space-y-3">
             {olderVisitors.map((visitor, index) => (
-              <VisitorCard 
-                key={visitor.id} 
-                visitor={visitor} 
+              <VisitorCard
+                key={visitor.id}
+                visitor={visitor}
                 index={index + recentVisitors.length}
                 isRecent={false}
               />
@@ -171,7 +186,15 @@ export default function ProfileVisitors({ visitors, totalViews, newVisitorsToday
   );
 }
 
-function VisitorCard({ visitor, index, isRecent }: { visitor: Visitor; index: number; isRecent: boolean }) {
+function VisitorCard({
+  visitor,
+  index,
+  isRecent,
+}: {
+  visitor: Visitor;
+  index: number;
+  isRecent: boolean;
+}) {
   const timeAgo = getTimeAgo(visitor.visitedAt);
 
   return (
@@ -180,7 +203,11 @@ function VisitorCard({ visitor, index, isRecent }: { visitor: Visitor; index: nu
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
     >
-      <Card className={`p-4 ${isRecent ? 'border-purple-500/30 bg-purple-500/5' : ''}`}>
+      <Card
+        className={`p-4 ${
+          isRecent ? "border-purple-500/30 bg-purple-500/5" : ""
+        }`}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Avatar */}
@@ -189,16 +216,18 @@ function VisitorCard({ visitor, index, isRecent }: { visitor: Visitor; index: nu
                 <AvatarImage src={visitor.avatar} alt={visitor.name} />
                 <AvatarFallback>{visitor.name[0]}</AvatarFallback>
               </Avatar>
-              
+
               {/* New visitor badge */}
               {visitor.isNew && (
                 <motion.div
                   className="absolute -top-1 -right-1"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ type: 'spring', bounce: 0.6 }}
+                  transition={{ type: "spring", bounce: 0.6 }}
                 >
-                  <Badge className="bg-green-500 text-white text-xs px-1.5 py-0">NEW</Badge>
+                  <Badge className="bg-green-500 text-white text-xs px-1.5 py-0">
+                    NEW
+                  </Badge>
                 </motion.div>
               )}
 
@@ -215,12 +244,17 @@ function VisitorCard({ visitor, index, isRecent }: { visitor: Visitor; index: nu
               <div className="font-semibold flex items-center gap-2">
                 @{visitor.username}
                 {visitor.isFollowing && (
-                  <Badge variant="outline" className="text-xs border-purple-500/50 text-purple-500">
+                  <Badge
+                    variant="outline"
+                    className="text-xs border-purple-500/50 text-purple-500"
+                  >
                     Following
                   </Badge>
                 )}
               </div>
-              <div className="text-sm text-muted-foreground">{visitor.name}</div>
+              <div className="text-sm text-muted-foreground">
+                {visitor.name}
+              </div>
               {visitor.location && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                   <MapPin className="w-3 h-3" />
@@ -236,7 +270,7 @@ function VisitorCard({ visitor, index, isRecent }: { visitor: Visitor; index: nu
               <Clock className="w-3 h-3" />
               <span>{timeAgo}</span>
             </div>
-            
+
             <motion.button
               className="text-sm text-purple-500 hover:text-purple-600 font-medium"
               whileHover={{ scale: 1.05 }}
@@ -253,8 +287,8 @@ function VisitorCard({ visitor, index, isRecent }: { visitor: Visitor; index: nu
 
 function getTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-  
-  if (seconds < 60) return 'just now';
+
+  if (seconds < 60) return "just now";
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
   if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
@@ -264,36 +298,36 @@ function getTimeAgo(date: Date): string {
 // Sample data
 export const sampleVisitors: Visitor[] = [
   {
-    id: '1',
-    username: 'bookworm23',
-    name: 'Sarah Johnson',
+    id: "1",
+    username: "bookworm23",
+    name: "Sarah Johnson",
     avatar: undefined,
     visitedAt: new Date(Date.now() - 30 * 60 * 1000), // 30 min ago
     isFollowing: true,
     isNew: true,
-    location: 'New York, USA',
-    level: 42
+    location: "New York, USA",
+    level: 42,
   },
   {
-    id: '2',
-    username: 'readerfan',
-    name: 'Mike Chen',
+    id: "2",
+    username: "readerfan",
+    name: "Mike Chen",
     avatar: undefined,
     visitedAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2h ago
     isFollowing: false,
     isNew: true,
-    location: 'Toronto, Canada',
-    level: 28
+    location: "Toronto, Canada",
+    level: 28,
   },
   {
-    id: '3',
-    username: 'litlover',
-    name: 'Emma Wilson',
+    id: "3",
+    username: "litlover",
+    name: "Emma Wilson",
     avatar: undefined,
     visitedAt: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5h ago
     isFollowing: true,
     isNew: false,
-    location: 'London, UK',
-    level: 55
-  }
+    location: "London, UK",
+    level: 55,
+  },
 ];

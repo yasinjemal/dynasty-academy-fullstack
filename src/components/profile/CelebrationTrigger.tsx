@@ -1,16 +1,27 @@
-'use client'
+"use client";
 
-import { useEffect, useRef } from 'react';
-import { confettiConfig } from '@/lib/confetti';
+import { useEffect, useRef } from "react";
+import { confettiConfig } from "@/lib/confetti";
 
 interface CelebrationTriggerProps {
-  type: 'levelUp' | 'achievement' | 'milestone' | 'streak' | 'follow' | 'bookComplete';
+  type:
+    | "levelUp"
+    | "achievement"
+    | "milestone"
+    | "streak"
+    | "follow"
+    | "bookComplete";
   trigger: boolean;
   emoji?: string;
   onComplete?: () => void;
 }
 
-export default function CelebrationTrigger({ type, trigger, emoji, onComplete }: CelebrationTriggerProps) {
+export default function CelebrationTrigger({
+  type,
+  trigger,
+  emoji,
+  onComplete,
+}: CelebrationTriggerProps) {
   const hasTriggered = useRef(false);
 
   useEffect(() => {
@@ -19,22 +30,22 @@ export default function CelebrationTrigger({ type, trigger, emoji, onComplete }:
 
       // Fire confetti based on type
       switch (type) {
-        case 'levelUp':
+        case "levelUp":
           confettiConfig.levelUp();
           break;
-        case 'achievement':
+        case "achievement":
           confettiConfig.achievement();
           break;
-        case 'milestone':
+        case "milestone":
           confettiConfig.milestone(emoji);
           break;
-        case 'streak':
+        case "streak":
           confettiConfig.streak();
           break;
-        case 'follow':
+        case "follow":
           confettiConfig.follow();
           break;
-        case 'bookComplete':
+        case "bookComplete":
           confettiConfig.bookComplete();
           break;
       }
