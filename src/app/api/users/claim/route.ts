@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get current user
-    const user = await prisma.user.findUnique({
+    // Get current user or create if doesn't exist
+    let user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
         username: true,
@@ -40,11 +40,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // If user doesn't exist in database yet (new login), this is their first username claim
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      // User record will be created below in the transaction
+      user = {
+        username: null,
+        usernameChangedAt: null,
+      };
     }
 
-    // Check cooldown
+    // Check cooldown (only if they already have a username)
     if (user.username && user.usernameChangedAt) {
       const daysSinceChange =
         (Date.now() - user.usernameChangedAt.getTime()) / (1000 * 60 * 60 * 24);
@@ -74,14 +79,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update username and create redirect
+    // Update or create username and create redirect
     const oldUsername = user.username;
 
     await prisma.$transaction(async (tx) => {
-      // Update user
-      await tx.user.update({
+      // Upsert user (create if doesn't exist, update if exists)
+      await tx.user.upsert({
         where: { id: session.user.id },
-        data: {
+        create: {
+          id: session.user.id,
+          email: session.user.email!,
+          name: session.user.name,
+          image: session.user.image,
+          username,
+          usernameChangedAt: new Date(),
+        },
+        update: {
           username,
           usernameChangedAt: new Date(),
         },
