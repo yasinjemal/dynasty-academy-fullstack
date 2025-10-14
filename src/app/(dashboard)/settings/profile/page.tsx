@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import UsernameClaimModal from "@/components/profile/UsernameClaimModal";
+import AvatarUpload from "@/components/profile/AvatarUpload";
 
 export default function ProfileSettingsPage() {
   const { data: session, status, update } = useSession();
@@ -138,6 +139,27 @@ export default function ProfileSettingsPage() {
         </motion.div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Avatar Upload Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 }}
+            className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900"
+          >
+            <h2 className="mb-6 flex items-center gap-2 text-xl font-semibold">
+              <User className="h-5 w-5 text-purple-600" />
+              Profile Picture
+            </h2>
+            <AvatarUpload
+              currentAvatar={profile?.image}
+              onSuccess={(avatarUrl) => {
+                setProfile({ ...profile, image: avatarUrl });
+                update(); // Refresh session
+                toast.success("Avatar updated successfully!");
+              }}
+            />
+          </motion.div>
+
           {/* Basic Info Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
