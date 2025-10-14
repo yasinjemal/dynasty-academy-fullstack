@@ -35,6 +35,13 @@ import ParticleBackground from "@/components/effects/ParticleBackground";
 import MagneticCursor from "@/components/effects/MagneticCursor";
 import HolographicCard from "@/components/effects/HolographicCard";
 import PulsingGlow from "@/components/effects/PulsingGlow";
+import RainbowTrail from "@/components/effects/RainbowTrail";
+import ParallaxStars from "@/components/effects/ParallaxStars";
+import LightningBolt from "@/components/effects/LightningBolt";
+import FireworksExplosion from "@/components/effects/FireworksExplosion";
+import BurstAnimation from "@/components/effects/BurstAnimation";
+import LiquidMorphCard from "@/components/effects/LiquidMorphCard";
+import CrystalRefraction from "@/components/effects/CrystalRefraction";
 import { motion } from "framer-motion";
 
 type Tab = "hot" | "following" | "topic";
@@ -98,6 +105,12 @@ export default function CommunityPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [topic, setTopic] = useState<string | null>(null);
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+
+  // Effect triggers
+  const [showLightning, setShowLightning] = useState(false);
+  const [showFireworks, setShowFireworks] = useState(false);
+  const [burstTrigger, setBurstTrigger] = useState(false);
+  const [burstPosition, setBurstPosition] = useState({ x: 50, y: 50 });
 
   // Mock Dynasty Score data (replace with real API call)
   const [dynastyScore] = useState(1450);
@@ -243,6 +256,16 @@ export default function CommunityPage() {
           return item;
         })
       );
+
+      // Trigger burst animation!
+      setBurstTrigger(true);
+      setTimeout(() => setBurstTrigger(false), 100);
+      
+      // Trigger lightning for dynasty points
+      if (data.liked) {
+        setShowLightning(true);
+        setTimeout(() => setShowLightning(false), 100);
+      }
     } catch (error: any) {
       console.error("Error liking:", error);
       toast({
@@ -314,8 +337,23 @@ export default function CommunityPage() {
       {/* INSANE Particle Background */}
       <ParticleBackground />
 
+      {/* Twinkling Stars with Parallax */}
+      <ParallaxStars />
+
+      {/* Rainbow Cursor Trail */}
+      <RainbowTrail />
+
       {/* Magnetic Cursor Effect */}
       <MagneticCursor />
+
+      {/* Lightning Bolt Effect */}
+      <LightningBolt trigger={showLightning} points={2} />
+
+      {/* Fireworks on Level Up */}
+      <FireworksExplosion trigger={showFireworks} message="LEVEL UP!" />
+
+      {/* Burst Animation on Like/Save */}
+      <BurstAnimation trigger={burstTrigger} x={burstPosition.x} y={burstPosition.y} color="#ef4444" />
 
       {/* Animated Background Gradients */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -730,8 +768,8 @@ export default function CommunityPage() {
 
           {/* RIGHT SIDEBAR - Hidden on mobile, shown on large screens */}
           <aside className="hidden lg:block lg:col-span-3 space-y-4">
-            {/* Dynasty Score Widget */}
-            <HolographicCard className="bg-gradient-to-br from-orange-500 to-orange-600">
+            {/* Dynasty Score Widget with CRYSTAL REFRACTION */}
+            <CrystalRefraction className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl">
               <div className="p-6 text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12" />
@@ -773,16 +811,20 @@ export default function CommunityPage() {
                   <Button
                     variant="ghost"
                     className="w-full bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm"
+                    onClick={() => {
+                      setShowFireworks(true);
+                      setTimeout(() => setShowFireworks(false), 100);
+                    }}
                   >
                     View Full Profile →
                   </Button>
                 </div>
               </div>
-            </HolographicCard>
+            </CrystalRefraction>
 
-            {/* Streak Tracker */}
+            {/* Streak Tracker with LIQUID MORPH */}
             {streak > 0 && (
-              <HolographicCard className="bg-gradient-to-br from-red-600 to-orange-600">
+              <LiquidMorphCard className="bg-gradient-to-br from-red-600 to-orange-600 rounded-2xl">
                 <div className="p-6 backdrop-blur-sm">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-lg font-bold text-white">
@@ -799,7 +841,7 @@ export default function CommunityPage() {
                     </p>
                   </div>
                 </div>
-              </HolographicCard>
+              </LiquidMorphCard>
             )}
 
             {/* Recent Activity */}
