@@ -2,6 +2,9 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OverviewTab from "./OverviewTab";
+import PostsTab from "./PostsTab";
+import ReflectionsTab from "./ReflectionsTab";
+import CollectionsTab from "./CollectionsTab";
 import AchievementsTab from "./AchievementsTab";
 import ActivityTab from "./ActivityTab";
 
@@ -20,37 +23,37 @@ export default function ProfileTabs({
     <div className="mt-8">
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0">
-          <TabsTrigger 
+          <TabsTrigger
             value="overview"
             className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
           >
             Overview
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="posts"
             className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
           >
             Posts
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="reflections"
             className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
           >
             Reflections
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="collections"
             className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
           >
             Collections
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="achievements"
             className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
           >
             Achievements
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="activity"
             className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
           >
@@ -63,31 +66,23 @@ export default function ProfileTabs({
         </TabsContent>
 
         <TabsContent value="posts" className="mt-6">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-            <p className="text-gray-600 dark:text-gray-400">
-              Posts tab coming soon...
-            </p>
-          </div>
+          <PostsTab userId={userId} username={username} isOwner={isOwner} />
         </TabsContent>
 
         <TabsContent value="reflections" className="mt-6">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-            <p className="text-gray-600 dark:text-gray-400">
-              Reflections tab coming soon...
-            </p>
-          </div>
+          <ReflectionsTab userId={userId} username={username} isOwner={isOwner} />
         </TabsContent>
 
         <TabsContent value="collections" className="mt-6">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-            <p className="text-gray-600 dark:text-gray-400">
-              Collections tab coming soon...
-            </p>
-          </div>
+          <CollectionsTab userId={userId} username={username} isOwner={isOwner} />
         </TabsContent>
 
         <TabsContent value="achievements" className="mt-6">
-          <AchievementsTab userId={userId} username={username} isOwner={isOwner} />
+          <AchievementsTab
+            userId={userId}
+            username={username}
+            isOwner={isOwner}
+          />
         </TabsContent>
 
         <TabsContent value="activity" className="mt-6">

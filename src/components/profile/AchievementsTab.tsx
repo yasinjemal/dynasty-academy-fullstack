@@ -255,7 +255,8 @@ function AchievementCard({
     BRONZE: "border-orange-300 dark:border-orange-800",
   };
 
-  const gradient = tierGradients[achievement.tier as keyof typeof tierGradients];
+  const gradient =
+    tierGradients[achievement.tier as keyof typeof tierGradients];
   const border = tierBorders[achievement.tier as keyof typeof tierBorders];
 
   return (

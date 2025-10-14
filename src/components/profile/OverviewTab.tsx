@@ -188,7 +188,11 @@ export default function OverviewTab({
                       <div
                         className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
                         style={{
-                          width: `${(readingStats.currentBook.currentPage / readingStats.currentBook.totalPages) * 100}%`,
+                          width: `${
+                            (readingStats.currentBook.currentPage /
+                              readingStats.currentBook.totalPages) *
+                            100
+                          }%`,
                         }}
                       />
                     </div>
@@ -320,15 +324,21 @@ function StatCard({
   color: string;
 }) {
   const colorClasses = {
-    purple: "bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400",
+    purple:
+      "bg-purple-100 text-purple-600 dark:bg-purple-950 dark:text-purple-400",
     blue: "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400",
-    orange: "bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400",
+    orange:
+      "bg-orange-100 text-orange-600 dark:bg-orange-950 dark:text-orange-400",
     green: "bg-green-100 text-green-600 dark:bg-green-950 dark:text-green-400",
   };
 
   return (
     <div className="rounded-xl bg-white/80 p-4 backdrop-blur-sm dark:bg-gray-900/80">
-      <div className={`mb-2 inline-flex rounded-lg p-2 ${colorClasses[color as keyof typeof colorClasses]}`}>
+      <div
+        className={`mb-2 inline-flex rounded-lg p-2 ${
+          colorClasses[color as keyof typeof colorClasses]
+        }`}
+      >
         {icon}
       </div>
       <div className="text-2xl font-bold">{value}</div>
@@ -349,7 +359,9 @@ function AchievementCard({ achievement }: { achievement: any }) {
   return (
     <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 transition-all hover:shadow-lg dark:border-gray-800 dark:bg-gray-900">
       <div
-        className={`absolute inset-0 bg-gradient-to-br opacity-5 transition-opacity group-hover:opacity-10 ${tierColors[achievement.tier as keyof typeof tierColors]}`}
+        className={`absolute inset-0 bg-gradient-to-br opacity-5 transition-opacity group-hover:opacity-10 ${
+          tierColors[achievement.tier as keyof typeof tierColors]
+        }`}
       />
       <div className="relative">
         <div className="mb-2 text-3xl">{achievement.iconUrl || "🏆"}</div>

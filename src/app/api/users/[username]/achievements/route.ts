@@ -80,8 +80,10 @@ export async function GET(
     // If owner, also show locked achievements with progress
     let lockedAchievements: any[] = [];
     if (isOwner) {
-      const earnedAchievementIds = userAchievements.map((ua) => ua.achievementId);
-      
+      const earnedAchievementIds = userAchievements.map(
+        (ua) => ua.achievementId
+      );
+
       const allAchievements = await prisma.achievement.findMany({
         where: {
           id: {
@@ -131,10 +133,16 @@ export async function GET(
       achievements,
       stats: {
         total: userAchievements.length,
-        elite: userAchievements.filter((ua) => ua.achievement.tier === "ELITE").length,
-        gold: userAchievements.filter((ua) => ua.achievement.tier === "GOLD").length,
-        silver: userAchievements.filter((ua) => ua.achievement.tier === "SILVER").length,
-        bronze: userAchievements.filter((ua) => ua.achievement.tier === "BRONZE").length,
+        elite: userAchievements.filter((ua) => ua.achievement.tier === "ELITE")
+          .length,
+        gold: userAchievements.filter((ua) => ua.achievement.tier === "GOLD")
+          .length,
+        silver: userAchievements.filter(
+          (ua) => ua.achievement.tier === "SILVER"
+        ).length,
+        bronze: userAchievements.filter(
+          (ua) => ua.achievement.tier === "BRONZE"
+        ).length,
       },
     });
   } catch (error) {
