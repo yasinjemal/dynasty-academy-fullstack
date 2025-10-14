@@ -132,7 +132,7 @@ export default async function PostPage({ params }: PostPageProps) {
   // Increment view count
   await prisma.post.update({
     where: { id: post.id },
-    data: { views: { increment: 1 } },
+    data: { viewCount: { increment: 1 } },
   });
 
   return (

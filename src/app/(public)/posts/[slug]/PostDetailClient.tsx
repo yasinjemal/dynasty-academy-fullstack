@@ -21,10 +21,11 @@ interface Comment {
   id: string;
   content: string;
   createdAt: Date;
-  user: {
+  author: {
     id: string;
     name: string | null;
     image: string | null;
+    username: string | null;
     dynastyScore: number;
   };
   replies?: Comment[];
@@ -36,15 +37,16 @@ interface Post {
   title: string;
   content: string;
   excerpt: string | null;
-  image: string | null;
+  coverImage: string | null;
   createdAt: Date;
-  views: number;
+  viewCount: number;
   hotScore: number;
   author: {
     id: string;
     name: string | null;
     email: string;
     image: string | null;
+    username: string | null;
     dynastyScore: number;
     _count: {
       posts: number;
@@ -55,7 +57,6 @@ interface Post {
   _count: {
     likes: number;
     comments: number;
-    saves: number;
   };
   userLiked: boolean;
   isAuthor: boolean;
@@ -198,10 +199,10 @@ export default function PostDetailClient({
       {/* Post Card */}
       <article className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
         {/* Featured Image */}
-        {post.image && (
+        {post.coverImage && (
           <div className="relative w-full h-96">
             <Image
-              src={post.image}
+              src={post.coverImage}
               alt={post.title}
               fill
               className="object-cover"
@@ -259,7 +260,7 @@ export default function PostDetailClient({
             <div className="flex items-center gap-4 text-sm text-slate-500">
               <div className="flex items-center gap-1">
                 <Eye className="w-4 h-4" />
-                <span>{post.views.toLocaleString()} views</span>
+                <span>{post.viewCount.toLocaleString()} views</span>
               </div>
             </div>
           </div>
@@ -383,8 +384,8 @@ export default function PostDetailClient({
             <div key={comment.id} className="border-l-2 border-slate-200 pl-4">
               <div className="flex gap-3 mb-3">
                 <Image
-                  src={comment.user.image || "/default-avatar.png"}
-                  alt={comment.user.name || "User"}
+                  src={comment.author.image || "/default-avatar.png"}
+                  alt={comment.author.name || "User"}
                   width={40}
                   height={40}
                   className="rounded-full"
@@ -392,7 +393,7 @@ export default function PostDetailClient({
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-bold text-slate-900">
-                      {comment.user.name}
+                      {comment.author.name}
                     </span>
                     <span className="text-xs text-slate-500">
                       {formatDistanceToNow(new Date(comment.createdAt))} ago
@@ -414,8 +415,8 @@ export default function PostDetailClient({
                   {comment.replies.map((reply) => (
                     <div key={reply.id} className="flex gap-3">
                       <Image
-                        src={reply.user.image || "/default-avatar.png"}
-                        alt={reply.user.name || "User"}
+                        src={reply.author.image || "/default-avatar.png"}
+                        alt={reply.author.name || "User"}
                         width={32}
                         height={32}
                         className="rounded-full"
@@ -423,7 +424,7 @@ export default function PostDetailClient({
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-bold text-sm text-slate-900">
-                            {reply.user.name}
+                            {reply.author.name}
                           </span>
                           <span className="text-xs text-slate-500">
                             {formatDistanceToNow(new Date(reply.createdAt))} ago
