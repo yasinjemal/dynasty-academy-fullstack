@@ -53,14 +53,15 @@ export default function Hero3D() {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Main Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-orange-900/20" />
-        
+
         {/* Static Elegant Orbs - Pure CSS, No JS */}
         <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-radial from-purple-500/10 via-purple-500/5 to-transparent blur-3xl" />
         <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-radial from-orange-500/10 via-orange-500/5 to-transparent blur-3xl" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-radial from-pink-500/5 via-transparent to-transparent blur-3xl" />
-        
+
         {/* Subtle Grid Pattern - Static */}
-        <div className="absolute inset-0 opacity-[0.03]"
+        <div
+          className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: `
               linear-gradient(to right, rgba(249, 115, 22, 0.3) 1px, transparent 1px),

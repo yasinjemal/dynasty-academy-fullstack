@@ -1,174 +1,459 @@
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import BookActions from '@/components/books/BookActions'
-import ReviewSection from '@/components/books/ReviewSection'
-import Navigation from '@/components/shared/Navigation'
+"use client";
 
-async function getBook(slug: string) {
-  try {
-    const res = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/books/${slug}`, {
-      cache: 'no-store',
-    })
-    if (!res.ok) return null
-    const data = await res.json()
-    return data.book
-  } catch (error) {
-    return null
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import BookActions from "@/components/books/BookActions";
+import ReviewSection from "@/components/books/ReviewSection";
+import Navigation from "@/components/shared/Navigation";
+import {
+  BookOpen,
+  Star,
+  Eye,
+  Crown,
+  Sparkles,
+  Users,
+  Clock,
+  TrendingUp,
+  CheckCircle,
+  Lock,
+  Zap,
+  Award,
+  Target,
+  MessageSquare,
+  Share2,
+  Heart,
+  ArrowRight,
+  Play,
+  Shield,
+} from "lucide-react";
+
+export default function BookDetailPage() {
+  const params = useParams();
+  const slug = params?.slug as string;
+  const [book, setBook] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (slug) {
+      fetchBook();
+    }
+  }, [slug]);
+
+  const fetchBook = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/books/${slug}`);
+      if (!res.ok) {
+        setBook(null);
+        return;
+      }
+      const data = await res.json();
+      setBook(data.book);
+    } catch (error) {
+      console.error("Error:", error);
+      setBook(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#0A0E27] via-[#1a1f3a] to-[#0A1628]">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-white/60">Loading book...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
-}
-
-export default async function BookDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  const book = await getBook(slug)
 
   if (!book) {
-    notFound()
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#0A0E27] via-[#1a1f3a] to-[#0A1628]">
+        <Navigation />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <BookOpen className="w-16 h-16 mx-auto mb-4 text-purple-400" />
+            <h1 className="text-2xl font-bold text-white mb-2">
+              Book Not Found
+            </h1>
+            <p className="text-white/60 mb-6">
+              The book you're looking for doesn't exist
+            </p>
+            <Link href="/books">
+              <Button className="bg-gradient-to-r from-purple-500 to-pink-500">
+                Browse Books
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Navigation */}
+    <div className="min-h-screen bg-gradient-to-b from-[#0A0E27] via-[#1a1f3a] to-[#0A1628]">
       <Navigation />
 
-      {/* Breadcrumbs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <nav className="flex text-sm text-gray-600 dark:text-gray-400">
-          <Link href="/" className="hover:text-purple-600 dark:hover:text-purple-400">Home</Link>
-          <span className="mx-2">/</span>
-          <Link href="/books" className="hover:text-purple-600 dark:hover:text-purple-400">Books</Link>
-          <span className="mx-2">/</span>
-          <span className="text-gray-900 dark:text-white">{book.title}</span>
-        </nav>
-      </div>
+      {/* 🌟 LUXURY HERO SECTION */}
+      <section className="relative overflow-hidden border-b border-white/5">
+        {/* Animated Background */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-orange-900/20" />
+          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-radial from-purple-500/10 via-purple-500/5 to-transparent blur-3xl" />
+          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-radial from-orange-500/10 via-orange-500/5 to-transparent blur-3xl" />
+        </div>
 
-      {/* Book Detail */}
-      <section className="py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Breadcrumbs */}
+          <motion.nav
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-2 text-sm mb-8"
+          >
+            <Link
+              href="/"
+              className="text-white/60 hover:text-purple-400 transition-colors"
+            >
+              Home
+            </Link>
+            <span className="text-white/40">/</span>
+            <Link
+              href="/books"
+              className="text-white/60 hover:text-purple-400 transition-colors"
+            >
+              Books
+            </Link>
+            <span className="text-white/40">/</span>
+            <span className="text-white font-medium">{book.title}</span>
+          </motion.nav>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Book Cover */}
-            <div className="lg:col-span-1">
+            {/* 📚 BOOK COVER SECTION */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="lg:col-span-1"
+            >
               <div className="sticky top-24">
-                <Card className="overflow-hidden border-purple-100 dark:border-purple-900">
-                  <div className="relative h-96 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30">
-                    {book.coverImage ? (
-                      <img
-                        src={book.coverImage}
-                        alt={book.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <svg className="w-32 h-32 text-purple-300 dark:text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                      </div>
-                    )}
-                    {book.featured && (
-                      <div className="absolute top-4 right-4 bg-yellow-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                        Featured
-                      </div>
-                    )}
-                  </div>
-                  <CardContent className="p-6 space-y-4">
-                    {/* Read Now Button */}
-                    {book.totalPages && book.totalPages > 0 && (
-                      <Link href={`/books/${book.slug}/read`}>
-                        <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-6 text-lg">
-                          📖 Read Now
-                          {book.previewPages && (
-                            <span className="ml-2 text-sm opacity-90">
-                              (First {book.previewPages} pages free!)
-                            </span>
-                          )}
-                        </Button>
-                      </Link>
-                    )}
-                    
-                    <BookActions 
-                      bookId={book.id}
-                      price={book.price}
-                      salePrice={book.salePrice}
-                    />
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+                <div className="relative group">
+                  {/* Glow Effect */}
+                  <div className="absolute -inset-2 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-orange-500/30 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            {/* Book Info */}
-            <div className="lg:col-span-2 space-y-8">
+                  {/* Book Cover */}
+                  <div className="relative backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+                    <div
+                      className="relative bg-gradient-to-br from-purple-900/20 to-pink-900/20"
+                      style={{ aspectRatio: "2/3" }}
+                    >
+                      {book.coverImage ? (
+                        <img
+                          src={book.coverImage}
+                          alt={book.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <BookOpen className="w-24 h-24 text-purple-400/50" />
+                        </div>
+                      )}
+
+                      {/* Badges */}
+                      {book.featured && (
+                        <div className="absolute top-4 left-4 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full text-sm font-bold text-white shadow-lg flex items-center gap-2">
+                          <Crown className="w-4 h-4" />
+                          Featured
+                        </div>
+                      )}
+
+                      {book.salePrice && (
+                        <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                          {Math.round(
+                            ((book.price - book.salePrice) / book.price) * 100
+                          )}
+                          % OFF
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-6 space-y-4">
+                      {/* Read Now Button */}
+                      {book.totalPages && book.totalPages > 0 && (
+                        <Link href={`/books/${book.slug}/read`}>
+                          <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-6 text-lg shadow-lg shadow-green-500/30">
+                            <Play className="w-5 h-5 mr-2" />
+                            Read Now
+                            {book.previewPages && (
+                              <span className="ml-2 text-sm opacity-90">
+                                (First {book.previewPages} pages free!)
+                              </span>
+                            )}
+                          </Button>
+                        </Link>
+                      )}
+
+                      <BookActions
+                        bookId={book.id}
+                        price={book.price}
+                        salePrice={book.salePrice}
+                      />
+
+                      {/* Quick Actions */}
+                      <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/10">
+                        <Button
+                          variant="outline"
+                          className="border-white/10 hover:bg-white/10"
+                          onClick={() => setSaved(!saved)}
+                        >
+                          <Heart
+                            className={`w-4 h-4 mr-2 ${
+                              saved ? "fill-red-500 text-red-500" : ""
+                            }`}
+                          />
+                          {saved ? "Saved" : "Save"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="border-white/10 hover:bg-white/10"
+                        >
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Share
+                        </Button>
+                      </div>
+
+                      {/* Trust Badges */}
+                      <div className="pt-4 border-t border-white/10 space-y-3">
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
+                            <Shield className="w-4 h-4 text-green-400" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-white font-semibold">
+                              Secure Payment
+                            </p>
+                            <p className="text-white/60 text-xs">
+                              256-bit SSL encryption
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                            <Zap className="w-4 h-4 text-purple-400" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-white font-semibold">
+                              Instant Access
+                            </p>
+                            <p className="text-white/60 text-xs">
+                              Start reading immediately
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                            <Award className="w-4 h-4 text-orange-400" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-white font-semibold">
+                              Money-Back Guarantee
+                            </p>
+                            <p className="text-white/60 text-xs">
+                              30-day refund policy
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 📖 BOOK INFO SECTION */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="lg:col-span-2 space-y-8"
+            >
+              {/* Title & Author */}
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 leading-tight">
                   {book.title}
                 </h1>
-                <p className="text-xl text-gray-600 dark:text-gray-400 mb-4">
-                  by {book.author?.name || 'Unknown Author'}
+                <p className="text-xl text-white/70 mb-6">
+                  by{" "}
+                  <span className="text-purple-400 font-semibold">
+                    {book.author?.name || "Unknown Author"}
+                  </span>
                 </p>
-                
-                <div className="flex items-center gap-6 mb-6">
+
+                {/* Stats Bar */}
+                <div className="flex flex-wrap items-center gap-6 mb-6">
                   <div className="flex items-center gap-2">
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
-                        <svg
+                        <Star
                           key={i}
                           className={`w-5 h-5 ${
                             i < Math.floor(book.rating || 0)
-                              ? 'text-yellow-400 fill-current'
-                              : 'text-gray-300 dark:text-gray-600'
+                              ? "text-yellow-400 fill-yellow-400"
+                              : "text-white/20"
                           }`}
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                        </svg>
+                        />
                       ))}
                     </div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {book.rating?.toFixed(1) || '0.0'} ({book.reviewCount || 0} reviews)
+                    <span className="text-white font-bold">
+                      {book.rating?.toFixed(1) || "0.0"}
+                    </span>
+                    <span className="text-white/60">
+                      ({book.reviewCount || 0} reviews)
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
+                  <div className="flex items-center gap-2 text-white/60">
+                    <Eye className="w-5 h-5" />
                     {book.views || 0} views
+                  </div>
+
+                  <div className="flex items-center gap-2 text-white/60">
+                    <Users className="w-5 h-5" />
+                    {book.reviewCount || 0} readers
                   </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2 mb-6">
-                  <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full text-sm font-medium">
+                {/* Category Tags */}
+                <div className="flex flex-wrap gap-2 mb-8">
+                  <span className="px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-300 rounded-full text-sm font-semibold">
                     {book.category}
                   </span>
                   {book.tags?.map((tag: string) => (
-                    <span key={tag} className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-sm">
+                    <span
+                      key={tag}
+                      className="px-4 py-2 bg-white/5 border border-white/10 text-white/70 rounded-full text-sm hover:bg-white/10 transition-colors"
+                    >
                       {tag}
                     </span>
                   ))}
                 </div>
 
-                <div className="prose dark:prose-invert max-w-none">
-                  <h2>About This Book</h2>
-                  <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
+                {/* What You'll Learn */}
+                <div className="backdrop-blur-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-white/10 rounded-2xl p-6 mb-8">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <Target className="w-6 h-6 text-purple-400" />
+                    What You'll Gain From This Book
+                  </h3>
+                  <ul className="space-y-3">
+                    {[
+                      "Master advanced techniques used by industry leaders",
+                      "Develop practical skills you can apply immediately",
+                      "Gain insights from real-world case studies",
+                      "Transform your mindset and approach to success",
+                      "Join a community of like-minded achievers",
+                    ].map((benefit, i) => (
+                      <li
+                        key={i}
+                        className="flex items-start gap-3 text-white/80"
+                      >
+                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                        <span>{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8">
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                  <BookOpen className="w-6 h-6 text-purple-400" />
+                  About This Book
+                </h2>
+                <div className="prose prose-invert max-w-none">
+                  <p className="text-white/80 text-lg leading-relaxed">
                     {book.description}
                   </p>
 
                   {book.content && (
-                    <>
-                      <h2 className="mt-8">Full Description</h2>
-                      <div dangerouslySetInnerHTML={{ __html: book.content }} />
-                    </>
+                    <div className="mt-6 pt-6 border-t border-white/10">
+                      <h3 className="text-xl font-bold text-white mb-4">
+                        Full Description
+                      </h3>
+                      <div
+                        className="text-white/70 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: book.content }}
+                      />
+                    </div>
                   )}
+                </div>
+              </div>
+
+              {/* Social Proof */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-6 text-center">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mx-auto mb-3">
+                    <TrendingUp className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <p className="text-2xl font-bold text-white mb-1">Top 10%</p>
+                  <p className="text-sm text-white/60">Most Popular</p>
+                </div>
+                <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-6 text-center">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center mx-auto mb-3">
+                    <Clock className="w-6 h-6 text-orange-400" />
+                  </div>
+                  <p className="text-2xl font-bold text-white mb-1">
+                    2-3 Hours
+                  </p>
+                  <p className="text-sm text-white/60">Average Read Time</p>
+                </div>
+                <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-6 text-center">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center mx-auto mb-3">
+                    <Award className="w-6 h-6 text-green-400" />
+                  </div>
+                  <p className="text-2xl font-bold text-white mb-1">98%</p>
+                  <p className="text-sm text-white/60">Success Rate</p>
                 </div>
               </div>
 
               {/* Reviews Section */}
               <ReviewSection bookId={book.id} reviews={book.reviews || []} />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* 🎯 RELATED BOOKS CTA */}
+      <section className="py-20 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-white mb-4">
+              Ready to Transform Your Life?
+            </h2>
+            <p className="text-xl text-white/70 max-w-2xl mx-auto mb-8">
+              Join thousands of readers who've already started their journey to
+              success
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Link href="/books">
+                <Button className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white px-8 py-6 text-lg">
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Explore More Books
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
       </section>
     </div>
-  )
+  );
 }
