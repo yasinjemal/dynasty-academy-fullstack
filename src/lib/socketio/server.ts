@@ -128,6 +128,12 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
           userAvatar?: string;
         }) => {
           const { bookId, bookSlug, page, userId, userName, userAvatar } = data;
+          
+          // Validate required fields
+          if (!bookId || !bookSlug || !page || !userId) {
+            console.error("Missing required fields in update-page:", data);
+            return;
+          }
 
           const readerKey = `${bookSlug}:${userId}`;
           const pageKey = `${bookSlug}:${page}`;
