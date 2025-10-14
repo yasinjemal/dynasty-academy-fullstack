@@ -8,31 +8,54 @@ datasource db {
 }
 
 model User {
-  id                  String               @id @default(cuid())
-  name                String?
-  email               String               @unique
-  emailVerified       DateTime?
-  image               String?
-  password            String?
-  role                Role                 @default(USER)
-  bio                 String?
-  socialLinks         Json?
-  isPremium           Boolean              @default(false)
-  premiumUntil        DateTime?
-  settings            Json?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  lastLoginAt         DateTime?
-  banReason           String?
-  dynastyScore        Int                  @default(0)
-  isBanned            Boolean              @default(false)
-  isMentor            Boolean              @default(false)
-  isSuspended         Boolean              @default(false)
-  lastActiveAt        DateTime?
-  level               Int                  @default(1)
-  streakDays          Int                  @default(0)
-  suspendedUntil      DateTime?
-  username            String?              @unique
+  id                     String               @id @default(cuid())
+  name                   String?
+  email                  String               @unique
+  emailVerified          DateTime?
+  image                  String?
+  password               String?
+  role                   Role                 @default(USER)
+  bio                    String?
+  socialLinks            Json?
+  isPremium              Boolean              @default(false)
+  premiumUntil           DateTime?
+  settings               Json?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  lastLoginAt            DateTime?
+  banReason              String?
+  dynastyScore           Int                  @default(0)
+  isBanned               Boolean              @default(false)
+  isMentor               Boolean              @default(false)
+  isSuspended            Boolean              @default(false)
+  lastActiveAt           DateTime?
+  level                  Int                  @default(1)
+  streakDays             Int                  @default(0)
+  suspendedUntil         DateTime?
+  username               String?              @unique
+  // Profile fields
+  bannerImage            String?
+  location               String?
+  website                String?
+  xHandle                String?
+  instagram              String?
+  youtube                String?
+  // Reading stats
+  readingMinutesLifetime Int                  @default(0)
+  booksCompleted         Int                  @default(0)
+  currentBookId          String?
+  currentPage            Int?
+  // Reputation
+  followersCount         Int                  @default(0)
+  followingCount         Int                  @default(0)
+  thanksReceived         Int                  @default(0)
+  reportsCount           Int                  @default(0)
+  // Preferences
+  profileTheme           String               @default("default")
+  isPrivate              Boolean              @default(false)
+  dmOpen                 Boolean              @default(true)
+  // Username history
+  usernameChangedAt      DateTime?
   accounts            Account[]
   blogPosts           BlogPost[]
   bookReflections     BookReflection[]     @relation("BookReflections")
@@ -722,6 +745,8 @@ model Collection {
   slug        String
   description String?
   isPublic    Boolean          @default(false)
+  itemCount   Int              @default(0)
+  coverImage  String?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   items       CollectionItem[]
@@ -730,6 +755,7 @@ model Collection {
   @@unique([userId, slug])
   @@index([userId])
   @@index([slug])
+  @@index([isPublic])
   @@map("collections")
 }
 
@@ -852,9 +878,12 @@ model ListeningStreak {
 model Achievement {
   id               String            @id @default(dbgenerated("(gen_random_uuid())::text"))
   key              String            @unique
+  slug             String?           @unique
+  title            String?
   name             String
   description      String
   icon             String
+  tier             AchievementTier   @default(BRONZE)
   category         String
   requirement      Int
   dynastyPoints    Int               @default(0)
@@ -869,13 +898,16 @@ model UserAchievement {
   id            String      @id @default(dbgenerated("(gen_random_uuid())::text"))
   userId        String
   achievementId String
+  awardedAt     DateTime    @default(now())
   unlockedAt    DateTime    @default(now())
   progress      Int         @default(0)
+  evidence      String?
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
   user          User        @relation("UserAchievements", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, achievementId])
   @@index([userId])
+  @@index([awardedAt])
   @@map("user_achievements")
 }
 
@@ -1072,6 +1104,13 @@ enum QuestType {
   SPECIAL
 }
 
+enum AchievementTier {
+  BRONZE
+  SILVER
+  GOLD
+  ELITE
+}
+
 enum ReportType {
   POST
   USER
@@ -1094,4 +1133,34 @@ enum ReportStatus {
   REVIEWING
   RESOLVED
   DISMISSED
+}
+
+model UsernameRedirect {
+  id        String   @id @default(cuid())
+  from      String   @unique
+  to        String
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([from])
+  @@index([to])
+  @@index([expiresAt])
+  @@map("username_redirects")
+}
+
+model UserDailyStats {
+  id             String   @id @default(cuid())
+  userId         String
+  date           DateTime @db.Date
+  views          Int      @default(0)
+  profileVisits  Int      @default(0)
+  postLikes      Int      @default(0)
+  comments       Int      @default(0)
+  readingMinutes Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("user_daily_stats")
 }

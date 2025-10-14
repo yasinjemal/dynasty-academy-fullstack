@@ -1,51 +1,54 @@
-import { NextAuthOptions } from 'next-auth'
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import GoogleProvider from 'next-auth/providers/google'
-import { prisma } from '@/lib/db/prisma'
-import { compare } from 'bcryptjs'
-import crypto from 'crypto'
+import { NextAuthOptions } from "next-auth";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import { prisma } from "@/lib/db/prisma";
+import { compare } from "bcryptjs";
+import crypto from "crypto";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   pages: {
-    signIn: '/login',
-    signOut: '/',
-    error: '/login',
+    signIn: "/login",
+    signOut: "/",
+    error: "/login",
   },
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
     CredentialsProvider({
-      name: 'credentials',
+      name: "credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Invalid credentials')
+          throw new Error("Invalid credentials");
         }
 
         const user = await prisma.user.findUnique({
           where: {
             email: credentials.email,
           },
-        })
+        });
 
         if (!user || !user.password) {
-          throw new Error('Invalid credentials')
+          throw new Error("Invalid credentials");
         }
 
-        const isPasswordValid = await compare(credentials.password, user.password)
+        const isPasswordValid = await compare(
+          credentials.password,
+          user.password
+        );
 
         if (!isPasswordValid) {
-          throw new Error('Invalid credentials')
+          throw new Error("Invalid credentials");
         }
 
         return {
@@ -54,14 +57,14 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           role: user.role,
           image: user.image,
-        }
+        };
       },
     }),
   ],
   callbacks: {
     async signIn({ user, account }) {
       // For Google OAuth, ensure user exists in database
-      if (account?.provider === 'google' && user.email) {
+      if (account?.provider === "google" && user.email) {
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
         });
@@ -72,9 +75,9 @@ export const authOptions: NextAuthOptions = {
             data: {
               id: user.id || crypto.randomUUID(),
               email: user.email,
-              name: user.name || 'User',
+              name: user.name || "User",
               image: user.image,
-              role: 'USER',
+              role: "USER",
               emailVerified: new Date(),
             },
           });
@@ -85,7 +88,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, trigger, session, account }) {
       if (user) {
         // For Google OAuth, fetch the user from database to get the actual ID
-        if (account?.provider === 'google' && user.email) {
+        if (account?.provider === "google" && user.email) {
           const dbUser = await prisma.user.findUnique({
             where: { email: user.email },
           });
@@ -100,18 +103,18 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Handle session update
-      if (trigger === 'update' && session) {
-        token = { ...token, ...session }
+      if (trigger === "update" && session) {
+        token = { ...token, ...session };
       }
 
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string
-        session.user.role = token.role as string
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
-      return session
+      return session;
     },
   },
   events: {
@@ -123,10 +126,10 @@ export const authOptions: NextAuthOptions = {
           data: { lastLoginAt: new Date() },
         });
       } catch (error) {
-        console.error('Error updating last login:', error);
+        console.error("Error updating last login:", error);
       }
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
-}
+  debug: process.env.NODE_ENV === "development",
+};

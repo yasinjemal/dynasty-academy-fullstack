@@ -20,9 +20,27 @@ export async function GET() {
         name: true,
         email: true,
         image: true,
+        username: true,
+        bannerImage: true,
         bio: true,
+        location: true,
+        website: true,
+        xHandle: true,
+        instagram: true,
+        youtube: true,
         role: true,
         isPremium: true,
+        dynastyScore: true,
+        level: true,
+        streakDays: true,
+        readingMinutesLifetime: true,
+        booksCompleted: true,
+        followersCount: true,
+        followingCount: true,
+        thanksReceived: true,
+        profileTheme: true,
+        isPrivate: true,
+        dmOpen: true,
         createdAt: true,
         _count: {
           select: {
@@ -58,7 +76,22 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json()
-    const { name, bio, image, currentPassword, newPassword } = body
+    const { 
+      name, 
+      bio, 
+      image, 
+      bannerImage,
+      location,
+      website,
+      xHandle,
+      instagram,
+      youtube,
+      profileTheme,
+      isPrivate,
+      dmOpen,
+      currentPassword, 
+      newPassword 
+    } = body
 
     // Get current user
     const user = await prisma.user.findUnique({
@@ -72,8 +105,17 @@ export async function PATCH(request: Request) {
     // Prepare update data
     const updateData: any = {
       name,
-      bio,
+      bio: bio || null,
       image,
+      bannerImage: bannerImage || null,
+      location: location || null,
+      website: website || null,
+      xHandle: xHandle || null,
+      instagram: instagram || null,
+      youtube: youtube || null,
+      profileTheme: profileTheme || 'default',
+      isPrivate: isPrivate !== undefined ? isPrivate : false,
+      dmOpen: dmOpen !== undefined ? dmOpen : true,
       updatedAt: new Date(),
     }
 
