@@ -236,8 +236,7 @@ export default function ProfileSettingsPage() {
               {/* X/Twitter */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <Twitter className="mr-1 inline h-4 w-4" />
-                  X (Twitter) Handle
+                  <Twitter className="mr-1 inline h-4 w-4" />X (Twitter) Handle
                 </label>
                 <div className="flex items-center gap-2">
                   <span className="text-gray-500">@</span>
