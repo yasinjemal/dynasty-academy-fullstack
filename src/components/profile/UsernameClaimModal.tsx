@@ -291,9 +291,7 @@ export default function UsernameClaimModal({
                     <li>• Lowercase letters, numbers, underscores only</li>
                     <li>• Cannot start or end with underscore</li>
                     <li>• Can be changed once every 30 days</li>
-                    <li>
-                      • Old username redirects to new one for 14 days
-                    </li>
+                    <li>• Old username redirects to new one for 14 days</li>
                   </ul>
                 </div>
               </>

@@ -1,25 +1,25 @@
-﻿'use client'
+﻿"use client";
 
-import { useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function ProfileRedirect() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
-    if (status === 'loading') return
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      router.push("/login");
+      return;
     }
     if (session?.user?.username) {
-      router.push('/@' + session.user.username)
+      router.push("/@" + session.user.username);
     } else {
-      router.push('/settings/profile')
+      router.push("/settings/profile");
     }
-  }, [status, session, router])
+  }, [status, session, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -28,5 +28,5 @@ export default function ProfileRedirect() {
         <p>Redirecting...</p>
       </div>
     </div>
-  )
+  );
 }
