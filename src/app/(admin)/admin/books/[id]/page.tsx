@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import BookFileUploader from "@/components/admin/BookFileUploader";
 import BookAIPostsManager from "@/components/admin/BookAIPostsManager";
+import CoReadingAnalytics from "@/components/admin/CoReadingAnalytics";
 
 interface Book {
   id: string;
@@ -630,6 +631,15 @@ export default function AdminBookEditPage({
         <div className="mt-8">
           <BookAIPostsManager bookId={book.id} bookTitle={book.title} />
         </div>
+
+        {/* Co-Reading Analytics Section */}
+        {book.totalPages && book.totalPages > 0 && (
+          <div className="mt-8">
+            <Card>
+              <CoReadingAnalytics bookId={book.id} bookTitle={book.title} />
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );

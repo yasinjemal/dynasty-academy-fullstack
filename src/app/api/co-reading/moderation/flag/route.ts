@@ -6,7 +6,13 @@ import { z } from "zod";
 
 const flagSchema = z.object({
   messageId: z.string(),
-  reason: z.enum(["spam", "harassment", "inappropriate", "hate_speech", "other"]),
+  reason: z.enum([
+    "spam",
+    "harassment",
+    "inappropriate",
+    "hate_speech",
+    "other",
+  ]),
   details: z.string().optional(),
 });
 

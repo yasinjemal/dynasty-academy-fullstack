@@ -382,7 +382,10 @@ export default function LiveChatWidget({
                                 </p>
 
                                 {/* Context Menu Button */}
-                                {((isOwnMessage && onEditMessage && onDeleteMessage) || !isOwnMessage) && (
+                                {((isOwnMessage &&
+                                  onEditMessage &&
+                                  onDeleteMessage) ||
+                                  !isOwnMessage) && (
                                   <div className="absolute top-1 right-1">
                                     <button
                                       onClick={() =>
@@ -403,7 +406,9 @@ export default function LiveChatWidget({
                                         {isOwnMessage ? (
                                           <>
                                             <button
-                                              onClick={() => handleEditStart(msg)}
+                                              onClick={() =>
+                                                handleEditStart(msg)
+                                              }
                                               className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
                                             >
                                               <Edit2 className="w-3 h-3" />
@@ -421,7 +426,9 @@ export default function LiveChatWidget({
                                           </>
                                         ) : (
                                           <button
-                                            onClick={() => handleReportClick(msg.id)}
+                                            onClick={() =>
+                                              handleReportClick(msg.id)
+                                            }
                                             className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-orange-600 dark:text-orange-400 rounded-lg"
                                           >
                                             <Flag className="w-3 h-3" />
