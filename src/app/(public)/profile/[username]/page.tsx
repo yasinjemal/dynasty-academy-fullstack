@@ -241,11 +241,7 @@ export default async function ProfilePage({
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Main Content - Tabs (6 cols) */}
         <div className="lg:col-span-7">
-          <ProfileTabs
-            username={username}
-            userId={user.id}
-            isOwner={isOwner}
-          />
+          <ProfileTabs username={username} userId={user.id} isOwner={isOwner} />
 
           {/* Full-Width Features Below Tabs */}
           <div className="mt-8 space-y-8">

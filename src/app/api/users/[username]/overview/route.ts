@@ -1,101 +1,143 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/auth-options";
+import { authOptions } from "@/lib/auth/authOptions";
 import { prisma } from "@/lib/db/prisma";
 
+/**
+ * GET /api/users/:username/overview
+ *
+ * Returns comprehensive profile overview data:
+ * - User profile & stats (DS, level, streaks, books, reading time)
+ * - Role & badges
+ * - Current reading activity
+ * - Follower/following counts
+ * - Privacy settings
+ * - Social links
+ *
+ * Optimized single query for maximum performance.
+ */
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { username: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ username: string }> }
 ) {
   try {
-    const username = params.username.replace("@", "");
+    const { username } = await params;
+    const cleanUsername = username.replace("@", "");
     const session = await getServerSession(authOptions);
 
-    // Find user by username or redirect
+    // Find user by username or check for redirect
     let user = await prisma.user.findUnique({
-      where: { username },
+      where: { username: cleanUsername },
       select: {
         id: true,
         username: true,
+        name: true,
+        image: true,
+        bannerImage: true,
+        bio: true,
+        location: true,
+        website: true,
+        xHandle: true,
+        instagram: true,
+        youtube: true,
+        role: true,
+        dynastyScore: true,
+        level: true,
+        streakDays: true,
+        readingMinutesLifetime: true,
+        booksCompleted: true,
+        followersCount: true,
+        followingCount: true,
+        thanksReceived: true,
+        profileTheme: true,
         isPrivate: true,
         isBanned: true,
         isSuspended: true,
-        readingMinutesLifetime: true,
-        booksCompleted: true,
-        currentStreak: true,
+        dmOpen: true,
+        createdAt: true,
         currentBookId: true,
         currentPage: true,
+        isPremium: true,
+        _count: {
+          select: {
+            posts: true,
+            reflections: true,
+            collections: true,
+            books: true, // Books authored
+          },
+        },
       },
     });
 
-    // Check for username redirect
+    // If user not found, check for username redirect
     if (!user) {
-      const redirect = await prisma.usernameRedirect.findFirst({
-        where: {
-          from: username,
-          expiresAt: { gt: new Date() },
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              username: true,
-              isPrivate: true,
-              isBanned: true,
-              isSuspended: true,
-              readingMinutesLifetime: true,
-              booksCompleted: true,
-              currentStreak: true,
-              currentBookId: true,
-              currentPage: true,
-            },
-          },
-        },
+      const redirect = await prisma.usernameRedirect.findUnique({
+        where: { from: cleanUsername },
       });
 
-      if (redirect?.user) {
-        user = redirect.user;
+      if (redirect && new Date() < redirect.expiresAt) {
+        // Redirect found and still valid
+        return NextResponse.json({
+          redirect: true,
+          to: redirect.to,
+          message: "Username has been changed. Redirecting...",
+        });
       }
-    }
 
-    if (!user || user.isBanned || user.isSuspended) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const isOwner = session?.user?.id === user.id;
-    const viewerId = session?.user?.id;
-
-    // Privacy check
-    if (user.isPrivate && !isOwner) {
-      const isFollowing = viewerId
-        ? await prisma.follow.findUnique({
-            where: {
-              followerId_followingId: {
-                followerId: viewerId,
-                followingId: user.id,
-              },
-            },
-          })
-        : null;
-
-      if (!isFollowing) {
-        return NextResponse.json(
-          {
-            readingStats: {
-              booksCompleted: user.booksCompleted,
-              readingMinutesLifetime: user.readingMinutesLifetime,
-              currentStreak: user.currentStreak,
-            },
-            recentPosts: [],
-            recentReflections: [],
-            topAchievements: [],
-          },
-          { status: 200 }
-        );
-      }
+    // Check if user is banned/suspended
+    if (user.isBanned) {
+      return NextResponse.json(
+        { error: "This account has been banned" },
+        { status: 403 }
+      );
     }
 
-    // Fetch current book if exists
+    if (user.isSuspended) {
+      return NextResponse.json(
+        { error: "This account is temporarily suspended" },
+        { status: 403 }
+      );
+    }
+
+    // Check privacy settings
+    const isOwnProfile = session?.user?.id === user.id;
+    const isFollowing = session?.user?.id
+      ? await prisma.follow.findFirst({
+          where: {
+            followerId: session.user.id,
+            followingId: user.id,
+          },
+        })
+      : null;
+
+    // If private and not own profile and not following, return limited data
+    if (user.isPrivate && !isOwnProfile && !isFollowing) {
+      return NextResponse.json({
+        ...user,
+        isPrivate: true,
+        limitedProfile: true,
+        // Hide sensitive data
+        bio: null,
+        location: null,
+        website: null,
+        xHandle: null,
+        instagram: null,
+        youtube: null,
+        currentBookId: null,
+        currentPage: null,
+        _count: {
+          posts: 0,
+          reflections: 0,
+          collections: 0,
+          books: user._count.books, // Keep authored books visible
+        },
+      });
+    }
+
+    // Fetch current reading book if available
     let currentBook = null;
     if (user.currentBookId) {
       currentBook = await prisma.book.findUnique({
@@ -103,120 +145,50 @@ export async function GET(
         select: {
           id: true,
           title: true,
+          slug: true,
           coverImage: true,
           totalPages: true,
         },
       });
     }
 
-    // Fetch recent posts
-    const recentPosts = await prisma.post.findMany({
-      where: {
-        authorId: user.id,
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-        content: true,
-        createdAt: true,
-        likesCount: true,
-        commentsCount: true,
-      },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-    });
+    // Calculate reading progress percentage
+    const readingProgress =
+      currentBook?.totalPages && user.currentPage
+        ? Math.round((user.currentPage / currentBook.totalPages) * 100)
+        : null;
 
-    // Fetch recent reflections
-    const recentReflections = await prisma.reflection.findMany({
-      where: {
-        userId: user.id,
-        isPrivate: false,
-      },
-      select: {
-        id: true,
-        content: true,
-        createdAt: true,
-        book: {
-          select: {
-            id: true,
-            title: true,
-            coverImage: true,
-          },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-    });
-
-    // Fetch top achievements
-    const topAchievements = await prisma.userAchievement.findMany({
-      where: {
-        userId: user.id,
-      },
-      include: {
-        achievement: {
-          select: {
-            id: true,
-            slug: true,
-            title: true,
-            description: true,
-            tier: true,
-            iconUrl: true,
-          },
-        },
-      },
-      orderBy: [
-        {
-          achievement: {
-            tier: "desc",
-          },
-        },
-        { awardedAt: "desc" },
-      ],
-      take: 6,
-    });
-
+    // Return comprehensive profile overview
     return NextResponse.json({
-      readingStats: {
+      ...user,
+      isOwnProfile,
+      isFollowing: !!isFollowing,
+      currentBook: currentBook
+        ? {
+            ...currentBook,
+            currentPage: user.currentPage,
+            progress: readingProgress,
+          }
+        : null,
+      stats: {
+        dynastyScore: user.dynastyScore,
+        level: user.level,
+        streakDays: user.streakDays,
+        readingMinutes: user.readingMinutesLifetime,
         booksCompleted: user.booksCompleted,
-        readingMinutesLifetime: user.readingMinutesLifetime,
-        currentStreak: user.currentStreak,
-        currentBook: currentBook
-          ? {
-              id: currentBook.id,
-              title: currentBook.title,
-              coverImage: currentBook.coverImage,
-              currentPage: user.currentPage || 0,
-              totalPages: currentBook.totalPages || 0,
-            }
-          : null,
+        followers: user.followersCount,
+        following: user.followingCount,
+        thanksReceived: user.thanksReceived,
+        posts: user._count.posts,
+        reflections: user._count.reflections,
+        collections: user._count.collections,
+        booksAuthored: user._count.books,
       },
-      recentPosts: recentPosts.map((post) => ({
-        id: post.id,
-        content: post.content,
-        createdAt: post.createdAt.toISOString(),
-        likesCount: post.likesCount,
-        commentsCount: post.commentsCount,
-      })),
-      recentReflections: recentReflections.map((ref) => ({
-        id: ref.id,
-        content: ref.content,
-        createdAt: ref.createdAt.toISOString(),
-        book: ref.book,
-      })),
-      topAchievements: topAchievements.map((ua) => ({
-        id: ua.achievement.id,
-        slug: ua.achievement.slug,
-        title: ua.achievement.title,
-        description: ua.achievement.description,
-        tier: ua.achievement.tier,
-        iconUrl: ua.achievement.iconUrl,
-      })),
     });
   } catch (error) {
     console.error("Error fetching profile overview:", error);
     return NextResponse.json(
-      { error: "Failed to fetch overview" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

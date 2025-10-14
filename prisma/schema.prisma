@@ -1164,3 +1164,106 @@ model UserDailyStats {
   @@index([userId, date])
   @@map("user_daily_stats")
 }
+
+// DOPAMINE SYSTEM MODELS - Sprint C
+
+model ProfileVisit {
+  id          String   @id @default(cuid())
+  profileId   String   // User being visited
+  visitorId   String?  // Visitor (null for anonymous)
+  isUnique    Boolean  @default(true) // First visit today
+  userAgent   String?
+  ipHash      String?  // Hashed IP for rate limiting
+  createdAt   DateTime @default(now())
+
+  @@index([profileId, createdAt])
+  @@index([visitorId])
+  @@index([ipHash, profileId, createdAt])
+  @@map("profile_visits")
+}
+
+model DailyChallenge {
+  id          String   @id @default(cuid())
+  key         String   @unique // "morning_reader", "speed_reader", etc.
+  name        String
+  description String
+  type        String   // "reading_time", "chapters", "streak"
+  target      Int      // Target value to complete
+  difficulty  String   // "easy", "medium", "hard", "insane"
+  xpReward    Int
+  coinReward  Int      @default(0)
+  icon        String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  progress    UserChallengeProgress[]
+
+  @@index([isActive])
+  @@map("daily_challenges")
+}
+
+model UserChallengeProgress {
+  id          String         @id @default(cuid())
+  userId      String
+  challengeId String
+  date        DateTime       @db.Date // Reset daily
+  progress    Int            @default(0)
+  target      Int
+  completed   Boolean        @default(false)
+  claimedAt   DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  challenge   DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, challengeId, date])
+  @@index([userId, date])
+  @@index([challengeId])
+  @@map("user_challenge_progress")
+}
+
+model PowerUp {
+  id          String   @id @default(cuid())
+  key         String   @unique // "xp_boost_2x", "xp_boost_5x", "streak_saver"
+  name        String
+  description String
+  type        String   // "xp_multiplier", "streak_protection"
+  multiplier  Float?   // 2.0, 5.0, etc.
+  duration    Int      // Duration in hours
+  coinCost    Int
+  rarity      String   // "common", "rare", "legendary"
+  icon        String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userPowerUps UserPowerUp[]
+
+  @@index([isActive])
+  @@map("power_ups")
+}
+
+model UserPowerUp {
+  id          String    @id @default(cuid())
+  userId      String
+  powerUpId   String
+  activatedAt DateTime  @default(now())
+  expiresAt   DateTime
+  isActive    Boolean   @default(true)
+  powerUp     PowerUp   @relation(fields: [powerUpId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@index([expiresAt])
+  @@map("user_power_ups")
+}
+
+model UserCoins {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  balance   Int      @default(0)
+  earned    Int      @default(0)
+  spent     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("user_coins")
+}

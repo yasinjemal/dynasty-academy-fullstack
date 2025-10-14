@@ -3,7 +3,16 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Minus, Trophy, Target, BookOpen, Clock, Users } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Trophy,
+  Target,
+  BookOpen,
+  Clock,
+  Users,
+} from "lucide-react";
 
 interface ComparisonStat {
   label: string;
