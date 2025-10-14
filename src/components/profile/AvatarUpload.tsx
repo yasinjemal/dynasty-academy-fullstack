@@ -1,95 +1,103 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
-import { useDropzone } from 'react-dropzone'
-import Cropper from 'react-easy-crop'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Upload, X, Check, Loader2, Camera, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
+import { useState, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import Cropper from "react-easy-crop";
+import { motion, AnimatePresence } from "framer-motion";
+import { Upload, X, Check, Loader2, Camera, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface AvatarUploadProps {
-  currentAvatar?: string | null
-  onSuccess: (avatarUrl: string) => void
+  currentAvatar?: string | null;
+  onSuccess: (avatarUrl: string) => void;
 }
 
 interface CropArea {
-  x: number
-  y: number
-  width: number
-  height: number
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
-export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string | null>(null)
-  const [crop, setCrop] = useState({ x: 0, y: 0 })
-  const [zoom, setZoom] = useState(1)
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(null)
-  const [uploading, setUploading] = useState(false)
-  const [step, setStep] = useState<'select' | 'crop'>('select')
+export default function AvatarUpload({
+  currentAvatar,
+  onSuccess,
+}: AvatarUploadProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CropArea | null>(
+    null
+  );
+  const [uploading, setUploading] = useState(false);
+  const [step, setStep] = useState<"select" | "crop">("select");
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0]
-    if (!file) return
+    const file = acceptedFiles[0];
+    if (!file) return;
 
     // Validate file size (2MB limit)
     if (file.size > 2 * 1024 * 1024) {
-      toast.error('File too large', {
-        description: 'Please select an image under 2MB'
-      })
-      return
+      toast.error("File too large", {
+        description: "Please select an image under 2MB",
+      });
+      return;
     }
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Invalid file type', {
-        description: 'Please select an image file'
-      })
-      return
+    if (!file.type.startsWith("image/")) {
+      toast.error("Invalid file type", {
+        description: "Please select an image file",
+      });
+      return;
     }
 
-    setSelectedFile(file)
-    const reader = new FileReader()
+    setSelectedFile(file);
+    const reader = new FileReader();
     reader.onloadend = () => {
-      setPreview(reader.result as string)
-      setStep('crop')
-    }
-    reader.readAsDataURL(file)
-  }, [])
+      setPreview(reader.result as string);
+      setStep("crop");
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg', '.webp']
+      "image/*": [".png", ".jpg", ".jpeg", ".webp"],
     },
     maxFiles: 1,
-    multiple: false
-  })
+    multiple: false,
+  });
 
-  const onCropComplete = useCallback((croppedArea: any, croppedAreaPixels: CropArea) => {
-    setCroppedAreaPixels(croppedAreaPixels)
-  }, [])
+  const onCropComplete = useCallback(
+    (croppedArea: any, croppedAreaPixels: CropArea) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    []
+  );
 
   const getCroppedImage = async (): Promise<Blob> => {
     if (!preview || !croppedAreaPixels) {
-      throw new Error('No image to crop')
+      throw new Error("No image to crop");
     }
 
-    const image = new Image()
-    image.src = preview
+    const image = new Image();
+    image.src = preview;
     await new Promise((resolve) => {
-      image.onload = resolve
-    })
+      image.onload = resolve;
+    });
 
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    if (!ctx) throw new Error('Failed to get canvas context')
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Failed to get canvas context");
 
     // Set canvas size to the cropped area
-    canvas.width = croppedAreaPixels.width
-    canvas.height = croppedAreaPixels.height
+    canvas.width = croppedAreaPixels.width;
+    canvas.height = croppedAreaPixels.height;
 
     // Draw the cropped image
     ctx.drawImage(
@@ -102,66 +110,70 @@ export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadP
       0,
       croppedAreaPixels.width,
       croppedAreaPixels.height
-    )
+    );
 
     return new Promise((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (blob) resolve(blob)
-        else reject(new Error('Failed to create blob'))
-      }, 'image/jpeg', 0.95)
-    })
-  }
+      canvas.toBlob(
+        (blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("Failed to create blob"));
+        },
+        "image/jpeg",
+        0.95
+      );
+    });
+  };
 
   const handleUpload = async () => {
-    if (!selectedFile || !croppedAreaPixels) return
+    if (!selectedFile || !croppedAreaPixels) return;
 
-    setUploading(true)
+    setUploading(true);
 
     try {
       // Get cropped image
-      const croppedBlob = await getCroppedImage()
-      
+      const croppedBlob = await getCroppedImage();
+
       // Create FormData
-      const formData = new FormData()
-      formData.append('avatar', croppedBlob, selectedFile.name)
+      const formData = new FormData();
+      formData.append("avatar", croppedBlob, selectedFile.name);
 
       // Upload to API
-      const response = await fetch('/api/users/avatar', {
-        method: 'POST',
-        body: formData
-      })
+      const response = await fetch("/api/users/avatar", {
+        method: "POST",
+        body: formData,
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Upload failed')
+        throw new Error(data.error || "Upload failed");
       }
 
-      toast.success('Avatar updated!', {
-        description: 'Your profile picture has been updated successfully'
-      })
+      toast.success("Avatar updated!", {
+        description: "Your profile picture has been updated successfully",
+      });
 
-      onSuccess(data.avatarUrl)
-      handleClose()
+      onSuccess(data.avatarUrl);
+      handleClose();
     } catch (error: any) {
-      console.error('Upload error:', error)
-      toast.error('Upload failed', {
-        description: error.message || 'Failed to upload avatar'
-      })
+      console.error("Upload error:", error);
+      toast.error("Upload failed", {
+        description: error.message || "Failed to upload avatar",
+      });
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
-  }
+  };
 
   const handleClose = () => {
-    setIsOpen(false)
-    setSelectedFile(null)
-    setPreview(null)
-    setCrop({ x: 0, y: 0 })
-    setZoom(1)
-    setCroppedAreaPixels(null)
-    setStep('select')
-  }
+    setIsOpen(false);
+    setSelectedFile(null);
+    setPreview(null);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCroppedAreaPixels(null);
+    setStep("select");
+  };
 
   return (
     <>
@@ -180,6 +192,7 @@ export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadP
             )}
           </div>
           <button
+            type="button"
             onClick={() => setIsOpen(true)}
             className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
           >
@@ -188,10 +201,11 @@ export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadP
         </div>
         <div>
           <button
+            type="button"
             onClick={() => setIsOpen(true)}
             className="px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
           >
-            {currentAvatar ? 'Change' : 'Upload'} Avatar
+            {currentAvatar ? "Change" : "Upload"} Avatar
           </button>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             JPG, PNG or WEBP. Max 2MB.
@@ -226,7 +240,9 @@ export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadP
                     <div>
                       <h2 className="text-xl font-bold">Upload Avatar</h2>
                       <p className="text-purple-100 text-sm">
-                        {step === 'select' ? 'Select an image to upload' : 'Crop your image'}
+                        {step === "select"
+                          ? "Select an image to upload"
+                          : "Crop your image"}
                       </p>
                     </div>
                   </div>
@@ -242,7 +258,7 @@ export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadP
 
               {/* Content */}
               <div className="p-6">
-                {step === 'select' && (
+                {step === "select" && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -251,8 +267,8 @@ export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadP
                       {...getRootProps()}
                       className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all ${
                         isDragActive
-                          ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/10'
-                          : 'border-gray-300 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500'
+                          ? "border-purple-500 bg-purple-50 dark:bg-purple-900/10"
+                          : "border-gray-300 dark:border-gray-600 hover:border-purple-400 dark:hover:border-purple-500"
                       }`}
                     >
                       <input {...getInputProps()} />
@@ -263,8 +279,8 @@ export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadP
                         <div>
                           <p className="text-lg font-semibold text-gray-900 dark:text-white">
                             {isDragActive
-                              ? 'Drop your image here'
-                              : 'Drag & drop your image here'}
+                              ? "Drop your image here"
+                              : "Drag & drop your image here"}
                           </p>
                           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                             or click to browse files
@@ -272,14 +288,16 @@ export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadP
                         </div>
                         <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                           <AlertCircle className="w-4 h-4" />
-                          <span>Max file size: 2MB • Supported: JPG, PNG, WEBP</span>
+                          <span>
+                            Max file size: 2MB • Supported: JPG, PNG, WEBP
+                          </span>
                         </div>
                       </div>
                     </div>
                   </motion.div>
                 )}
 
-                {step === 'crop' && preview && (
+                {step === "crop" && preview && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -319,7 +337,8 @@ export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadP
                       {/* Tips */}
                       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                         <p className="text-sm text-blue-800 dark:text-blue-300">
-                          💡 <strong>Tip:</strong> Drag to reposition, use the slider to zoom in/out
+                          💡 <strong>Tip:</strong> Drag to reposition, use the
+                          slider to zoom in/out
                         </p>
                       </div>
                     </div>
@@ -329,21 +348,21 @@ export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadP
 
               {/* Footer */}
               <div className="border-t border-gray-200 dark:border-gray-700 p-6 flex items-center justify-between bg-gray-50 dark:bg-gray-900/50">
-                {step === 'crop' && (
+                {step === "crop" && (
                   <Button
                     variant="ghost"
                     onClick={() => {
-                      setStep('select')
-                      setPreview(null)
-                      setSelectedFile(null)
+                      setStep("select");
+                      setPreview(null);
+                      setSelectedFile(null);
                     }}
                     disabled={uploading}
                   >
                     ← Back
                   </Button>
                 )}
-                <div className={step === 'select' ? 'w-full' : 'ml-auto'}>
-                  {step === 'crop' && (
+                <div className={step === "select" ? "w-full" : "ml-auto"}>
+                  {step === "crop" && (
                     <Button
                       onClick={handleUpload}
                       disabled={uploading || !croppedAreaPixels}
@@ -369,5 +388,5 @@ export default function AvatarUpload({ currentAvatar, onSuccess }: AvatarUploadP
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }

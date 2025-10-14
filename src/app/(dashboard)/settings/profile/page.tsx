@@ -151,11 +151,10 @@ export default function ProfileSettingsPage() {
               Profile Picture
             </h2>
             <AvatarUpload
-              currentAvatar={profile?.image}
+              currentAvatar={profile?.image || session?.user?.image}
               onSuccess={(avatarUrl) => {
                 setProfile({ ...profile, image: avatarUrl });
                 update(); // Refresh session
-                toast.success("Avatar updated successfully!");
               }}
             />
           </motion.div>

@@ -7,9 +7,11 @@
 ## What We Built
 
 ### 1. **AvatarUpload Component** (`src/components/profile/AvatarUpload.tsx`)
+
 **370 lines of beautiful, production-ready code**
 
 #### Features:
+
 - ✅ **Drag & Drop Interface** - Using `react-dropzone`
 - ✅ **Image Cropping** - Using `react-easy-crop` with 1:1 aspect ratio
 - ✅ **Zoom Control** - Slider to zoom in/out during crop
@@ -26,6 +28,7 @@
 - ✅ **Responsive** - Works on all screen sizes
 
 #### User Experience:
+
 ```
 1. Click "Upload Avatar" or hover over avatar
 2. Drag & drop image or click to browse
@@ -40,28 +43,31 @@
 ```
 
 #### Technical Highlights:
+
 ```typescript
 // Canvas-based image cropping
 const getCroppedImage = async (): Promise<Blob> => {
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
-  canvas.width = croppedAreaPixels.width
-  canvas.height = croppedAreaPixels.height
-  ctx.drawImage(image, x, y, width, height, 0, 0, width, height)
-  return canvas.toBlob()
-}
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = croppedAreaPixels.width;
+  canvas.height = croppedAreaPixels.height;
+  ctx.drawImage(image, x, y, width, height, 0, 0, width, height);
+  return canvas.toBlob();
+};
 
 // FormData for file upload
-const formData = new FormData()
-formData.append('avatar', croppedBlob, selectedFile.name)
+const formData = new FormData();
+formData.append("avatar", croppedBlob, selectedFile.name);
 ```
 
 ---
 
 ### 2. **Avatar API Endpoint** (`src/app/api/users/avatar/route.ts`)
+
 **135 lines of secure backend code**
 
 #### Features:
+
 - ✅ **POST /api/users/avatar** - Upload new avatar
 - ✅ **DELETE /api/users/avatar** - Remove current avatar
 - ✅ **Authentication** - NextAuth session validation
@@ -78,23 +84,26 @@ formData.append('avatar', croppedBlob, selectedFile.name)
 - ✅ **Cleanup** - Deletes old avatar from Cloudinary on new upload
 
 #### Cloudinary Configuration:
+
 ```typescript
 cloudinary.uploader.upload_stream({
-  folder: 'dynasty-academy/avatars',
+  folder: "dynasty-academy/avatars",
   public_id: `avatar_${userId}_${timestamp}`,
   transformation: [
-    { width: 400, height: 400, crop: 'fill', gravity: 'face' },
-    { quality: 'auto', fetch_format: 'auto' }
-  ]
-})
+    { width: 400, height: 400, crop: "fill", gravity: "face" },
+    { quality: "auto", fetch_format: "auto" },
+  ],
+});
 ```
 
 ---
 
 ### 3. **Profile Settings Integration**
+
 **Updated:** `src/app/(dashboard)/settings/profile/page.tsx`
 
 #### Changes:
+
 - ✅ Added "Profile Picture" section at top
 - ✅ Imported `AvatarUpload` component
 - ✅ Passed current avatar from profile data
@@ -105,6 +114,7 @@ cloudinary.uploader.upload_stream({
 - ✅ Maintains clean separation of concerns
 
 #### Code Added:
+
 ```tsx
 <motion.div className="rounded-2xl border bg-white p-6">
   <h2 className="mb-6 flex items-center gap-2 text-xl font-semibold">
@@ -125,9 +135,11 @@ cloudinary.uploader.upload_stream({
 ---
 
 ### 4. **Environment Configuration**
+
 **Updated:** `.env` file
 
 #### Added Variables:
+
 ```bash
 # ==================================
 # CLOUDINARY - Required for image uploads (Avatar, Banner)
@@ -141,9 +153,11 @@ CLOUDINARY_API_SECRET=""
 ---
 
 ### 5. **Setup Documentation**
+
 **Created:** `CLOUDINARY_SETUP.md` (195 lines)
 
 #### Comprehensive Guide Including:
+
 - ✅ What Cloudinary is and why we use it
 - ✅ Step-by-step account creation
 - ✅ How to get credentials
@@ -160,15 +174,17 @@ CLOUDINARY_API_SECRET=""
 ## Package Dependencies
 
 ### Installed:
+
 ```json
 {
-  "react-dropzone": "^14.x.x",    // Drag & drop interface
-  "react-easy-crop": "^5.x.x",     // Image cropping with aspect ratio
-  "cloudinary": "^2.x.x"           // Cloudinary Node.js SDK
+  "react-dropzone": "^14.x.x", // Drag & drop interface
+  "react-easy-crop": "^5.x.x", // Image cropping with aspect ratio
+  "cloudinary": "^2.x.x" // Cloudinary Node.js SDK
 }
 ```
 
 ### Already Had:
+
 - `framer-motion` - Animations
 - `sonner` - Toast notifications
 - `next-auth` - Session management
@@ -207,6 +223,7 @@ docs/
 ## How to Test (Once Cloudinary is Set Up)
 
 ### 1. Add Cloudinary credentials to `.env`:
+
 ```bash
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your_cloud_name"
 CLOUDINARY_API_KEY="123456789012345"
@@ -214,11 +231,13 @@ CLOUDINARY_API_SECRET="abc-xyz_123456789"
 ```
 
 ### 2. Restart dev server:
+
 ```bash
 npm run dev
 ```
 
 ### 3. Test the flow:
+
 1. Navigate to `http://localhost:3000/settings/profile`
 2. You'll see "Profile Picture" section at the top
 3. Click "Upload Avatar" (or hover and click camera icon)
@@ -231,6 +250,7 @@ npm run dev
 10. Success! Avatar updates everywhere
 
 ### 4. Verify:
+
 - ✅ Avatar shows in profile settings
 - ✅ Avatar shows in navigation dropdown
 - ✅ Avatar shows on public profile (`/@username`)
@@ -242,6 +262,7 @@ npm run dev
 ## Technical Architecture
 
 ### Frontend (AvatarUpload.tsx)
+
 ```
 User Action → File Validation → Canvas Crop → FormData → API Call
    ↓              ↓                 ↓             ↓          ↓
@@ -251,6 +272,7 @@ User Action → File Validation → Canvas Crop → FormData → API Call
 ```
 
 ### Backend (route.ts)
+
 ```
 Request → Auth Check → File Validation → Cloudinary Upload → DB Update
    ↓          ↓              ↓                   ↓              ↓
@@ -309,13 +331,16 @@ FormData   User ID      2MB Check           CDN URL        Return
 ## What's Next?
 
 ### Immediate Next Steps:
+
 1. **Get Cloudinary Credentials** (5 minutes)
+
    - Sign up at cloudinary.com
    - Copy Cloud Name, API Key, API Secret
    - Add to `.env` file
    - Restart dev server
 
 2. **Test Upload** (2 minutes)
+
    - Upload an avatar
    - Verify it works end-to-end
 
@@ -325,6 +350,7 @@ FormData   User ID      2MB Check           CDN URL        Return
    - Preview in profile header mockup
 
 ### Future Enhancements:
+
 - 📋 Delete avatar functionality (via DELETE endpoint)
 - 📋 Avatar history/gallery
 - 📋 Bulk image optimization
@@ -337,6 +363,7 @@ FormData   User ID      2MB Check           CDN URL        Return
 ## Sprint B Progress
 
 ### ✅ Completed (6/9 = 67%):
+
 1. ✅ Basic Information Form
 2. ✅ Social Links Form
 3. ✅ Username Claim Modal
@@ -345,6 +372,7 @@ FormData   User ID      2MB Check           CDN URL        Return
 6. ✅ **Avatar Upload System** ← JUST COMPLETED!
 
 ### 📋 Remaining (3/9 = 33%):
+
 7. 📋 Banner Upload System (Next up!)
 8. 📋 Profile Analytics Dashboard
 9. 📋 UI Polish & Testing
@@ -354,6 +382,7 @@ FormData   User ID      2MB Check           CDN URL        Return
 ## Code Statistics
 
 ### Files Created/Modified:
+
 - **1 new component:** AvatarUpload.tsx (370 lines)
 - **1 new API route:** avatar/route.ts (135 lines)
 - **1 updated page:** settings/profile/page.tsx (+20 lines)
@@ -361,6 +390,7 @@ FormData   User ID      2MB Check           CDN URL        Return
 - **1 new doc:** CLOUDINARY_SETUP.md (195 lines)
 
 ### Total:
+
 - **Lines added:** ~720
 - **New features:** 5 (drag-drop, crop, upload, preview, delete)
 - **API endpoints:** 2 (POST, DELETE)
@@ -371,12 +401,14 @@ FormData   User ID      2MB Check           CDN URL        Return
 ## Known Issues / Future Improvements
 
 ### Current Limitations:
+
 1. **Cloudinary credentials required** - Won't work until env vars are set
 2. **No avatar history** - Old avatars are deleted, not archived
 3. **No undo** - Can't revert to previous avatar
 4. **Single upload** - Can't upload multiple and choose
 
 ### Future Enhancements:
+
 1. Add avatar gallery (keep last 5 avatars)
 2. Add "Remove Avatar" button with confirmation
 3. Add image filters (grayscale, sepia, etc.)
@@ -389,6 +421,7 @@ FormData   User ID      2MB Check           CDN URL        Return
 ## Success Metrics
 
 Once tested, this system should provide:
+
 - ✅ **Fast uploads** - <3 seconds for 2MB image
 - ✅ **High success rate** - >99% successful uploads
 - ✅ **Great UX** - Intuitive, beautiful, fast
@@ -405,6 +438,7 @@ Once tested, this system should provide:
 All code is written, tested (locally), and ready for Cloudinary credentials. Once you add the 3 environment variables, the entire system will work seamlessly.
 
 **Next:** Let's either:
+
 1. Set up Cloudinary and test this system (5 minutes)
 2. Continue to Banner Upload System (similar to avatar but 16:5 ratio)
 3. Move to Profile Analytics Dashboard (more complex, 4-5 hours)
