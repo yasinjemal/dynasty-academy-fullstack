@@ -32,6 +32,9 @@ interface Reaction {
   page: number;
   textIndex: number;
   timestamp: number;
+  action?: "added" | "removed"; // From socket events
+  count?: number; // Total count from DB
+  userIds?: string[]; // All users who reacted
 }
 
 interface PagePresence {
@@ -125,6 +128,30 @@ export function useLiveCoReading(
     [bookId, currentPage]
   );
 
+  // Load reactions from API (aggregate counts from DB)
+  const loadReactions = useCallback(async () => {
+    if (!bookId || !currentPage) return;
+
+    try {
+      const params = new URLSearchParams({
+        bookId,
+        page: currentPage.toString(),
+      });
+
+      const response = await fetch(`/api/co-reading/reactions?${params}`);
+      if (!response.ok) throw new Error("Failed to load reactions");
+
+      const data = await response.json();
+
+      // Convert DB reactions to display format (no animation, just counts)
+      // These will be shown as persistent reaction counts, not flying emojis
+      console.log("📊 Loaded reactions for page:", data.reactions);
+    } catch (error) {
+      console.error("Error loading reactions:", error);
+      // Don't show error toast - reactions are non-critical
+    }
+  }, [bookId, currentPage]);
+
   // Initialize socket connection
   useEffect(() => {
     if (!session?.user || !bookSlug) return;
@@ -161,6 +188,9 @@ export function useLiveCoReading(
         userName: session.user.name || "Anonymous",
         userAvatar: session.user.image,
       });
+
+      // Load historical reactions for this page
+      loadReactions();
     });
 
     socketInstance.on("disconnect", () => {
@@ -286,8 +316,9 @@ export function useLiveCoReading(
       setNextCursor(null);
       setHasMoreMessages(false);
 
-      // Load messages from API for this page
+      // Load messages and reactions from API for this page
       loadMessages();
+      loadReactions();
     }
   }, [
     currentPage,
@@ -297,6 +328,7 @@ export function useLiveCoReading(
     bookSlug,
     bookId,
     loadMessages,
+    loadReactions,
   ]);
 
   // Send message
@@ -329,6 +361,7 @@ export function useLiveCoReading(
     (emoji: string, textIndex: number) => {
       if (socket && session?.user) {
         socket.emit("send-reaction", {
+          bookId: bookId || bookSlug,
           bookSlug,
           page: currentPage,
           textIndex,
@@ -338,7 +371,7 @@ export function useLiveCoReading(
         });
       }
     },
-    [socket, session?.user, bookSlug, currentPage]
+    [socket, session?.user, bookSlug, bookId, currentPage]
   );
 
   // Typing indicator

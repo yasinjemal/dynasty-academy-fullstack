@@ -82,11 +82,18 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
           userAvatar?: string;
           initialPage?: number;
         }) => {
-          const { bookId, bookSlug, userId, userName, userAvatar, initialPage } = data;
+          const {
+            bookId,
+            bookSlug,
+            userId,
+            userName,
+            userAvatar,
+            initialPage,
+          } = data;
 
           // Join book-level room (for global book events)
           socket.join(`book:${bookSlug}`);
-          
+
           // Join initial page room if provided
           if (initialPage) {
             const pageRoom = `book:${bookSlug}:page:${initialPage}`;
@@ -94,7 +101,7 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
             socket.data.currentPageRoom = pageRoom;
             console.log(`📄 ${userName} joined ${pageRoom}`);
           }
-          
+
           socket.data.bookSlug = bookSlug;
           socket.data.userId = userId;
 
@@ -127,7 +134,10 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
           const newPageRoom = `book:${bookSlug}:page:${page}`;
 
           // Leave old page room
-          if (socket.data.currentPageRoom && socket.data.currentPageRoom !== newPageRoom) {
+          if (
+            socket.data.currentPageRoom &&
+            socket.data.currentPageRoom !== newPageRoom
+          ) {
             socket.leave(socket.data.currentPageRoom);
             console.log(`👋 ${userName} left ${socket.data.currentPageRoom}`);
           }
@@ -305,10 +315,11 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
         }
       );
 
-      // Send reaction
+      // Send reaction (with database persistence)
       socket.on(
         "send-reaction",
-        (data: {
+        async (data: {
+          bookId: string;
           bookSlug: string;
           page: number;
           textIndex: number;
@@ -316,23 +327,113 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
           userId: string;
           userName: string;
         }) => {
-          const { bookSlug, page, textIndex, emoji, userId, userName } = data;
+          const { bookId, bookSlug, page, textIndex, emoji, userId, userName } =
+            data;
 
-          const reaction = {
-            id: `${Date.now()}-${Math.random()}`,
-            userId,
-            userName,
-            emoji,
-            page,
-            textIndex,
-            timestamp: Date.now(),
-          };
+          try {
+            // Save to database (toggle reaction)
+            const existingReaction = await prisma.pageReaction.findUnique({
+              where: {
+                bookId_page_emote: {
+                  bookId,
+                  page,
+                  emote: emoji,
+                },
+              },
+            });
 
-          // Broadcast to everyone on this specific page
-          const pageRoom = `book:${bookSlug}:page:${page}`;
-          io.to(pageRoom).emit("new-reaction", reaction);
+            let action: "added" | "removed" = "added";
+            let count = 1;
+            let userIds: string[] = [userId];
 
-          console.log(`⚡ ${userName} reacted ${emoji} on ${pageRoom}`);
+            if (existingReaction) {
+              const userAlreadyReacted =
+                existingReaction.userIds.includes(userId);
+
+              if (userAlreadyReacted) {
+                // REMOVE reaction
+                const updatedUserIds = existingReaction.userIds.filter(
+                  (id) => id !== userId
+                );
+
+                if (updatedUserIds.length === 0) {
+                  // Delete reaction if no users left
+                  await prisma.pageReaction.delete({
+                    where: { id: existingReaction.id },
+                  });
+                  action = "removed";
+                  count = 0;
+                  userIds = [];
+                } else {
+                  // Update count
+                  const updated = await prisma.pageReaction.update({
+                    where: { id: existingReaction.id },
+                    data: {
+                      count: updatedUserIds.length,
+                      userIds: updatedUserIds,
+                    },
+                  });
+                  action = "removed";
+                  count = updated.count;
+                  userIds = updated.userIds;
+                }
+              } else {
+                // ADD user to reaction
+                const updatedUserIds = [...existingReaction.userIds, userId];
+                const updated = await prisma.pageReaction.update({
+                  where: { id: existingReaction.id },
+                  data: {
+                    count: updatedUserIds.length,
+                    userIds: updatedUserIds,
+                  },
+                });
+                action = "added";
+                count = updated.count;
+                userIds = updated.userIds;
+              }
+            } else {
+              // CREATE new reaction
+              await prisma.pageReaction.create({
+                data: {
+                  bookId,
+                  bookSlug,
+                  page,
+                  emote: emoji,
+                  count: 1,
+                  userIds: [userId],
+                },
+              });
+              action = "added";
+              count = 1;
+              userIds = [userId];
+            }
+
+            const reaction = {
+              id: `${Date.now()}-${Math.random()}`,
+              userId,
+              userName,
+              emoji,
+              page,
+              textIndex,
+              timestamp: Date.now(),
+              action, // added or removed
+              count, // total count
+              userIds, // all users who reacted
+            };
+
+            // Broadcast to everyone on this specific page
+            const pageRoom = `book:${bookSlug}:page:${page}`;
+            io.to(pageRoom).emit("new-reaction", reaction);
+
+            console.log(
+              `⚡ ${userName} ${action} ${emoji} on ${pageRoom} (count: ${count}) - SAVED TO DB`
+            );
+          } catch (error) {
+            console.error("Error saving reaction:", error);
+            socket.emit("reaction-error", {
+              message: "Failed to send reaction. Please try again.",
+            });
+          }
         }
       );
 
@@ -341,9 +442,7 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
         "typing-start",
         (data: { bookSlug: string; page: number; userName: string }) => {
           const pageRoom = `book:${data.bookSlug}:page:${data.page}`;
-          socket
-            .to(pageRoom)
-            .emit("user-typing", { userName: data.userName });
+          socket.to(pageRoom).emit("user-typing", { userName: data.userName });
         }
       );
 
