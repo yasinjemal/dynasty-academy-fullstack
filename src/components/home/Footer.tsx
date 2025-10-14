@@ -1,42 +1,68 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { BookOpen, Github, Twitter, Instagram, Linkedin, Mail, Heart, Crown, Zap } from 'lucide-react'
-import Link from 'next/link'
+import { motion } from "framer-motion";
+import {
+  BookOpen,
+  Github,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Mail,
+  Heart,
+  Crown,
+  Zap,
+} from "lucide-react";
+import Link from "next/link";
 
 const footerLinks = {
   product: [
-    { name: 'Features', href: '#features' },
-    { name: 'Pricing', href: '#pricing' },
-    { name: 'Premium', href: '/premium' },
-    { name: 'Library', href: '/books' },
+    { name: "Features", href: "#features" },
+    { name: "Pricing", href: "#pricing" },
+    { name: "Premium", href: "/premium" },
+    { name: "Library", href: "/books" },
   ],
   company: [
-    { name: 'About', href: '/about' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Careers', href: '/careers' },
-    { name: 'Press Kit', href: '/press' },
+    { name: "About", href: "/about" },
+    { name: "Blog", href: "/blog" },
+    { name: "Careers", href: "/careers" },
+    { name: "Press Kit", href: "/press" },
   ],
   resources: [
-    { name: 'Community', href: '/community' },
-    { name: 'Help Center', href: '/help' },
-    { name: 'API Docs', href: '/docs' },
-    { name: 'Status', href: '/status' },
+    { name: "Community", href: "/community" },
+    { name: "Help Center", href: "/help" },
+    { name: "API Docs", href: "/docs" },
+    { name: "Status", href: "/status" },
   ],
   legal: [
-    { name: 'Privacy', href: '/privacy' },
-    { name: 'Terms', href: '/terms' },
-    { name: 'Cookies', href: '/cookies' },
-    { name: 'Licenses', href: '/licenses' },
-  ]
-}
+    { name: "Privacy", href: "/privacy" },
+    { name: "Terms", href: "/terms" },
+    { name: "Cookies", href: "/cookies" },
+    { name: "Licenses", href: "/licenses" },
+  ],
+};
 
 const socialLinks = [
-  { icon: Twitter, href: 'https://twitter.com/dynastyacademy', color: 'from-blue-400 to-cyan-400' },
-  { icon: Instagram, href: 'https://instagram.com/dynastyacademy', color: 'from-pink-400 to-purple-400' },
-  { icon: Linkedin, href: 'https://linkedin.com/company/dynastyacademy', color: 'from-blue-500 to-blue-600' },
-  { icon: Github, href: 'https://github.com/dynastyacademy', color: 'from-gray-400 to-gray-500' },
-]
+  {
+    icon: Twitter,
+    href: "https://twitter.com/dynastyacademy",
+    color: "from-blue-400 to-cyan-400",
+  },
+  {
+    icon: Instagram,
+    href: "https://instagram.com/dynastyacademy",
+    color: "from-pink-400 to-purple-400",
+  },
+  {
+    icon: Linkedin,
+    href: "https://linkedin.com/company/dynastyacademy",
+    color: "from-blue-500 to-blue-600",
+  },
+  {
+    icon: Github,
+    href: "https://github.com/dynastyacademy",
+    color: "from-gray-400 to-gray-500",
+  },
+];
 
 export default function Footer() {
   return (
@@ -61,11 +87,17 @@ export default function Footer() {
             transition={{
               duration: 8,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           />
           <defs>
-            <linearGradient id="footerWaveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient
+              id="footerWaveGradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
               <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.3" />
               <stop offset="50%" stopColor="#ec4899" stopOpacity="0.3" />
               <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
@@ -73,18 +105,20 @@ export default function Footer() {
           </defs>
         </svg>
       </div>
-      
+
       {/* Background Glow */}
       <div className="absolute inset-0 bg-gradient-to-t from-purple-900/10 via-transparent to-transparent pointer-events-none" />
-      
+
       {/* Floating Orbs */}
       {[...Array(3)].map((_, i) => (
         <motion.div
           key={i}
           className={`absolute w-96 h-96 rounded-full blur-3xl ${
-            i === 0 ? 'bg-purple-500/5' :
-            i === 1 ? 'bg-blue-500/5' :
-            'bg-pink-500/5'
+            i === 0
+              ? "bg-purple-500/5"
+              : i === 1
+              ? "bg-blue-500/5"
+              : "bg-pink-500/5"
           }`}
           style={{
             left: `${i * 40}%`,
@@ -97,11 +131,11 @@ export default function Footer() {
           transition={{
             duration: 15 + i * 3,
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
         />
       ))}
-      
+
       <div className="max-w-7xl mx-auto px-4 py-16 relative z-10">
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-12 mb-16">
@@ -119,15 +153,16 @@ export default function Footer() {
                 Dynasty Academy
               </span>
             </Link>
-            
+
             <p className="text-white/60 text-sm leading-relaxed mb-6">
-              Build your reading dynasty. Transform your life one book at a time with our premium reading platform.
+              Build your reading dynasty. Transform your life one book at a time
+              with our premium reading platform.
             </p>
-            
+
             {/* Social Links */}
             <div className="flex gap-3">
               {socialLinks.map((social, i) => {
-                const Icon = social.icon
+                const Icon = social.icon;
                 return (
                   <motion.a
                     key={i}
@@ -141,11 +176,11 @@ export default function Footer() {
                       <Icon className="w-4 h-4 text-white" />
                     </div>
                   </motion.a>
-                )
+                );
               })}
             </div>
           </div>
-          
+
           {/* Product Links */}
           <div>
             <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
@@ -165,7 +200,7 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          
+
           {/* Company Links */}
           <div>
             <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
@@ -185,7 +220,7 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          
+
           {/* Resources Links */}
           <div>
             <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
@@ -205,7 +240,7 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          
+
           {/* Legal Links */}
           <div>
             <h3 className="text-white font-semibold mb-4">Legal</h3>
@@ -223,7 +258,7 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        
+
         {/* Newsletter Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -236,15 +271,15 @@ export default function Footer() {
               <Mail className="w-4 h-4" />
               Stay Updated
             </div>
-            
+
             <h3 className="text-2xl font-bold text-white mb-3">
               Get weekly book recommendations
             </h3>
-            
+
             <p className="text-white/60 mb-6">
               Join 10,000+ readers receiving curated book picks every Monday
             </p>
-            
+
             <div className="flex gap-3 max-w-md mx-auto">
               <input
                 type="email"
@@ -261,15 +296,15 @@ export default function Footer() {
             </div>
           </div>
         </motion.div>
-        
+
         {/* Bottom Bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-white/40 text-sm flex items-center gap-2">
-            © 2024 Dynasty Academy. Made with 
+            © 2024 Dynasty Academy. Made with
             <Heart className="w-4 h-4 text-pink-500 fill-pink-500 animate-pulse" />
             for readers worldwide.
           </p>
-          
+
           <div className="flex items-center gap-6 text-white/40 text-sm">
             <motion.div
               className="flex items-center gap-2"
@@ -279,7 +314,7 @@ export default function Footer() {
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: "easeInOut"
+                ease: "easeInOut",
               }}
             >
               <div className="w-2 h-2 rounded-full bg-green-500" />
@@ -289,5 +324,5 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
