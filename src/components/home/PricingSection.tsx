@@ -84,18 +84,18 @@ function PricingCard({
   const Icon = plan.icon;
   const router = useRouter();
   const { data: session } = useSession();
-  
+
   const handlePlanClick = () => {
     if (plan.name === "Free") {
       if (session) {
-        router.push('/books');
+        router.push("/books");
       } else {
-        router.push('/register');
+        router.push("/register");
       }
     } else if (plan.name === "Premium") {
-      router.push('/premium');
+      router.push("/premium");
     } else {
-      router.push('/premium');
+      router.push("/premium");
     }
   };
 

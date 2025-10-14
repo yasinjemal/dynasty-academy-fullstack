@@ -19,7 +19,7 @@ export default function Hero3D() {
   const router = useRouter();
   const [showConfetti, setShowConfetti] = useState(false);
   const [showBookPicker, setShowBookPicker] = useState(false);
-  
+
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -29,17 +29,17 @@ export default function Hero3D() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.8]);
-  
+
   const handleStartJourney = () => {
     if (session) {
-      router.push('/books');
+      router.push("/books");
     } else {
-      router.push('/register');
+      router.push("/register");
     }
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 3000);
   };
-  
+
   const handleExploreBooks = () => {
     setShowBookPicker(true);
   };
@@ -49,55 +49,27 @@ export default function Hero3D() {
       ref={containerRef}
       className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#0A0E27] via-[#1a1f3a] to-[#0A1628]"
     >
-      {/* Animated Grid Background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `
-              linear-gradient(to right, rgba(249, 115, 22, 0.1) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(249, 115, 22, 0.1) 1px, transparent 1px)
-            `,
-              backgroundSize: "50px 50px",
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Floating Orbs */}
-      {[...Array(20)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full"
+      {/* Static Luxury Gradient Background - No Animation, Pure CSS */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Main Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-orange-900/20" />
+        
+        {/* Static Elegant Orbs - Pure CSS, No JS */}
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-gradient-radial from-purple-500/10 via-purple-500/5 to-transparent blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-radial from-orange-500/10 via-orange-500/5 to-transparent blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-gradient-radial from-pink-500/5 via-transparent to-transparent blur-3xl" />
+        
+        {/* Subtle Grid Pattern - Static */}
+        <div className="absolute inset-0 opacity-[0.03]"
           style={{
-            width: Math.random() * 300 + 100,
-            height: Math.random() * 300 + 100,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            background: `radial-gradient(circle, ${
-              i % 3 === 0
-                ? "rgba(249, 115, 22, 0.1)"
-                : i % 3 === 1
-                ? "rgba(168, 85, 247, 0.1)"
-                : "rgba(59, 130, 246, 0.1)"
-            } 0%, transparent 70%)`,
-            filter: "blur(40px)",
-          }}
-          animate={{
-            x: [0, Math.random() * 100 - 50, 0],
-            y: [0, Math.random() * 100 - 50, 0],
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{
-            duration: 10 + Math.random() * 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: Math.random() * 5,
+            backgroundImage: `
+              linear-gradient(to right, rgba(249, 115, 22, 0.3) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(249, 115, 22, 0.3) 1px, transparent 1px)
+            `,
+            backgroundSize: "60px 60px",
           }}
         />
-      ))}
+      </div>
 
       <motion.div
         className="relative z-10 flex items-center justify-center min-h-screen px-4"
@@ -184,7 +156,7 @@ export default function Hero3D() {
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     <Zap className="w-5 h-5" />
-                    {session ? 'Go to Library' : 'Start Your Journey'}
+                    {session ? "Go to Library" : "Start Your Journey"}
                   </span>
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600"
@@ -349,11 +321,11 @@ export default function Hero3D() {
           />
         </div>
       </motion.div>
-      
+
       {/* Book Picker Modal */}
-      <BookPickerModal 
-        isOpen={showBookPicker} 
-        onClose={() => setShowBookPicker(false)} 
+      <BookPickerModal
+        isOpen={showBookPicker}
+        onClose={() => setShowBookPicker(false)}
       />
     </div>
   );

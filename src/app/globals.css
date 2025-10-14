@@ -3,6 +3,62 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* 🚀 PERFORMANCE OPTIMIZATIONS */
+* {
+  /* Hardware acceleration for smooth animations */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optimize will-change for frequently animated elements */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+/* 🎨 LUXURY COLOR PALETTE - Static CSS Gradients (Zero CPU Cost) */
+.bg-gradient-radial {
+  background-image: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+.bg-gradient-radial-to-t {
+  background-image: radial-gradient(ellipse at top, var(--tw-gradient-stops));
+}
+
+.bg-gradient-radial-to-b {
+  background-image: radial-gradient(ellipse at bottom, var(--tw-gradient-stops));
+}
+
+/* Luxury Gradient Presets */
+.bg-dynasty-purple {
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+}
+
+.bg-dynasty-orange {
+  background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+}
+
+.bg-dynasty-gold {
+  background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+}
+
+/* Glassmorphism without heavy blur */
+.glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* Dynasty Built Markdown Styles */
 .markdown-body h1,
 .markdown-body h2,

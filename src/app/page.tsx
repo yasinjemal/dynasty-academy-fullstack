@@ -13,13 +13,13 @@ export default function Home() {
     <div className="min-h-screen bg-[#0A0E27] overflow-hidden">
       {/* Scroll Progress Indicator - Top Bar + Circular */}
       <ScrollProgress />
-      
+
       {/* Mouse Glow Effect */}
       <MouseGlow />
-      
+
       {/* Live Activity Feed - Bottom Left */}
       <LiveActivityFeed />
-      
+
       {/* INSANE 3D Hero Section with Floating Book */}
       <Hero3D />
 
