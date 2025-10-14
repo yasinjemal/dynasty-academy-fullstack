@@ -103,6 +103,8 @@ model User {
   // Live Co-Reading
   readingPresence   ReadingPresence[]   @relation("UserReadingPresence")
   pageChats         PageChat[]          @relation("UserPageChat")
+  messageFlags      MessageFlag[]       @relation("UserMessageFlags")
+  moderationLogs    ModerationLog[]     @relation("ModeratorLogs")
   
   @@index([email])
   @@index([role])
@@ -1237,21 +1239,70 @@ model ReadingPresence {
 
 // Page Chat (Persisted messages by page)
 model PageChat {
-  id        String   @id @default(cuid())
-  bookId    String
-  book      Book     @relation("BookPageChat", fields: [bookId], references: [id], onDelete: Cascade)
-  bookSlug  String
-  page      Int
-  userId    String
-  user      User     @relation("UserPageChat", fields: [userId], references: [id], onDelete: Cascade)
-  message   String   @db.Text
-  edited    Boolean  @default(false)
-  editedAt  DateTime?
-  createdAt DateTime @default(now())
+  id                String        @id @default(cuid())
+  bookId            String
+  book              Book          @relation("BookPageChat", fields: [bookId], references: [id], onDelete: Cascade)
+  bookSlug          String
+  page              Int
+  userId            String
+  user              User          @relation("UserPageChat", fields: [userId], references: [id], onDelete: Cascade)
+  message           String        @db.Text
+  edited            Boolean       @default(false)
+  editedAt          DateTime?
+  createdAt         DateTime      @default(now())
+  
+  // Moderation fields
+  flagged           Boolean       @default(false)
+  flagReason        String?
+  flaggedBy         String?
+  flaggedAt         DateTime?
+  moderatorDeleted  Boolean       @default(false)
+  deletedBy         String?
+  
+  flags             MessageFlag[]
   
   @@index([bookId, page, createdAt]) // Fast page history
   @@index([userId, createdAt]) // User message history
+  @@index([flagged]) // Moderation queue
   @@map("page_chat")
+}
+
+// Message Flag System
+model MessageFlag {
+  id         String    @id @default(cuid())
+  messageId  String
+  message    PageChat  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  flaggedBy  String
+  user       User      @relation("UserMessageFlags", fields: [flaggedBy], references: [id], onDelete: Cascade)
+  reason     String    // spam, harassment, inappropriate, etc.
+  details    String?   @db.Text
+  resolved   Boolean   @default(false)
+  resolvedBy String?
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+  
+  @@index([messageId])
+  @@index([flaggedBy])
+  @@index([resolved])
+  @@map("message_flags")
+}
+
+// Moderation Audit Log
+model ModerationLog {
+  id          String   @id @default(cuid())
+  action      String   // timeout, ban, delete_message, resolve_flag
+  targetType  String   // user, message
+  targetId    String
+  moderatorId String
+  moderator   User     @relation("ModeratorLogs", fields: [moderatorId], references: [id], onDelete: Cascade)
+  reason      String?
+  details     Json?
+  createdAt   DateTime @default(now())
+  
+  @@index([moderatorId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("moderation_logs")
 }
 
 // Page Reactions (High-level counters per page)

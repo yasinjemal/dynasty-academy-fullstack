@@ -13,10 +13,12 @@ import {
   Trash2,
   Check,
   XCircle,
+  Flag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ChatMuteToggle from "./ChatMuteToggle";
+import { toast } from "sonner";
 
 interface ChatMessage {
   id: string;
@@ -66,6 +68,9 @@ export default function LiveChatWidget({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
     null
   );
+  const [showReportDialog, setShowReportDialog] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState<string>("spam");
+  const [reportDetails, setReportDetails] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -136,6 +141,45 @@ export default function LiveChatWidget({
 
   const handleDeleteCancel = () => {
     setShowDeleteConfirm(null);
+  };
+
+  const handleReportClick = (messageId: string) => {
+    setShowReportDialog(messageId);
+    setContextMenuMessageId(null);
+    setReportReason("spam");
+    setReportDetails("");
+  };
+
+  const handleReportSubmit = async () => {
+    if (!showReportDialog) return;
+
+    try {
+      const response = await fetch("/api/co-reading/moderation/flag", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messageId: showReportDialog,
+          reason: reportReason,
+          details: reportDetails || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to report message");
+      }
+
+      toast.success("Message reported successfully");
+      setShowReportDialog(null);
+      setReportDetails("");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to report message");
+    }
+  };
+
+  const handleReportCancel = () => {
+    setShowReportDialog(null);
+    setReportDetails("");
   };
 
   return (
@@ -337,47 +381,57 @@ export default function LiveChatWidget({
                                   {msg.message}
                                 </p>
 
-                                {/* Context Menu Button (Own Messages Only) */}
-                                {isOwnMessage &&
-                                  onEditMessage &&
-                                  onDeleteMessage && (
-                                    <div className="absolute top-1 right-1">
-                                      <button
-                                        onClick={() =>
-                                          setContextMenuMessageId(
-                                            contextMenuMessageId === msg.id
-                                              ? null
-                                              : msg.id
-                                          )
-                                        }
-                                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all"
-                                      >
-                                        <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                                      </button>
+                                {/* Context Menu Button */}
+                                {((isOwnMessage && onEditMessage && onDeleteMessage) || !isOwnMessage) && (
+                                  <div className="absolute top-1 right-1">
+                                    <button
+                                      onClick={() =>
+                                        setContextMenuMessageId(
+                                          contextMenuMessageId === msg.id
+                                            ? null
+                                            : msg.id
+                                        )
+                                      }
+                                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all"
+                                    >
+                                      <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                                    </button>
 
-                                      {/* Context Menu */}
-                                      {contextMenuMessageId === msg.id && (
-                                        <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 min-w-[120px]">
+                                    {/* Context Menu */}
+                                    {contextMenuMessageId === msg.id && (
+                                      <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 min-w-[120px]">
+                                        {isOwnMessage ? (
+                                          <>
+                                            <button
+                                              onClick={() => handleEditStart(msg)}
+                                              className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
+                                            >
+                                              <Edit2 className="w-3 h-3" />
+                                              Edit
+                                            </button>
+                                            <button
+                                              onClick={() =>
+                                                handleDeleteClick(msg.id)
+                                              }
+                                              className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400 rounded-b-lg"
+                                            >
+                                              <Trash2 className="w-3 h-3" />
+                                              Delete
+                                            </button>
+                                          </>
+                                        ) : (
                                           <button
-                                            onClick={() => handleEditStart(msg)}
-                                            className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
+                                            onClick={() => handleReportClick(msg.id)}
+                                            className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-orange-600 dark:text-orange-400 rounded-lg"
                                           >
-                                            <Edit2 className="w-3 h-3" />
-                                            Edit
+                                            <Flag className="w-3 h-3" />
+                                            Report
                                           </button>
-                                          <button
-                                            onClick={() =>
-                                              handleDeleteClick(msg.id)
-                                            }
-                                            className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400 rounded-b-lg"
-                                          >
-                                            <Trash2 className="w-3 h-3" />
-                                            Delete
-                                          </button>
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
@@ -457,6 +511,90 @@ export default function LiveChatWidget({
                 </div>
               </>
             )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Report Dialog */}
+      <AnimatePresence>
+        {showReportDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4"
+            onClick={handleReportCancel}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center">
+                  <Flag className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Report Message
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Help us keep the community safe
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">
+                    Reason for reporting
+                  </label>
+                  <select
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="spam">Spam</option>
+                    <option value="harassment">Harassment</option>
+                    <option value="inappropriate">Inappropriate Content</option>
+                    <option value="hate_speech">Hate Speech</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">
+                    Additional details (optional)
+                  </label>
+                  <textarea
+                    value={reportDetails}
+                    onChange={(e) => setReportDetails(e.target.value)}
+                    placeholder="Provide any additional context..."
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 justify-end mt-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReportCancel}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleReportSubmit}
+                  className="bg-orange-600 hover:bg-orange-700"
+                >
+                  Submit Report
+                </Button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

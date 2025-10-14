@@ -20,7 +20,9 @@ export default function SharePageLink({
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/books/${bookSlug}?page=${currentPage}`;
+  const shareUrl = `${
+    typeof window !== "undefined" ? window.location.origin : ""
+  }/books/${bookSlug}?page=${currentPage}`;
   const shareText = bookTitle
     ? `Join me reading "${bookTitle}" on page ${currentPage}!`
     : `Join me on page ${currentPage}!`;
