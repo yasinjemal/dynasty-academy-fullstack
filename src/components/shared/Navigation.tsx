@@ -64,7 +64,7 @@ export default function Navigation() {
                 <Link href="/dashboard">
                   <Button variant="ghost" size="sm">Dashboard</Button>
                 </Link>
-                <Link href="/profile">
+                <Link href={session?.user?.username ? `/@${session.user.username}` : "/settings/profile"}>
                   <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center">
                     <span className="text-white font-bold text-sm">
                       {session?.user?.name?.charAt(0) || 'U'}

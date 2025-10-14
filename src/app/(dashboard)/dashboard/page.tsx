@@ -318,7 +318,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <Link href="/profile" className="flex-1">
+            <Link href="/settings/profile" className="flex-1">
               <Button className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-5 sm:py-6 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all text-sm sm:text-base">
                 ✏️ Edit Profile
               </Button>

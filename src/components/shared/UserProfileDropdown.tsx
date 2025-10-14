@@ -92,7 +92,7 @@ export default function UserProfileDropdown() {
 
           {/* Menu Items */}
           <div className="p-2">
-            <Link href="/profile" onClick={() => setIsOpen(false)}>
+            <Link href={session.user.username ? `/@${session.user.username}` : "/settings/profile"} onClick={() => setIsOpen(false)}>
               <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors text-left">
                 <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                   <span className="text-lg">👤</span>
