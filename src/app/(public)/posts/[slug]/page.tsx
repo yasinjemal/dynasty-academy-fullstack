@@ -21,6 +21,7 @@ async function getPost(slug: string) {
           name: true,
           email: true,
           image: true,
+          username: true,
           dynastyScore: true,
           _count: {
             select: {
@@ -40,21 +41,23 @@ async function getPost(slug: string) {
           parentId: null, // Only top-level comments
         },
         include: {
-          user: {
+          author: {
             select: {
               id: true,
               name: true,
               image: true,
+              username: true,
               dynastyScore: true,
             },
           },
           replies: {
             include: {
-              user: {
+              author: {
                 select: {
                   id: true,
                   name: true,
                   image: true,
+                  username: true,
                   dynastyScore: true,
                 },
               },
