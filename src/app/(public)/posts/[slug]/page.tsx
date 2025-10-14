@@ -23,6 +23,7 @@ async function getPost(slug: string) {
           image: true,
           username: true,
           dynastyScore: true,
+          level: true,
           _count: {
             select: {
               posts: true,
@@ -47,23 +48,12 @@ async function getPost(slug: string) {
               name: true,
               image: true,
               username: true,
-              dynastyScore: true,
+              level: true,
             },
           },
-          replies: {
-            include: {
-              author: {
-                select: {
-                  id: true,
-                  name: true,
-                  image: true,
-                  username: true,
-                  dynastyScore: true,
-                },
-              },
-            },
-            orderBy: {
-              createdAt: "asc",
+          _count: {
+            select: {
+              replies: true,
             },
           },
         },
@@ -129,6 +119,9 @@ export default async function PostPage({ params }: PostPageProps) {
     ? post.likes.some((like) => like.userId === session.user.id)
     : false;
 
+  // Check if user has saved the post (we'll implement this later)
+  const userSaved = false;
+
   // Increment view count
   await prisma.post.update({
     where: { id: post.id },
@@ -136,15 +129,51 @@ export default async function PostPage({ params }: PostPageProps) {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <PostDetailClient
-        post={{
-          ...post,
-          userLiked,
-          isAuthor: session?.user?.id === post.authorId,
-        }}
-        currentUser={session?.user}
-      />
-    </div>
+    <PostDetailClient
+      initialPost={{
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        excerpt: post.excerpt || "",
+        coverImage: post.coverImage,
+        tags: post.tags,
+        viewCount: post.viewCount + 1,
+        likeCount: post.likeCount,
+        commentCount: post.commentCount,
+        saveCount: post.saveCount || 0,
+        hotScore: post.hotScore,
+        publishedAt: post.publishedAt?.toISOString() || post.createdAt.toISOString(),
+        author: {
+          id: post.author.id,
+          name: post.author.name || post.author.username || "Anonymous",
+          username: post.author.username || "anonymous",
+          image: post.author.image,
+          dynastyScore: post.author.dynastyScore,
+          level: post.author.level || 1,
+          _count: {
+            posts: post.author._count.posts,
+            followers: post.author._count.followers,
+          },
+        },
+      }}
+      initialComments={post.comments.map((comment) => ({
+        id: comment.id,
+        content: comment.content,
+        createdAt: comment.createdAt.toISOString(),
+        likeCount: 0, // We'll implement comment likes later
+        author: {
+          id: comment.author.id,
+          name: comment.author.name || comment.author.username || "Anonymous",
+          username: comment.author.username || "anonymous",
+          image: comment.author.image,
+          level: comment.author.level,
+        },
+        _count: {
+          replies: comment._count.replies,
+        },
+      }))}
+      initialLiked={userLiked}
+      initialSaved={userSaved}
+    />
   );
 }
