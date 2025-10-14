@@ -1,10 +1,17 @@
 # 🎯 Profile Vision - Implementation Progress
 
-## Status: Sprint A (MVP Profile) - 60% Complete
+## Status: Sprint A (MVP Profile) - 70% Complete ✨
 
 ### ✅ Completed
 
+**🎉 CRITICAL FIXES DEPLOYED:**
+
+- ✅ Route conflict RESOLVED ([userId] folder deleted)
+- ✅ Import errors FIXED (auth-options path corrected)
+- ✅ Dev server RUNNING (http://localhost:3000 live)
+
 #### 1. Database Schema (100%)
+
 - [x] Added profile fields to User model
   - bannerImage, location, website, social handles
   - readingMinutesLifetime, booksCompleted, currentBookId/Page
@@ -19,6 +26,7 @@
 - [x] Added AchievementTier enum (BRONZE, SILVER, GOLD, ELITE)
 
 #### 2. API Routes (80%)
+
 - [x] GET /api/users/[username] - Full profile with highlights
 - [x] PATCH /api/users/profile - Update profile fields
 - [x] POST /api/follow - Toggle follow with notifications
@@ -26,6 +34,7 @@
 - [x] GET /api/users/[username]/activity - Mixed timeline
 
 #### 3. UI Components (70%)
+
 - [x] ProfileHero - Banner, avatar, bio, links, follow button
 - [x] SignalBar - Dynasty Score, Level, Streak, Thanks chips
 - [x] FollowButton - "Join Their Circle" with optimistic UI
@@ -35,6 +44,7 @@
 ### 🚧 In Progress
 
 #### Sprint A - Remaining
+
 - [ ] Complete tab content (Overview, Posts, Reflections, Collections, Achievements, Activity)
 - [ ] Profile edit page at /settings/profile
 - [ ] Avatar/banner upload endpoints
@@ -43,6 +53,7 @@
 - [ ] Loading skeletons
 
 #### Sprint B - Content & Activity (Planned)
+
 - [ ] Posts tab with filters (New, Top, Discussed)
 - [ ] Reflections tab with book context
 - [ ] Activity timeline component
@@ -51,6 +62,7 @@
 - [ ] Pagination/infinite scroll
 
 #### Sprint C - Collections & Stats (Planned)
+
 - [ ] Collections creation/management
 - [ ] Owner analytics panel (7/30/90d stats)
 - [ ] Profile visit tracking
@@ -58,6 +70,7 @@
 - [ ] DS/Level progress tracking
 
 #### Sprint D - Polish & Safety (Planned)
+
 - [ ] Privacy mode enforcement
 - [ ] Report profile modal
 - [ ] Soft moderation states (shadowban/ban)
@@ -75,6 +88,7 @@
 ### 📝 API Contracts
 
 #### Profile Response
+
 ```json
 {
   "user": {
@@ -108,18 +122,21 @@
 ### 🎯 Next Steps
 
 1. **Immediate (Sprint A completion):**
+
    - Build out Overview tab with highlights
    - Create profile edit form at /settings/profile
    - Add avatar/banner upload
    - Complete SEO metadata
 
 2. **Short-term (Sprint B):**
+
    - Implement all tab content
    - Add filters and sorting
    - Build activity timeline
    - Achievement showcasing
 
 3. **Medium-term (Sprint C):**
+
    - Collections management
    - Owner analytics
    - Advanced stats visualization
@@ -141,6 +158,7 @@
 ### 🚀 Ready to Deploy
 
 Core profile viewing is functional:
+
 - ✅ Vanity URLs work (/@username)
 - ✅ Privacy modes respected
 - ✅ Follow/unfollow working

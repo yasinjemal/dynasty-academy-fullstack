@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/auth-options';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
 
 const USERNAME_CHANGE_COOLDOWN_DAYS = 30;
 
@@ -10,16 +10,13 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { username } = await request.json();
 
     if (!username) {
-      return NextResponse.json(
-        { error: 'Username required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Username required" }, { status: 400 });
     }
 
     // Validate username format
@@ -28,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            'Username must be 3-20 characters, lowercase letters, numbers, and underscores only',
+            "Username must be 3-20 characters, lowercase letters, numbers, and underscores only",
         },
         { status: 400 }
       );
@@ -44,14 +41,13 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Check cooldown
     if (user.username && user.usernameChangedAt) {
       const daysSinceChange =
-        (Date.now() - user.usernameChangedAt.getTime()) /
-        (1000 * 60 * 60 * 24);
+        (Date.now() - user.usernameChangedAt.getTime()) / (1000 * 60 * 60 * 24);
 
       if (daysSinceChange < USERNAME_CHANGE_COOLDOWN_DAYS) {
         const daysRemaining = Math.ceil(
@@ -73,14 +69,14 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'Username already taken' },
+        { error: "Username already taken" },
         { status: 400 }
       );
     }
 
     // Update username and create redirect
     const oldUsername = user.username;
-    
+
     await prisma.$transaction(async (tx) => {
       // Update user
       await tx.user.update({
@@ -108,13 +104,13 @@ export async function POST(request: NextRequest) {
       success: true,
       username,
       message: oldUsername
-        ? 'Username updated successfully. Old username will redirect for 14 days.'
-        : 'Username claimed successfully!',
+        ? "Username updated successfully. Old username will redirect for 14 days."
+        : "Username claimed successfully!",
     });
   } catch (error) {
-    console.error('Error claiming username:', error);
+    console.error("Error claiming username:", error);
     return NextResponse.json(
-      { error: 'Failed to claim username' },
+      { error: "Failed to claim username" },
       { status: 500 }
     );
   }

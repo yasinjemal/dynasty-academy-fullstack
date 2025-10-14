@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
 
 export async function GET(
   request: NextRequest,
@@ -8,8 +8,8 @@ export async function GET(
   try {
     const { username } = params;
     const { searchParams } = new URL(request.url);
-    const cursor = searchParams.get('cursor');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    const cursor = searchParams.get("cursor");
+    const limit = parseInt(searchParams.get("limit") || "20");
 
     // Find user
     const user = await prisma.user.findUnique({
@@ -18,7 +18,7 @@ export async function GET(
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // TODO: Check privacy and follow status
@@ -28,7 +28,7 @@ export async function GET(
       prisma.post.findMany({
         where: { userId: user.id, published: true },
         take: Math.ceil(limit / 4),
-        orderBy: { publishedAt: 'desc' },
+        orderBy: { publishedAt: "desc" },
         select: {
           id: true,
           slug: true,
@@ -43,7 +43,7 @@ export async function GET(
       prisma.reflection.findMany({
         where: { userId: user.id },
         take: Math.ceil(limit / 4),
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         select: {
           id: true,
           content: true,
@@ -62,7 +62,7 @@ export async function GET(
       prisma.userAchievement.findMany({
         where: { userId: user.id },
         take: Math.ceil(limit / 4),
-        orderBy: { awardedAt: 'desc' },
+        orderBy: { awardedAt: "desc" },
         select: {
           id: true,
           awardedAt: true,
@@ -80,7 +80,7 @@ export async function GET(
       prisma.follow.findMany({
         where: { followerId: user.id },
         take: Math.ceil(limit / 4),
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         select: {
           id: true,
           createdAt: true,
@@ -99,25 +99,25 @@ export async function GET(
     // Combine and sort by date
     const activities = [
       ...posts.map((p) => ({
-        type: 'post',
+        type: "post",
         id: p.id,
         date: p.publishedAt,
         data: p,
       })),
       ...reflections.map((r) => ({
-        type: 'reflection',
+        type: "reflection",
         id: r.id,
         date: r.createdAt,
         data: r,
       })),
       ...achievements.map((a) => ({
-        type: 'achievement',
+        type: "achievement",
         id: a.id,
         date: a.awardedAt,
         data: a,
       })),
       ...follows.map((f) => ({
-        type: 'follow',
+        type: "follow",
         id: f.id,
         date: f.createdAt,
         data: f,
@@ -129,9 +129,9 @@ export async function GET(
       hasMore: activities.length > limit,
     });
   } catch (error) {
-    console.error('Error fetching activity:', error);
+    console.error("Error fetching activity:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch activity' },
+      { error: "Failed to fetch activity" },
       { status: 500 }
     );
   }

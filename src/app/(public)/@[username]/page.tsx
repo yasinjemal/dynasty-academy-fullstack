@@ -1,10 +1,10 @@
-import { notFound, redirect } from 'next/navigation';
-import { prisma } from '@/lib/db/prisma';
-import { Metadata } from 'next';
-import ProfileHero from '@/components/profile/ProfileHero';
-import ProfileTabs from '@/components/profile/ProfileTabs';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/auth-options';
+import { notFound, redirect } from "next/navigation";
+import { prisma } from "@/lib/db/prisma";
+import { Metadata } from "next";
+import ProfileHero from "@/components/profile/ProfileHero";
+import ProfileTabs from "@/components/profile/ProfileTabs";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
 
 export async function generateMetadata({
   params,
@@ -25,30 +25,35 @@ export async function generateMetadata({
 
   if (!user) {
     return {
-      title: 'User Not Found',
+      title: "User Not Found",
     };
   }
 
   return {
-    title: `${user.name || params.username} (@${params.username}) • Dynasty Academy`,
+    title: `${user.name || params.username} (@${
+      params.username
+    }) • Dynasty Academy`,
     description:
-      user.bio || `${user.name || params.username}'s profile on Dynasty Academy`,
+      user.bio ||
+      `${user.name || params.username}'s profile on Dynasty Academy`,
     openGraph: {
       title: `${user.name || params.username}`,
-      description: user.bio || `Dynasty Score: ${user.dynastyScore} • Level ${user.level}`,
+      description:
+        user.bio || `Dynasty Score: ${user.dynastyScore} • Level ${user.level}`,
       images: [
         {
-          url: user.bannerImage || user.image || '/default-banner.jpg',
+          url: user.bannerImage || user.image || "/default-banner.jpg",
           width: 1200,
           height: 630,
         },
       ],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: `${user.name || params.username}`,
-      description: user.bio || `Dynasty Score: ${user.dynastyScore} • Level ${user.level}`,
-      images: [user.bannerImage || user.image || '/default-banner.jpg'],
+      description:
+        user.bio || `Dynasty Score: ${user.dynastyScore} • Level ${user.level}`,
+      images: [user.bannerImage || user.image || "/default-banner.jpg"],
     },
   };
 }
@@ -109,7 +114,7 @@ export default async function ProfilePage({
   }
 
   const isOwner = session?.user?.id === user.id;
-  
+
   // Check if viewer follows this user
   const isFollowing = session?.user?.id
     ? !!(await prisma.follow.findUnique({
@@ -136,9 +141,12 @@ export default async function ProfilePage({
         <div className="mt-12 text-center">
           <div className="mx-auto max-w-md rounded-2xl border border-gray-200 bg-white p-8 dark:border-gray-800 dark:bg-gray-900">
             <div className="mb-4 text-4xl">🔒</div>
-            <h3 className="mb-2 text-xl font-semibold">This Account is Private</h3>
+            <h3 className="mb-2 text-xl font-semibold">
+              This Account is Private
+            </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Follow @{user.username} to see their posts, reflections, and collections.
+              Follow @{user.username} to see their posts, reflections, and
+              collections.
             </p>
           </div>
         </div>
@@ -169,7 +177,11 @@ export default async function ProfilePage({
         isFollowing={isFollowing}
         currentBook={currentBook}
       />
-      <ProfileTabs username={params.username} userId={user.id} isOwner={isOwner} />
+      <ProfileTabs
+        username={params.username}
+        userId={user.id}
+        isOwner={isOwner}
+      />
     </div>
   );
 }

@@ -1,7 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import OverviewTab from "./OverviewTab";
+import AchievementsTab from "./AchievementsTab";
+import ActivityTab from "./ActivityTab";
 
 interface ProfileTabsProps {
   username: string;
@@ -9,50 +11,58 @@ interface ProfileTabsProps {
   isOwner: boolean;
 }
 
-export default function ProfileTabs({ username, userId, isOwner }: ProfileTabsProps) {
+export default function ProfileTabs({
+  username,
+  userId,
+  isOwner,
+}: ProfileTabsProps) {
   return (
     <div className="mt-8">
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="w-full justify-start border-b">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="posts">Posts</TabsTrigger>
-          <TabsTrigger value="reflections">Reflections</TabsTrigger>
-          <TabsTrigger value="collections">Collections</TabsTrigger>
-          <TabsTrigger value="achievements">Achievements</TabsTrigger>
-          <TabsTrigger value="activity">Activity</TabsTrigger>
+        <TabsList className="w-full justify-start border-b rounded-none bg-transparent p-0">
+          <TabsTrigger 
+            value="overview"
+            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger 
+            value="posts"
+            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
+          >
+            Posts
+          </TabsTrigger>
+          <TabsTrigger 
+            value="reflections"
+            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
+          >
+            Reflections
+          </TabsTrigger>
+          <TabsTrigger 
+            value="collections"
+            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
+          >
+            Collections
+          </TabsTrigger>
+          <TabsTrigger 
+            value="achievements"
+            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
+          >
+            Achievements
+          </TabsTrigger>
+          <TabsTrigger 
+            value="activity"
+            className="rounded-none border-b-2 border-transparent px-4 py-3 data-[state=active]:border-purple-600 data-[state=active]:bg-transparent"
+          >
+            Activity
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6">
-          <div className="space-y-8">
-            {/* About Card */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-              <h3 className="mb-4 text-lg font-semibold">About</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Profile overview coming soon...
-              </p>
-            </div>
-
-            {/* Highlights - Posts */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-              <h3 className="mb-4 text-lg font-semibold">Latest Posts</h3>
-              <p className="text-gray-600 dark:text-gray-400">No posts yet</p>
-            </div>
-
-            {/* Highlights - Reflections */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-              <h3 className="mb-4 text-lg font-semibold">Latest Reflections</h3>
-              <p className="text-gray-600 dark:text-gray-400">No reflections yet</p>
-            </div>
-
-            {/* Achievements */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-              <h3 className="mb-4 text-lg font-semibold">Achievements</h3>
-              <p className="text-gray-600 dark:text-gray-400">No achievements yet</p>
-            </div>
-          </div>
+          <OverviewTab userId={userId} username={username} isOwner={isOwner} />
         </TabsContent>
 
-        <TabsContent value="posts">
+        <TabsContent value="posts" className="mt-6">
           <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <p className="text-gray-600 dark:text-gray-400">
               Posts tab coming soon...
@@ -60,7 +70,7 @@ export default function ProfileTabs({ username, userId, isOwner }: ProfileTabsPr
           </div>
         </TabsContent>
 
-        <TabsContent value="reflections">
+        <TabsContent value="reflections" className="mt-6">
           <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <p className="text-gray-600 dark:text-gray-400">
               Reflections tab coming soon...
@@ -68,7 +78,7 @@ export default function ProfileTabs({ username, userId, isOwner }: ProfileTabsPr
           </div>
         </TabsContent>
 
-        <TabsContent value="collections">
+        <TabsContent value="collections" className="mt-6">
           <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <p className="text-gray-600 dark:text-gray-400">
               Collections tab coming soon...
@@ -76,20 +86,12 @@ export default function ProfileTabs({ username, userId, isOwner }: ProfileTabsPr
           </div>
         </TabsContent>
 
-        <TabsContent value="achievements">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-            <p className="text-gray-600 dark:text-gray-400">
-              Achievements tab coming soon...
-            </p>
-          </div>
+        <TabsContent value="achievements" className="mt-6">
+          <AchievementsTab userId={userId} username={username} isOwner={isOwner} />
         </TabsContent>
 
-        <TabsContent value="activity">
-          <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-            <p className="text-gray-600 dark:text-gray-400">
-              Activity tab coming soon...
-            </p>
-          </div>
+        <TabsContent value="activity" className="mt-6">
+          <ActivityTab userId={userId} username={username} isOwner={isOwner} />
         </TabsContent>
       </Tabs>
     </div>

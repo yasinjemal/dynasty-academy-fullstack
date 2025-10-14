@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth/authOptions";
-import prisma from "@/lib/db/prisma";
+import { authOptions } from "@/lib/auth/auth-options";
+import { prisma } from "@/lib/db/prisma";
 
 // GET - Fetch all AI-generated posts for a specific book
 export async function GET(

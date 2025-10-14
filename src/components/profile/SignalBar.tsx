@@ -1,7 +1,12 @@
-'use client';
+"use client";
 
-import { Trophy, Flame, Heart, TrendingUp } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Trophy, Flame, Heart, TrendingUp } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SignalBarProps {
   dynastyScore: number;
@@ -33,7 +38,9 @@ export default function SignalBar({
           </TooltipTrigger>
           <TooltipContent>
             <p className="text-sm">
-              {dynastyScore} DS • {Math.ceil(xpForNextLevel - (dynastyScore % xpForNextLevel))} to Level {level + 1}
+              {dynastyScore} DS •{" "}
+              {Math.ceil(xpForNextLevel - (dynastyScore % xpForNextLevel))} to
+              Level {level + 1}
             </p>
           </TooltipContent>
         </Tooltip>
@@ -52,7 +59,9 @@ export default function SignalBar({
             <TooltipTrigger>
               <div className="flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-2 dark:border-orange-900 dark:bg-orange-950">
                 <Flame className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                <span className="text-sm font-semibold">{streakDays} day streak</span>
+                <span className="text-sm font-semibold">
+                  {streakDays} day streak
+                </span>
               </div>
             </TooltipTrigger>
             <TooltipContent>

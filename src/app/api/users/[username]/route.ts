@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/auth-options';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
 
 export async function GET(
   request: NextRequest,
@@ -56,12 +56,12 @@ export async function GET(
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Check if user is banned/suspended
     if (user.isBanned || user.isSuspended) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Check privacy
@@ -101,7 +101,7 @@ export async function GET(
       prisma.post.findMany({
         where: { userId: user.id, published: true },
         take: 3,
-        orderBy: { publishedAt: 'desc' },
+        orderBy: { publishedAt: "desc" },
         select: {
           id: true,
           slug: true,
@@ -116,7 +116,7 @@ export async function GET(
       prisma.reflection.findMany({
         where: { userId: user.id },
         take: 3,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         select: {
           id: true,
           content: true,
@@ -137,7 +137,7 @@ export async function GET(
       prisma.collection.findMany({
         where: { userId: user.id, isPublic: true },
         take: 3,
-        orderBy: { updatedAt: 'desc' },
+        orderBy: { updatedAt: "desc" },
         select: {
           id: true,
           title: true,
@@ -150,7 +150,7 @@ export async function GET(
       prisma.userAchievement.findMany({
         where: { userId: user.id },
         take: 6,
-        orderBy: { awardedAt: 'desc' },
+        orderBy: { awardedAt: "desc" },
         select: {
           id: true,
           awardedAt: true,
@@ -250,9 +250,9 @@ export async function GET(
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error fetching profile:', error);
+    console.error("Error fetching profile:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch profile' },
+      { error: "Failed to fetch profile" },
       { status: 500 }
     );
   }

@@ -1,13 +1,22 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
-import { User, MapPin, Link as LinkIcon, Twitter, Instagram, Youtube, Settings, MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import FollowButton from './FollowButton';
-import SignalBar from './SignalBar';
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import {
+  User,
+  MapPin,
+  Link as LinkIcon,
+  Twitter,
+  Instagram,
+  Youtube,
+  Settings,
+  MessageCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import FollowButton from "./FollowButton";
+import SignalBar from "./SignalBar";
 
 interface ProfileHeroProps {
   user: {
@@ -72,7 +81,7 @@ export default function ProfileHero({
             {user.image ? (
               <Image
                 src={user.image}
-                alt={user.name || 'User'}
+                alt={user.name || "User"}
                 fill
                 className="object-cover"
               />
@@ -109,7 +118,7 @@ export default function ProfileHero({
         <div className="mb-3">
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-bold">{user.name || user.username}</h1>
-            {user.role !== 'USER' && (
+            {user.role !== "USER" && (
               <Badge variant="secondary" className="capitalize">
                 {user.role.toLowerCase()}
               </Badge>
@@ -154,8 +163,7 @@ export default function ProfileHero({
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 hover:text-purple-600"
               >
-                <Twitter className="h-4 w-4" />
-                @{user.xHandle}
+                <Twitter className="h-4 w-4" />@{user.xHandle}
               </a>
             )}
             {user.instagram && (
@@ -165,8 +173,7 @@ export default function ProfileHero({
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 hover:text-purple-600"
               >
-                <Instagram className="h-4 w-4" />
-                @{user.instagram}
+                <Instagram className="h-4 w-4" />@{user.instagram}
               </a>
             )}
             {user.youtube && (
@@ -176,8 +183,7 @@ export default function ProfileHero({
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 hover:text-purple-600"
               >
-                <Youtube className="h-4 w-4" />
-                @{user.youtube}
+                <Youtube className="h-4 w-4" />@{user.youtube}
               </a>
             )}
           </div>
@@ -186,11 +192,11 @@ export default function ProfileHero({
         {/* Follower Counts */}
         <div className="mb-6 flex gap-6 text-sm">
           <div>
-            <span className="font-semibold">{user.followingCount}</span>{' '}
+            <span className="font-semibold">{user.followingCount}</span>{" "}
             <span className="text-gray-600 dark:text-gray-400">Following</span>
           </div>
           <div>
-            <span className="font-semibold">{user.followersCount}</span>{' '}
+            <span className="font-semibold">{user.followersCount}</span>{" "}
             <span className="text-gray-600 dark:text-gray-400">Followers</span>
           </div>
         </div>
