@@ -144,7 +144,8 @@ function CollectionCard({
 
           {/* Item Count Badge */}
           <div className="absolute bottom-3 right-3 rounded-full bg-white/90 px-3 py-1 text-sm font-semibold text-gray-900 backdrop-blur-sm dark:bg-gray-900/90 dark:text-gray-100">
-            {collection.itemCount} {collection.itemCount === 1 ? "book" : "books"}
+            {collection.itemCount}{" "}
+            {collection.itemCount === 1 ? "book" : "books"}
           </div>
         </div>
 

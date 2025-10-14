@@ -70,11 +70,19 @@ export default function ProfileTabs({
         </TabsContent>
 
         <TabsContent value="reflections" className="mt-6">
-          <ReflectionsTab userId={userId} username={username} isOwner={isOwner} />
+          <ReflectionsTab
+            userId={userId}
+            username={username}
+            isOwner={isOwner}
+          />
         </TabsContent>
 
         <TabsContent value="collections" className="mt-6">
-          <CollectionsTab userId={userId} username={username} isOwner={isOwner} />
+          <CollectionsTab
+            userId={userId}
+            username={username}
+            isOwner={isOwner}
+          />
         </TabsContent>
 
         <TabsContent value="achievements" className="mt-6">

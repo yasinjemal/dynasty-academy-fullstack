@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { MessageCircle, Heart, Bookmark, TrendingUp, Clock, Filter } from "lucide-react";
+import {
+  MessageCircle,
+  Heart,
+  Bookmark,
+  TrendingUp,
+  Clock,
+  Filter,
+} from "lucide-react";
 import Link from "next/link";
 
 interface PostsTabProps {
@@ -97,7 +104,12 @@ export default function PostsTab({ userId, username, isOwner }: PostsTabProps) {
       {posts.length > 0 ? (
         <div className="space-y-4">
           {posts.map((post, index) => (
-            <PostCard key={post.id} post={post} index={index} username={username} />
+            <PostCard
+              key={post.id}
+              post={post}
+              index={index}
+              username={username}
+            />
           ))}
         </div>
       ) : (
@@ -178,7 +190,11 @@ function PostCard({
       <div className="flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-800">
         <div className="flex items-center gap-4 text-sm text-gray-500">
           <button className="flex items-center gap-1.5 transition-colors hover:text-red-500">
-            <Heart className={`h-4 w-4 ${post.isLiked ? "fill-red-500 text-red-500" : ""}`} />
+            <Heart
+              className={`h-4 w-4 ${
+                post.isLiked ? "fill-red-500 text-red-500" : ""
+              }`}
+            />
             <span>{post.likesCount}</span>
           </button>
           <Link
@@ -189,7 +205,11 @@ function PostCard({
             <span>{post.commentsCount}</span>
           </Link>
           <button className="flex items-center gap-1.5 transition-colors hover:text-purple-500">
-            <Bookmark className={`h-4 w-4 ${post.isBookmarked ? "fill-purple-500 text-purple-500" : ""}`} />
+            <Bookmark
+              className={`h-4 w-4 ${
+                post.isBookmarked ? "fill-purple-500 text-purple-500" : ""
+              }`}
+            />
             <span>{post.bookmarksCount}</span>
           </button>
         </div>

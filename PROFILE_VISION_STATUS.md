@@ -66,9 +66,10 @@
 - **Filter System**: Smart filtering with icon buttons
 - **Quote Styling**: Decorative quote marks for reflections
 
-### ✅ SPRINT A: MISSION ACCOMPLISHED! 
+### ✅ SPRINT A: MISSION ACCOMPLISHED!
 
 **All 6 profile tabs fully implemented with:**
+
 - Overview (reading journey stats + highlights)
 - Posts (New/Top/Discussed filtering)
 - Reflections (book context integration)
@@ -85,6 +86,7 @@
 ### Scope: Edit Profile + Upload System
 
 #### 1. Profile Edit Page (`/settings/profile`)
+
 - [ ] ProfileEditForm - Name, bio, location
 - [ ] UsernameClaimModal - Check availability, 30-day cooldown UI
 - [ ] SocialLinksForm - Website, X, Instagram, YouTube
@@ -93,6 +95,7 @@
 - [ ] Save changes with optimistic UI
 
 #### 2. Avatar & Banner Upload
+
 - [ ] AvatarUpload - Drag/drop, 1:1 crop, 2MB limit
 - [ ] BannerUpload - Drag/drop, 16:5 crop, 5MB limit
 - [ ] Image cropper with zoom/pan
@@ -101,6 +104,7 @@
 - [ ] Cloudinary or S3 integration
 
 #### 3. Analytics Dashboard (Owner Only)
+
 - [ ] Profile visit tracking (7/30/90 day graphs)
 - [ ] Engagement metrics (followers gained, post views)
 - [ ] Reading minutes chart
