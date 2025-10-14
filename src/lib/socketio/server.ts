@@ -32,7 +32,7 @@ const pageReaders = new Map<string, Set<string>>(); // bookSlug:page -> Set of u
 async function cleanupStalePresence() {
   try {
     const ttlThreshold = new Date(Date.now() - 45 * 1000); // 45 seconds ago
-    
+
     const deleted = await prisma.readingPresence.deleteMany({
       where: {
         lastSeenAt: {
@@ -71,7 +71,7 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
     io.on("connection", (socket) => {
       console.log(`👤 User connected: ${socket.id}`);
 
-      // Join a book reading room
+      // Join a book reading room (and initial page room)
       socket.on(
         "join-book",
         (data: {
@@ -80,16 +80,27 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
           userId: string;
           userName: string;
           userAvatar?: string;
+          initialPage?: number;
         }) => {
-          const { bookId, bookSlug, userId, userName, userAvatar } = data;
+          const { bookId, bookSlug, userId, userName, userAvatar, initialPage } = data;
 
+          // Join book-level room (for global book events)
           socket.join(`book:${bookSlug}`);
+          
+          // Join initial page room if provided
+          if (initialPage) {
+            const pageRoom = `book:${bookSlug}:page:${initialPage}`;
+            socket.join(pageRoom);
+            socket.data.currentPageRoom = pageRoom;
+            console.log(`📄 ${userName} joined ${pageRoom}`);
+          }
+          
           socket.data.bookSlug = bookSlug;
           socket.data.userId = userId;
 
           console.log(`📖 ${userName} joined book: ${bookSlug}`);
 
-          // Notify others
+          // Notify others in book (not page-specific)
           socket.to(`book:${bookSlug}`).emit("reader-joined", {
             userId,
             userName,
@@ -113,6 +124,17 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
 
           const readerKey = `${bookSlug}:${userId}`;
           const pageKey = `${bookSlug}:${page}`;
+          const newPageRoom = `book:${bookSlug}:page:${page}`;
+
+          // Leave old page room
+          if (socket.data.currentPageRoom && socket.data.currentPageRoom !== newPageRoom) {
+            socket.leave(socket.data.currentPageRoom);
+            console.log(`👋 ${userName} left ${socket.data.currentPageRoom}`);
+          }
+
+          // Join new page room
+          socket.join(newPageRoom);
+          socket.data.currentPageRoom = newPageRoom;
 
           // Remove from previous page
           if (activeReaders.has(readerKey)) {
@@ -167,8 +189,8 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
             console.error("Error updating presence:", error);
           }
 
-          // Broadcast to everyone in the book
-          io.to(`book:${bookSlug}`).emit("page-presence-updated", {
+          // Broadcast to everyone on this specific page
+          io.to(newPageRoom).emit("page-presence-updated", {
             page,
             readers: Array.from(pageReaders.get(pageKey) || [])
               .map((uid) => {
@@ -186,7 +208,7 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
           });
 
           console.log(
-            `📄 ${userName} on page ${page} (${
+            `📄 ${userName} joined ${newPageRoom} (${
               pageReaders.get(pageKey)?.size || 0
             } readers) - PRESENCE SAVED`
           );
@@ -205,8 +227,15 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
           userName: string;
           userAvatar?: string;
         }) => {
-          const { bookId, bookSlug, page, message, userId, userName, userAvatar } =
-            data;
+          const {
+            bookId,
+            bookSlug,
+            page,
+            message,
+            userId,
+            userName,
+            userAvatar,
+          } = data;
 
           try {
             // Rate limiting: Check last minute's messages
@@ -222,7 +251,8 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
 
             if (recentMessages >= 10) {
               socket.emit("rate-limit-exceeded", {
-                message: "Rate limit exceeded. Please wait before sending more messages.",
+                message:
+                  "Rate limit exceeded. Please wait before sending more messages.",
                 cooldown: 60,
               });
               return;
@@ -259,10 +289,13 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
               edited: savedMessage.edited,
             };
 
-            // Broadcast to everyone on this page
-            io.to(`book:${bookSlug}`).emit("new-message", chatMessage);
+            // Broadcast to everyone on this specific page
+            const pageRoom = `book:${bookSlug}:page:${page}`;
+            io.to(pageRoom).emit("new-message", chatMessage);
 
-            console.log(`💬 ${userName}: ${message} (page ${page}) - SAVED TO DB`);
+            console.log(
+              `💬 ${userName}: ${message} on ${pageRoom} - SAVED TO DB`
+            );
           } catch (error) {
             console.error("Error saving message:", error);
             socket.emit("message-error", {
@@ -295,28 +328,31 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
             timestamp: Date.now(),
           };
 
-          // Broadcast to everyone in the book
-          io.to(`book:${bookSlug}`).emit("new-reaction", reaction);
+          // Broadcast to everyone on this specific page
+          const pageRoom = `book:${bookSlug}:page:${page}`;
+          io.to(pageRoom).emit("new-reaction", reaction);
 
-          console.log(`⚡ ${userName} reacted ${emoji} on page ${page}`);
+          console.log(`⚡ ${userName} reacted ${emoji} on ${pageRoom}`);
         }
       );
 
-      // Typing indicator
+      // Typing indicator (page-specific)
       socket.on(
         "typing-start",
-        (data: { bookSlug: string; userName: string }) => {
+        (data: { bookSlug: string; page: number; userName: string }) => {
+          const pageRoom = `book:${data.bookSlug}:page:${data.page}`;
           socket
-            .to(`book:${data.bookSlug}`)
+            .to(pageRoom)
             .emit("user-typing", { userName: data.userName });
         }
       );
 
       socket.on(
         "typing-stop",
-        (data: { bookSlug: string; userName: string }) => {
+        (data: { bookSlug: string; page: number; userName: string }) => {
+          const pageRoom = `book:${data.bookSlug}:page:${data.page}`;
           socket
-            .to(`book:${data.bookSlug}`)
+            .to(pageRoom)
             .emit("user-stopped-typing", { userName: data.userName });
         }
       );
