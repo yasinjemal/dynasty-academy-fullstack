@@ -3,6 +3,8 @@
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Check, Crown, Zap, Star, Sparkles, ArrowRight } from "lucide-react";
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 
 const plans = [
@@ -80,6 +82,22 @@ function PricingCard({
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   const Icon = plan.icon;
+  const router = useRouter();
+  const { data: session } = useSession();
+  
+  const handlePlanClick = () => {
+    if (plan.name === "Free") {
+      if (session) {
+        router.push('/books');
+      } else {
+        router.push('/register');
+      }
+    } else if (plan.name === "Premium") {
+      router.push('/premium');
+    } else {
+      router.push('/premium');
+    }
+  };
 
   return (
     <motion.div
@@ -191,7 +209,8 @@ function PricingCard({
         {/* CTA Button */}
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
           <Button
-            className={`w-full bg-gradient-to-r ${plan.gradient} text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group/btn`}
+            onClick={handlePlanClick}
+            className={`w-full bg-gradient-to-r ${plan.gradient} text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group/btn cursor-pointer`}
           >
             {plan.cta}
             <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />

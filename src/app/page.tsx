@@ -6,6 +6,7 @@ import PricingSection from "@/components/home/PricingSection";
 import Footer from "@/components/home/Footer";
 import ScrollProgress from "@/components/effects/ScrollProgress";
 import MouseGlow from "@/components/effects/MouseGlow";
+import LiveActivityFeed from "@/components/effects/LiveActivityFeed";
 
 export default function Home() {
   return (
@@ -15,6 +16,9 @@ export default function Home() {
       
       {/* Mouse Glow Effect */}
       <MouseGlow />
+      
+      {/* Live Activity Feed - Bottom Left */}
+      <LiveActivityFeed />
       
       {/* INSANE 3D Hero Section with Floating Book */}
       <Hero3D />

@@ -1,14 +1,17 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { ReactNode } from 'react'
+import { motion } from "framer-motion";
+import { ReactNode } from "react";
 
 interface SectionRevealProps {
-  children: ReactNode
-  className?: string
+  children: ReactNode;
+  className?: string;
 }
 
-export default function SectionReveal({ children, className = '' }: SectionRevealProps) {
+export default function SectionReveal({
+  children,
+  className = "",
+}: SectionRevealProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -19,5 +22,5 @@ export default function SectionReveal({ children, className = '' }: SectionRevea
     >
       {children}
     </motion.div>
-  )
+  );
 }

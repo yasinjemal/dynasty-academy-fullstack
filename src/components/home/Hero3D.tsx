@@ -1,7 +1,10 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import BookPickerModal from "@/components/effects/BookPickerModal";
 import {
   Sparkles,
   Zap,
@@ -12,6 +15,11 @@ import {
 } from "lucide-react";
 
 export default function Hero3D() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showBookPicker, setShowBookPicker] = useState(false);
+  
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -21,6 +29,20 @@ export default function Hero3D() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.8, 0]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.8]);
+  
+  const handleStartJourney = () => {
+    if (session) {
+      router.push('/books');
+    } else {
+      router.push('/register');
+    }
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 3000);
+  };
+  
+  const handleExploreBooks = () => {
+    setShowBookPicker(true);
+  };
 
   return (
     <div
@@ -152,7 +174,8 @@ export default function Hero3D() {
                 transition={{ delay: 0.6 }}
               >
                 <motion.button
-                  className="px-8 py-4 bg-gradient-to-r from-orange-500 to-pink-600 rounded-xl font-bold text-white text-lg relative overflow-hidden group"
+                  onClick={handleStartJourney}
+                  className="px-8 py-4 bg-gradient-to-r from-orange-500 to-pink-600 rounded-xl font-bold text-white text-lg relative overflow-hidden group cursor-pointer"
                   whileHover={{
                     scale: 1.05,
                     boxShadow: "0 0 30px rgba(249, 115, 22, 0.5)",
@@ -161,7 +184,7 @@ export default function Hero3D() {
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     <Zap className="w-5 h-5" />
-                    Start Your Journey
+                    {session ? 'Go to Library' : 'Start Your Journey'}
                   </span>
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600"
@@ -172,7 +195,8 @@ export default function Hero3D() {
                 </motion.button>
 
                 <motion.button
-                  className="px-8 py-4 bg-white/5 backdrop-blur-lg border-2 border-white/10 rounded-xl font-bold text-white text-lg"
+                  onClick={handleExploreBooks}
+                  className="px-8 py-4 bg-white/5 backdrop-blur-lg border-2 border-white/10 rounded-xl font-bold text-white text-lg cursor-pointer"
                   whileHover={{
                     scale: 1.05,
                     backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -325,6 +349,12 @@ export default function Hero3D() {
           />
         </div>
       </motion.div>
+      
+      {/* Book Picker Modal */}
+      <BookPickerModal 
+        isOpen={showBookPicker} 
+        onClose={() => setShowBookPicker(false)} 
+      />
     </div>
   );
 }
