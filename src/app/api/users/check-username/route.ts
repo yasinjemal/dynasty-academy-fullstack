@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     if (existingUser) {
       return NextResponse.json({
         available: false,
-        message: "Username is already taken",
+        reason: "Username is already taken",
       });
     }
 
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
     if (redirect) {
       return NextResponse.json({
         available: false,
-        message: "Username is temporarily reserved",
+        reason: "Username is temporarily reserved",
       });
     }
 
