@@ -171,20 +171,21 @@ export async function GET(
 
     // Fetch recent reflections
     const recentReflections = await prisma.reflection.findMany({
-      where: { userId: user.id },
+      where: { authorId: user.id },
       take: 3,
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
         content: true,
+        excerpt: true,
         createdAt: true,
-        book: {
-          select: {
-            id: true,
-            title: true,
-            coverImage: true,
-          },
-        },
+        updatedAt: true,
+        bookId: true,
+        bookTitle: true,
+        pageNumber: true,
+        likeCount: true,
+        commentCount: true,
+        hotScore: true,
       },
     });
 
@@ -237,14 +238,15 @@ export async function GET(
         title: post.title,
         excerpt: post.content.substring(0, 150),
         createdAt: post.createdAt,
-        likes: post.likesCount,
-        comments: post.commentsCount,
+        likes: post.likeCount,
+        comments: post.commentCount,
       })),
       recentReflections: recentReflections.map((ref) => ({
         id: ref.id,
         content: ref.content,
         createdAt: ref.createdAt,
-        book: ref.book,
+        bookTitle: ref.bookTitle,
+        pageNumber: ref.pageNumber,
       })),
       topAchievements: topAchievements.map((ua) => ({
         id: ua.achievement.id,

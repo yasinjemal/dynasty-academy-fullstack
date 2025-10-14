@@ -86,9 +86,9 @@ export async function GET(
         id: post.id,
         content: post.content,
         createdAt: post.createdAt.toISOString(),
-        likesCount: post.likesCount,
-        commentsCount: post.commentsCount,
-        bookmarksCount: post.bookmarksCount,
+        likesCount: post.likeCount,
+        commentsCount: post.commentCount,
+        bookmarksCount: post.saveCount,
       })),
       hasMore,
     });
