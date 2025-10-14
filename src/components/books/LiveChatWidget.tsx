@@ -498,23 +498,37 @@ export default function LiveChatWidget({
 
                 {/* Input */}
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex gap-2">
-                    <Input
-                      ref={inputRef}
-                      value={newMessage}
-                      onChange={handleInputChange}
-                      onKeyPress={handleKeyPress}
-                      placeholder="Type a message..."
-                      className="flex-1"
-                    />
-                    <Button
-                      onClick={handleSend}
-                      disabled={!newMessage.trim()}
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                    >
-                      <Send className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  {!currentUserId ? (
+                    <div className="text-center py-3">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                        Please log in to send messages
+                      </p>
+                      <a
+                        href="/auth/signin"
+                        className="text-purple-600 hover:text-purple-700 dark:text-purple-400 text-sm font-medium underline"
+                      >
+                        Sign in to chat
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input
+                        ref={inputRef}
+                        value={newMessage}
+                        onChange={handleInputChange}
+                        onKeyPress={handleKeyPress}
+                        placeholder="Type a message..."
+                        className="flex-1"
+                      />
+                      <Button
+                        onClick={handleSend}
+                        disabled={!newMessage.trim()}
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                      >
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </>
             )}
