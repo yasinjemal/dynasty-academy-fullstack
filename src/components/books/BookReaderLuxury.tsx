@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import ListenModeLuxury from "./ListenModeLuxury";
 import ReflectionModal, { type ReflectionData } from "./ReflectionModal";
@@ -93,6 +94,7 @@ export default function BookReaderLuxury({
   salePrice,
 }: BookReaderLuxuryProps) {
   const router = useRouter();
+  const { data: session } = useSession();
 
   // ===========================================
   // CORE READING STATE
@@ -164,6 +166,8 @@ export default function BookReaderLuxury({
     isLoadingMessages,
     hasMoreMessages,
     sendMessage,
+    editMessage,
+    deleteMessage,
     sendReaction,
     startTyping,
     loadMoreMessages,
@@ -1466,7 +1470,10 @@ export default function BookReaderLuxury({
             typingUsers={typingUsers}
             isLoadingMessages={isLoadingMessages}
             hasMoreMessages={hasMoreMessages}
+            currentUserId={session?.user?.id}
             onSendMessage={sendMessage}
+            onEditMessage={editMessage}
+            onDeleteMessage={deleteMessage}
             onStartTyping={startTyping}
             onLoadMore={loadMoreMessages}
           />

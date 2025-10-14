@@ -2,7 +2,18 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Send, X, Minimize2, Maximize2 } from "lucide-react";
+import {
+  MessageCircle,
+  Send,
+  X,
+  Minimize2,
+  Maximize2,
+  MoreVertical,
+  Edit2,
+  Trash2,
+  Check,
+  XCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -14,6 +25,8 @@ interface ChatMessage {
   message: string;
   page: number;
   timestamp: number;
+  edited?: boolean;
+  editedAt?: string | number;
 }
 
 interface LiveChatWidgetProps {
@@ -21,7 +34,10 @@ interface LiveChatWidgetProps {
   typingUsers: string[];
   isLoadingMessages?: boolean;
   hasMoreMessages?: boolean;
+  currentUserId?: string;
   onSendMessage: (message: string) => void;
+  onEditMessage?: (messageId: string, newMessage: string) => void;
+  onDeleteMessage?: (messageId: string) => void;
   onStartTyping: () => void;
   onLoadMore?: () => void;
 }
@@ -31,13 +47,24 @@ export default function LiveChatWidget({
   typingUsers,
   isLoadingMessages = false,
   hasMoreMessages = false,
+  currentUserId,
   onSendMessage,
+  onEditMessage,
+  onDeleteMessage,
   onStartTyping,
   onLoadMore,
 }: LiveChatWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState("");
+  const [contextMenuMessageId, setContextMenuMessageId] = useState<
+    string | null
+  >(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
+    null
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -73,6 +100,41 @@ export default function LiveChatWidget({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
     onStartTyping();
+  };
+
+  const handleEditStart = (msg: ChatMessage) => {
+    setEditingMessageId(msg.id);
+    setEditingText(msg.message);
+    setContextMenuMessageId(null);
+  };
+
+  const handleEditSave = () => {
+    if (editingMessageId && editingText.trim() && onEditMessage) {
+      onEditMessage(editingMessageId, editingText);
+      setEditingMessageId(null);
+      setEditingText("");
+    }
+  };
+
+  const handleEditCancel = () => {
+    setEditingMessageId(null);
+    setEditingText("");
+  };
+
+  const handleDeleteClick = (messageId: string) => {
+    setShowDeleteConfirm(messageId);
+    setContextMenuMessageId(null);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (showDeleteConfirm && onDeleteMessage) {
+      onDeleteMessage(showDeleteConfirm);
+      setShowDeleteConfirm(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(null);
   };
 
   return (
@@ -146,7 +208,10 @@ export default function LiveChatWidget({
             {/* Messages */}
             {!isMinimized && (
               <>
-                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+                <div
+                  ref={messagesContainerRef}
+                  className="flex-1 overflow-y-auto p-4 space-y-3"
+                >
                   {/* Load More Button */}
                   {hasMoreMessages && onLoadMore && (
                     <div className="text-center pb-2">
@@ -157,7 +222,9 @@ export default function LiveChatWidget({
                         variant="outline"
                         className="text-xs"
                       >
-                        {isLoadingMessages ? "Loading..." : "Load Earlier Messages"}
+                        {isLoadingMessages
+                          ? "Loading..."
+                          : "Load Earlier Messages"}
                       </Button>
                     </div>
                   )}
@@ -177,42 +244,169 @@ export default function LiveChatWidget({
                       <p className="text-xs">Be the first to say something!</p>
                     </div>
                   ) : (
-                    messages.map((msg) => (
-                      <motion.div
-                        key={msg.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex items-start gap-2"
-                      >
-                        {msg.userAvatar ? (
-                          <img
-                            src={msg.userAvatar}
-                            alt={msg.userName}
-                            className="w-8 h-8 rounded-full"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-xs font-bold text-white">
-                            {msg.userName.charAt(0).toUpperCase()}
+                    messages.map((msg) => {
+                      const isOwnMessage = msg.userId === currentUserId;
+                      const isEditing = editingMessageId === msg.id;
+
+                      return (
+                        <motion.div
+                          key={msg.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex items-start gap-2 group relative"
+                        >
+                          {msg.userAvatar ? (
+                            <img
+                              src={msg.userAvatar}
+                              alt={msg.userName}
+                              className="w-8 h-8 rounded-full flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                              {msg.userName.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                {msg.userName}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
+                                {new Date(msg.timestamp).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                              {msg.edited && (
+                                <span className="text-xs text-gray-400 dark:text-gray-500 italic flex-shrink-0">
+                                  (edited)
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Edit Mode */}
+                            {isEditing ? (
+                              <div className="space-y-2">
+                                <Input
+                                  value={editingText}
+                                  onChange={(e) => setEditingText(e.target.value)}
+                                  className="text-sm"
+                                  autoFocus
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" && !e.shiftKey) {
+                                      e.preventDefault();
+                                      handleEditSave();
+                                    } else if (e.key === "Escape") {
+                                      handleEditCancel();
+                                    }
+                                  }}
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={handleEditSave}
+                                    className="h-7 px-2 text-xs"
+                                  >
+                                    <Check className="w-3 h-3 mr-1" />
+                                    Save
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={handleEditCancel}
+                                    className="h-7 px-2 text-xs"
+                                  >
+                                    <XCircle className="w-3 h-3 mr-1" />
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              /* Normal Message Display */
+                              <div className="relative">
+                                <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2 break-words">
+                                  {msg.message}
+                                </p>
+
+                                {/* Context Menu Button (Own Messages Only) */}
+                                {isOwnMessage && onEditMessage && onDeleteMessage && (
+                                  <div className="absolute top-1 right-1">
+                                    <button
+                                      onClick={() =>
+                                        setContextMenuMessageId(
+                                          contextMenuMessageId === msg.id ? null : msg.id
+                                        )
+                                      }
+                                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all"
+                                    >
+                                      <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                                    </button>
+
+                                    {/* Context Menu */}
+                                    {contextMenuMessageId === msg.id && (
+                                      <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 min-w-[120px]">
+                                        <button
+                                          onClick={() => handleEditStart(msg)}
+                                          className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
+                                        >
+                                          <Edit2 className="w-3 h-3" />
+                                          Edit
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteClick(msg.id)}
+                                          className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400 rounded-b-lg"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                          Delete
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
-                        )}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {msg.userName}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">
-                              {new Date(msg.timestamp).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2">
-                            {msg.message}
-                          </p>
-                        </div>
-                      </motion.div>
-                    ))
+
+                          {/* Delete Confirmation Dialog */}
+                          {showDeleteConfirm === msg.id && (
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+                              onClick={handleDeleteCancel}
+                            >
+                              <div
+                                className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-sm w-full shadow-xl"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                                  Delete Message?
+                                </h3>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                  This action cannot be undone. The message will be removed for everyone.
+                                </p>
+                                <div className="flex gap-3 justify-end">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleDeleteCancel}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={handleDeleteConfirm}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </motion.div>
+                      );
+                    })
                   )}
                   <div ref={messagesEndRef} />
                 </div>

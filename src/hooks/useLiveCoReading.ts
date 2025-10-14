@@ -20,7 +20,7 @@ interface ChatMessage {
   page: number;
   timestamp: number;
   edited?: boolean;
-  editedAt?: string;
+  editedAt?: string | number;
   createdAt?: string;
 }
 
@@ -242,6 +242,22 @@ export function useLiveCoReading(
       }
     );
 
+    // Listen for message edits
+    socketInstance.on("message-edited", (editedMessage: ChatMessage) => {
+      setMessages((prev) =>
+        prev.map((msg) => (msg.id === editedMessage.id ? editedMessage : msg))
+      );
+    });
+
+    // Listen for message deletions
+    socketInstance.on(
+      "message-deleted",
+      ({ messageId }: { messageId: string }) => {
+        setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+        messageIdsRef.current.delete(messageId);
+      }
+    );
+
     // Listen for reactions
     socketInstance.on("new-reaction", (reaction: Reaction) => {
       if (reaction.page === currentPage) {
@@ -356,6 +372,37 @@ export function useLiveCoReading(
     }
   }, [nextCursor, isLoadingMessages, loadMessages]);
 
+  // Edit message
+  const editMessage = useCallback(
+    (messageId: string, newMessage: string) => {
+      if (socket && session?.user && newMessage.trim()) {
+        socket.emit("edit-message", {
+          messageId,
+          newMessage: newMessage.trim(),
+          bookSlug,
+          page: currentPage,
+          userId: session.user.id,
+        });
+      }
+    },
+    [socket, session?.user, bookSlug, currentPage]
+  );
+
+  // Delete message
+  const deleteMessage = useCallback(
+    (messageId: string) => {
+      if (socket && session?.user) {
+        socket.emit("delete-message", {
+          messageId,
+          bookSlug,
+          page: currentPage,
+          userId: session.user.id,
+        });
+      }
+    },
+    [socket, session?.user, bookSlug, currentPage]
+  );
+
   // Send reaction
   const sendReaction = useCallback(
     (emoji: string, textIndex: number) => {
@@ -407,6 +454,8 @@ export function useLiveCoReading(
     isLoadingMessages,
     hasMoreMessages,
     sendMessage,
+    editMessage,
+    deleteMessage,
     sendReaction,
     startTyping,
     loadMoreMessages,

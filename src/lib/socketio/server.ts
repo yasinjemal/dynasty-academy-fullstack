@@ -437,6 +437,103 @@ export function initializeSocketIO(res: NextApiResponseWithSocket) {
         }
       );
 
+      // Edit message
+      socket.on(
+        "edit-message",
+        async (data: {
+          messageId: string;
+          newMessage: string;
+          bookSlug: string;
+          page: number;
+          userId: string;
+        }) => {
+          const { messageId, newMessage, bookSlug, page, userId } = data;
+
+          try {
+            // Update message in database (verify ownership)
+            const updatedMessage = await prisma.pageChat.update({
+              where: {
+                id: messageId,
+                userId: userId, // Only allow editing own messages
+              },
+              data: {
+                message: newMessage,
+                edited: true,
+                editedAt: new Date(),
+              },
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                  },
+                },
+              },
+            });
+
+            const editedMessage = {
+              id: updatedMessage.id,
+              userId: updatedMessage.userId,
+              userName: updatedMessage.user.name || "Anonymous",
+              userAvatar: updatedMessage.user.image || undefined,
+              message: updatedMessage.message,
+              page: updatedMessage.page,
+              timestamp: updatedMessage.createdAt.getTime(),
+              edited: updatedMessage.edited,
+              editedAt: updatedMessage.editedAt?.getTime(),
+            };
+
+            // Broadcast to everyone on this page
+            const pageRoom = `book:${bookSlug}:page:${page}`;
+            io.to(pageRoom).emit("message-edited", editedMessage);
+
+            console.log(`✏️ Message ${messageId} edited on ${pageRoom}`);
+          } catch (error) {
+            console.error("Error editing message:", error);
+            socket.emit("message-error", {
+              message:
+                "Failed to edit message. You can only edit your own messages.",
+            });
+          }
+        }
+      );
+
+      // Delete message
+      socket.on(
+        "delete-message",
+        async (data: {
+          messageId: string;
+          bookSlug: string;
+          page: number;
+          userId: string;
+        }) => {
+          const { messageId, bookSlug, page, userId } = data;
+
+          try {
+            // Delete message from database (verify ownership)
+            await prisma.pageChat.delete({
+              where: {
+                id: messageId,
+                userId: userId, // Only allow deleting own messages
+              },
+            });
+
+            // Broadcast to everyone on this page
+            const pageRoom = `book:${bookSlug}:page:${page}`;
+            io.to(pageRoom).emit("message-deleted", { messageId });
+
+            console.log(`🗑️ Message ${messageId} deleted on ${pageRoom}`);
+          } catch (error) {
+            console.error("Error deleting message:", error);
+            socket.emit("message-error", {
+              message:
+                "Failed to delete message. You can only delete your own messages.",
+            });
+          }
+        }
+      );
+
       // Typing indicator (page-specific)
       socket.on(
         "typing-start",
