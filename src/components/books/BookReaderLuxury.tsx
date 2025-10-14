@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import ListenModeLuxury from "./ListenModeLuxury";
@@ -10,6 +10,8 @@ import { useLiveCoReading } from "@/hooks/useLiveCoReading";
 import LivePresenceIndicator from "./LivePresenceIndicator";
 import LiveChatWidget from "./LiveChatWidget";
 import LiveReactions from "./LiveReactions";
+import QuickReactionBar from "./QuickReactionBar";
+import SharePageLink from "./SharePageLink";
 import {
   BookOpen,
   ChevronLeft,
@@ -94,12 +96,24 @@ export default function BookReaderLuxury({
   salePrice,
 }: BookReaderLuxuryProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
 
   // ===========================================
   // CORE READING STATE
   // ===========================================
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Handle deep linking to specific page
+  useEffect(() => {
+    const pageParam = searchParams.get("page");
+    if (pageParam) {
+      const page = parseInt(pageParam, 10);
+      if (!isNaN(page) && page > 0 && page <= totalPages) {
+        setCurrentPage(page);
+      }
+    }
+  }, [searchParams, totalPages]);
   const [pageContent, setPageContent] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -1480,6 +1494,16 @@ export default function BookReaderLuxury({
 
           {/* Live Reactions */}
           <LiveReactions reactions={reactions} onReact={sendReaction} />
+
+          {/* Quick Reaction Bar */}
+          <QuickReactionBar onReact={sendReaction} currentTextIndex={0} />
+
+          {/* Share Page Link */}
+          <SharePageLink
+            bookSlug={slug}
+            currentPage={currentPage}
+            bookTitle={bookTitle}
+          />
         </>
       )}
     </div>

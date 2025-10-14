@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import ChatMuteToggle from "./ChatMuteToggle";
 
 interface ChatMessage {
   id: string;
@@ -186,6 +187,9 @@ export default function LiveChatWidget({
                 )}
               </div>
               <div className="flex items-center gap-1">
+                <div className="mr-1">
+                  <ChatMuteToggle />
+                </div>
                 <button
                   onClick={() => setIsMinimized(!isMinimized)}
                   className="hover:bg-white/20 p-1 rounded transition-colors"
@@ -272,10 +276,13 @@ export default function LiveChatWidget({
                                 {msg.userName}
                               </span>
                               <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
-                                {new Date(msg.timestamp).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                {new Date(msg.timestamp).toLocaleTimeString(
+                                  [],
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
                               </span>
                               {msg.edited && (
                                 <span className="text-xs text-gray-400 dark:text-gray-500 italic flex-shrink-0">
@@ -289,7 +296,9 @@ export default function LiveChatWidget({
                               <div className="space-y-2">
                                 <Input
                                   value={editingText}
-                                  onChange={(e) => setEditingText(e.target.value)}
+                                  onChange={(e) =>
+                                    setEditingText(e.target.value)
+                                  }
                                   className="text-sm"
                                   autoFocus
                                   onKeyDown={(e) => {
@@ -329,40 +338,46 @@ export default function LiveChatWidget({
                                 </p>
 
                                 {/* Context Menu Button (Own Messages Only) */}
-                                {isOwnMessage && onEditMessage && onDeleteMessage && (
-                                  <div className="absolute top-1 right-1">
-                                    <button
-                                      onClick={() =>
-                                        setContextMenuMessageId(
-                                          contextMenuMessageId === msg.id ? null : msg.id
-                                        )
-                                      }
-                                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all"
-                                    >
-                                      <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                                    </button>
+                                {isOwnMessage &&
+                                  onEditMessage &&
+                                  onDeleteMessage && (
+                                    <div className="absolute top-1 right-1">
+                                      <button
+                                        onClick={() =>
+                                          setContextMenuMessageId(
+                                            contextMenuMessageId === msg.id
+                                              ? null
+                                              : msg.id
+                                          )
+                                        }
+                                        className="opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-all"
+                                      >
+                                        <MoreVertical className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                                      </button>
 
-                                    {/* Context Menu */}
-                                    {contextMenuMessageId === msg.id && (
-                                      <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 min-w-[120px]">
-                                        <button
-                                          onClick={() => handleEditStart(msg)}
-                                          className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
-                                        >
-                                          <Edit2 className="w-3 h-3" />
-                                          Edit
-                                        </button>
-                                        <button
-                                          onClick={() => handleDeleteClick(msg.id)}
-                                          className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400 rounded-b-lg"
-                                        >
-                                          <Trash2 className="w-3 h-3" />
-                                          Delete
-                                        </button>
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
+                                      {/* Context Menu */}
+                                      {contextMenuMessageId === msg.id && (
+                                        <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 min-w-[120px]">
+                                          <button
+                                            onClick={() => handleEditStart(msg)}
+                                            className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 rounded-t-lg"
+                                          >
+                                            <Edit2 className="w-3 h-3" />
+                                            Edit
+                                          </button>
+                                          <button
+                                            onClick={() =>
+                                              handleDeleteClick(msg.id)
+                                            }
+                                            className="w-full px-3 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600 dark:text-red-400 rounded-b-lg"
+                                          >
+                                            <Trash2 className="w-3 h-3" />
+                                            Delete
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
                               </div>
                             )}
                           </div>
@@ -383,7 +398,8 @@ export default function LiveChatWidget({
                                   Delete Message?
                                 </h3>
                                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                  This action cannot be undone. The message will be removed for everyone.
+                                  This action cannot be undone. The message will
+                                  be removed for everyone.
                                 </p>
                                 <div className="flex gap-3 justify-end">
                                   <Button
