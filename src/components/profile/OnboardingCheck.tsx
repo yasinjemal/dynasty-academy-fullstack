@@ -1,41 +1,39 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
-import OnboardingModal from '@/components/profile/OnboardingModal'
-import { usePathname } from 'next/navigation'
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import OnboardingModal from "@/components/profile/OnboardingModal";
+import { usePathname } from "next/navigation";
 
 export default function OnboardingCheck() {
-  const { data: session, status, update } = useSession()
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const pathname = usePathname()
+  const { data: session, status, update } = useSession();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const pathname = usePathname();
 
   // Check if user needs onboarding (no username set)
   useEffect(() => {
-    if (status === 'loading') return
-    
+    if (status === "loading") return;
+
     // Don't show on auth pages
-    const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/register')
-    if (isAuthPage) return
+    const isAuthPage =
+      pathname?.startsWith("/login") || pathname?.startsWith("/register");
+    if (isAuthPage) return;
 
     // Show modal if user is logged in but has no username
-    if (status === 'authenticated' && session?.user && !session.user.username) {
-      setShowOnboarding(true)
+    if (status === "authenticated" && session?.user && !session.user.username) {
+      setShowOnboarding(true);
     } else {
-      setShowOnboarding(false)
+      setShowOnboarding(false);
     }
-  }, [status, session, pathname])
+  }, [status, session, pathname]);
 
   const handleComplete = async () => {
-    setShowOnboarding(false)
+    setShowOnboarding(false);
     // Refresh session to get updated username
-    await update()
-  }
+    await update();
+  };
 
   return (
-    <OnboardingModal 
-      isOpen={showOnboarding} 
-      onComplete={handleComplete}
-    />
-  )
+    <OnboardingModal isOpen={showOnboarding} onComplete={handleComplete} />
+  );
 }

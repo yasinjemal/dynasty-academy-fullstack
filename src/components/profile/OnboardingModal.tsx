@@ -1,96 +1,101 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X, User, Sparkles, CheckCircle, AlertCircle } from 'lucide-react'
-import { toast } from 'sonner'
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, User, Sparkles, CheckCircle, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 interface OnboardingModalProps {
-  isOpen: boolean
-  onComplete: () => void
+  isOpen: boolean;
+  onComplete: () => void;
 }
 
-export default function OnboardingModal({ isOpen, onComplete }: OnboardingModalProps) {
-  const [username, setUsername] = useState('')
-  const [isChecking, setIsChecking] = useState(false)
-  const [isAvailable, setIsAvailable] = useState<boolean | null>(null)
-  const [error, setError] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export default function OnboardingModal({
+  isOpen,
+  onComplete,
+}: OnboardingModalProps) {
+  const [username, setUsername] = useState("");
+  const [isChecking, setIsChecking] = useState(false);
+  const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Debounced username check
   useEffect(() => {
     if (!username) {
-      setIsAvailable(null)
-      setError('')
-      return
+      setIsAvailable(null);
+      setError("");
+      return;
     }
 
     // Validation
-    const usernameRegex = /^(?!_)(?!.*__)[a-z0-9_]{3,20}(?<!_)$/
+    const usernameRegex = /^(?!_)(?!.*__)[a-z0-9_]{3,20}(?<!_)$/;
     if (!usernameRegex.test(username)) {
-      setIsAvailable(false)
-      setError('3-20 chars, lowercase, numbers, underscore only')
-      return
+      setIsAvailable(false);
+      setError("3-20 chars, lowercase, numbers, underscore only");
+      return;
     }
 
-    setError('')
-    setIsChecking(true)
+    setError("");
+    setIsChecking(true);
 
     const timer = setTimeout(async () => {
       try {
-        const response = await fetch(`/api/users/check-username?username=${username}`)
-        const data = await response.json()
-        setIsAvailable(data.available)
+        const response = await fetch(
+          `/api/users/check-username?username=${username}`
+        );
+        const data = await response.json();
+        setIsAvailable(data.available);
         if (!data.available) {
-          setError(data.reason || 'Username taken')
+          setError(data.reason || "Username taken");
         }
       } catch (err) {
-        console.error('Error checking username:', err)
-        setIsAvailable(false)
-        setError('Error checking availability')
+        console.error("Error checking username:", err);
+        setIsAvailable(false);
+        setError("Error checking availability");
       } finally {
-        setIsChecking(false)
+        setIsChecking(false);
       }
-    }, 500)
+    }, 500);
 
-    return () => clearTimeout(timer)
-  }, [username])
+    return () => clearTimeout(timer);
+  }, [username]);
 
   const handleClaim = async () => {
-    if (!isAvailable || !username) return
+    if (!isAvailable || !username) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/users/username', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/users/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        toast.success('Welcome to Dynasty Academy! 🎉', {
+        toast.success("Welcome to Dynasty Academy! 🎉", {
           description: `Your profile is ready @${username}`,
-        })
-        onComplete()
+        });
+        onComplete();
       } else {
-        toast.error('Error', { description: data.error })
-        setError(data.error)
+        toast.error("Error", { description: data.error });
+        setError(data.error);
       }
     } catch (error) {
-      console.error('Error claiming username:', error)
-      toast.error('Error', { description: 'Failed to claim username' })
+      console.error("Error claiming username:", error);
+      toast.error("Error", { description: "Failed to claim username" });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleSkip = () => {
-    toast.info('You can set your username later in Profile Settings')
-    onComplete()
-  }
+    toast.info("You can set your username later in Profile Settings");
+    onComplete();
+  };
 
   return (
     <AnimatePresence>
@@ -112,12 +117,16 @@ export default function OnboardingModal({ isOpen, onComplete }: OnboardingModalP
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: 'spring' }}
+                transition={{ delay: 0.2, type: "spring" }}
               >
                 <Sparkles className="w-12 h-12 mx-auto mb-3 text-white" />
               </motion.div>
-              <h2 className="text-2xl font-bold text-white mb-1">Welcome to Dynasty!</h2>
-              <p className="text-purple-100 text-sm">Choose your username to get started</p>
+              <h2 className="text-2xl font-bold text-white mb-1">
+                Welcome to Dynasty!
+              </h2>
+              <p className="text-purple-100 text-sm">
+                Choose your username to get started
+              </p>
             </div>
 
             {/* Content */}
@@ -152,14 +161,14 @@ export default function OnboardingModal({ isOpen, onComplete }: OnboardingModalP
                     )}
                   </div>
                 </div>
-                {error && (
-                  <p className="mt-2 text-sm text-red-400">{error}</p>
-                )}
+                {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
               </div>
 
               {/* Info */}
               <div className="bg-gray-800/30 border border-gray-700 rounded-lg p-4">
-                <p className="text-xs text-gray-400 mb-2 font-medium">Username Rules:</p>
+                <p className="text-xs text-gray-400 mb-2 font-medium">
+                  Username Rules:
+                </p>
                 <ul className="text-xs text-gray-500 space-y-1">
                   <li>• 3-20 characters</li>
                   <li>• Lowercase letters, numbers, underscore</li>
@@ -197,5 +206,5 @@ export default function OnboardingModal({ isOpen, onComplete }: OnboardingModalP
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
