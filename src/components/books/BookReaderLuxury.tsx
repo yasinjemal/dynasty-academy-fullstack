@@ -128,7 +128,7 @@ export default function BookReaderLuxury({
     "serif"
   );
   const [theme, setTheme] = useState<
-    "light" | "sepia" | "dark" | "nord" | "ocean"
+    "light" | "sepia" | "dark" | "nord" | "ocean" | "sunset" | "forest" | "lavender" | "mocha" | "midnight"
   >("light");
   const [layout, setLayout] = useState<"standard" | "wide" | "narrow">(
     "standard"
@@ -203,7 +203,7 @@ export default function BookReaderLuxury({
   const progressPercentage = (currentPage / totalPages) * 100;
 
   // ===========================================
-  // THEME DEFINITIONS (ULTRA-LUXURY PRESETS)
+  // THEME DEFINITIONS (ULTRA-LUXURY PRESETS) - 10 AMAZING THEMES!
   // ===========================================
   const themes = {
     light: {
@@ -214,6 +214,8 @@ export default function BookReaderLuxury({
       border: "border-gray-200",
       card: "bg-gray-50",
       gradient: "from-gray-50 via-white to-gray-50",
+      name: "☀️ Light",
+      description: "Clean and bright"
     },
     sepia: {
       bg: "bg-[#f4ecd8]",
@@ -223,6 +225,8 @@ export default function BookReaderLuxury({
       border: "border-[#d4c5ad]",
       card: "bg-[#efe6d5]",
       gradient: "from-[#efe6d5] via-[#f4ecd8] to-[#efe6d5]",
+      name: "📜 Sepia",
+      description: "Classic paper"
     },
     dark: {
       bg: "bg-gray-900",
@@ -232,6 +236,8 @@ export default function BookReaderLuxury({
       border: "border-gray-700",
       card: "bg-gray-800/50",
       gradient: "from-gray-900 via-gray-800 to-gray-900",
+      name: "🌙 Dark",
+      description: "Night reading"
     },
     nord: {
       bg: "bg-[#2e3440]",
@@ -241,6 +247,8 @@ export default function BookReaderLuxury({
       border: "border-[#4c566a]",
       card: "bg-[#3b4252]/50",
       gradient: "from-[#2e3440] via-[#3b4252] to-[#2e3440]",
+      name: "❄️ Nord",
+      description: "Arctic aurora"
     },
     ocean: {
       bg: "bg-[#0a192f]",
@@ -250,6 +258,63 @@ export default function BookReaderLuxury({
       border: "border-[#233554]",
       card: "bg-[#112240]/50",
       gradient: "from-[#0a192f] via-[#112240] to-[#0a192f]",
+      name: "🌊 Ocean",
+      description: "Deep sea calm"
+    },
+    sunset: {
+      bg: "bg-[#fff5f0]",
+      text: "text-[#442817]",
+      accent: "from-[#ff6b6b] to-[#ee5a24]",
+      secondary: "bg-[#ffe8e0]",
+      border: "border-[#ffd4c8]",
+      card: "bg-[#fff0eb]",
+      gradient: "from-[#fff0eb] via-[#fff5f0] to-[#fff0eb]",
+      name: "🌅 Sunset",
+      description: "Warm glow"
+    },
+    forest: {
+      bg: "bg-[#1a2f1a]",
+      text: "text-[#e8f5e8]",
+      accent: "from-[#52c41a] to-[#73d13d]",
+      secondary: "bg-[#234023]",
+      border: "border-[#2d5a2d]",
+      card: "bg-[#234023]/50",
+      gradient: "from-[#1a2f1a] via-[#234023] to-[#1a2f1a]",
+      name: "🌲 Forest",
+      description: "Nature fresh"
+    },
+    lavender: {
+      bg: "bg-[#f8f4ff]",
+      text: "text-[#3d2e5f]",
+      accent: "from-[#b37feb] to-[#9254de]",
+      secondary: "bg-[#f0e7ff]",
+      border: "border-[#e6d7ff]",
+      card: "bg-[#f4edff]",
+      gradient: "from-[#f4edff] via-[#f8f4ff] to-[#f4edff]",
+      name: "💜 Lavender",
+      description: "Soft luxury"
+    },
+    mocha: {
+      bg: "bg-[#3a2f2f]",
+      text: "text-[#f5e6d3]",
+      accent: "from-[#d4a574] to-[#b8936a]",
+      secondary: "bg-[#4a3f3f]",
+      border: "border-[#5a4f4f]",
+      card: "bg-[#4a3f3f]/50",
+      gradient: "from-[#3a2f2f] via-[#4a3f3f] to-[#3a2f2f]",
+      name: "☕ Mocha",
+      description: "Cozy coffee"
+    },
+    midnight: {
+      bg: "bg-[#0d1117]",
+      text: "text-[#c9d1d9]",
+      accent: "from-[#f78166] to-[#ea6045]",
+      secondary: "bg-[#161b22]",
+      border: "border-[#21262d]",
+      card: "bg-[#161b22]/50",
+      gradient: "from-[#0d1117] via-[#161b22] to-[#0d1117]",
+      name: "🌌 Midnight",
+      description: "GitHub dark"
     },
   };
 
@@ -703,15 +768,15 @@ export default function BookReaderLuxury({
               </div>
             </div>
 
-            {/* Sub-header: Quick Actions */}
+            {/* Sub-header: Quick Actions - Enhanced Visibility! */}
             <div className="flex items-center justify-between pb-3 border-t border-gray-200/50 dark:border-gray-700/50 mt-2 pt-3">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setFocusMode(!focusMode)}
-                  className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
                     focusMode
-                      ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg`
-                      : `${currentTheme.secondary} hover:scale-105`
+                      ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
+                      : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-purple-400 hover:shadow-lg`
                   }`}
                 >
                   <Eye className="w-4 h-4" />
@@ -720,10 +785,10 @@ export default function BookReaderLuxury({
 
                 <button
                   onClick={() => setZenMode(!zenMode)}
-                  className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
                     zenMode
-                      ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg`
-                      : `${currentTheme.secondary} hover:scale-105`
+                      ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
+                      : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-blue-400 hover:shadow-lg`
                   }`}
                 >
                   <Sparkles className="w-4 h-4" />
@@ -732,10 +797,10 @@ export default function BookReaderLuxury({
 
                 <button
                   onClick={() => setAutoScroll(!autoScroll)}
-                  className={`flex items-center gap-2 px-3 py-1 rounded-lg text-sm transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
                     autoScroll
-                      ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg`
-                      : `${currentTheme.secondary} hover:scale-105`
+                      ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
+                      : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-green-400 hover:shadow-lg`
                   }`}
                 >
                   <FastForward className="w-4 h-4" />
@@ -795,35 +860,45 @@ export default function BookReaderLuxury({
                 </button>
               </div>
 
-              {/* Theme Selection */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
-                  Theme
+              {/* Theme Selection - 10 LUXURY THEMES! */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                  <Palette className="w-5 h-5" />
+                  Reading Theme
                 </h3>
-                <div className="grid grid-cols-5 gap-2">
-                  {Object.keys(themes).map((themeKey) => (
+                <div className="grid grid-cols-5 gap-3">
+                  {Object.entries(themes).map(([themeKey, themeData]) => (
                     <button
                       key={themeKey}
                       onClick={() => setTheme(themeKey as any)}
-                      className={`relative aspect-square rounded-xl border-2 transition-all ${
+                      className={`group relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all hover:scale-105 ${
                         theme === themeKey
-                          ? "border-purple-500 scale-105"
-                          : "border-gray-300 dark:border-gray-600"
+                          ? "border-purple-500 shadow-lg shadow-purple-500/30 bg-purple-50 dark:bg-purple-900/20"
+                          : "border-gray-300 dark:border-gray-600 hover:border-purple-300"
                       }`}
+                      title={themeData.description}
                     >
                       <div
-                        className={`absolute inset-0 rounded-xl ${
-                          themes[themeKey as keyof typeof themes].bg
-                        }`}
-                      />
-                      {theme === themeKey && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Check className="w-5 h-5 text-purple-500" />
-                        </div>
-                      )}
+                        className={`w-full aspect-square rounded-lg ${themeData.bg} border-2 ${themeData.border} shadow-inner relative overflow-hidden`}
+                      >
+                        <div className={`absolute inset-0 bg-gradient-to-br ${themeData.accent} opacity-20`} />
+                        {theme === themeKey && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Check className="w-6 h-6 text-purple-600 dark:text-purple-400 drop-shadow-lg" />
+                          </div>
+                        )}
+                      </div>
+                      <span className={`text-xs font-semibold text-center ${
+                        theme === themeKey ? 'text-purple-600 dark:text-purple-400' : 'opacity-70'
+                      }`}>
+                        {themeData.name}
+                      </span>
                     </button>
                   ))}
                 </div>
+                <p className="text-xs text-center opacity-60 italic">
+                  ✨ Choose your perfect reading atmosphere
+                </p>
               </div>
 
               {/* Font Size */}
