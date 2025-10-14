@@ -142,7 +142,8 @@ export default async function PostPage({ params }: PostPageProps) {
         commentCount: post.commentCount,
         saveCount: post.saveCount || 0,
         hotScore: post.hotScore,
-        publishedAt: post.publishedAt?.toISOString() || post.createdAt.toISOString(),
+        publishedAt:
+          post.publishedAt?.toISOString() || post.createdAt.toISOString(),
         author: {
           id: post.author.id,
           name: post.author.name || post.author.username || "Anonymous",

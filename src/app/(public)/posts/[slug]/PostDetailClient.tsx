@@ -97,6 +97,8 @@ export default function PostDetailClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [commentLikes, setCommentLikes] = useState<Record<string, boolean>>({});
 
   // Show loading state if post is not loaded
   if (!post) {
@@ -239,6 +241,62 @@ export default function PostDetailClient({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Handle comment like toggle
+  const handleCommentLike = async (commentId: string) => {
+    if (!session) {
+      router.push("/auth/signin");
+      return;
+    }
+
+    const isLiked = commentLikes[commentId] || false;
+
+    // Optimistic update
+    setCommentLikes((prev) => ({ ...prev, [commentId]: !isLiked }));
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.id === commentId
+          ? {
+              ...comment,
+              likeCount: isLiked
+                ? comment.likeCount - 1
+                : comment.likeCount + 1,
+            }
+          : comment
+      )
+    );
+
+    try {
+      const res = await fetch(`/api/comments/${commentId}/like`, {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to toggle comment like");
+      }
+    } catch (error) {
+      // Revert on error
+      setCommentLikes((prev) => ({ ...prev, [commentId]: isLiked }));
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id === commentId
+            ? {
+                ...comment,
+                likeCount: isLiked
+                  ? comment.likeCount + 1
+                  : comment.likeCount - 1,
+              }
+            : comment
+        )
+      );
+      console.error("Error toggling comment like:", error);
+    }
+  };
+
+  // Handle reply click
+  const handleReplyClick = (commentId: string) => {
+    setReplyingTo(replyingTo === commentId ? null : commentId);
   };
 
   // Format time ago
@@ -498,7 +556,7 @@ export default function PostDetailClient({
                         value={commentContent}
                         onChange={(e) => setCommentContent(e.target.value)}
                         placeholder="Share your thoughts..."
-                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-purple-400 focus:ring-4 focus:ring-purple-100 resize-none transition-all"
+                        className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-purple-400 focus:ring-4 focus:ring-purple-100 resize-none transition-all text-slate-900 placeholder:text-slate-400 bg-white"
                         rows={3}
                       />
 
@@ -600,15 +658,35 @@ export default function PostDetailClient({
                         </p>
 
                         <div className="flex items-center gap-4">
-                          <button className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-purple-600 transition-colors">
-                            <Heart className="w-4 h-4" />
+                          <motion.button
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleCommentLike(comment.id)}
+                            className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
+                              commentLikes[comment.id]
+                                ? "text-pink-600"
+                                : "text-slate-500 hover:text-pink-600"
+                            }`}
+                          >
+                            <Heart
+                              className={`w-4 h-4 ${
+                                commentLikes[comment.id] ? "fill-pink-600" : ""
+                              }`}
+                            />
                             <span>{comment.likeCount}</span>
-                          </button>
+                          </motion.button>
 
-                          <button className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-purple-600 transition-colors">
+                          <motion.button
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleReplyClick(comment.id)}
+                            className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
+                              replyingTo === comment.id
+                                ? "text-purple-600"
+                                : "text-slate-500 hover:text-purple-600"
+                            }`}
+                          >
                             <MessageCircle className="w-4 h-4" />
                             <span>Reply</span>
-                          </button>
+                          </motion.button>
 
                           {comment._count.replies > 0 && (
                             <button className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors">
@@ -619,6 +697,48 @@ export default function PostDetailClient({
                             </button>
                           )}
                         </div>
+
+                        {/* Reply Form - Show when replying to this comment */}
+                        <AnimatePresence>
+                          {replyingTo === comment.id && session && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="mt-4 pl-4 border-l-2 border-purple-200"
+                            >
+                              <div className="flex gap-3">
+                                <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-purple-200 flex-shrink-0">
+                                  <Image
+                                    src={session.user?.image || "/default-avatar.png"}
+                                    alt={session.user?.name || "You"}
+                                    width={32}
+                                    height={32}
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <textarea
+                                    placeholder={`Reply to ${comment.author.name}...`}
+                                    className="w-full px-3 py-2 rounded-lg border-2 border-slate-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 resize-none text-sm text-slate-900 placeholder:text-slate-400 bg-white"
+                                    rows={2}
+                                  />
+                                  <div className="flex gap-2 mt-2">
+                                    <button className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-medium hover:shadow-lg transition-all">
+                                      Reply
+                                    </button>
+                                    <button
+                                      onClick={() => setReplyingTo(null)}
+                                      className="px-4 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200 transition-all"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
                     </motion.div>
                   ))}
