@@ -9,6 +9,7 @@ export async function middleware(request: NextRequest) {
                      request.nextUrl.pathname.startsWith('/register')
   const isAdminPage = request.nextUrl.pathname.startsWith('/admin')
   const isDashboardPage = request.nextUrl.pathname.startsWith('/dashboard')
+  const isSettingsPage = request.nextUrl.pathname.startsWith('/settings')
 
   // Redirect authenticated users away from auth pages
   if (isAuthPage && isAuth) {
@@ -16,7 +17,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect unauthenticated users to login
-  if (!isAuth && (isDashboardPage || isAdminPage)) {
+  if (!isAuth && (isDashboardPage || isAdminPage || isSettingsPage)) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname)
     return NextResponse.redirect(loginUrl)
@@ -35,6 +36,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/dashboard/:path*',
+    '/settings/:path*',
     '/admin/:path*',
     '/login',
     '/register',
