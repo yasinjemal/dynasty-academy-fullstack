@@ -9,6 +9,7 @@
 ## 🚀 **Project Vision**
 
 Dynasty Built Academy is an **AI-assisted learning + creator community** where members:
+
 - Read books & create reflections
 - Build projects publicly with accountability
 - Earn **Dynasty Score** through valuable actions (posting, commenting, streaks)
@@ -16,6 +17,7 @@ Dynasty Built Academy is an **AI-assisted learning + creator community** where m
 - Get AI assistance for drafting, summarizing, and recommendations
 
 **Target Users:**
+
 - Solo builders shipping small projects
 - Readers/note-takers converting highlights into reflections
 - Mentors sharing high-signal content
@@ -25,6 +27,7 @@ Dynasty Built Academy is an **AI-assisted learning + creator community** where m
 ## ✅ **What's Currently Working**
 
 ### **1. Core Infrastructure**
+
 - ✅ Next.js 15.5.4 with App Router
 - ✅ Prisma ORM connected to Supabase PostgreSQL
 - ✅ NextAuth with Google OAuth
@@ -33,7 +36,9 @@ Dynasty Built Academy is an **AI-assisted learning + creator community** where m
 - ✅ Auto-save Git tasks configured in VSCode
 
 ### **2. Database Schema (Fully Migrated)**
+
 **13 Core Models:**
+
 - `User` - Enhanced with Dynasty Score fields (dynastyScore, level, streakDays, username, etc.)
 - `Post` - Community posts with tags, hot score, view tracking
 - `Reflection` - Book-linked reflections with quotes and page numbers
@@ -46,6 +51,7 @@ Dynasty Built Academy is an **AI-assisted learning + creator community** where m
 - Plus junction tables: `Like`, `Comment`, `Follow`, `CollectionItem`, `UserQuest`
 
 **5 Enums:**
+
 - `FeedType` - HOME, FOLLOWING, TOPIC
 - `QuestType` - DAILY, WEEKLY, SPECIAL
 - `ReportType` - USER, POST, COMMENT, REFLECTION
@@ -55,6 +61,7 @@ Dynasty Built Academy is an **AI-assisted learning + creator community** where m
 ### **3. Gamification System (Dynasty Score)**
 
 **Core Engine:** `src/lib/dynasty-score.ts`
+
 ```typescript
 // Point Rules
 - Create Post: +10 DS
@@ -77,6 +84,7 @@ nextLevel = 100 * level²
 ```
 
 **Features:**
+
 - ✅ Idempotent point granting (prevents duplicates)
 - ✅ Daily caps on repetitive actions
 - ✅ Automatic level-up detection
@@ -86,16 +94,19 @@ nextLevel = 100 * level²
 ### **4. Content Ranking (Hot Score)**
 
 **Algorithm:** `src/lib/hot-score.ts`
+
 ```typescript
-hotScore = ln(1 + likes*4 + comments*6 + views*0.5) + freshnessBoost
-freshnessBoost = max(0, 24 - hoursSincePublish) * 0.03
+hotScore = ln(1 + likes * 4 + comments * 6 + views * 0.5) + freshnessBoost;
+freshnessBoost = max(0, 24 - hoursSincePublish) * 0.03;
 // Decays over 24 hours
 
 // Author diversity penalty: -0.2 if same author in last 5 items
 ```
 
 ### **5. Achievements System**
+
 **30 Achievements Seeded:**
+
 - 📚 Reading: First Steps → Legendary Scholar (5 tiers)
 - 🔥 Streaks: Getting Started → Eternal Flame (5 tiers)
 - ⏱️ Time: Quick Session → Master of Time (5 tiers)
@@ -106,6 +117,7 @@ freshnessBoost = max(0, 24 - hoursSincePublish) * 0.03
 ### **6. API Routes Structure**
 
 **User APIs:** `/api/users/[username]/`
+
 - ✅ `GET /api/users/[username]` - Public profile data
 - ✅ `GET /api/users/[username]/overview` - Reading stats, recent posts/reflections, achievements
 - ✅ `GET /api/users/[username]/achievements` - Unlocked/locked achievements with rarity
@@ -115,12 +127,14 @@ freshnessBoost = max(0, 24 - hoursSincePublish) * 0.03
 - ✅ `GET /api/users/[username]/collections` - User's collections
 
 **Other Systems:**
+
 - ✅ Books reading system with Listen Mode
 - ✅ E-commerce/cart system
 - ✅ Forum/community features
 - ✅ Admin moderation dashboard
 
 ### **7. Frontend Components**
+
 - ✅ Profile pages at `/@username`
 - ✅ NotificationBell with real-time polling
 - ✅ Achievement showcase
@@ -133,12 +147,14 @@ freshnessBoost = max(0, 24 - hoursSincePublish) * 0.03
 ## ⚠️ **Known Issues (Recently Fixed)**
 
 ### **Fixed in Current Session:**
+
 1. ✅ **Collections API field mismatch** - Changed `name` to `title` to match schema
    - File: `src/app/api/users/[username]/collections/route.ts`
    - Issue: Code used `name` field but schema defines `title`
    - Solution: Updated Prisma select query and response mapping
 
 ### **Resolved in Previous Sessions:**
+
 2. ✅ **Routing conflict** - Removed `[id]` folder to avoid slug conflicts
 3. ✅ **Auth import path** - Fixed `authOptions` → `auth-options` imports
 4. ✅ **Achievement API** - Fixed `iconUrl` → `icon` field name
@@ -150,6 +166,7 @@ freshnessBoost = max(0, 24 - hoursSincePublish) * 0.03
 ## 🎯 **Current Capabilities**
 
 ### **What Works Right Now:**
+
 1. ✅ User registration & authentication (Google OAuth)
 2. ✅ Public profiles at `/@username`
 3. ✅ Achievement tracking and display
@@ -161,6 +178,7 @@ freshnessBoost = max(0, 24 - hoursSincePublish) * 0.03
 9. ✅ Database with all models migrated
 
 ### **What's Ready to Build:**
+
 1. 🔨 **Posts API** - POST /api/posts (create), GET /api/posts (list with pagination)
 2. 🔨 **Reflections API** - POST /api/reflections (create with book linking)
 3. 🔨 **Feed System** - GET /api/feed (hot-ranked unified feed)
@@ -175,6 +193,7 @@ freshnessBoost = max(0, 24 - hoursSincePublish) * 0.03
 ## 📋 **Recent Changes Log**
 
 ### **Today's Session (Oct 14, 2025):**
+
 1. Fixed Collections API field name mismatch (`name` → `title`)
 2. Verified TypeScript compilation (0 errors)
 3. Killed stale Node processes
@@ -183,6 +202,7 @@ freshnessBoost = max(0, 24 - hoursSincePublish) * 0.03
 6. Created this status document
 
 ### **Previous Sessions:**
+
 - Migrated database schema for Dynasty Vision (13 models, 5 enums)
 - Created Dynasty Score and Hot Score engines
 - Seeded 30 achievements
@@ -234,11 +254,13 @@ dynasty-academy-fullstack/
 ## 🔐 **Environment Configuration**
 
 **Database:** Supabase PostgreSQL
+
 ```
 DATABASE_URL="postgresql://postgres.xepfxnqprkcccgnwmctj:qqpp1100@@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require&connection_limit=10&pool_timeout=10"
 ```
 
 **Auth:**
+
 ```
 NEXTAUTH_SECRET="D4NU/WryRGSxyM0waB02eNC2mIiyhGBiYlLRcnBAxXg="
 NEXTAUTH_URL="http://localhost:3000"
@@ -247,6 +269,7 @@ GOOGLE_CLIENT_SECRET="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"
 ```
 
 **AI Services:**
+
 ```
 ELEVENLABS_API_KEY="sk_e92bc7c3ace8a83f4f5042d8065e85839276ec59a15383b0"
 ```
@@ -256,7 +279,9 @@ ELEVENLABS_API_KEY="sk_e92bc7c3ace8a83f4f5042d8065e85839276ec59a15383b0"
 ## 🎯 **Next Steps (Immediate)**
 
 ### **Priority 1: Complete Core Community Features**
+
 1. **Build Posts API** (2-3 hours)
+
    - POST /api/posts - Create post, grant +10 DS, create FeedItem
    - GET /api/posts - Paginated list with hot score ranking
    - GET /api/posts/[slug] - Full post detail
@@ -264,6 +289,7 @@ ELEVENLABS_API_KEY="sk_e92bc7c3ace8a83f4f5042d8065e85839276ec59a15383b0"
    - POST /api/posts/[id]/comments - Add comment (+3 DS)
 
 2. **Build Feed System** (1-2 hours)
+
    - GET /api/feed - Unified feed with hot score ranking
    - Support filters: type (home/following/topic), topic tags
    - Pagination with cursor
@@ -275,7 +301,9 @@ ELEVENLABS_API_KEY="sk_e92bc7c3ace8a83f4f5042d8065e85839276ec59a15383b0"
    - Integration with book pages
 
 ### **Priority 2: Discovery & Engagement**
+
 4. **Global Search** (2 hours)
+
    - SearchBar component
    - GET /api/search - Users, posts, tags
    - /search results page
@@ -286,6 +314,7 @@ ELEVENLABS_API_KEY="sk_e92bc7c3ace8a83f4f5042d8065e85839276ec59a15383b0"
    - Collection pages at /@username/collections/[slug]
 
 ### **Priority 3: Safety & Quality**
+
 6. **Moderation System** (3 hours)
    - ReportButton component
    - POST /api/reports - Submit report
@@ -297,19 +326,20 @@ ELEVENLABS_API_KEY="sk_e92bc7c3ace8a83f4f5042d8065e85839276ec59a15383b0"
 ## 💡 **Technical Notes**
 
 ### **Dynasty Score Integration Pattern:**
+
 ```typescript
 import { grantDynastyScore } from "@/lib/dynasty-score";
 
 // After creating a post
-await grantDynastyScore(
-  userId, 
-  "create_post", 
-  { entityType: "POST", entityId: post.id }
-);
+await grantDynastyScore(userId, "create_post", {
+  entityType: "POST",
+  entityId: post.id,
+});
 // Automatically: +10 DS, level up check, activity log
 ```
 
 ### **Hot Score Usage:**
+
 ```typescript
 import { calculateHotScore } from "@/lib/hot-score";
 
@@ -317,26 +347,27 @@ const hotScore = calculateHotScore({
   likes: post.likeCount,
   comments: post.commentCount,
   views: post.viewCount,
-  publishedAt: post.publishedAt
+  publishedAt: post.publishedAt,
 });
 
 await prisma.post.update({
   where: { id: post.id },
-  data: { hotScore }
+  data: { hotScore },
 });
 ```
 
 ### **Feed Query Pattern:**
+
 ```typescript
 const feedItems = await prisma.feedItem.findMany({
   where: { type: feedType, tags: { hasSome: [topic] } },
-  orderBy: { hotScore: 'desc' },
+  orderBy: { hotScore: "desc" },
   take: 20,
   cursor: cursor ? { id: cursor } : undefined,
   include: {
     post: { include: { author: true } },
-    reflection: { include: { author: true, book: true } }
-  }
+    reflection: { include: { author: true, book: true } },
+  },
 });
 ```
 
@@ -347,6 +378,7 @@ const feedItems = await prisma.feedItem.findMany({
 **Primary:** 7-day Active Contributors (posted or commented) ↑
 
 **Input Metrics:**
+
 - Avg posts/active user/week
 - % users with 3+ day streak
 - Comment-to-post ratio

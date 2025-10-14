@@ -184,6 +184,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
             type: "COMMENT",
             entityType: "POST",
             entityId: postId,
+            title: "New Comment",
             message: `${session.user.name} commented on your post`,
             seen: false,
           },
@@ -205,6 +206,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
               type: "REPLY",
               entityType: "POST_COMMENT",
               entityId: comment.id,
+              title: "New Reply",
               message: `${session.user.name} replied to your comment`,
               seen: false,
             },
@@ -228,7 +230,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Validation failed", details: error.errors },
+        { error: "Validation failed", details: error.issues },
         { status: 400 }
       );
     }
@@ -309,7 +311,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid query parameters", details: error.errors },
+        { error: "Invalid query parameters", details: error.issues },
         { status: 400 }
       );
     }

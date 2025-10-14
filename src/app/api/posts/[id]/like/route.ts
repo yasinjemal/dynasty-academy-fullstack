@@ -143,6 +143,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
               type: "LIKE",
               entityType: "POST",
               entityId: postId,
+              title: "New Like",
               message: `${session.user.name} liked your post`,
               seen: false,
             },
