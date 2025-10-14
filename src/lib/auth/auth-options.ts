@@ -113,7 +113,7 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
-        
+
         // Fetch username from database
         if (token.id) {
           const user = await prisma.user.findUnique({

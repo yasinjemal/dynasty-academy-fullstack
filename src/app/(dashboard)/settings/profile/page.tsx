@@ -18,14 +18,17 @@ import {
   MessageSquare,
   Palette,
   Lock,
+  AtSign,
 } from "lucide-react";
 import { toast } from "sonner";
+import UsernameClaimModal from "@/components/profile/UsernameClaimModal";
 
 export default function ProfileSettingsPage() {
   const { data: session, status, update } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -148,6 +151,29 @@ export default function ProfileSettingsPage() {
             </h2>
 
             <div className="space-y-4">
+              {/* Username */}
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <AtSign className="mr-1 inline h-4 w-4" />
+                  Username
+                </label>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+                    @{profile?.username || "not-set"}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowUsernameModal(true)}
+                    className="rounded-lg bg-purple-600 px-4 py-2.5 font-medium text-white transition-colors hover:bg-purple-700"
+                  >
+                    {profile?.username ? "Change" : "Claim"}
+                  </button>
+                </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Your unique handle for vanity URLs (/@username)
+                </p>
+              </div>
+
               {/* Name */}
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -445,6 +471,17 @@ export default function ProfileSettingsPage() {
             </button>
           </motion.div>
         </form>
+
+        {/* Username Claim Modal */}
+        <UsernameClaimModal
+          isOpen={showUsernameModal}
+          onClose={() => setShowUsernameModal(false)}
+          currentUsername={profile?.username}
+          onSuccess={async (newUsername) => {
+            await fetchProfile();
+            await update();
+          }}
+        />
       </div>
     </div>
   );
