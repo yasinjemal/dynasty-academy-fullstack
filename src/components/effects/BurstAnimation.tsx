@@ -1,59 +1,59 @@
-'use client'
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 
 interface BurstParticle {
-  id: number
-  x: number
-  y: number
-  color: string
-  size: number
+  id: number;
+  x: number;
+  y: number;
+  color: string;
+  size: number;
 }
 
 interface BurstAnimationProps {
-  trigger?: boolean
-  x?: number
-  y?: number
-  color?: string
-  particleCount?: number
+  trigger?: boolean;
+  x?: number;
+  y?: number;
+  color?: string;
+  particleCount?: number;
 }
 
-export default function BurstAnimation({ 
+export default function BurstAnimation({
   trigger = false,
   x = 50,
   y = 50,
-  color = '#ef4444',
-  particleCount = 20
+  color = "#ef4444",
+  particleCount = 20,
 }: BurstAnimationProps) {
-  const [show, setShow] = useState(false)
-  const [particles, setParticles] = useState<BurstParticle[]>([])
+  const [show, setShow] = useState(false);
+  const [particles, setParticles] = useState<BurstParticle[]>([]);
 
   useEffect(() => {
     if (trigger) {
-      setShow(true)
-      
+      setShow(true);
+
       // Generate burst particles
-      const newParticles: BurstParticle[] = []
-      
+      const newParticles: BurstParticle[] = [];
+
       for (let i = 0; i < particleCount; i++) {
-        const angle = (Math.PI * 2 * i) / particleCount
-        const velocity = 50 + Math.random() * 50
+        const angle = (Math.PI * 2 * i) / particleCount;
+        const velocity = 50 + Math.random() * 50;
         newParticles.push({
           id: i,
           x: Math.cos(angle) * velocity,
           y: Math.sin(angle) * velocity,
           color,
-          size: 4 + Math.random() * 6
-        })
+          size: 4 + Math.random() * 6,
+        });
       }
-      setParticles(newParticles)
+      setParticles(newParticles);
 
       setTimeout(() => {
-        setShow(false)
-      }, 1000)
+        setShow(false);
+      }, 1000);
     }
-  }, [trigger, color, particleCount])
+  }, [trigger, color, particleCount]);
 
   return (
     <AnimatePresence>
@@ -91,11 +91,11 @@ export default function BurstAnimation({
                 backgroundColor: particle.color,
                 boxShadow: `0 0 10px ${particle.color}`,
               }}
-              initial={{ 
-                x: -particle.size / 2, 
-                y: -particle.size / 2, 
+              initial={{
+                x: -particle.size / 2,
+                y: -particle.size / 2,
                 scale: 0,
-                opacity: 1 
+                opacity: 1,
               }}
               animate={{
                 x: particle.x,
@@ -105,7 +105,7 @@ export default function BurstAnimation({
               }}
               transition={{
                 duration: 0.8,
-                ease: 'easeOut',
+                ease: "easeOut",
               }}
             />
           ))}
@@ -126,10 +126,10 @@ export default function BurstAnimation({
               y: -75,
               opacity: 0,
             }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
           />
         </div>
       )}
     </AnimatePresence>
-  )
+  );
 }

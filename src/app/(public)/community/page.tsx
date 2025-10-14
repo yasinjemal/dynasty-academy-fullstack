@@ -260,7 +260,7 @@ export default function CommunityPage() {
       // Trigger burst animation!
       setBurstTrigger(true);
       setTimeout(() => setBurstTrigger(false), 100);
-      
+
       // Trigger lightning for dynasty points
       if (data.liked) {
         setShowLightning(true);
@@ -353,7 +353,12 @@ export default function CommunityPage() {
       <FireworksExplosion trigger={showFireworks} message="LEVEL UP!" />
 
       {/* Burst Animation on Like/Save */}
-      <BurstAnimation trigger={burstTrigger} x={burstPosition.x} y={burstPosition.y} color="#ef4444" />
+      <BurstAnimation
+        trigger={burstTrigger}
+        x={burstPosition.x}
+        y={burstPosition.y}
+        color="#ef4444"
+      />
 
       {/* Animated Background Gradients */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">

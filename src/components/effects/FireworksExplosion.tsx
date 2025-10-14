@@ -1,57 +1,65 @@
-'use client'
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 
 interface Particle {
-  id: number
-  x: number
-  y: number
-  color: string
-  delay: number
+  id: number;
+  x: number;
+  y: number;
+  color: string;
+  delay: number;
 }
 
 interface FireworksExplosionProps {
-  trigger?: boolean
-  message?: string
-  onComplete?: () => void
+  trigger?: boolean;
+  message?: string;
+  onComplete?: () => void;
 }
 
-export default function FireworksExplosion({ 
-  trigger = false, 
-  message = 'LEVEL UP!',
-  onComplete 
+export default function FireworksExplosion({
+  trigger = false,
+  message = "LEVEL UP!",
+  onComplete,
 }: FireworksExplosionProps) {
-  const [show, setShow] = useState(false)
-  const [particles, setParticles] = useState<Particle[]>([])
+  const [show, setShow] = useState(false);
+  const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
     if (trigger) {
-      setShow(true)
-      
+      setShow(true);
+
       // Generate particles
-      const newParticles: Particle[] = []
-      const colors = ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#3b82f6', '#a855f7', '#ec4899']
-      
+      const newParticles: Particle[] = [];
+      const colors = [
+        "#ef4444",
+        "#f59e0b",
+        "#eab308",
+        "#22c55e",
+        "#3b82f6",
+        "#a855f7",
+        "#ec4899",
+      ];
+
       for (let i = 0; i < 50; i++) {
-        const angle = (Math.PI * 2 * i) / 50
-        const velocity = 100 + Math.random() * 100
+        const angle = (Math.PI * 2 * i) / 50;
+        const velocity = 100 + Math.random() * 100;
         newParticles.push({
           id: i,
           x: Math.cos(angle) * velocity,
           y: Math.sin(angle) * velocity,
           color: colors[Math.floor(Math.random() * colors.length)],
-          delay: Math.random() * 0.2
-        })
+          delay: Math.random() * 0.2,
+        });
       }
-      setParticles(newParticles)
+      setParticles(newParticles);
 
       setTimeout(() => {
-        setShow(false)
-        onComplete?.()
-      }, 3000)
+        setShow(false);
+        onComplete?.();
+      }, 3000);
     }
-  }, [trigger, onComplete])
+  }, [trigger, onComplete]);
 
   return (
     <AnimatePresence>
@@ -78,7 +86,7 @@ export default function FireworksExplosion({
               transition={{
                 duration: 2,
                 delay: particle.delay,
-                ease: 'easeOut',
+                ease: "easeOut",
               }}
             />
           ))}
@@ -98,7 +106,7 @@ export default function FireworksExplosion({
           <motion.div
             className="absolute text-7xl font-black bg-gradient-to-r from-orange-400 via-pink-500 to-purple-600 bg-clip-text text-transparent"
             style={{
-              textShadow: '0 0 30px rgba(251, 191, 36, 0.5)',
+              textShadow: "0 0 30px rgba(251, 191, 36, 0.5)",
             }}
             initial={{ scale: 0, rotate: -10, opacity: 0 }}
             animate={{
@@ -125,12 +133,12 @@ export default function FireworksExplosion({
               transition={{
                 duration: 2,
                 delay: i * 0.3,
-                ease: 'easeOut',
+                ease: "easeOut",
               }}
             />
           ))}
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }
