@@ -154,16 +154,18 @@ export async function GET(
 
     // Fetch recent posts
     const recentPosts = await prisma.post.findMany({
-      where: { authorId: user.id },
+      where: { authorId: user.id, published: true },
       take: 3,
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
         title: true,
+        slug: true,
+        excerpt: true,
         content: true,
         createdAt: true,
-        likesCount: true,
-        commentsCount: true,
+        likeCount: true,
+        commentCount: true,
       },
     });
 

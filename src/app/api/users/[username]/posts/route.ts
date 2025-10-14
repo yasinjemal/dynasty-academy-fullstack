@@ -5,10 +5,11 @@ import { prisma } from "@/lib/db/prisma";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ) {
   try {
-    const username = params.username.replace("@", "");
+    const { username: rawUsername } = await params;
+    const username = rawUsername.replace("@", "");
     const { searchParams } = new URL(req.url);
     const filter = searchParams.get("filter") || "new";
     const page = parseInt(searchParams.get("page") || "1");
@@ -51,23 +52,26 @@ export async function GET(
     // Build orderBy based on filter
     let orderBy: any = { createdAt: "desc" };
     if (filter === "top") {
-      orderBy = { likesCount: "desc" };
+      orderBy = { likeCount: "desc" };
     } else if (filter === "discussed") {
-      orderBy = { commentsCount: "desc" };
+      orderBy = { commentCount: "desc" };
     }
 
     const posts = await prisma.post.findMany({
       where: {
         authorId: user.id,
-        deletedAt: null,
+        published: true,
       },
       select: {
         id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
         content: true,
         createdAt: true,
-        likesCount: true,
-        commentsCount: true,
-        bookmarksCount: true,
+        likeCount: true,
+        commentCount: true,
+        saveCount: true,
       },
       orderBy,
       skip: (page - 1) * limit,
