@@ -75,7 +75,6 @@ async function getPost(slug: string) {
         select: {
           likes: true,
           comments: true,
-          saves: true,
         },
       },
     },
@@ -87,7 +86,8 @@ async function getPost(slug: string) {
 export async function generateMetadata({
   params,
 }: PostPageProps): Promise<Metadata> {
-  const post = await getPost(params.slug);
+  const { slug } = await params;
+  const post = await getPost(slug);
 
   if (!post) {
     return {
@@ -101,7 +101,7 @@ export async function generateMetadata({
     openGraph: {
       title: post.title,
       description: post.excerpt || post.content.substring(0, 160),
-      images: post.image ? [post.image] : [],
+      images: post.coverImage ? [post.coverImage] : [],
       type: "article",
       publishedTime: post.createdAt.toISOString(),
       authors: [post.author.name || "Anonymous"],
@@ -110,14 +110,15 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt || post.content.substring(0, 160),
-      images: post.image ? [post.image] : [],
+      images: post.coverImage ? [post.coverImage] : [],
     },
   };
 }
 
 export default async function PostPage({ params }: PostPageProps) {
   const session = await getServerSession(authOptions);
-  const post = await getPost(params.slug);
+  const { slug } = await params;
+  const post = await getPost(slug);
 
   if (!post || !post.published) {
     notFound();
