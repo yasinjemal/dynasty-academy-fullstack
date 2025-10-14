@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import FollowButton from "./FollowButton";
 import SignalBar from "./SignalBar";
+import DopamineStats from "./DopamineStats";
 
 interface ProfileHeroProps {
   user: {
