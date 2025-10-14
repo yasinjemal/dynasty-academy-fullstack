@@ -107,7 +107,7 @@ export default function CommunityPage() {
 
   useEffect(() => {
     if (!searchParams) return;
-    
+
     const tabParam = searchParams.get("tab") as Tab;
     const topicParam = searchParams.get("topic");
 

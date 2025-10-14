@@ -10,33 +10,31 @@ export const createPostSchema = z.object({
     .min(3, "Title must be at least 3 characters")
     .max(200, "Title must be less than 200 characters")
     .trim(),
-  
+
   content: z
     .string()
     .min(10, "Content must be at least 10 characters")
     .max(50000, "Content must be less than 50,000 characters"),
-  
+
   excerpt: z
     .string()
     .max(300, "Excerpt must be less than 300 characters")
     .optional()
     .nullable(),
-  
+
   coverImage: z
     .string()
     .url("Cover image must be a valid URL")
     .optional()
     .nullable(),
-  
+
   tags: z
     .array(z.string().trim().min(1).max(30))
     .max(5, "Maximum 5 tags allowed")
     .default([])
     .transform((tags) => tags.map((tag) => tag.toLowerCase())),
-  
-  published: z
-    .boolean()
-    .default(true),
+
+  published: z.boolean().default(true),
 });
 
 /**
@@ -54,12 +52,8 @@ export const createCommentSchema = z.object({
     .min(1, "Comment cannot be empty")
     .max(5000, "Comment must be less than 5,000 characters")
     .trim(),
-  
-  parentId: z
-    .string()
-    .cuid()
-    .optional()
-    .nullable(),
+
+  parentId: z.string().cuid().optional().nullable(),
 });
 
 /**

@@ -9,9 +9,11 @@
 ## ✅ **What's Ready to Test**
 
 ### **1. Posts System**
+
 All endpoints working and TypeScript error-free:
 
 **Create Post:**
+
 ```bash
 POST http://localhost:3000/api/posts
 Content-Type: application/json
@@ -31,6 +33,7 @@ Content-Type: application/json
 ```
 
 **List Posts:**
+
 ```bash
 GET http://localhost:3000/api/posts?limit=20&sortBy=hot
 
@@ -42,6 +45,7 @@ GET http://localhost:3000/api/posts?limit=20&sortBy=hot
 ```
 
 **Get Single Post:**
+
 ```bash
 GET http://localhost:3000/api/posts/my-first-dynasty-post-abc123
 
@@ -55,6 +59,7 @@ GET http://localhost:3000/api/posts/my-first-dynasty-post-abc123
 ---
 
 ### **2. Like System**
+
 ```bash
 POST http://localhost:3000/api/posts/{postId}/like
 
@@ -68,6 +73,7 @@ POST http://localhost:3000/api/posts/{postId}/like
 ---
 
 ### **3. Comment System**
+
 ```bash
 POST http://localhost:3000/api/posts/{postId}/comments
 Content-Type: application/json
@@ -86,6 +92,7 @@ Content-Type: application/json
 ```
 
 **Threaded Replies:**
+
 ```bash
 POST http://localhost:3000/api/posts/{postId}/comments
 Content-Type: application/json
@@ -104,6 +111,7 @@ Content-Type: application/json
 ---
 
 ### **4. Feed System**
+
 ```bash
 # Hot Feed (Quality + Freshness)
 GET http://localhost:3000/api/feed?type=home&limit=20
@@ -124,6 +132,7 @@ GET http://localhost:3000/api/feed?type=topic&topic=mindset&limit=20
 ---
 
 ### **5. Reflections System**
+
 ```bash
 POST http://localhost:3000/api/reflections
 Content-Type: application/json
@@ -146,6 +155,7 @@ Content-Type: application/json
 ```
 
 **List Reflections:**
+
 ```bash
 GET http://localhost:3000/api/reflections?bookId={bookId}&limit=20
 
@@ -163,6 +173,7 @@ GET http://localhost:3000/api/reflections?bookId={bookId}&limit=20
 ### **Scenario: New User Creates First Post**
 
 **Step 1: Sign In**
+
 ```
 1. Navigate to http://localhost:3000
 2. Click "Sign In"
@@ -171,6 +182,7 @@ GET http://localhost:3000/api/reflections?bookId={bookId}&limit=20
 ```
 
 **Step 2: Create Post**
+
 ```
 1. Navigate to http://localhost:3000/community
 2. Click "Create Post" button
@@ -190,6 +202,7 @@ Expected Results:
 ```
 
 **Step 3: Another User Likes the Post**
+
 ```
 1. Different user signs in
 2. Browses Hot feed at /community
@@ -204,6 +217,7 @@ Expected Results:
 ```
 
 **Step 4: User Comments on Post**
+
 ```
 1. Same user clicks "Comment" button
 2. Types: "This is so inspiring! Keep it up!"
@@ -218,6 +232,7 @@ Expected Results:
 ```
 
 **Step 5: Original Author Replies**
+
 ```
 1. Original author clicks notification bell
 2. Sees "New Comment" notification
@@ -232,6 +247,7 @@ Expected Results:
 ```
 
 **Step 6: Post Rises in Hot Feed**
+
 ```
 1. Navigate to /community (Hot Feed)
 2. Check post position
@@ -252,6 +268,7 @@ Expected Results:
 ### **Test Point Awards:**
 
 **Create Post (+10):**
+
 ```bash
 POST /api/posts
 # Check user.dynastyScore increased by 10
@@ -259,6 +276,7 @@ POST /api/posts
 ```
 
 **Write Reflection (+12):**
+
 ```bash
 POST /api/reflections
 # Check user.dynastyScore increased by 12
@@ -266,6 +284,7 @@ POST /api/reflections
 ```
 
 **Comment on Post (+3, cap 10/day):**
+
 ```bash
 POST /api/posts/{id}/comments
 # First comment: +3 DS
@@ -275,12 +294,14 @@ POST /api/posts/{id}/comments
 ```
 
 **Daily Login (+2):**
+
 ```bash
 # Check lastActiveAt updated
 # If > 24 hours since last login: +2 DS
 ```
 
 **Streak Bonuses:**
+
 ```bash
 # 7-day streak: +50 DS
 # 30-day streak: +200 DS
@@ -289,6 +310,7 @@ POST /api/posts/{id}/comments
 ```
 
 **Level Up:**
+
 ```bash
 # Level 1 → Level 2: 100 points
 # Level 2 → Level 3: 400 points
@@ -306,6 +328,7 @@ POST /api/posts/{id}/comments
 ## 📊 **Hot Score Testing**
 
 ### **Algorithm:**
+
 ```
 hotScore = ln(1 + likes*4 + comments*6 + views*0.5) + freshnessBoost
 freshnessBoost = max(0, 24 - hoursSincePublish) * 0.03
@@ -314,6 +337,7 @@ freshnessBoost = max(0, 24 - hoursSincePublish) * 0.03
 ### **Test Cases:**
 
 **Fresh Post with Engagement:**
+
 ```
 Post A (2 hours old):
 - 10 likes, 5 comments, 50 views
@@ -322,6 +346,7 @@ Post A (2 hours old):
 ```
 
 **Old Post with High Engagement:**
+
 ```
 Post B (30 hours old):
 - 50 likes, 20 comments, 500 views
@@ -330,6 +355,7 @@ Post B (30 hours old):
 ```
 
 **Recent Post, Low Engagement:**
+
 ```
 Post C (1 hour old):
 - 2 likes, 1 comment, 10 views
@@ -346,6 +372,7 @@ Post C (1 hour old):
 ### **Types to Test:**
 
 **LIKE Notification:**
+
 ```
 Trigger: User likes a post
 Expected:
@@ -359,6 +386,7 @@ Expected:
 ```
 
 **COMMENT Notification:**
+
 ```
 Trigger: User comments on a post
 Expected:
@@ -369,6 +397,7 @@ Expected:
 ```
 
 **REPLY Notification:**
+
 ```
 Trigger: User replies to a comment
 Expected:
@@ -379,6 +408,7 @@ Expected:
 ```
 
 **FOLLOW Notification:**
+
 ```
 Trigger: User follows another user
 Expected:
@@ -388,6 +418,7 @@ Expected:
 ```
 
 **LEVEL_UP Notification:**
+
 ```
 Trigger: User gains enough DS to level up
 Expected:
@@ -404,6 +435,7 @@ Expected:
 ### **Community Page (/community)**
 
 **Tabs:**
+
 ```
 ✅ Hot Feed - Default, shows all published posts/reflections
 ✅ Following Feed - Shows content from followed users only
@@ -411,6 +443,7 @@ Expected:
 ```
 
 **Features to Test:**
+
 ```
 ✅ Infinite scroll - Loads more posts on scroll
 ✅ Hot score ranking - Engaging posts appear first
@@ -423,6 +456,7 @@ Expected:
 ### **Post Detail Page (/posts/[slug])**
 
 **Features:**
+
 ```
 ✅ Full post content with markdown rendering
 ✅ Author card with follow button
@@ -437,6 +471,7 @@ Expected:
 ### **Profile Page (/@username)**
 
 **Tabs:**
+
 ```
 ✅ Overview - Stats, recent activity, achievements
 ✅ Posts - User's published posts
@@ -445,6 +480,7 @@ Expected:
 ```
 
 **Features:**
+
 ```
 ✅ Dynasty Score display
 ✅ Level badge
@@ -461,6 +497,7 @@ Expected:
 ### **Validation Errors:**
 
 **Invalid Post Creation:**
+
 ```bash
 POST /api/posts
 {
@@ -483,6 +520,7 @@ Expected Response (400):
 ### **Authorization Errors:**
 
 **Unauthenticated Request:**
+
 ```bash
 POST /api/posts
 # No auth header
@@ -494,6 +532,7 @@ Expected Response (401):
 ```
 
 **Banned User:**
+
 ```bash
 # User with isBanned: true tries to post
 
@@ -504,6 +543,7 @@ Expected Response (403):
 ```
 
 **Suspended User:**
+
 ```bash
 # User with isSuspended: true, suspendedUntil: future date
 
@@ -520,6 +560,7 @@ Expected Response (403):
 ### **Database Query Optimization:**
 
 **Feed Query (should use indexes):**
+
 ```sql
 -- Check execution plan
 EXPLAIN ANALYZE
@@ -533,6 +574,7 @@ LIMIT 20;
 ```
 
 **Post List with Author (should avoid N+1):**
+
 ```sql
 -- Single query with JOIN
 EXPLAIN ANALYZE
@@ -548,6 +590,7 @@ LIMIT 20;
 ### **API Response Times:**
 
 **Target P95:**
+
 ```
 GET /api/posts - < 250ms
 POST /api/posts - < 500ms
@@ -561,6 +604,7 @@ POST /api/posts/{id}/comments - < 400ms
 ## ✅ **Testing Checklist**
 
 ### **Core Functionality:**
+
 - [ ] Create post → Earn +10 DS
 - [ ] Post appears in Hot feed
 - [ ] Like post → Notification sent
@@ -572,12 +616,14 @@ POST /api/posts/{id}/comments - < 400ms
 - [ ] Level up → LEVEL_UP notification
 
 ### **Feed Ranking:**
+
 - [ ] Fresh posts with engagement rank high
 - [ ] Old posts with low engagement rank low
 - [ ] Same author repeated → Diversity penalty
 - [ ] Hot score recalculates on engagement
 
 ### **Dynasty Score:**
+
 - [ ] Points awarded correctly per action
 - [ ] Daily caps enforced (comments, follows)
 - [ ] Streak tracking works
@@ -585,12 +631,14 @@ POST /api/posts/{id}/comments - < 400ms
 - [ ] Activity log created for each award
 
 ### **Notifications:**
+
 - [ ] Bell icon shows unread count
 - [ ] Click notification → Navigate to entity
 - [ ] Mark as read → Badge count decreases
 - [ ] All notification types working
 
 ### **UI/UX:**
+
 - [ ] Optimistic UI updates (likes, follows)
 - [ ] Loading states shown
 - [ ] Error toasts displayed
@@ -613,7 +661,7 @@ Your Dynasty Academy platform is **production-ready** when:
 ✅ Database queries optimized (< 100ms average)  
 ✅ No console errors in browser  
 ✅ All features work on mobile  
-✅ End-to-end flow: Post → Like → Comment → Notification works  
+✅ End-to-end flow: Post → Like → Comment → Notification works
 
 ---
 

@@ -75,10 +75,10 @@ export async function POST(req: NextRequest) {
         })
       : 0;
 
-    // Create post, feed item, and award Dynasty Score in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    // Create post and feed item in a transaction
+    const post = await prisma.$transaction(async (tx) => {
       // Create the post
-      const post = await tx.post.create({
+      const newPost = await tx.post.create({
         data: {
           authorId: session.user.id,
           title: validatedData.title,
@@ -110,35 +110,37 @@ export async function POST(req: NextRequest) {
         await tx.feedItem.create({
           data: {
             type: "POST",
-            postId: post.id,
+            postId: newPost.id,
             authorId: session.user.id,
             publishedAt: publishedAt!,
             hotScore,
             tags: validatedData.tags,
           },
         });
-
-        // Award Dynasty Score for creating a post
-        await grantDynastyScore({
-          userId: session.user.id,
-          action: "CREATE_POST",
-          points: 10,
-          entityType: "POST",
-          entityId: post.id,
-          metadata: {
-            postTitle: post.title,
-            postSlug: post.slug,
-          },
-        });
       }
 
-      return post;
+      return newPost;
     });
+
+    // Award Dynasty Score OUTSIDE the transaction (it has its own transaction)
+    if (validatedData.published) {
+      await grantDynastyScore({
+        userId: session.user.id,
+        action: "CREATE_POST",
+        points: 10,
+        entityType: "POST",
+        entityId: post.id,
+        metadata: {
+          postTitle: post.title,
+          postSlug: post.slug,
+        },
+      });
+    }
 
     return NextResponse.json(
       {
         success: true,
-        post: result,
+        post: post,
         message: validatedData.published
           ? "Post published successfully! +10 Dynasty Score"
           : "Post saved as draft",
