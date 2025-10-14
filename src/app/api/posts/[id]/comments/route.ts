@@ -17,17 +17,14 @@ const listCommentsSchema = z.object({
   parentId: z.string().optional().nullable(),
 });
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
 /**
  * POST /api/posts/[id]/comments
  * Create a comment on a post
  */
-export async function POST(req: NextRequest, { params }: RouteParams) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -38,7 +35,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const { id: postId } = params;
+    const { id: postId } = await params;
     const body = await req.json();
     const { content, parentId } = createCommentSchema.parse(body);
 
@@ -85,143 +82,150 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
         },
       })) === 0;
 
-    // Create comment, update counters, award DS, send notifications
-    const result = await prisma.$transaction(async (tx) => {
-      // Create the comment
-      const comment = await tx.postComment.create({
-        data: {
-          authorId: session.user.id,
-          postId,
-          parentId,
-          content,
-        },
-        include: {
-          author: {
-            select: {
-              id: true,
-              name: true,
-              image: true,
-              username: true,
-              level: true,
-            },
-          },
-          _count: {
-            select: {
-              replies: true,
-            },
-          },
-        },
-      });
-
-      // Increment comment count on post (only for top-level comments)
-      if (!parentId) {
-        const updatedPost = await tx.post.update({
-          where: { id: postId },
+    // Create comment, update counters, send notifications
+    const result = await prisma.$transaction(
+      async (tx) => {
+        // Create the comment
+        const comment = await tx.postComment.create({
           data: {
-            commentCount: {
-              increment: 1,
+            authorId: session.user.id,
+            postId,
+            parentId,
+            content,
+          },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                username: true,
+                level: true,
+              },
+            },
+            _count: {
+              select: {
+                replies: true,
+              },
             },
           },
         });
 
-        // Recalculate and update hot score
-        if (post.publishedAt) {
-          const newHotScore = calculateHotScore({
-            likes: post.likeCount,
-            comments: updatedPost.commentCount,
-            views: post.viewCount,
-            publishedAt: post.publishedAt,
-          });
-
-          await tx.post.update({
+        // Increment comment count on post (only for top-level comments)
+        if (!parentId) {
+          const updatedPost = await tx.post.update({
             where: { id: postId },
-            data: { hotScore: newHotScore },
+            data: {
+              commentCount: {
+                increment: 1,
+              },
+            },
           });
 
-          // Update feed item hot score
-          await tx.feedItem.updateMany({
-            where: { postId },
-            data: { hotScore: newHotScore },
-          });
+          // Recalculate and update hot score
+          if (post.publishedAt) {
+            const newHotScore = calculateHotScore({
+              likes: post.likeCount,
+              comments: updatedPost.commentCount,
+              views: post.viewCount,
+              publishedAt: post.publishedAt,
+            });
+
+            await tx.post.update({
+              where: { id: postId },
+              data: { hotScore: newHotScore },
+            });
+
+            // Update feed item hot score
+            await tx.feedItem.updateMany({
+              where: { postId },
+              data: { hotScore: newHotScore },
+            });
+          }
         }
-      }
-
-      // Award Dynasty Score to commenter
-      const dsAction = isFirstComment ? "FIRST_COMMENT" : "COMMENT";
-      const dsPoints = isFirstComment ? 3 : 2;
-
-      await grantDynastyScore({
-        userId: session.user.id,
-        action: dsAction,
-        points: dsPoints,
-        entityType: "POST_COMMENT",
-        entityId: comment.id,
-        metadata: {
-          postId,
-          postTitle: post.title,
-        },
-      });
-
-      // Award Dynasty Score to post author for receiving comment
-      if (post.authorId !== session.user.id) {
-        await grantDynastyScore({
-          userId: post.authorId,
-          action: "COMMENT_RECEIVED",
-          points: 4,
-          entityType: "POST_COMMENT",
-          entityId: comment.id,
-          metadata: {
-            commentedBy: session.user.id,
-            commentedByName: session.user.name,
-          },
-        });
 
         // Create notification for post author
-        await tx.notification.create({
-          data: {
-            userId: post.authorId,
-            actorId: session.user.id,
-            type: "COMMENT",
-            entityType: "POST",
-            entityId: postId,
-            title: "New Comment",
-            message: `${session.user.name} commented on your post`,
-            seen: false,
-          },
-        });
-      }
-
-      // If replying to a comment, notify the parent comment author
-      if (parentId) {
-        const parentComment = await tx.postComment.findUnique({
-          where: { id: parentId },
-          select: { authorId: true },
-        });
-
-        if (parentComment && parentComment.authorId !== session.user.id) {
+        if (post.authorId !== session.user.id) {
           await tx.notification.create({
             data: {
-              userId: parentComment.authorId,
+              userId: post.authorId,
               actorId: session.user.id,
-              type: "REPLY",
-              entityType: "POST_COMMENT",
-              entityId: comment.id,
-              title: "New Reply",
-              message: `${session.user.name} replied to your comment`,
+              type: "COMMENT",
+              entityType: "POST",
+              entityId: postId,
+              title: "New Comment",
+              message: `${session.user.name} commented on your post`,
               seen: false,
             },
           });
         }
-      }
 
-      return comment;
+        // If replying to a comment, notify the parent comment author
+        if (parentId) {
+          const parentComment = await tx.postComment.findUnique({
+            where: { id: parentId },
+            select: { authorId: true },
+          });
+
+          if (parentComment && parentComment.authorId !== session.user.id) {
+            await tx.notification.create({
+              data: {
+                userId: parentComment.authorId,
+                actorId: session.user.id,
+                type: "REPLY",
+                entityType: "POST_COMMENT",
+                entityId: comment.id,
+                title: "New Reply",
+                message: `${session.user.name} replied to your comment`,
+                seen: false,
+              },
+            });
+          }
+        }
+
+        return comment;
+      },
+      {
+        timeout: 10000, // 10 second timeout
+      }
+    );
+
+    // Award Dynasty Score OUTSIDE transaction to avoid conflicts
+    const dsAction = isFirstComment ? "FIRST_COMMENT" : "COMMENT";
+    const dsPoints = isFirstComment ? 3 : 2;
+
+    await grantDynastyScore({
+      userId: session.user.id,
+      action: dsAction,
+      points: dsPoints,
+      entityType: "POST_COMMENT",
+      entityId: result.id,
+      metadata: {
+        postId,
+        postTitle: post.title,
+      },
     });
+
+    // Award Dynasty Score to post author for receiving comment
+    if (post.authorId !== session.user.id) {
+      await grantDynastyScore({
+        userId: post.authorId,
+        action: "COMMENT_RECEIVED",
+        points: 4,
+        entityType: "POST_COMMENT",
+        entityId: result.id,
+        metadata: {
+          commentedBy: session.user.id,
+          commentedByName: session.user.name,
+        },
+      });
+    }
 
     return NextResponse.json(
       {
         success: true,
         comment: result,
-        message: `Comment posted! +${isFirstComment ? 3 : 2} Dynasty Score`,
+        message: `Comment posted! +${dsPoints} Dynasty Score`,
       },
       { status: 201 }
     );
@@ -246,9 +250,12 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
  * GET /api/posts/[id]/comments
  * List comments for a post
  */
-export async function GET(req: NextRequest, { params }: RouteParams) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id: postId } = params;
+    const { id: postId } = await params;
     const { searchParams } = new URL(req.url);
     const queryParams = Object.fromEntries(searchParams.entries());
 

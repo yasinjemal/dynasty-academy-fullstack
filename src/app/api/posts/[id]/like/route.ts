@@ -5,17 +5,14 @@ import { prisma } from "@/lib/db/prisma";
 import { grantDynastyScore } from "@/lib/dynasty-score";
 import { calculateHotScore } from "@/lib/hot-score";
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
 /**
  * POST /api/posts/[id]/like
  * Toggle like on a post (like if not liked, unlike if already liked)
  */
-export async function POST(req: NextRequest, { params }: RouteParams) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -26,7 +23,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const { id: postId } = params;
+    const { id: postId } = await params;
 
     // Check if post exists
     const post = await prisma.post.findUnique({
@@ -80,78 +77,85 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       liked = false;
       newLikeCount = post.likeCount - 1;
     } else {
-      // Like: Create like, increment counter, award DS, send notification, update hot score
-      const result = await prisma.$transaction(async (tx) => {
-        // Create the like
-        await tx.postLike.create({
-          data: {
-            userId: session.user.id,
-            postId,
-          },
-        });
-
-        // Increment like count
-        const updatedPost = await tx.post.update({
-          where: { id: postId },
-          data: {
-            likeCount: {
-              increment: 1,
-            },
-          },
-        });
-
-        // Calculate and update hot score
-        if (post.publishedAt) {
-          const newHotScore = calculateHotScore({
-            likes: updatedPost.likeCount,
-            comments: updatedPost.commentCount,
-            views: updatedPost.viewCount,
-            publishedAt: post.publishedAt,
-          });
-
-          await tx.post.update({
-            where: { id: postId },
-            data: { hotScore: newHotScore },
-          });
-
-          // Update feed item hot score
-          await tx.feedItem.updateMany({
-            where: { postId },
-            data: { hotScore: newHotScore },
-          });
-        }
-
-        // Award Dynasty Score to post author (not the liker)
-        if (post.authorId !== session.user.id) {
-          await grantDynastyScore({
-            userId: post.authorId,
-            action: "LIKE_RECEIVED",
-            points: 1,
-            entityType: "POST_LIKE",
-            entityId: postId,
-            metadata: {
-              likedBy: session.user.id,
-              likedByName: session.user.name,
-            },
-          });
-
-          // Create notification for post author
-          await tx.notification.create({
+      // Like: Create like, increment counter, send notification, update hot score
+      const result = await prisma.$transaction(
+        async (tx) => {
+          // Create the like
+          await tx.postLike.create({
             data: {
-              userId: post.authorId,
-              actorId: session.user.id,
-              type: "LIKE",
-              entityType: "POST",
-              entityId: postId,
-              title: "New Like",
-              message: `${session.user.name} liked your post`,
-              seen: false,
+              userId: session.user.id,
+              postId,
             },
           });
-        }
 
-        return updatedPost;
-      });
+          // Increment like count
+          const updatedPost = await tx.post.update({
+            where: { id: postId },
+            data: {
+              likeCount: {
+                increment: 1,
+              },
+            },
+          });
+
+          // Calculate and update hot score
+          if (post.publishedAt) {
+            const newHotScore = calculateHotScore({
+              likes: updatedPost.likeCount,
+              comments: updatedPost.commentCount,
+              views: updatedPost.viewCount,
+              publishedAt: post.publishedAt,
+            });
+
+            await tx.post.update({
+              where: { id: postId },
+              data: { hotScore: newHotScore },
+            });
+
+            // Update feed item hot score
+            await tx.feedItem.updateMany({
+              where: { postId },
+              data: { hotScore: newHotScore },
+            });
+          }
+
+          // Create notification for post author (if not liking own post)
+          if (post.authorId !== session.user.id) {
+            await tx.notification.create({
+              data: {
+                userId: post.authorId,
+                actorId: session.user.id,
+                type: "LIKE",
+                entityType: "POST",
+                entityId: postId,
+                title: "New Like",
+                message: `${session.user.name} liked your post`,
+                seen: false,
+              },
+            });
+          }
+
+          return updatedPost;
+        },
+        {
+          timeout: 10000, // 10 second timeout
+        }
+      );
+
+      // Award Dynasty Score OUTSIDE transaction to avoid conflicts
+      if (post.authorId !== session.user.id) {
+        await grantDynastyScore({
+          userId: post.authorId,
+          action: "LIKE_RECEIVED",
+          points: 1,
+          entityType: "POST_LIKE",
+          entityId: postId,
+          metadata: {
+            likedBy: session.user.id,
+            likedByName: session.user.name,
+          },
+        });
+      }
 
       liked = true;
       newLikeCount = result.likeCount;
@@ -176,7 +180,10 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
  * GET /api/posts/[id]/like
  * Check if current user has liked this post
  */
-export async function GET(req: NextRequest, { params }: RouteParams) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getServerSession(authOptions);
 
@@ -187,7 +194,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       });
     }
 
-    const { id: postId } = params;
+    const { id: postId } = await params;
 
     const like = await prisma.postLike.findUnique({
       where: {
