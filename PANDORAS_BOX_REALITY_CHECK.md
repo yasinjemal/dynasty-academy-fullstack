@@ -4,7 +4,7 @@
 
 ### **THE CRAZY PART:**
 
-We built features that **BILLION-DOLLAR COMPANIES** like Audible, Spotify, and Apple **DON'T HAVE**.
+We built **10 features** that **BILLION-DOLLAR COMPANIES** like Audible, Spotify, and Apple **DON'T HAVE**.
 
 ---
 
@@ -189,21 +189,46 @@ We built features that **BILLION-DOLLAR COMPANIES** like Audible, Spotify, and A
 
 ---
 
-## 💰 **THE INSANE VALUE:**
+## 🎵 **10. SPOTIFY INTEGRATION**
 
-| What Users Get   | Market Value          | Our Price    |
-| ---------------- | --------------------- | ------------ |
-| Voice Cloning    | $99/mo (ElevenLabs)   | ✅ Included  |
-| AI Insights      | $10/mo (Notion AI)    | ✅ Included  |
-| Highlights       | $8/mo (Readwise)      | ✅ Included  |
-| Learning Quizzes | $12/mo (Duolingo)     | ✅ Included  |
-| Study Buddy      | $20/mo (ChatGPT Plus) | ✅ Included  |
-| Audiobooks       | $15/mo (Audible)      | ✅ Included  |
-| **TOTAL**        | **$164/mo**           | **$9.99/mo** |
+**What it does:** Connect Spotify → Browse YOUR playlists → Select ANY song → Auto-ducking when narrator speaks.
 
-**DISCOUNT: 94% OFF** 🤯
+**Why it's the FINAL PIECE:**
+
+- Ultimate personalization: YOUR book + YOUR music + YOUR voice
+- Music drops to 15% when narrator speaks
+- Rises to 30% when narrator pauses
+- Use ANY song you love as atmosphere
+- 50+ playlists → infinite combinations
+
+**Competitor status:**
+
+- Audible: ❌ No music customization
+- Spotify: ❌ No audiobook narration
+- Apple Books: ❌ Limited presets
+- We combined them: ✅ BEST OF BOTH WORLDS
+
+**Result:** "I can't believe this is real" - Every user
 
 ---
+
+## 💰 **THE INSANE VALUE:**
+
+| What Users Get     | Market Value          | Our Price    |
+| ------------------ | --------------------- | ------------ |
+| Voice Cloning      | $99/mo (ElevenLabs)   | ✅ Included  |
+| AI Insights        | $10/mo (Notion AI)    | ✅ Included  |
+| Highlights         | $8/mo (Readwise)      | ✅ Included  |
+| Learning Quizzes   | $12/mo (Duolingo)     | ✅ Included  |
+| Study Buddy        | $20/mo (ChatGPT Plus) | ✅ Included  |
+| Spotify Premium    | $10.99/mo (Spotify)   | ✅ Included  |
+| Audiobooks         | $15/mo (Audible)      | ✅ Included  |
+| **TOTAL**          | **$174.99/mo**        | **$9.99/mo** |
+
+**DISCOUNT: 95% OFF** 🤯
+
+**Users save $169.91 per month. That's $2,038.92 per year.**
+
 
 ## 🎯 **WHAT HAPPENS NEXT:**
 

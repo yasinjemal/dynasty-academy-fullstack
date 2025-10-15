@@ -1,6 +1,6 @@
 # 🧪 PANDORA'S BOX - COMPLETE TESTING GUIDE
 
-## 🎯 TESTING CHECKLIST (All 9 Features)
+## 🎯 TESTING CHECKLIST (All 10 Features)
 
 ### ✅ **1. Emotional Intelligence AI**
 
@@ -150,6 +150,23 @@
 **45-55s**: Show AI Study Buddy (ask question → instant answer)
 **55-60s**: "Dynasty Academy. The future of reading. $9.99/month."
 
+### ✅ **10. Spotify Integration**
+
+- [ ] Click "🎵 Spotify Integration" in atmosphere controls
+- [ ] Click "Connect" button
+- [ ] Authorize Dynasty Academy in popup
+- [ ] Verify popup closes and playlists load
+- [ ] See grid of playlists with cover images
+- [ ] Click a playlist to select
+- [ ] Verify music starts playing
+- [ ] Play narrator audio
+- [ ] Verify Spotify volume drops to 15%
+- [ ] Pause narrator
+- [ ] Verify Spotify volume rises to 30%
+- [ ] Click "Browse" to switch playlists
+- [ ] Click "Disconnect" to test logout
+- **Expected**: Seamless Spotify playback with intelligent auto-ducking
+
 ---
 
 ## 🚀 LAUNCH CHECKLIST
@@ -157,6 +174,7 @@
 - [ ] All features tested ✅
 - [ ] API keys configured ✅
 - [ ] Database migrations run ✅
+- [ ] Spotify credentials added ✅
 - [ ] Error tracking setup (Sentry/LogRocket)
 - [ ] Analytics configured (Mixpanel/Amplitude)
 - [ ] Demo video recorded
@@ -165,3 +183,4 @@
 - [ ] Early access invite list ready
 
 **LET'S GO VIRAL! 🔥**
+
