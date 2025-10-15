@@ -128,12 +128,30 @@ export default function BookReaderLuxury({
     "serif"
   );
   const [theme, setTheme] = useState<
-    "light" | "sepia" | "dark" | "nord" | "ocean" | "sunset" | "forest" | "lavender" | "mocha" | "midnight"
+    | "light"
+    | "sepia"
+    | "dark"
+    | "nord"
+    | "ocean"
+    | "sunset"
+    | "forest"
+    | "lavender"
+    | "mocha"
+    | "midnight"
   >("light");
   const [layout, setLayout] = useState<"standard" | "wide" | "narrow">(
     "standard"
   );
   const [columnMode, setColumnMode] = useState<1 | 2>(1);
+
+  // ===========================================
+  // 🎨 NEW LUXURY FEATURES!
+  // ===========================================
+  const [pageTransition, setPageTransition] = useState<"fade" | "slide" | "flip" | "none">("fade");
+  const [accentColor, setAccentColor] = useState<"purple" | "blue" | "pink" | "orange" | "green">("purple");
+  const [showReadingSpeedLive, setShowReadingSpeedLive] = useState(true);
+  const [showAchievementToast, setShowAchievementToast] = useState(false);
+  const [currentAchievement, setCurrentAchievement] = useState<string>("");
 
   // ===========================================
   // ADVANCED READING FEATURES
@@ -215,7 +233,7 @@ export default function BookReaderLuxury({
       card: "bg-gray-50",
       gradient: "from-gray-50 via-white to-gray-50",
       name: "☀️ Light",
-      description: "Clean and bright"
+      description: "Clean and bright",
     },
     sepia: {
       bg: "bg-[#f4ecd8]",
@@ -226,7 +244,7 @@ export default function BookReaderLuxury({
       card: "bg-[#efe6d5]",
       gradient: "from-[#efe6d5] via-[#f4ecd8] to-[#efe6d5]",
       name: "📜 Sepia",
-      description: "Classic paper"
+      description: "Classic paper",
     },
     dark: {
       bg: "bg-gray-900",
@@ -237,7 +255,7 @@ export default function BookReaderLuxury({
       card: "bg-gray-800/50",
       gradient: "from-gray-900 via-gray-800 to-gray-900",
       name: "🌙 Dark",
-      description: "Night reading"
+      description: "Night reading",
     },
     nord: {
       bg: "bg-[#2e3440]",
@@ -248,7 +266,7 @@ export default function BookReaderLuxury({
       card: "bg-[#3b4252]/50",
       gradient: "from-[#2e3440] via-[#3b4252] to-[#2e3440]",
       name: "❄️ Nord",
-      description: "Arctic aurora"
+      description: "Arctic aurora",
     },
     ocean: {
       bg: "bg-[#0a192f]",
@@ -259,7 +277,7 @@ export default function BookReaderLuxury({
       card: "bg-[#112240]/50",
       gradient: "from-[#0a192f] via-[#112240] to-[#0a192f]",
       name: "🌊 Ocean",
-      description: "Deep sea calm"
+      description: "Deep sea calm",
     },
     sunset: {
       bg: "bg-[#fff5f0]",
@@ -270,7 +288,7 @@ export default function BookReaderLuxury({
       card: "bg-[#fff0eb]",
       gradient: "from-[#fff0eb] via-[#fff5f0] to-[#fff0eb]",
       name: "🌅 Sunset",
-      description: "Warm glow"
+      description: "Warm glow",
     },
     forest: {
       bg: "bg-[#1a2f1a]",
@@ -281,7 +299,7 @@ export default function BookReaderLuxury({
       card: "bg-[#234023]/50",
       gradient: "from-[#1a2f1a] via-[#234023] to-[#1a2f1a]",
       name: "🌲 Forest",
-      description: "Nature fresh"
+      description: "Nature fresh",
     },
     lavender: {
       bg: "bg-[#f8f4ff]",
@@ -292,7 +310,7 @@ export default function BookReaderLuxury({
       card: "bg-[#f4edff]",
       gradient: "from-[#f4edff] via-[#f8f4ff] to-[#f4edff]",
       name: "💜 Lavender",
-      description: "Soft luxury"
+      description: "Soft luxury",
     },
     mocha: {
       bg: "bg-[#3a2f2f]",
@@ -303,7 +321,7 @@ export default function BookReaderLuxury({
       card: "bg-[#4a3f3f]/50",
       gradient: "from-[#3a2f2f] via-[#4a3f3f] to-[#3a2f2f]",
       name: "☕ Mocha",
-      description: "Cozy coffee"
+      description: "Cozy coffee",
     },
     midnight: {
       bg: "bg-[#0d1117]",
@@ -314,7 +332,7 @@ export default function BookReaderLuxury({
       card: "bg-[#161b22]/50",
       gradient: "from-[#0d1117] via-[#161b22] to-[#0d1117]",
       name: "🌌 Midnight",
-      description: "GitHub dark"
+      description: "GitHub dark",
     },
   };
 
@@ -384,6 +402,27 @@ export default function BookReaderLuxury({
           setTotalReadingTime(stats.totalTime || 0);
           setWordsRead(stats.wordsRead || 0);
           setStreak(stats.streak || 0);
+          
+          // 🔥 STREAK ACHIEVEMENTS - LUXURY GAMIFICATION
+          const currentStreak = stats.streak || 0;
+          if (currentStreak === 3 && !localStorage.getItem(`achievement-streak-3`)) {
+            setCurrentAchievement("🔥 3 Day Streak - Building Momentum!");
+            setShowAchievementToast(true);
+            localStorage.setItem(`achievement-streak-3`, 'true');
+            setTimeout(() => setShowAchievementToast(false), 4000);
+          }
+          if (currentStreak === 7 && !localStorage.getItem(`achievement-streak-7`)) {
+            setCurrentAchievement("🔥 7 Day Streak - One Week Strong!");
+            setShowAchievementToast(true);
+            localStorage.setItem(`achievement-streak-7`, 'true');
+            setTimeout(() => setShowAchievementToast(false), 4000);
+          }
+          if (currentStreak === 30 && !localStorage.getItem(`achievement-streak-30`)) {
+            setCurrentAchievement("🔥 30 Day Streak - Reading Habit Master!");
+            setShowAchievementToast(true);
+            localStorage.setItem(`achievement-streak-30`, 'true');
+            setTimeout(() => setShowAchievementToast(false), 5000);
+          }
         } catch (e) {
           localStorage.removeItem(`reading-stats-${bookId}`);
         }
@@ -504,6 +543,49 @@ export default function BookReaderLuxury({
       // Track progress
       trackReadingProgress(pageNum);
       setCompletionPercentage((pageNum / totalPages) * 100);
+
+      // 🏆 ACHIEVEMENT TRACKING - LUXURY GAMIFICATION
+      const newCompletion = (pageNum / totalPages) * 100;
+      
+      // First page achievement
+      if (pageNum === 1 && !localStorage.getItem(`achievement-first-page-${bookId}`)) {
+        setCurrentAchievement("📖 Reading Journey Started!");
+        setShowAchievementToast(true);
+        localStorage.setItem(`achievement-first-page-${bookId}`, 'true');
+        setTimeout(() => setShowAchievementToast(false), 4000);
+      }
+      
+      // 25% completion
+      if (newCompletion >= 25 && newCompletion < 26 && !localStorage.getItem(`achievement-25-${bookId}`)) {
+        setCurrentAchievement("🎯 25% Complete - You're On Fire!");
+        setShowAchievementToast(true);
+        localStorage.setItem(`achievement-25-${bookId}`, 'true');
+        setTimeout(() => setShowAchievementToast(false), 4000);
+      }
+      
+      // 50% completion
+      if (newCompletion >= 50 && newCompletion < 51 && !localStorage.getItem(`achievement-50-${bookId}`)) {
+        setCurrentAchievement("🌟 Halfway There - Keep Going!");
+        setShowAchievementToast(true);
+        localStorage.setItem(`achievement-50-${bookId}`, 'true');
+        setTimeout(() => setShowAchievementToast(false), 4000);
+      }
+      
+      // 75% completion
+      if (newCompletion >= 75 && newCompletion < 76 && !localStorage.getItem(`achievement-75-${bookId}`)) {
+        setCurrentAchievement("💪 75% Done - Almost Finished!");
+        setShowAchievementToast(true);
+        localStorage.setItem(`achievement-75-${bookId}`, 'true');
+        setTimeout(() => setShowAchievementToast(false), 4000);
+      }
+      
+      // 100% completion
+      if (newCompletion >= 100 && !localStorage.getItem(`achievement-100-${bookId}`)) {
+        setCurrentAchievement("🏆 Book Completed - Amazing Work!");
+        setShowAchievementToast(true);
+        localStorage.setItem(`achievement-100-${bookId}`, 'true');
+        setTimeout(() => setShowAchievementToast(false), 5000);
+      }
 
       // Scroll to top
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -693,21 +775,64 @@ export default function BookReaderLuxury({
                 </div>
               </div>
 
-              {/* Center: Progress */}
-              <div className="hidden lg:flex items-center gap-4 px-8">
-                <div className="flex items-center gap-2">
-                  <Target className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm font-medium">
-                    {Math.round(completionPercentage)}%
-                  </span>
+              {/* Center: LUXURY Progress Ring + Live Stats */}
+              <div className="hidden lg:flex items-center gap-6 px-8">
+                {/* Circular Progress Ring */}
+                <div className="relative flex items-center justify-center">
+                  <svg className="w-16 h-16 transform -rotate-90">
+                    {/* Background circle */}
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                      className="text-gray-200 dark:text-gray-700"
+                    />
+                    {/* Progress circle */}
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      stroke="url(#gradient)"
+                      strokeWidth="4"
+                      fill="none"
+                      strokeDasharray={`${2 * Math.PI * 28}`}
+                      strokeDashoffset={`${2 * Math.PI * 28 * (1 - completionPercentage / 100)}`}
+                      className="transition-all duration-500"
+                      strokeLinecap="round"
+                    />
+                    <defs>
+                      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" className="text-purple-500" stopColor="currentColor" />
+                        <stop offset="100%" className="text-pink-500" stopColor="currentColor" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-xs font-bold">
+                      {Math.round(completionPercentage)}%
+                    </span>
+                    <Target className="w-3 h-3 text-purple-500" />
+                  </div>
                 </div>
 
-                <div className="w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full bg-gradient-to-r ${currentTheme.accent} transition-all duration-300`}
-                    style={{ width: `${completionPercentage}%` }}
-                  />
-                </div>
+                {/* Live Reading Speed */}
+                {showReadingSpeedLive && (
+                  <div className="flex flex-col items-start">
+                    <div className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-orange-500" />
+                      <span className="text-sm font-bold text-orange-500">
+                        {readingSpeed} WPM
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs opacity-60">
+                      <Clock className="w-3 h-3" />
+                      <span>{readingTime} min today</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Right: Actions */}
@@ -881,16 +1006,22 @@ export default function BookReaderLuxury({
                       <div
                         className={`w-full aspect-square rounded-lg ${themeData.bg} border-2 ${themeData.border} shadow-inner relative overflow-hidden`}
                       >
-                        <div className={`absolute inset-0 bg-gradient-to-br ${themeData.accent} opacity-20`} />
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-br ${themeData.accent} opacity-20`}
+                        />
                         {theme === themeKey && (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <Check className="w-6 h-6 text-purple-600 dark:text-purple-400 drop-shadow-lg" />
                           </div>
                         )}
                       </div>
-                      <span className={`text-xs font-semibold text-center ${
-                        theme === themeKey ? 'text-purple-600 dark:text-purple-400' : 'opacity-70'
-                      }`}>
+                      <span
+                        className={`text-xs font-semibold text-center ${
+                          theme === themeKey
+                            ? "text-purple-600 dark:text-purple-400"
+                            : "opacity-70"
+                        }`}
+                      >
                         {themeData.name}
                       </span>
                     </button>
@@ -1044,6 +1175,81 @@ export default function BookReaderLuxury({
                 </div>
               )}
 
+              {/* 🎨 NEW! Page Transition Effect */}
+              <div className="space-y-4 pt-6 border-t border-white/10">
+                <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                  <Sparkles className="w-5 h-5" />
+                  Luxury Effects
+                </h3>
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold opacity-60">Page Turn Animation</h4>
+                  <div className="grid grid-cols-4 gap-2">
+                    {(["fade", "slide", "flip", "none"] as const).map((transition) => (
+                      <button
+                        key={transition}
+                        onClick={() => setPageTransition(transition)}
+                        className={`px-3 py-2 rounded-xl border-2 capitalize transition-all text-xs ${
+                          pageTransition === transition
+                            ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg"
+                            : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary} hover:border-purple-300`
+                        }`}
+                      >
+                        {transition}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Accent Color Selector */}
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold opacity-60">Accent Color</h4>
+                  <div className="grid grid-cols-5 gap-2">
+                    {([
+                      { name: "purple", color: "bg-purple-500" },
+                      { name: "blue", color: "bg-blue-500" },
+                      { name: "pink", color: "bg-pink-500" },
+                      { name: "orange", color: "bg-orange-500" },
+                      { name: "green", color: "bg-green-500" },
+                    ] as const).map((accent) => (
+                      <button
+                        key={accent.name}
+                        onClick={() => setAccentColor(accent.name)}
+                        className={`relative w-full aspect-square rounded-xl border-2 transition-all hover:scale-110 ${
+                          accentColor === accent.name
+                            ? "border-purple-500 shadow-lg scale-105"
+                            : "border-gray-300 dark:border-gray-600"
+                        }`}
+                      >
+                        <div className={`absolute inset-0 rounded-lg ${accent.color}`} />
+                        {accentColor === accent.name && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Check className="w-4 h-4 text-white drop-shadow-lg" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Live Reading Speed Toggle */}
+                <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-orange-500" />
+                    <span className="text-sm font-semibold">Show Reading Speed</span>
+                  </div>
+                  <button
+                    onClick={() => setShowReadingSpeedLive(!showReadingSpeedLive)}
+                    className={`relative w-12 h-6 rounded-full transition-colors ${
+                      showReadingSpeedLive ? 'bg-purple-500' : 'bg-gray-300 dark:bg-gray-600'
+                    }`}
+                  >
+                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                      showReadingSpeedLive ? 'translate-x-7' : 'translate-x-1'
+                    }`} />
+                  </button>
+                </div>
+              </div>
+
               {/* Reset Button */}
               <button
                 onClick={() => {
@@ -1051,6 +1257,9 @@ export default function BookReaderLuxury({
                   setLineHeight(1.8);
                   setFontFamily("serif");
                   setTheme("light");
+                  setPageTransition("fade");
+                  setAccentColor("purple");
+                  setShowReadingSpeedLive(true);
                   setLayout("standard");
                   setColumnMode(1);
                 }}
@@ -1308,16 +1517,21 @@ export default function BookReaderLuxury({
                   />
                 ) : (
                   <>
-                    {/* Reading Content */}
+                    {/* Reading Content - LUXURY PAGE TRANSITIONS! */}
                     <article
                       ref={contentRef}
                       className={`
                         prose prose-lg max-w-none leading-relaxed 
                         transition-all duration-500
                         ${
-                          isTransitioning
-                            ? "opacity-0 scale-95"
-                            : "opacity-100 scale-100"
+                          // 🎨 LUXURY PAGE TURN ANIMATIONS!
+                          pageTransition === "fade" && isTransitioning
+                            ? "opacity-0"
+                            : pageTransition === "slide" && isTransitioning
+                            ? "opacity-0 translate-x-8"
+                            : pageTransition === "flip" && isTransitioning
+                            ? "opacity-0 scale-95 rotate-3"
+                            : "opacity-100 translate-x-0 scale-100 rotate-0"
                         }
                         ${fontFamilies[fontFamily]}
                         ${
@@ -1580,6 +1794,31 @@ export default function BookReaderLuxury({
             bookTitle={bookTitle}
           />
         </>
+      )}
+
+      {/* ✨ ACHIEVEMENT TOAST NOTIFICATION - LUXURY GAMIFICATION */}
+      {showAchievementToast && (
+        <div className="fixed top-24 right-8 z-50 animate-slide-in-right">
+          <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 p-1 rounded-2xl shadow-2xl">
+            <div className="bg-gray-900 rounded-xl p-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center animate-bounce">
+                  <Trophy className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h4 className="text-white font-bold text-lg">{currentAchievement}</h4>
+                  <p className="text-white/60 text-sm">Keep up the great work!</p>
+                </div>
+                <button
+                  onClick={() => setShowAchievementToast(false)}
+                  className="ml-4 text-white/40 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
