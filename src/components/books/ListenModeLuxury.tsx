@@ -101,15 +101,17 @@ export default function ListenModeLuxury({
   const [backgroundMusicUrl, setBackgroundMusicUrl] = useState<string>("");
   const [backgroundMusicVolume, setBackgroundMusicVolume] = useState(0.15); // 15% default
   const [musicDucking, setMusicDucking] = useState(true); // Auto-lower music when voice speaks
-  
+
   // 🎨 REVOLUTIONARY: Voice Mood Sync (Visual matches voice personality)
   const [voiceMoodSync, setVoiceMoodSync] = useState(true);
   const [backgroundGradient, setBackgroundGradient] = useState("");
-  
+
   // ⏰ REVOLUTIONARY: Time-Based Listening Rituals
   const [autoListeningRitual, setAutoListeningRitual] = useState(false);
-  const [currentListeningPeriod, setCurrentListeningPeriod] = useState<"morning" | "afternoon" | "evening" | "night">("afternoon");
-  
+  const [currentListeningPeriod, setCurrentListeningPeriod] = useState<
+    "morning" | "afternoon" | "evening" | "night"
+  >("afternoon");
+
   // 🌊 REVOLUTIONARY: Audio-Reactive Visuals
   const [audioReactiveIntensity, setAudioReactiveIntensity] = useState(50); // 0-100
   const [particleReactivity, setParticleReactivity] = useState(true);
@@ -124,7 +126,7 @@ export default function ListenModeLuxury({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // 🔥 REVOLUTIONARY: Background music audio ref for atmosphere layering
   const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
 
@@ -266,7 +268,8 @@ export default function ListenModeLuxury({
     "deep-focus": {
       name: "🎧 Deep Focus",
       description: "Binaural beats for concentration",
-      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3",
+      musicUrl:
+        "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3",
       gradient: "from-slate-900 via-blue-900 to-slate-900",
       particleColor: "blue-400",
       recommendedSpeed: 1.0,
@@ -275,7 +278,8 @@ export default function ListenModeLuxury({
     "night-session": {
       name: "🌙 Night Session",
       description: "Dark ambience for late reading",
-      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-night-ambient-947.mp3",
+      musicUrl:
+        "https://assets.mixkit.co/music/preview/mixkit-night-ambient-947.mp3",
       gradient: "from-slate-950 via-purple-950 to-indigo-950",
       particleColor: "purple-400",
       recommendedSpeed: 0.75,
@@ -284,7 +288,8 @@ export default function ListenModeLuxury({
     "coffee-shop": {
       name: "☕ Coffee Shop",
       description: "Ambient café atmosphere",
-      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-coffee-shop-ambience-1711.mp3",
+      musicUrl:
+        "https://assets.mixkit.co/music/preview/mixkit-coffee-shop-ambience-1711.mp3",
       gradient: "from-amber-950 via-orange-900 to-amber-950",
       particleColor: "amber-400",
       recommendedSpeed: 1.0,
@@ -293,7 +298,8 @@ export default function ListenModeLuxury({
     "ocean-vibes": {
       name: "🌊 Ocean Vibes",
       description: "Waves and seagulls blend",
-      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-ocean-waves-loop-1196.mp3",
+      musicUrl:
+        "https://assets.mixkit.co/music/preview/mixkit-ocean-waves-loop-1196.mp3",
       gradient: "from-cyan-950 via-blue-900 to-cyan-950",
       particleColor: "cyan-400",
       recommendedSpeed: 0.75,
@@ -302,7 +308,8 @@ export default function ListenModeLuxury({
     "fireplace-study": {
       name: "🔥 Fireplace Study",
       description: "Crackling fire warmth",
-      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-fireplace-crackle-1330.mp3",
+      musicUrl:
+        "https://assets.mixkit.co/music/preview/mixkit-fireplace-crackle-1330.mp3",
       gradient: "from-orange-950 via-red-900 to-orange-950",
       particleColor: "orange-400",
       recommendedSpeed: 1.0,
@@ -311,7 +318,8 @@ export default function ListenModeLuxury({
     "classical-background": {
       name: "🎼 Classical Elegance",
       description: "Soft piano undertone",
-      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-piano-reflections-666.mp3",
+      musicUrl:
+        "https://assets.mixkit.co/music/preview/mixkit-piano-reflections-666.mp3",
       gradient: "from-violet-950 via-purple-900 to-violet-950",
       particleColor: "violet-400",
       recommendedSpeed: 1.0,
@@ -845,7 +853,7 @@ export default function ListenModeLuxury({
     if (selectedVoiceData) {
       // Apply voice-specific gradient to background
       setBackgroundGradient(selectedVoiceData.gradient);
-      
+
       trackEvent("voice_mood_sync_applied", {
         voiceId: selectedVoice,
         voiceName: selectedVoiceData.name,
@@ -860,7 +868,7 @@ export default function ListenModeLuxury({
 
     const updateListeningRitual = () => {
       const hour = new Date().getHours();
-      
+
       // Morning (6-9am): Energetic, bright, faster speed
       if (hour >= 6 && hour < 9) {
         setCurrentListeningPeriod("morning");
@@ -897,7 +905,7 @@ export default function ListenModeLuxury({
 
     updateListeningRitual();
     const interval = setInterval(updateListeningRitual, 60000); // Check every minute
-    
+
     return () => clearInterval(interval);
   }, [autoListeningRitual, listenAtmosphere, sleepTimer]);
 
@@ -908,26 +916,29 @@ export default function ListenModeLuxury({
     const updateBackgroundReactivity = () => {
       if (analyserRef.current && audioFrequencies.length > 0) {
         // Calculate average frequency intensity
-        const avgIntensity = audioFrequencies.reduce((a, b) => a + b, 0) / audioFrequencies.length;
+        const avgIntensity =
+          audioFrequencies.reduce((a, b) => a + b, 0) / audioFrequencies.length;
         const normalizedIntensity = avgIntensity / 255; // 0-1
-        
+
         // Apply intensity to background brightness
         if (containerRef.current) {
-          const brightness = 100 + (normalizedIntensity * audioReactiveIntensity);
+          const brightness = 100 + normalizedIntensity * audioReactiveIntensity;
           containerRef.current.style.filter = `brightness(${brightness}%)`;
         }
 
         // Pulse particles with audio
         if (particleReactivity && normalizedIntensity > 0.3) {
           // Trigger particle burst on loud sounds
-          const event = new CustomEvent('audioPulse', { 
-            detail: { intensity: normalizedIntensity } 
+          const event = new CustomEvent("audioPulse", {
+            detail: { intensity: normalizedIntensity },
           });
           window.dispatchEvent(event);
         }
       }
-      
-      animationFrameRef.current = requestAnimationFrame(updateBackgroundReactivity);
+
+      animationFrameRef.current = requestAnimationFrame(
+        updateBackgroundReactivity
+      );
     };
 
     if (isPlaying) {
@@ -939,14 +950,15 @@ export default function ListenModeLuxury({
         cancelAnimationFrame(animationFrameRef.current);
       }
       if (containerRef.current) {
-        containerRef.current.style.filter = 'brightness(100%)';
+        containerRef.current.style.filter = "brightness(100%)";
       }
     };
   }, [audioReactiveIntensity, isPlaying, audioFrequencies, particleReactivity]);
 
   // 🔥 REVOLUTIONARY: Apply Listening Atmosphere Preset
   const applyListenAtmosphere = (atmosphereKey: string) => {
-    const atmosphere = listeningAtmospheres[atmosphereKey as keyof typeof listeningAtmospheres];
+    const atmosphere =
+      listeningAtmospheres[atmosphereKey as keyof typeof listeningAtmospheres];
     if (!atmosphere) return;
 
     // Apply all atmosphere settings
@@ -1198,7 +1210,7 @@ export default function ListenModeLuxury({
     speeds.find((s) => s.value === playbackRate) || speeds[1];
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={`relative min-h-screen bg-gradient-to-br transition-all duration-1000 ${
         backgroundGradient || "from-slate-950 via-purple-950 to-slate-950"
@@ -1211,8 +1223,12 @@ export default function ListenModeLuxury({
             <div
               key={i}
               className={`absolute w-1 h-1 rounded-full animate-float ${
-                listenAtmosphere !== "none" 
-                  ? `bg-${listeningAtmospheres[listenAtmosphere as keyof typeof listeningAtmospheres]?.particleColor || "purple-400"}/40`
+                listenAtmosphere !== "none"
+                  ? `bg-${
+                      listeningAtmospheres[
+                        listenAtmosphere as keyof typeof listeningAtmospheres
+                      ]?.particleColor || "purple-400"
+                    }/40`
                   : "bg-purple-400/30"
               }`}
               style={{
@@ -1732,7 +1748,8 @@ export default function ListenModeLuxury({
               </div>
 
               {/* 🎵 NEW: Audio Enhancement Suite */}
-              {isPremiumUser && (
+              {/* 🎉 OPEN ACCESS: Available to everyone until launch! */}
+              {true && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                   {/* Sleep Timer */}
                   <div className="bg-slate-800/30 rounded-xl p-4">
@@ -1798,7 +1815,8 @@ export default function ListenModeLuxury({
               )}
 
               {/* 🔥 REVOLUTIONARY: Listening Atmosphere Presets (WORLD'S FIRST!) */}
-              {isPremiumUser && hasGenerated && (
+              {/* 🎉 OPEN ACCESS: Available to everyone until launch! */}
+              {hasGenerated && (
                 <div className="space-y-4 mb-6">
                   <div className="text-center">
                     <h3 className="text-lg font-bold text-white mb-2 flex items-center justify-center gap-2">
@@ -1807,31 +1825,36 @@ export default function ListenModeLuxury({
                       <Sparkles className="w-5 h-5 text-purple-400 animate-pulse" />
                     </h3>
                     <p className="text-purple-300/70 text-sm mb-4">
-                      One-click audio environments that blend music with narration
+                      One-click audio environments that blend music with
+                      narration
                     </p>
                   </div>
 
                   {/* Atmosphere Preset Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {Object.entries(listeningAtmospheres).map(([key, atmosphere]) => (
-                      <button
-                        key={key}
-                        onClick={() => applyListenAtmosphere(key)}
-                        className={`p-4 rounded-xl transition-all duration-300 border-2 ${
-                          listenAtmosphere === key
-                            ? "border-purple-500 bg-gradient-to-br from-purple-600/30 to-violet-600/30 shadow-lg shadow-purple-500/30"
-                            : "border-slate-700/50 bg-slate-800/30 hover:border-purple-500/50 hover:bg-slate-700/30"
-                        }`}
-                      >
-                        <div className="text-2xl mb-2">{atmosphere.name.split(" ")[0]}</div>
-                        <div className="text-xs font-bold text-white mb-1">
-                          {atmosphere.name.split(" ").slice(1).join(" ")}
-                        </div>
-                        <div className="text-xs text-purple-300/70">
-                          {atmosphere.description}
-                        </div>
-                      </button>
-                    ))}
+                    {Object.entries(listeningAtmospheres).map(
+                      ([key, atmosphere]) => (
+                        <button
+                          key={key}
+                          onClick={() => applyListenAtmosphere(key)}
+                          className={`p-4 rounded-xl transition-all duration-300 border-2 ${
+                            listenAtmosphere === key
+                              ? "border-purple-500 bg-gradient-to-br from-purple-600/30 to-violet-600/30 shadow-lg shadow-purple-500/30"
+                              : "border-slate-700/50 bg-slate-800/30 hover:border-purple-500/50 hover:bg-slate-700/30"
+                          }`}
+                        >
+                          <div className="text-2xl mb-2">
+                            {atmosphere.name.split(" ")[0]}
+                          </div>
+                          <div className="text-xs font-bold text-white mb-1">
+                            {atmosphere.name.split(" ").slice(1).join(" ")}
+                          </div>
+                          <div className="text-xs text-purple-300/70">
+                            {atmosphere.description}
+                          </div>
+                        </button>
+                      )
+                    )}
                   </div>
 
                   {/* Background Music Volume Control */}
@@ -1861,7 +1884,8 @@ export default function ListenModeLuxury({
                         className="w-full h-2 bg-slate-700/50 rounded-full appearance-none cursor-pointer luxury-slider"
                       />
                       <p className="text-xs text-purple-300/60 mt-2">
-                        🎧 Music layers behind narration for immersive experience
+                        🎧 Music layers behind narration for immersive
+                        experience
                       </p>
                     </div>
                   )}
@@ -1887,7 +1911,9 @@ export default function ListenModeLuxury({
                         >
                           <div
                             className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                              voiceMoodSync ? "translate-x-6" : "translate-x-0.5"
+                              voiceMoodSync
+                                ? "translate-x-6"
+                                : "translate-x-0.5"
                             }`}
                           />
                         </button>
@@ -1906,14 +1932,20 @@ export default function ListenModeLuxury({
                           </p>
                         </div>
                         <button
-                          onClick={() => setAutoListeningRitual(!autoListeningRitual)}
+                          onClick={() =>
+                            setAutoListeningRitual(!autoListeningRitual)
+                          }
                           className={`w-12 h-6 rounded-full transition-all duration-300 ${
-                            autoListeningRitual ? "bg-purple-600" : "bg-slate-700"
+                            autoListeningRitual
+                              ? "bg-purple-600"
+                              : "bg-slate-700"
                           }`}
                         >
                           <div
                             className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                              autoListeningRitual ? "translate-x-6" : "translate-x-0.5"
+                              autoListeningRitual
+                                ? "translate-x-6"
+                                : "translate-x-0.5"
                             }`}
                           />
                         </button>
@@ -1932,7 +1964,9 @@ export default function ListenModeLuxury({
                         <span className="text-sm font-medium text-purple-300">
                           🌊 Audio-Reactive Intensity
                         </span>
-                        <span className="text-xs text-purple-400">{audioReactiveIntensity}%</span>
+                        <span className="text-xs text-purple-400">
+                          {audioReactiveIntensity}%
+                        </span>
                       </div>
                       <input
                         type="range"
@@ -1940,7 +1974,9 @@ export default function ListenModeLuxury({
                         max="100"
                         step="5"
                         value={audioReactiveIntensity}
-                        onChange={(e) => setAudioReactiveIntensity(parseInt(e.target.value))}
+                        onChange={(e) =>
+                          setAudioReactiveIntensity(parseInt(e.target.value))
+                        }
                         className="w-full h-2 bg-slate-700/50 rounded-full appearance-none cursor-pointer luxury-slider"
                       />
                       <p className="text-xs text-purple-300/60 mt-2">
@@ -1966,23 +2002,7 @@ export default function ListenModeLuxury({
                 : "none",
             }}
           >
-            {/* Premium Blur Overlay for Non-Premium Users */}
-            {!isPremiumUser && (
-              <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm rounded-3xl z-10 flex items-center justify-center">
-                <div className="text-center p-8">
-                  <Star className="w-16 h-16 text-amber-400 mx-auto mb-4 animate-pulse" />
-                  <h3 className="text-2xl font-bold text-white mb-2">
-                    Premium Feature
-                  </h3>
-                  <p className="text-purple-300 mb-4">
-                    Unlock sentence-by-sentence highlighting & auto-scroll
-                  </p>
-                  <button className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold py-3 px-8 rounded-xl transition-all duration-300 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 hover:scale-105">
-                    Upgrade to Premium
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* 🔥 OPEN ACCESS: Sentence highlighting available to everyone until launch! */}
 
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
@@ -2422,8 +2442,8 @@ export default function ListenModeLuxury({
         }
       `}</style>
 
-      {/* 3-Minute Paywall Gate Modal */}
-      {showPaywallGate && !isPremiumUser && (
+      {/* 🔥 OPEN ACCESS: No paywall gates until launch! All features free! */}
+      {false && showPaywallGate && !isPremiumUser && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-gradient-to-br from-slate-900 via-purple-900/50 to-slate-900 p-8 sm:p-12 rounded-3xl border border-purple-500/30 max-w-md w-full shadow-2xl shadow-purple-500/20">
             <Star className="w-16 h-16 text-amber-400 mx-auto mb-6 animate-pulse" />
