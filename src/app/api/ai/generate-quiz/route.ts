@@ -42,22 +42,35 @@ Format your response as JSON with this structure:
       response_format: { type: "json_object" },
     });
 
-    const quizData = JSON.parse(completion.choices[0]?.message?.content || "{}");
+    const quizData = JSON.parse(
+      completion.choices[0]?.message?.content || "{}"
+    );
 
     return NextResponse.json({
       question: quizData.question || "What was the main idea discussed?",
-      options: quizData.options || ["Option A", "Option B", "Option C", "Option D"],
+      options: quizData.options || [
+        "Option A",
+        "Option B",
+        "Option C",
+        "Option D",
+      ],
       correctAnswer: quizData.correctAnswer ?? 0,
-      explanation: quizData.explanation || "This captures the key concept from the section.",
+      explanation:
+        quizData.explanation ||
+        "This captures the key concept from the section.",
     });
-
   } catch (error) {
     console.error("[Quiz Generation] Error:", error);
     return NextResponse.json(
-      { 
+      {
         error: "Failed to generate quiz",
         question: "What did you just learn?",
-        options: ["Important concept", "Key idea", "Main point", "All of the above"],
+        options: [
+          "Important concept",
+          "Key idea",
+          "Main point",
+          "All of the above",
+        ],
         correctAnswer: 3,
         explanation: "All options represent valuable learning!",
       },

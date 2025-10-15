@@ -186,11 +186,13 @@ export default function ListenModeLuxury({
   // 👥 PANDORA'S BOX #9: Social Listening Rooms (Netflix Party for Books!)
   const [socialRoomEnabled, setSocialRoomEnabled] = useState(false);
   const [roomId, setRoomId] = useState<string | null>(null);
-  const [roomParticipants, setRoomParticipants] = useState<Array<{
-    id: string;
-    name: string;
-    avatar: string;
-  }>>([]);
+  const [roomParticipants, setRoomParticipants] = useState<
+    Array<{
+      id: string;
+      name: string;
+      avatar: string;
+    }>
+  >([]);
   const [showRoomChat, setShowRoomChat] = useState(false);
 
   // 👁️ PANDORA'S BOX #10: Biometric Focus Detection (Never Zone Out!)
@@ -1019,7 +1021,8 @@ export default function ListenModeLuxury({
     if (!learningModeEnabled || !isPlaying) return;
 
     const checkQuizTime = () => {
-      if (currentTime - lastQuizTime >= 300) { // 5 minutes = 300 seconds
+      if (currentTime - lastQuizTime >= 300) {
+        // 5 minutes = 300 seconds
         generateQuiz();
       }
     };
@@ -1561,15 +1564,15 @@ export default function ListenModeLuxury({
     // Get last 5 minutes of content (approx 10-15 sentences)
     const recentSentences = sentences
       .slice(Math.max(0, activeSentenceIndex - 15), activeSentenceIndex)
-      .map(s => s.text)
-      .join(' ');
+      .map((s) => s.text)
+      .join(" ");
 
     if (recentSentences.length < 100) return; // Not enough content
 
     try {
-      const response = await fetch('/api/ai/generate-quiz', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/ai/generate-quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           content: recentSentences,
           bookId: bookSlug,
@@ -1582,20 +1585,20 @@ export default function ListenModeLuxury({
         setCurrentQuiz(quiz);
         setShowQuiz(true);
         setLastQuizTime(currentTime);
-        
+
         // Pause playback for quiz
         if (audioRef.current && isPlaying) {
           audioRef.current.pause();
         }
 
-        trackEvent('learning_mode_quiz_generated', {
+        trackEvent("learning_mode_quiz_generated", {
           sentenceIndex: activeSentenceIndex,
           bookId: bookSlug,
           chapterId: chapterNumber,
         });
       }
     } catch (error) {
-      console.error('[Learning Mode] Quiz generation failed:', error);
+      console.error("[Learning Mode] Quiz generation failed:", error);
     }
   };
 
@@ -1607,9 +1610,9 @@ export default function ListenModeLuxury({
 
     const isCorrect = selectedAnswer === currentQuiz.correctAnswer;
     const xpEarned = isCorrect ? 10 : 5;
-    setQuizXP(prev => prev + xpEarned);
+    setQuizXP((prev) => prev + xpEarned);
 
-    trackEvent('learning_mode_quiz_answered', {
+    trackEvent("learning_mode_quiz_answered", {
       isCorrect,
       xpEarned,
       totalXP: quizXP + xpEarned,
@@ -1630,12 +1633,14 @@ export default function ListenModeLuxury({
 
   // 👥 PANDORA'S BOX #9: Social Listening - Create/Join room
   const createSocialRoom = () => {
-    const newRoomId = `room_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const newRoomId = `room_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(7)}`;
     setRoomId(newRoomId);
     setSocialRoomEnabled(true);
     setShowRoomChat(true);
 
-    trackEvent('social_room_created', {
+    trackEvent("social_room_created", {
       roomId: newRoomId,
       bookId: bookSlug,
       chapterId: chapterNumber,
@@ -1650,23 +1655,23 @@ export default function ListenModeLuxury({
   // 👁️ PANDORA'S BOX #10: Biometric Focus Detection
   const startFocusDetection = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' } 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
       });
       videoStreamRef.current = stream;
       setFocusDetectionEnabled(true);
 
       // TODO: Integrate TensorFlow.js FaceMesh for eye tracking
       // For now, use basic visibility API
-      document.addEventListener('visibilitychange', handleVisibilityChange);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
 
-      trackEvent('focus_detection_started', {
+      trackEvent("focus_detection_started", {
         bookId: bookSlug,
         chapterId: chapterNumber,
       });
     } catch (error) {
-      console.error('[Focus Detection] Camera access denied:', error);
-      alert('Camera access required for focus detection.');
+      console.error("[Focus Detection] Camera access denied:", error);
+      alert("Camera access required for focus detection.");
     }
   };
 
@@ -1676,13 +1681,13 @@ export default function ListenModeLuxury({
       setFocusLostTime(Date.now());
     } else {
       setIsUserFocused(true);
-      
+
       // If user was unfocused for more than 5 seconds, rewind
       if (focusLostTime && Date.now() - focusLostTime > 5000) {
         if (audioRef.current) {
           audioRef.current.currentTime = Math.max(0, currentTime - 30);
         }
-        trackEvent('focus_lost_rewind', {
+        trackEvent("focus_lost_rewind", {
           lostDuration: Date.now() - focusLostTime,
           rewoundSeconds: 30,
           bookId: bookSlug,
@@ -1693,10 +1698,10 @@ export default function ListenModeLuxury({
 
   const stopFocusDetection = () => {
     if (videoStreamRef.current) {
-      videoStreamRef.current.getTracks().forEach(track => track.stop());
+      videoStreamRef.current.getTracks().forEach((track) => track.stop());
       videoStreamRef.current = null;
     }
-    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
     setFocusDetectionEnabled(false);
   };
 
@@ -2966,7 +2971,9 @@ export default function ListenModeLuxury({
                           <div>
                             <div className="text-sm font-bold text-green-200 flex items-center gap-2">
                               Learning Mode
-                              <span className="text-xs bg-green-500/30 px-2 py-0.5 rounded-full">{quizXP} XP</span>
+                              <span className="text-xs bg-green-500/30 px-2 py-0.5 rounded-full">
+                                {quizXP} XP
+                              </span>
                             </div>
                             <p className="text-xs text-green-300/70 mt-1">
                               Quiz every 5 min • Gamified retention
@@ -2974,7 +2981,9 @@ export default function ListenModeLuxury({
                           </div>
                         </div>
                         <button
-                          onClick={() => setLearningModeEnabled(!learningModeEnabled)}
+                          onClick={() =>
+                            setLearningModeEnabled(!learningModeEnabled)
+                          }
                           className={`w-12 h-6 rounded-full transition-all duration-300 ${
                             learningModeEnabled
                               ? "bg-gradient-to-r from-green-600 to-emerald-600"
@@ -2983,7 +2992,9 @@ export default function ListenModeLuxury({
                         >
                           <div
                             className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                              learningModeEnabled ? "translate-x-6" : "translate-x-0.5"
+                              learningModeEnabled
+                                ? "translate-x-6"
+                                : "translate-x-0.5"
                             }`}
                           />
                         </button>
@@ -3033,7 +3044,11 @@ export default function ListenModeLuxury({
                           </div>
                         </div>
                         <button
-                          onClick={() => focusDetectionEnabled ? stopFocusDetection() : startFocusDetection()}
+                          onClick={() =>
+                            focusDetectionEnabled
+                              ? stopFocusDetection()
+                              : startFocusDetection()
+                          }
                           className={`w-12 h-6 rounded-full transition-all duration-300 ${
                             focusDetectionEnabled
                               ? "bg-gradient-to-r from-indigo-600 to-violet-600"
@@ -3042,7 +3057,9 @@ export default function ListenModeLuxury({
                         >
                           <div
                             className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                              focusDetectionEnabled ? "translate-x-6" : "translate-x-0.5"
+                              focusDetectionEnabled
+                                ? "translate-x-6"
+                                : "translate-x-0.5"
                             }`}
                           />
                         </button>
@@ -3413,7 +3430,9 @@ export default function ListenModeLuxury({
             {!showQuizResult ? (
               <div className="space-y-6">
                 <div className="bg-black/30 rounded-xl p-6 border border-green-500/20">
-                  <p className="text-lg text-white font-medium">{currentQuiz.question}</p>
+                  <p className="text-lg text-white font-medium">
+                    {currentQuiz.question}
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3">
@@ -3433,24 +3452,28 @@ export default function ListenModeLuxury({
               </div>
             ) : (
               <div className="space-y-6">
-                <div className={`text-center p-6 rounded-xl ${
-                  quizAnswer === currentQuiz.correctAnswer
-                    ? 'bg-green-500/20 border-2 border-green-500/50'
-                    : 'bg-red-500/20 border-2 border-red-500/50'
-                }`}>
+                <div
+                  className={`text-center p-6 rounded-xl ${
+                    quizAnswer === currentQuiz.correctAnswer
+                      ? "bg-green-500/20 border-2 border-green-500/50"
+                      : "bg-red-500/20 border-2 border-red-500/50"
+                  }`}
+                >
                   <div className="text-6xl mb-3">
-                    {quizAnswer === currentQuiz.correctAnswer ? '✅' : '❌'}
+                    {quizAnswer === currentQuiz.correctAnswer ? "✅" : "❌"}
                   </div>
                   <p className="text-2xl font-bold text-white mb-2">
-                    {quizAnswer === currentQuiz.correctAnswer ? 'Correct! +10 XP' : 'Not quite! +5 XP'}
+                    {quizAnswer === currentQuiz.correctAnswer
+                      ? "Correct! +10 XP"
+                      : "Not quite! +5 XP"}
                   </p>
-                  <p className="text-sm text-white/70">
-                    Total XP: {quizXP}
-                  </p>
+                  <p className="text-sm text-white/70">Total XP: {quizXP}</p>
                 </div>
 
                 <div className="bg-black/30 rounded-xl p-6 border border-green-500/20">
-                  <p className="text-sm font-bold text-green-400 mb-2">Explanation:</p>
+                  <p className="text-sm font-bold text-green-400 mb-2">
+                    Explanation:
+                  </p>
                   <p className="text-white/80">{currentQuiz.explanation}</p>
                 </div>
 
