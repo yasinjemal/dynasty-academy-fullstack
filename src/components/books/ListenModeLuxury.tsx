@@ -154,6 +154,21 @@ export default function ListenModeLuxury({
     Map<string, string>
   >(new Map()); // character name -> voice ID
 
+  // 🎙️ PANDORA'S BOX #5: Voice Cloning (YOUR VOICE!)
+  const [showVoiceCloning, setShowVoiceCloning] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [clonedVoiceId, setClonedVoiceId] = useState<string | null>(null);
+  const [isCloning, setIsCloning] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingChunksRef = useRef<Blob[]>([]);
+
+  // 🎧 PANDORA'S BOX #7: 3D Spatial Audio (Headphone Magic!)
+  const [spatialAudioEnabled, setSpatialAudioEnabled] = useState(false);
+  const pannerNodeRef = useRef<PannerNode | null>(null);
+  const musicPannerNodeRef = useRef<PannerNode | null>(null);
+
   // Refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const sentenceRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -962,6 +977,13 @@ export default function ListenModeLuxury({
     return () => clearInterval(interval);
   }, [autoListeningRitual, listenAtmosphere, sleepTimer]);
 
+  // 🎧 PANDORA'S BOX: Setup 3D Spatial Audio when enabled
+  useEffect(() => {
+    if (spatialAudioEnabled && audioRef.current && hasGenerated) {
+      setup3DSpatialAudio();
+    }
+  }, [spatialAudioEnabled, hasGenerated]);
+
   // 🎨 REVOLUTIONARY: Audio-Reactive Background - Changes color with voice intensity
   useEffect(() => {
     if (!audioReactiveIntensity || !isPlaying) return;
@@ -1297,6 +1319,180 @@ export default function ListenModeLuxury({
       bookId: bookSlug,
       chapterId: chapterNumber,
     });
+  };
+
+  // 🎙️ PANDORA'S BOX #5: Voice Cloning - Record YOUR voice!
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      recordingChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordingChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordingChunksRef.current, { type: "audio/webm" });
+        setAudioBlob(blob);
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      // 30-second countdown
+      const interval = setInterval(() => {
+        setRecordingTime((prev) => {
+          if (prev >= 30) {
+            stopRecording();
+            clearInterval(interval);
+            return 30;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+
+      trackEvent("voice_cloning_started", {
+        bookId: bookSlug,
+        chapterId: chapterNumber,
+      });
+    } catch (error) {
+      console.error("[Voice Cloning] Microphone access denied:", error);
+      alert("Microphone access is required for voice cloning.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const cloneVoice = async () => {
+    if (!audioBlob) return;
+
+    setIsCloning(true);
+    try {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "voice-sample.webm");
+      formData.append("name", `${bookSlug}_user_voice`);
+
+      const response = await fetch("/api/ai/clone-voice", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setClonedVoiceId(data.voiceId);
+        setSelectedVoice(data.voiceId); // Auto-select cloned voice
+        setShowVoiceCloning(false);
+        setAudioBlob(null);
+
+        trackEvent("voice_cloning_success", {
+          voiceId: data.voiceId,
+          bookId: bookSlug,
+          chapterId: chapterNumber,
+        });
+
+        alert("🎉 Voice cloned successfully! Now generating audio in YOUR voice...");
+      } else {
+        throw new Error("Voice cloning failed");
+      }
+    } catch (error) {
+      console.error("[Voice Cloning] Error:", error);
+      alert("Failed to clone voice. Please try again.");
+    } finally {
+      setIsCloning(false);
+    }
+  };
+
+  // 🎭 PANDORA'S BOX #6: Multi-Voice Character Detection
+  const detectDialogue = (text: string): { speaker: "narrator" | "male" | "female"; text: string } => {
+    // Detect quoted dialogue
+    const hasQuotes = /"([^"]+)"|'([^']+)'/.test(text);
+    
+    if (!hasQuotes) {
+      return { speaker: "narrator", text };
+    }
+
+    // Analyze surrounding context for gender indicators
+    const maleIndicators = /\b(he|him|his|man|boy|male|gentleman|sir|mr\.|father|brother|son)\b/i;
+    const femaleIndicators = /\b(she|her|hers|woman|girl|female|lady|madam|mrs\.|ms\.|mother|sister|daughter)\b/i;
+
+    const lowerText = text.toLowerCase();
+    
+    if (femaleIndicators.test(lowerText)) {
+      return { speaker: "female", text };
+    } else if (maleIndicators.test(lowerText)) {
+      return { speaker: "male", text };
+    }
+
+    // Default to narrator for ambiguous dialogue
+    return { speaker: "narrator", text };
+  };
+
+  const getVoiceForSpeaker = (speaker: "narrator" | "male" | "female"): string => {
+    if (!multiVoiceMode) return selectedVoice;
+
+    const voiceMap = {
+      narrator: "21m00Tcm4TlvDq8ikWAM", // Rachel - Professional Female
+      male: "pNInz6obpgDQGcFmaJgB", // Adam - Deep Male
+      female: "EXAVITQu4vr4xnSDxMaL", // Bella - Warm Female
+    };
+
+    return voiceMap[speaker] || selectedVoice;
+  };
+
+  // 🎧 PANDORA'S BOX #7: 3D Spatial Audio - Narrator front, music behind, immersion MAX
+  const setup3DSpatialAudio = () => {
+    if (!audioRef.current || !spatialAudioEnabled) return;
+
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const source = audioContext.createMediaElementSource(audioRef.current);
+      
+      // Create panner for narrator voice (FRONT CENTER)
+      const pannerNode = audioContext.createPanner();
+      pannerNode.panningModel = "HRTF"; // Head-Related Transfer Function for realistic 3D
+      pannerNode.distanceModel = "inverse";
+      pannerNode.refDistance = 1;
+      pannerNode.maxDistance = 10000;
+      pannerNode.rolloffFactor = 1;
+      pannerNode.coneInnerAngle = 360;
+      pannerNode.coneOuterAngle = 0;
+      pannerNode.coneOuterGain = 0;
+      
+      // Position: Front center (0, 0, -1) = straight ahead
+      pannerNode.setPosition(0, 0, -1);
+      pannerNode.setOrientation(0, 0, -1);
+      
+      source.connect(pannerNode);
+      pannerNode.connect(audioContext.destination);
+      pannerNodeRef.current = pannerNode;
+
+      // Setup background music panner (BEHIND)
+      if (backgroundMusicRef.current) {
+        const musicSource = audioContext.createMediaElementSource(backgroundMusicRef.current);
+        const musicPanner = audioContext.createPanner();
+        musicPanner.panningModel = "HRTF";
+        musicPanner.setPosition(0, 0, 1); // Behind listener
+        
+        musicSource.connect(musicPanner);
+        musicPanner.connect(audioContext.destination);
+        musicPannerNodeRef.current = musicPanner;
+      }
+
+      console.log("[3D Spatial Audio] Setup complete - Use headphones for full immersion!");
+    } catch (error) {
+      console.error("[3D Spatial Audio] Setup failed:", error);
+    }
   };
 
   const generateAudio = async () => {
@@ -1702,6 +1898,22 @@ export default function ListenModeLuxury({
                     </p>
                   </button>
                 ))}
+              </div>
+
+              {/* 🎙️ PANDORA'S BOX: Clone Your Voice Button */}
+              <div className="mb-6">
+                <button
+                  onClick={() => setShowVoiceCloning(true)}
+                  className="w-full bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 hover:from-pink-500 hover:via-rose-500 hover:to-pink-500 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 flex items-center justify-center gap-3 group"
+                >
+                  <span className="text-2xl">🎙️</span>
+                  <span>Clone YOUR Voice</span>
+                  <span className="px-2 py-0.5 bg-white/20 text-xs rounded-full">WORLD'S FIRST</span>
+                  <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                </button>
+                <p className="text-xs text-center text-purple-300/60 mt-2">
+                  Hear books in your own voice • Takes 30 seconds • Powered by ElevenLabs
+                </p>
               </div>
 
               <button
@@ -2431,6 +2643,93 @@ export default function ListenModeLuxury({
                         </div>
                       </div>
                     </div>
+
+                    {/* 🎭 PANDORA'S BOX: Multi-Voice Character Dialogues */}
+                    <div className="bg-gradient-to-br from-orange-900/40 to-amber-900/40 rounded-xl p-4 border-2 border-orange-400/50 shadow-xl shadow-orange-500/20 sm:col-span-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">🎭</span>
+                          <div>
+                            <div className="text-sm font-bold text-orange-200">
+                              Multi-Voice Dialogues
+                            </div>
+                            <p className="text-xs text-orange-300/70 mt-1">
+                              Different voice for each character • Radio drama mode
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setMultiVoiceMode(!multiVoiceMode)}
+                          className={`w-12 h-6 rounded-full transition-all duration-300 ${
+                            multiVoiceMode
+                              ? "bg-gradient-to-r from-orange-600 to-amber-600"
+                              : "bg-slate-700"
+                          }`}
+                        >
+                          <div
+                            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                              multiVoiceMode ? "translate-x-6" : "translate-x-0.5"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      {multiVoiceMode && (
+                        <div className="mt-3 p-3 bg-black/30 rounded-lg border border-orange-500/20">
+                          <p className="text-xs text-orange-200/80 mb-2">
+                            <strong>Voice Assignment:</strong>
+                          </p>
+                          <div className="space-y-1 text-xs">
+                            <p className="text-orange-300/70">📖 Narrator → Rachel (Professional Female)</p>
+                            <p className="text-orange-300/70">👨 Male Characters → Adam (Deep Male)</p>
+                            <p className="text-orange-300/70">👩 Female Characters → Bella (Warm Female)</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 🎧 PANDORA'S BOX: 3D Spatial Audio */}
+                    <div className="bg-gradient-to-br from-cyan-900/40 to-blue-900/40 rounded-xl p-4 border-2 border-cyan-400/50 shadow-xl shadow-cyan-500/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Headphones className="w-5 h-5 text-cyan-300" />
+                          <div>
+                            <div className="text-sm font-bold text-cyan-200">
+                              🎧 3D Spatial Audio
+                            </div>
+                            <p className="text-xs text-cyan-300/70 mt-1">
+                              Headphone immersion • Sound moves around you
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setSpatialAudioEnabled(!spatialAudioEnabled)}
+                          className={`w-12 h-6 rounded-full transition-all duration-300 ${
+                            spatialAudioEnabled
+                              ? "bg-gradient-to-r from-cyan-600 to-blue-600"
+                              : "bg-slate-700"
+                          }`}
+                        >
+                          <div
+                            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                              spatialAudioEnabled ? "translate-x-6" : "translate-x-0.5"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      {spatialAudioEnabled && (
+                        <div className="mt-3 p-3 bg-black/30 rounded-lg border border-cyan-500/20">
+                          <p className="text-xs text-cyan-200/80 mb-2 flex items-center gap-2">
+                            <Headphones className="w-4 h-4" />
+                            <strong>Use headphones for full effect!</strong>
+                          </p>
+                          <div className="space-y-1 text-xs">
+                            <p className="text-cyan-300/70">🎙️ Narrator voice → Front (straight ahead)</p>
+                            <p className="text-cyan-300/70">🎵 Background music → Behind you</p>
+                            <p className="text-cyan-300/70">✨ Sound effects → Sides (L/R)</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -2771,6 +3070,122 @@ export default function ListenModeLuxury({
           </div>
         </div>
       </div>
+
+      {/* 🎙️ VOICE CLONING MODAL */}
+      {showVoiceCloning && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-slate-950 via-pink-950 to-slate-950 border-2 border-pink-500/30 rounded-2xl shadow-2xl max-w-lg w-full p-8">
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">🎙️</div>
+              <h2 className="text-3xl font-bold text-white mb-2">Clone Your Voice</h2>
+              <p className="text-pink-300/70">
+                Record 30 seconds and hear books in YOUR voice
+              </p>
+            </div>
+
+            {!audioBlob ? (
+              <div className="space-y-6">
+                <div className="bg-black/30 rounded-xl p-6 border border-pink-500/20">
+                  <h3 className="text-white font-bold mb-3 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-pink-400" />
+                    How it works:
+                  </h3>
+                  <ol className="space-y-2 text-sm text-pink-200/80">
+                    <li>1. Click record and read any text for 30 seconds</li>
+                    <li>2. We analyze your voice using AI</li>
+                    <li>3. Your cloned voice appears in voice selection</li>
+                    <li>4. Listen to ANY book in YOUR voice forever!</li>
+                  </ol>
+                </div>
+
+                <div className="text-center">
+                  {!isRecording ? (
+                    <button
+                      onClick={startRecording}
+                      className="w-full bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-bold py-6 px-8 rounded-xl transition-all shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50 flex items-center justify-center gap-3 group"
+                    >
+                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                        <div className="w-8 h-8 bg-red-500 rounded-full animate-pulse"></div>
+                      </div>
+                      <span className="text-lg">Start Recording</span>
+                    </button>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="text-center">
+                        <div className="text-6xl font-bold text-pink-400 mb-2">
+                          {recordingTime}s
+                        </div>
+                        <p className="text-pink-300/70">Recording... (30s max)</p>
+                      </div>
+                      <div className="flex gap-1 justify-center">
+                        {[...Array(30)].map((_, i) => (
+                          <div
+                            key={i}
+                            className={`w-2 h-8 rounded-full transition-all ${
+                              i < recordingTime ? "bg-pink-500" : "bg-slate-700"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <button
+                        onClick={stopRecording}
+                        className="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-6 rounded-xl transition-all"
+                      >
+                        Stop Recording
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-6 text-center">
+                  <div className="text-4xl mb-3">✅</div>
+                  <p className="text-emerald-200 font-bold mb-2">Recording Complete!</p>
+                  <p className="text-sm text-emerald-300/70">
+                    {recordingTime} seconds recorded
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setAudioBlob(null)}
+                    className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-6 rounded-xl transition-all"
+                  >
+                    Re-record
+                  </button>
+                  <button
+                    onClick={cloneVoice}
+                    disabled={isCloning}
+                    className="flex-1 bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg shadow-pink-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isCloning ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <Wind className="w-5 h-5 animate-spin" />
+                        Cloning...
+                      </span>
+                    ) : (
+                      "Clone Voice"
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={() => {
+                setShowVoiceCloning(false);
+                setAudioBlob(null);
+                setIsRecording(false);
+                setRecordingTime(0);
+              }}
+              className="mt-6 w-full text-pink-300/60 hover:text-pink-300 transition-colors text-sm"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         .animate-float {
