@@ -106,7 +106,7 @@ export default function BookReaderLuxury({
 
   // Handle deep linking to specific page
   useEffect(() => {
-    const pageParam = searchParams.get("page");
+    const pageParam = searchParams?.get("page");
     if (pageParam) {
       const page = parseInt(pageParam, 10);
       if (!isNaN(page) && page > 0 && page <= totalPages) {
@@ -161,10 +161,18 @@ export default function BookReaderLuxury({
   const [showReadingSpeedLive, setShowReadingSpeedLive] = useState(true);
   const [showAchievementToast, setShowAchievementToast] = useState(false);
   const [currentAchievement, setCurrentAchievement] = useState<string>("");
-  
+
   // 🎨 CUSTOM TEXT COLOR MIXER - ULTIMATE PERSONALIZATION!
   const [customTextColor, setCustomTextColor] = useState<string>("");
   const [useCustomTextColor, setUseCustomTextColor] = useState(false);
+
+  // 🎭🌟 IMMERSIVE READING REVOLUTION - THE GAME CHANGER!
+  const [atmospherePreset, setAtmospherePreset] = useState<string | null>(null);
+  const [immersiveMode, setImmersiveMode] = useState(false);
+  const [backgroundType, setBackgroundType] = useState<"image" | "video" | "gradient">("gradient");
+  const [backgroundUrl, setBackgroundUrl] = useState<string>("");
+  const [backgroundOpacity, setBackgroundOpacity] = useState(0.15);
+  const [backgroundBlur, setBackgroundBlur] = useState(8);
 
   // ===========================================
   // ADVANCED READING FEATURES
@@ -411,13 +419,33 @@ export default function BookReaderLuxury({
   // FONT FAMILY OPTIONS - 7 BEAUTIFUL FONTS!
   // ===========================================
   const fontFamilies = {
-    serif: { class: "font-serif", name: "📖 Serif", description: "Classic book" },
+    serif: {
+      class: "font-serif",
+      name: "📖 Serif",
+      description: "Classic book",
+    },
     sans: { class: "font-sans", name: "🔤 Sans", description: "Modern clean" },
     mono: { class: "font-mono", name: "💻 Mono", description: "Code style" },
-    dyslexic: { class: "font-[OpenDyslexic,Arial]", name: "👁️ Dyslexic", description: "Easy reading" },
-    typewriter: { class: "font-['Courier_New',monospace]", name: "⌨️ Typewriter", description: "Vintage feel" },
-    elegant: { class: "font-['Georgia',serif]", name: "✨ Elegant", description: "Sophisticated" },
-    modern: { class: "font-['Inter',sans-serif]", name: "🎯 Modern", description: "Fresh minimal" },
+    dyslexic: {
+      class: "font-[OpenDyslexic,Arial]",
+      name: "👁️ Dyslexic",
+      description: "Easy reading",
+    },
+    typewriter: {
+      class: "font-['Courier_New',monospace]",
+      name: "⌨️ Typewriter",
+      description: "Vintage feel",
+    },
+    elegant: {
+      class: "font-['Georgia',serif]",
+      name: "✨ Elegant",
+      description: "Sophisticated",
+    },
+    modern: {
+      class: "font-['Inter',sans-serif]",
+      name: "🎯 Modern",
+      description: "Fresh minimal",
+    },
   };
 
   // ===========================================
@@ -427,6 +455,102 @@ export default function BookReaderLuxury({
     standard: "max-w-4xl",
     wide: "max-w-6xl",
     narrow: "max-w-2xl",
+  };
+
+  // ===========================================
+  // 🎭 ATMOSPHERE PRESETS - ONE-CLICK MAGIC!
+  // ===========================================
+  const atmospherePresets = {
+    "focus-flow": {
+      name: "🎯 Focus Flow",
+      description: "Deep concentration mode",
+      settings: {
+        theme: "ocean" as const,
+        fontFamily: "serif" as const,
+        fontSize: 18,
+        lineHeight: 1.8,
+        focusMode: true,
+        pageTransition: "fade" as const,
+        accentColor: "blue" as const,
+        backgroundUrl: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&q=80",
+        backgroundType: "image" as const,
+      }
+    },
+    "night-owl": {
+      name: "🌙 Night Owl",
+      description: "Perfect for late reading",
+      settings: {
+        theme: "midnight" as const,
+        fontFamily: "elegant" as const,
+        fontSize: 20,
+        lineHeight: 2.0,
+        zenMode: true,
+        pageTransition: "fade" as const,
+        accentColor: "purple" as const,
+        backgroundUrl: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80",
+        backgroundType: "image" as const,
+      }
+    },
+    "speed-reader": {
+      name: "⚡ Speed Reader",
+      description: "Maximum reading velocity",
+      settings: {
+        theme: "light" as const,
+        fontFamily: "sans" as const,
+        fontSize: 16,
+        lineHeight: 1.6,
+        autoScroll: true,
+        pageTransition: "none" as const,
+        accentColor: "orange" as const,
+        backgroundUrl: "",
+        backgroundType: "gradient" as const,
+      }
+    },
+    "vintage-study": {
+      name: "📜 Vintage Study",
+      description: "Classic scholarly atmosphere",
+      settings: {
+        theme: "sepia" as const,
+        fontFamily: "typewriter" as const,
+        fontSize: 18,
+        lineHeight: 1.9,
+        columnMode: 2 as const,
+        pageTransition: "slide" as const,
+        accentColor: "orange" as const,
+        backgroundUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&q=80",
+        backgroundType: "image" as const,
+      }
+    },
+    "zen-garden": {
+      name: "🌸 Zen Garden",
+      description: "Peaceful mindful reading",
+      settings: {
+        theme: "mint" as const,
+        fontFamily: "elegant" as const,
+        fontSize: 19,
+        lineHeight: 2.2,
+        zenMode: true,
+        pageTransition: "fade" as const,
+        accentColor: "green" as const,
+        backgroundUrl: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1920&q=80",
+        backgroundType: "image" as const,
+      }
+    },
+    "luxury-lounge": {
+      name: "💎 Luxury Lounge",
+      description: "Premium reading experience",
+      settings: {
+        theme: "royal" as const,
+        fontFamily: "elegant" as const,
+        fontSize: 20,
+        lineHeight: 2.0,
+        layout: "wide" as const,
+        pageTransition: "flip" as const,
+        accentColor: "purple" as const,
+        backgroundUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=80",
+        backgroundType: "image" as const,
+      }
+    },
   };
 
   // ===========================================
@@ -716,6 +840,47 @@ export default function BookReaderLuxury({
     }
   };
 
+  // ===========================================
+  // 🎭 APPLY ATMOSPHERE PRESET - MAGIC TRANSFORMATION!
+  // ===========================================
+  const applyAtmospherePreset = (presetKey: string) => {
+    const preset = atmospherePresets[presetKey as keyof typeof atmospherePresets];
+    if (!preset) return;
+
+    const settings = preset.settings;
+    
+    // Apply all settings with type-safe checks
+    if (settings.theme) setTheme(settings.theme);
+    if (settings.fontFamily) setFontFamily(settings.fontFamily);
+    if (settings.fontSize) setFontSize(settings.fontSize);
+    if (settings.lineHeight) setLineHeight(settings.lineHeight);
+    if ('layout' in settings && settings.layout) setLayout(settings.layout);
+    if ('columnMode' in settings && settings.columnMode) setColumnMode(settings.columnMode);
+    if (settings.pageTransition) setPageTransition(settings.pageTransition);
+    if (settings.accentColor) setAccentColor(settings.accentColor);
+    
+    // Apply modes with safe checks
+    setFocusMode('focusMode' in settings ? settings.focusMode : false);
+    setZenMode('zenMode' in settings ? settings.zenMode : false);
+    setAutoScroll('autoScroll' in settings ? settings.autoScroll : false);
+    
+    // Apply immersive background
+    if (settings.backgroundUrl) {
+      setBackgroundUrl(settings.backgroundUrl);
+      setBackgroundType(settings.backgroundType);
+      setImmersiveMode(true);
+    } else {
+      setImmersiveMode(false);
+    }
+    
+    setAtmospherePreset(presetKey);
+    
+    // Show success toast
+    setCurrentAchievement(`${preset.name} Activated!`);
+    setShowAchievementToast(true);
+    setTimeout(() => setShowAchievementToast(false), 3000);
+  };
+
   const nextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prev) => prev + 1);
@@ -844,11 +1009,57 @@ export default function BookReaderLuxury({
 
   return (
     <div
-      className={`min-h-screen flex flex-col ${currentTheme.bg} ${currentTheme.text} transition-colors duration-500`}
+      className={`min-h-screen flex flex-col ${currentTheme.bg} ${currentTheme.text} transition-colors duration-500 relative`}
     >
       {/* ===========================================
-          ULTRA-LUXURY HEADER
+          🌟 IMMERSIVE BACKGROUND REVOLUTION 🌟
+          Cinema-Quality Reading Atmosphere
           =========================================== */}
+      {immersiveMode && backgroundUrl && (
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+          {backgroundType === "image" && (
+            <div
+              className="w-full h-full bg-cover bg-center transition-all duration-1000"
+              style={{
+                backgroundImage: `url(${backgroundUrl})`,
+                filter: `blur(${backgroundBlur}px)`,
+                opacity: backgroundOpacity,
+              }}
+            />
+          )}
+          {backgroundType === "video" && (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover transition-all duration-1000"
+              style={{
+                filter: `blur(${backgroundBlur}px)`,
+                opacity: backgroundOpacity,
+              }}
+            >
+              <source src={backgroundUrl} type="video/mp4" />
+            </video>
+          )}
+          {backgroundType === "gradient" && (
+            <div
+              className="w-full h-full transition-all duration-1000"
+              style={{
+                background: backgroundUrl, // CSS gradient string
+                filter: `blur(${backgroundBlur}px)`,
+                opacity: backgroundOpacity,
+              }}
+            />
+          )}
+        </div>
+      )}
+
+      {/* All content now sits above immersive background */}
+      <div className="relative z-10">
+        {/* ===========================================
+            ULTRA-LUXURY HEADER
+            =========================================== */}
       {!zenMode && (
         <header
           className={`${currentTheme.secondary} border-b ${currentTheme.border} sticky top-0 z-50 backdrop-blur-xl bg-opacity-90 transition-all duration-300`}
@@ -1208,7 +1419,17 @@ export default function BookReaderLuxury({
                   Font Family
                 </h3>
                 <div className="grid grid-cols-3 gap-2">
-                  {(["serif", "sans", "mono", "dyslexic", "typewriter", "elegant", "modern"] as const).map((font) => (
+                  {(
+                    [
+                      "serif",
+                      "sans",
+                      "mono",
+                      "dyslexic",
+                      "typewriter",
+                      "elegant",
+                      "modern",
+                    ] as const
+                  ).map((font) => (
                     <button
                       key={font}
                       onClick={() => setFontFamily(font)}
@@ -1218,12 +1439,20 @@ export default function BookReaderLuxury({
                           : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
                       }`}
                     >
-                      <div className={`${fontFamilies[font].class} text-lg font-bold mb-1`}>Ag</div>
-                      <div className="text-xs opacity-60">{fontFamilies[font].name}</div>
+                      <div
+                        className={`${fontFamilies[font].class} text-lg font-bold mb-1`}
+                      >
+                        Ag
+                      </div>
+                      <div className="text-xs opacity-60">
+                        {fontFamilies[font].name}
+                      </div>
                     </button>
                   ))}
                 </div>
-                <p className="text-xs text-center opacity-50">✍️ Choose your perfect reading font</p>
+                <p className="text-xs text-center opacity-50">
+                  ✍️ Choose your perfect reading font
+                </p>
               </div>
 
               {/* Layout Width */}
@@ -1410,9 +1639,13 @@ export default function BookReaderLuxury({
                       </div>
                     </div>
                     <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-black/20 rounded-lg">
-                      <span className="text-xs font-semibold">Use Custom Color</span>
+                      <span className="text-xs font-semibold">
+                        Use Custom Color
+                      </span>
                       <button
-                        onClick={() => setUseCustomTextColor(!useCustomTextColor)}
+                        onClick={() =>
+                          setUseCustomTextColor(!useCustomTextColor)
+                        }
                         className={`relative w-10 h-5 rounded-full transition-colors ${
                           useCustomTextColor
                             ? "bg-purple-500"
@@ -1421,20 +1654,284 @@ export default function BookReaderLuxury({
                       >
                         <div
                           className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
-                            useCustomTextColor ? "translate-x-5" : "translate-x-0.5"
+                            useCustomTextColor
+                              ? "translate-x-5"
+                              : "translate-x-0.5"
                           }`}
                         />
                       </button>
                     </div>
                     {useCustomTextColor && customTextColor && (
                       <div className="p-3 rounded-lg border-2 border-purple-300 bg-white dark:bg-gray-800">
-                        <p style={{ color: customTextColor }} className="text-sm font-semibold">
+                        <p
+                          style={{ color: customTextColor }}
+                          className="text-sm font-semibold"
+                        >
                           Preview: This is how your text will look! 📖
                         </p>
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-center opacity-60">🎨 Mix your perfect reading color</p>
+                  <p className="text-xs text-center opacity-60">
+                    🎨 Mix your perfect reading color
+                  </p>
+                </div>
+
+                {/* 🎭🌟 ATMOSPHERE PRESETS - ONE-CLICK MOOD TRANSFORMATION! */}
+                <div className="space-y-4 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 dark:from-purple-900/30 dark:via-pink-900/30 dark:to-orange-900/30 rounded-xl border-2 border-purple-300 dark:border-purple-700 shadow-xl">
+                  <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-purple-500" />
+                    🎭 Atmosphere Presets
+                  </h3>
+                  <p className="text-xs opacity-70 text-center">
+                    ✨ Transform your reading experience in one click
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    {Object.entries(atmospherePresets).map(([key, preset]) => (
+                      <button
+                        key={key}
+                        onClick={() => applyAtmospherePreset(key)}
+                        className={`p-4 rounded-xl border-2 transition-all hover:scale-105 hover:shadow-lg ${
+                          atmospherePreset === key
+                            ? "border-purple-500 bg-purple-100 dark:bg-purple-900/40 shadow-lg ring-2 ring-purple-300"
+                            : "border-purple-200 dark:border-purple-700 bg-white/50 dark:bg-black/20 hover:border-purple-400"
+                        }`}
+                      >
+                        <div className="text-3xl mb-2 filter drop-shadow">
+                          {preset.name.split(" ")[0]}
+                        </div>
+                        <div className="font-bold text-sm">
+                          {preset.name.split(" ").slice(1).join(" ")}
+                        </div>
+                        <div className="text-xs opacity-60 mt-1 line-clamp-2">
+                          {preset.description}
+                        </div>
+                        {atmospherePreset === key && (
+                          <div className="mt-2 flex items-center justify-center gap-1 text-xs text-purple-600 dark:text-purple-400 font-semibold">
+                            <Check className="w-3 h-3" />
+                            Active
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {atmospherePreset && (
+                    <button
+                      onClick={() => {
+                        setAtmospherePreset(null);
+                        setImmersiveMode(false);
+                      }}
+                      className="w-full py-2 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all text-sm font-semibold"
+                    >
+                      Clear Preset
+                    </button>
+                  )}
+                </div>
+
+                {/* 🌟 IMMERSIVE BACKGROUND CONTROLS - CINEMA-QUALITY READING! */}
+                <div className="space-y-4 p-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-xl border-2 border-indigo-300 dark:border-indigo-700 shadow-xl">
+                  <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-indigo-500" />
+                    🌟 Immersive Backgrounds
+                  </h3>
+                  <p className="text-xs opacity-70 text-center">
+                    🎬 Create your perfect reading atmosphere
+                  </p>
+
+                  {/* Immersive Mode Toggle */}
+                  <div className="flex items-center justify-between p-3 bg-white/60 dark:bg-black/30 rounded-xl border border-indigo-200 dark:border-indigo-700">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-indigo-500" />
+                      <span className="text-sm font-bold">Immersive Mode</span>
+                    </div>
+                    <button
+                      onClick={() => setImmersiveMode(!immersiveMode)}
+                      className={`relative w-14 h-7 rounded-full transition-all ${
+                        immersiveMode
+                          ? "bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg"
+                          : "bg-gray-300 dark:bg-gray-600"
+                      }`}
+                    >
+                      <div
+                        className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform shadow-md ${
+                          immersiveMode ? "translate-x-8" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  {immersiveMode && (
+                    <>
+                      {/* Background Type Selector */}
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold opacity-70">
+                          Background Type
+                        </h4>
+                        <div className="grid grid-cols-3 gap-2">
+                          {(["image", "video", "gradient"] as const).map(
+                            (type) => (
+                              <button
+                                key={type}
+                                onClick={() => setBackgroundType(type)}
+                                className={`px-3 py-2 rounded-lg border-2 capitalize transition-all text-xs font-semibold ${
+                                  backgroundType === type
+                                    ? "border-indigo-500 bg-indigo-100 dark:bg-indigo-900/40 shadow-md"
+                                    : "border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-300"
+                                }`}
+                              >
+                                {type}
+                              </button>
+                            )
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Background URL Input */}
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold opacity-70">
+                          Background URL
+                        </h4>
+                        <input
+                          type="text"
+                          value={backgroundUrl}
+                          onChange={(e) => setBackgroundUrl(e.target.value)}
+                          placeholder={
+                            backgroundType === "gradient"
+                              ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                              : "https://images.unsplash.com/..."
+                          }
+                          className="w-full px-3 py-2 rounded-lg border-2 border-indigo-300 focus:border-indigo-500 focus:outline-none text-sm"
+                        />
+                        <p className="text-xs opacity-60">
+                          💡 Tip: Use Unsplash for stunning images!
+                        </p>
+                      </div>
+
+                      {/* Background Opacity Slider */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-semibold opacity-70">
+                            Opacity
+                          </h4>
+                          <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
+                            {Math.round(backgroundOpacity * 100)}%
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.01"
+                          value={backgroundOpacity}
+                          onChange={(e) =>
+                            setBackgroundOpacity(parseFloat(e.target.value))
+                          }
+                          className="w-full h-2 bg-gradient-to-r from-transparent to-indigo-500 rounded-lg appearance-none cursor-pointer"
+                          style={{
+                            background: `linear-gradient(to right, transparent 0%, rgba(99, 102, 241, ${backgroundOpacity}) 100%)`,
+                          }}
+                        />
+                      </div>
+
+                      {/* Background Blur Slider */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-semibold opacity-70">
+                            Blur Amount
+                          </h4>
+                          <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
+                            {backgroundBlur}px
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="20"
+                          step="1"
+                          value={backgroundBlur}
+                          onChange={(e) =>
+                            setBackgroundBlur(parseInt(e.target.value))
+                          }
+                          className="w-full h-2 bg-gradient-to-r from-indigo-200 to-indigo-500 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Quick Background Suggestions */}
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold opacity-70">
+                          Quick Suggestions
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          {[
+                            {
+                              name: "Beach",
+                              url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+                            },
+                            {
+                              name: "Mountains",
+                              url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
+                            },
+                            {
+                              name: "Forest",
+                              url: "https://images.unsplash.com/photo-1511497584788-876760111969",
+                            },
+                            {
+                              name: "City",
+                              url: "https://images.unsplash.com/photo-1514565131-fce0801e5785",
+                            },
+                          ].map((suggestion) => (
+                            <button
+                              key={suggestion.name}
+                              onClick={() => {
+                                setBackgroundUrl(suggestion.url);
+                                setBackgroundType("image");
+                              }}
+                              className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
+                            >
+                              {suggestion.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Preview */}
+                      {backgroundUrl && (
+                        <div className="p-3 rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-white/50 dark:bg-black/30">
+                          <p className="text-xs font-semibold mb-2 opacity-70">
+                            Preview
+                          </p>
+                          <div className="relative h-24 rounded-lg overflow-hidden">
+                            <div
+                              className="absolute inset-0 bg-cover bg-center"
+                              style={{
+                                backgroundImage:
+                                  backgroundType === "image"
+                                    ? `url(${backgroundUrl})`
+                                    : undefined,
+                                background:
+                                  backgroundType === "gradient"
+                                    ? backgroundUrl
+                                    : undefined,
+                                filter: `blur(${backgroundBlur}px)`,
+                                opacity: backgroundOpacity,
+                              }}
+                            />
+                            <div className="relative z-10 flex items-center justify-center h-full">
+                              <p className="text-sm font-bold drop-shadow-lg">
+                                Your Reading Text
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  <p className="text-xs text-center opacity-60 pt-2 border-t border-indigo-200 dark:border-indigo-700">
+                    🎬 Cinema-quality reading experience
+                  </p>
                 </div>
               </div>
 
@@ -1734,7 +2231,9 @@ export default function BookReaderLuxury({
                       style={{
                         fontSize: `${fontSize}px`,
                         lineHeight: lineHeight,
-                        ...(useCustomTextColor && customTextColor ? { color: customTextColor } : {}),
+                        ...(useCustomTextColor && customTextColor
+                          ? { color: customTextColor }
+                          : {}),
                       }}
                       dangerouslySetInnerHTML={{ __html: pageContent }}
                     />
@@ -1986,6 +2485,7 @@ export default function BookReaderLuxury({
           />
         </>
       )}
+      </div> {/* End of z-10 content wrapper */}
 
       {/* ✨ ACHIEVEMENT TOAST NOTIFICATION - LUXURY GAMIFICATION */}
       {showAchievementToast && (
