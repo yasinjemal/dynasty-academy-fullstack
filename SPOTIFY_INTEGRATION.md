@@ -29,14 +29,8 @@ The Spotify Integration (#10 in Pandora's Box) allows users to select ANY song f
 
 ### 2. Add Environment Variables
 
-Add these to your `.env.local` file:
-
-```bash
-# Spotify Integration
-NEXT_PUBLIC_SPOTIFY_CLIENT_ID=your_client_id_here
-SPOTIFY_CLIENT_SECRET=your_client_secret_here
-NEXT_PUBLIC_APP_URL=http://localhost:3002
-```
+NEXT_PUBLIC_SPOTIFY_CLIENT_ID=`"cac311314c2e4267b168d336a1e3eb67`"`nSPOTIFY_CLIENT_SECRET=`"62e66c9ae54f4e5e8a90de2b74e322cd`"`nNEXT_PUBLIC_APP_URL=`"http://localhost:3000`""
+Add these to your `.env` file:
 
 ### 3. Test the Integration
 

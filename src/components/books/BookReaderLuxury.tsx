@@ -10,8 +10,6 @@ import { useLiveCoReading } from "@/hooks/useLiveCoReading";
 import LivePresenceIndicator from "./LivePresenceIndicator";
 import LiveChatWidget from "./LiveChatWidget";
 import LiveReactions from "./LiveReactions";
-import QuickReactionBar from "./QuickReactionBar";
-import SharePageLink from "./SharePageLink";
 import {
   BookOpen,
   ChevronLeft,
@@ -242,6 +240,19 @@ export default function BookReaderLuxury({
     startTyping,
     loadMoreMessages,
   } = useLiveCoReading(slug, currentPage, bookId);
+
+  // ===========================================
+  // 🤖 AI STUDY BUDDY - REVOLUTIONARY READING ASSISTANT!
+  // ===========================================
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [aiChatMessages, setAIChatMessages] = useState<
+    Array<{
+      role: "user" | "assistant";
+      content: string;
+      timestamp: number;
+    }>
+  >([]);
+  const [aiChatInput, setAIChatInput] = useState("");
 
   // ===========================================
   // BOOKMARKS & HIGHLIGHTS
@@ -986,6 +997,63 @@ export default function BookReaderLuxury({
     setTimeout(() => setShowAchievementToast(false), 3000);
   };
 
+  // ===========================================
+  // 🤖 AI STUDY BUDDY - ASK QUESTIONS WHILE READING!
+  // ===========================================
+  const askAIStudyBuddy = async (question: string) => {
+    if (!question.trim()) return;
+
+    // Add user message
+    const userMessage = {
+      role: "user" as const,
+      content: question,
+      timestamp: Date.now(),
+    };
+    setAIChatMessages((prev) => [...prev, userMessage]);
+    setAIChatInput("");
+
+    try {
+      // Get context from current page content
+      const textContent = pageContent.replace(/<[^>]*>/g, "");
+      const contextWords = textContent.split(/\s+/);
+      const context = contextWords.slice(0, 500).join(" "); // First 500 words as context
+
+      const response = await fetch("/api/ai/study-buddy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question,
+          context,
+          currentPage,
+          bookId: bookId,
+          bookTitle: bookTitle,
+          chapterId: currentPage,
+          chatHistory: aiChatMessages.slice(-10), // Last 10 messages for context
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const aiMessage = {
+          role: "assistant" as const,
+          content: data.answer,
+          timestamp: Date.now(),
+        };
+        setAIChatMessages((prev) => [...prev, aiMessage]);
+      } else {
+        throw new Error("AI Study Buddy failed");
+      }
+    } catch (error) {
+      console.error("[AI Study Buddy] Error:", error);
+      const errorMessage = {
+        role: "assistant" as const,
+        content: "Sorry, I couldn't process that question. Please try again!",
+        timestamp: Date.now(),
+      };
+      setAIChatMessages((prev) => [...prev, errorMessage]);
+    }
+  };
+
   const nextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prev) => prev + 1);
@@ -1284,27 +1352,19 @@ export default function BookReaderLuxury({
                   )}
                 </div>
 
-                {/* Right: Actions */}
-                <div className="flex items-center gap-2 flex-1 justify-end">
-                  {/* Reading Stats */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowReadingStats(!showReadingStats)}
-                    className="hidden sm:flex items-center gap-2"
-                  >
-                    <TrendingUp className="w-4 h-4" />
-                    <span className="text-sm">
-                      {Math.floor(totalReadingTime)}m
-                    </span>
-                  </Button>
-
-                  {/* Bookmark */}
+                {/* Right: Compact Actions */}
+                <div className="flex items-center gap-1 flex-1 justify-end">
+                  {/* Bookmark - Icon Only */}
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={toggleBookmark}
-                    className={currentPageBookmarked ? "text-purple-500" : ""}
+                    className={`p-2 ${
+                      currentPageBookmarked ? "text-purple-500" : ""
+                    }`}
+                    title={
+                      currentPageBookmarked ? "Remove bookmark" : "Add bookmark"
+                    }
                   >
                     <Bookmark
                       className={`w-4 h-4 ${
@@ -1313,16 +1373,17 @@ export default function BookReaderLuxury({
                     />
                   </Button>
 
-                  {/* Listen Mode */}
+                  {/* Listen Mode - Icon Only */}
                   <Button
                     variant={listenMode ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setListenMode(!listenMode)}
-                    className={
+                    className={`p-2 ${
                       listenMode
                         ? `bg-gradient-to-r ${currentTheme.accent} text-white`
                         : ""
-                    }
+                    }`}
+                    title={listenMode ? "Stop listening" : "Listen mode"}
                   >
                     {listenMode ? (
                       <PlayCircle className="w-4 h-4" />
@@ -1331,70 +1392,100 @@ export default function BookReaderLuxury({
                     )}
                   </Button>
 
-                  {/* Settings */}
+                  {/* AI Study Buddy - Icon Only */}
+                  <Button
+                    variant={showAIChat ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setShowAIChat(!showAIChat)}
+                    className={`p-2 ${
+                      showAIChat
+                        ? `bg-gradient-to-r from-blue-600 to-cyan-600 text-white`
+                        : ""
+                    }`}
+                    title="AI Study Buddy - Ask questions"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                  </Button>
+
+                  {/* Settings - Icon Only */}
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowSettings(!showSettings)}
+                    className="p-2"
+                    title="Reading settings"
                   >
                     <Settings className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
 
-              {/* Sub-header: Quick Actions - Enhanced Visibility! */}
-              <div className="flex items-center justify-between pb-3 border-t border-gray-200/50 dark:border-gray-700/50 mt-2 pt-3">
-                <div className="flex items-center gap-3">
+              {/* Sub-header: Compact Quick Actions */}
+              <div className="flex items-center justify-between pb-2 border-t border-gray-200/50 dark:border-gray-700/50 mt-1 pt-2">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setFocusMode(!focusMode)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       focusMode
-                        ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
-                        : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-purple-400 hover:shadow-lg`
+                        ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-md`
+                        : `${currentTheme.secondary} hover:scale-105`
                     }`}
+                    title="Focus mode - Minimal distractions"
                   >
-                    <Eye className="w-4 h-4" />
+                    <Eye className="w-3.5 h-3.5" />
                     Focus
                   </button>
 
                   <button
                     onClick={() => setZenMode(!zenMode)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       zenMode
-                        ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
-                        : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-blue-400 hover:shadow-lg`
+                        ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-md`
+                        : `${currentTheme.secondary} hover:scale-105`
                     }`}
+                    title="Zen mode - Distraction-free"
                   >
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="w-3.5 h-3.5" />
                     Zen
                   </button>
 
                   <button
                     onClick={() => setAutoScroll(!autoScroll)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                       autoScroll
-                        ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
-                        : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-green-400 hover:shadow-lg`
+                        ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-md`
+                        : `${currentTheme.secondary} hover:scale-105`
                     }`}
+                    title="Auto-scroll mode"
                   >
-                    <FastForward className="w-4 h-4" />
+                    <FastForward className="w-3.5 h-3.5" />
                     Auto
+                  </button>
+
+                  {/* Stats Button */}
+                  <button
+                    onClick={() => setShowReadingStats(!showReadingStats)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${currentTheme.secondary} hover:scale-105`}
+                    title="View reading statistics"
+                  >
+                    <TrendingUp className="w-3.5 h-3.5" />
+                    {Math.floor(totalReadingTime)}m
                   </button>
                 </div>
 
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                    <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <div className="flex items-center gap-2 text-xs">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-purple-100 dark:bg-purple-900/30 rounded-md">
+                    <Clock className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                     <span className="font-medium text-purple-600 dark:text-purple-400">
                       {readingTime} min
                     </span>
                   </div>
 
                   {!isPurchased && currentPage <= freePages && (
-                    <div className="flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                      <Gift className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-green-100 dark:bg-green-900/30 rounded-md">
+                      <Gift className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
                       <span className="font-medium text-green-600 dark:text-green-400">
-                        {freePages - currentPage} free pages left
+                        {freePages - currentPage} free
                       </span>
                     </div>
                   )}
@@ -2034,14 +2125,11 @@ export default function BookReaderLuxury({
                               <div
                                 className="absolute inset-0 bg-cover bg-center"
                                 style={{
-                                  backgroundImage:
-                                    backgroundType === "image"
-                                      ? `url(${backgroundUrl})`
-                                      : undefined,
-                                  background:
-                                    backgroundType === "gradient"
-                                      ? backgroundUrl
-                                      : undefined,
+                                  ...(backgroundType === "image"
+                                    ? {
+                                        backgroundImage: `url(${backgroundUrl})`,
+                                      }
+                                    : { background: backgroundUrl }),
                                   filter: `blur(${backgroundBlur}px)`,
                                   opacity: backgroundOpacity,
                                 }}
@@ -2699,7 +2787,7 @@ export default function BookReaderLuxury({
           FLOATING ACTION BUTTON (Zen Mode Only)
           =========================================== */}
         {zenMode && (
-          <div className="fixed bottom-8 right-8 flex flex-col gap-3">
+          <div className="fixed bottom-8 right-8 flex flex-col gap-3 z-40">
             <button
               onClick={prevPage}
               disabled={currentPage === 1}
@@ -2765,6 +2853,98 @@ export default function BookReaderLuxury({
         )}
 
         {/* ===========================================
+          🤖 AI STUDY BUDDY SIDEBAR - REVOLUTIONARY!
+          =========================================== */}
+        {showAIChat && !zenMode && (
+          <div className="fixed right-0 top-0 h-full w-96 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 border-l-2 border-blue-500/30 shadow-2xl z-50 flex flex-col">
+            <div className="p-6 border-b border-blue-500/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center">
+                    <span className="text-2xl">🤖</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">
+                      AI Study Buddy
+                    </h3>
+                    <p className="text-xs text-blue-300/70">
+                      Ask anything about what you're reading
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowAIChat(false)}
+                  className="text-slate-400 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {aiChatMessages.length === 0 && (
+                <div className="text-center text-blue-300/50 mt-12">
+                  <Sparkles className="w-12 h-12 mx-auto mb-4 text-blue-400/50" />
+                  <p className="text-sm">
+                    Ask me anything about what you're reading!
+                  </p>
+                  <div className="mt-4 space-y-2 text-xs">
+                    <p className="text-blue-400">
+                      "Explain this concept simply"
+                    </p>
+                    <p className="text-blue-400">"Give me an example"</p>
+                    <p className="text-blue-400">"How can I apply this?"</p>
+                    <p className="text-blue-400">"What's the main takeaway?"</p>
+                  </div>
+                </div>
+              )}
+              {aiChatMessages.map((msg, i) => (
+                <div
+                  key={i}
+                  className={`flex ${
+                    msg.role === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-2xl p-3 ${
+                      msg.role === "user"
+                        ? "bg-gradient-to-br from-blue-600 to-cyan-600 text-white"
+                        : "bg-slate-800/50 text-slate-200 border border-blue-500/20"
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Input */}
+            <div className="p-4 border-t border-blue-500/30">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={aiChatInput}
+                  onChange={(e) => setAIChatInput(e.target.value)}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && askAIStudyBuddy(aiChatInput)
+                  }
+                  placeholder="Ask a question..."
+                  className="flex-1 bg-slate-800/50 border border-blue-500/30 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/60"
+                />
+                <button
+                  onClick={() => askAIStudyBuddy(aiChatInput)}
+                  disabled={!aiChatInput.trim()}
+                  className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-xl font-bold transition-all"
+                >
+                  Ask
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===========================================
           🔥 LIVE CO-READING FEATURES (NEW!)
           =========================================== */}
         {!zenMode && (
@@ -2792,16 +2972,6 @@ export default function BookReaderLuxury({
 
             {/* Live Reactions */}
             <LiveReactions reactions={reactions} onReact={sendReaction} />
-
-            {/* Quick Reaction Bar */}
-            <QuickReactionBar onReact={sendReaction} currentTextIndex={0} />
-
-            {/* Share Page Link */}
-            <SharePageLink
-              bookSlug={slug}
-              currentPage={currentPage}
-              bookTitle={bookTitle}
-            />
           </>
         )}
       </div>{" "}

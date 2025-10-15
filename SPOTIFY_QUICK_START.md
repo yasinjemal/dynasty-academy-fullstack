@@ -3,6 +3,7 @@
 ## ✅ Credentials Added!
 
 Your `.env.local` file is configured with:
+
 - ✅ Client ID: `cac311314c2e4267b168d336a1e3eb67`
 - ✅ Client Secret: `62e66c9ae54f4e5e8a90de2b74e322cd`
 - ✅ App URL: `http://localhost:3003` (dev server running on port 3003)
@@ -38,6 +39,7 @@ Your dev server is running on **port 3003**, so you need to update the Spotify D
 ## 🎯 What to Test
 
 ### Feature #10: Spotify Integration
+
 - [ ] OAuth popup opens
 - [ ] Successfully authorize
 - [ ] Popup closes automatically
@@ -70,15 +72,18 @@ With Spotify credentials configured, you can now test:
 ## 🚨 Troubleshooting
 
 ### "Redirect URI mismatch"
+
 - Make sure you added `http://localhost:3003/api/spotify/callback` exactly
 - Check for typos (it's port 3003, not 3000)
 - Save the settings in Spotify Dashboard
 
 ### "Popup blocked"
+
 - Allow popups for localhost:3003
 - Check browser popup blocker settings
 
 ### "No playlists showing"
+
 - Make sure you have a Spotify Premium account
 - Check browser console for errors
 - Verify access token was received
@@ -88,6 +93,7 @@ With Spotify credentials configured, you can now test:
 ## 🎉 Next Steps
 
 After testing Spotify:
+
 1. Test all 10 features end-to-end
 2. Record demo video
 3. Launch to first users

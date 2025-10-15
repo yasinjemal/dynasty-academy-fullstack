@@ -426,17 +426,47 @@ model AudioAsset {
   id            String   @id @default(cuid())
   bookId        String   @map("book_id")
   chapterNumber Int      @map("chapter_number")
-  audioUrl      String   @map("audio_url")
-  voiceId       String?  @map("voice_id")
-  duration      String?
+  
+  // 🔥 SMART CACHING FIELDS
+  contentHash   String   @unique @map("content_hash") // SHA-256 for deduplication
+  voiceId       String   @map("voice_id")
+  model         String   @default("eleven_multilingual_v2")
+  speakingRate  Float    @default(1.0) @map("speaking_rate")
+  format        String   @default("mp3_44100_128")
+  
+  // Audio file info
+  storageUrl    String   @map("storage_url") // Cloud storage or base64
+  durationSec   Float    @map("duration_sec")
+  wordCount     Int      @map("word_count")
+  
+  // Metadata & analytics
   metadata      Json?
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
+  
   book          Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@unique([bookId, chapterNumber])
   @@index([bookId])
+  @@index([contentHash])
   @@map("book_audio")
+}
+
+// 🧠 USAGE ANALYTICS FOR COST TRACKING
+model AudioUsageLog {
+  id              String   @id @default(cuid())
+  userId          String   @map("user_id")
+  bookId          String   @map("book_id")
+  type            String   // "cache_hit" | "cache_miss"
+  savedAmount     Float    @default(0) @map("saved_amount")
+  generationCost  Float    @default(0) @map("generation_cost")
+  timestamp       DateTime @default(now())
+  metadata        Json?
+
+  @@index([userId])
+  @@index([bookId])
+  @@index([timestamp])
+  @@map("audio_usage_log")
 }
 
 model Review {
