@@ -29,6 +29,16 @@ import {
 } from "@/hooks/useAchievementToasts";
 import { useMobileGestures } from "@/hooks/useMobileGestures";
 
+// Spotify Web Playback SDK types
+declare global {
+  interface Window {
+    Spotify: {
+      Player: new (options: any) => any;
+    };
+    onSpotifyWebPlaybackSDKReady: () => void;
+  }
+}
+
 interface ListenModeLuxuryProps {
   bookSlug: string;
   chapterNumber: number;
@@ -200,6 +210,18 @@ export default function ListenModeLuxury({
   const [isUserFocused, setIsUserFocused] = useState(true);
   const [focusLostTime, setFocusLostTime] = useState(0);
   const videoStreamRef = useRef<MediaStream | null>(null);
+
+  // 🎵 PANDORA'S BOX #11: Spotify Integration (YOUR Music as Background!)
+  const [spotifyEnabled, setSpotifyEnabled] = useState(false);
+  const [spotifyAccessToken, setSpotifyAccessToken] = useState<string | null>(null);
+  const [spotifyPlaylists, setSpotifyPlaylists] = useState<Array<{
+    id: string;
+    name: string;
+    images: Array<{ url: string }>;
+  }>>([]);
+  const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
+  const [showSpotifyModal, setShowSpotifyModal] = useState(false);
+  const spotifyPlayerRef = useRef<any>(null);
 
   // Refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -1705,6 +1727,174 @@ export default function ListenModeLuxury({
     setFocusDetectionEnabled(false);
   };
 
+  // Spotify Integration Functions
+  const authenticateSpotify = () => {
+    const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
+    const redirectUri = `${window.location.origin}/api/spotify/callback`;
+    const scopes = [
+      "streaming",
+      "user-read-email",
+      "user-read-private",
+      "user-library-read",
+      "user-library-modify",
+      "playlist-read-private",
+      "playlist-read-collaborative",
+    ].join(" ");
+
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&scope=${encodeURIComponent(scopes)}`;
+
+    // Open popup for OAuth
+    const popup = window.open(authUrl, "Spotify Auth", "width=600,height=800");
+
+    // Listen for callback
+    const messageListener = (event: MessageEvent) => {
+      if (event.data.type === "spotify-auth-success") {
+        setSpotifyAccessToken(event.data.token);
+        fetchUserPlaylists(event.data.token);
+        popup?.close();
+        window.removeEventListener("message", messageListener);
+      }
+    };
+
+    window.addEventListener("message", messageListener);
+  };
+
+  const fetchUserPlaylists = async (token: string) => {
+    try {
+      const response = await fetch("https://api.spotify.com/v1/me/playlists?limit=50", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch playlists");
+
+      const data = await response.json();
+      setSpotifyPlaylists(
+        data.items.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          images: item.images,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching playlists:", error);
+    }
+  };
+
+  const initializeSpotifyPlayer = async () => {
+    if (!spotifyAccessToken) return;
+
+    // Load Spotify Web Playback SDK
+    const script = document.createElement("script");
+    script.src = "https://sdk.scdn.co/spotify-player.js";
+    document.body.appendChild(script);
+
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const player = new window.Spotify.Player({
+        name: "Dynasty Academy Listen Mode",
+        getOAuthToken: (cb: (token: string) => void) => {
+          cb(spotifyAccessToken!);
+        },
+        volume: 0.3, // Start at 30% for background
+      });
+
+      // Error handling
+      player.addListener("initialization_error", ({ message }: any) =>
+        console.error("Spotify Init Error:", message)
+      );
+      player.addListener("authentication_error", ({ message }: any) =>
+        console.error("Spotify Auth Error:", message)
+      );
+      player.addListener("account_error", ({ message }: any) => console.error("Spotify Account Error:", message));
+      player.addListener("playback_error", ({ message }: any) =>
+        console.error("Spotify Playback Error:", message)
+      );
+
+      // Ready
+      player.addListener("ready", ({ device_id }: any) => {
+        console.log("Spotify Player Ready!", device_id);
+        spotifyPlayerRef.current = { player, deviceId: device_id };
+      });
+
+      // Connect
+      player.connect();
+    };
+  };
+
+  const playSpotifyPlaylist = async (playlistId: string) => {
+    if (!spotifyPlayerRef.current || !spotifyAccessToken) return;
+
+    try {
+      const { deviceId } = spotifyPlayerRef.current;
+
+      // Transfer playback to our player
+      await fetch(`https://api.spotify.com/v1/me/player`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${spotifyAccessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          device_ids: [deviceId],
+          play: true,
+        }),
+      });
+
+      // Play the playlist
+      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${spotifyAccessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          context_uri: `spotify:playlist:${playlistId}`,
+        }),
+      });
+
+      setSelectedPlaylist(playlistId);
+      setupAutoDucking();
+    } catch (error) {
+      console.error("Error playing Spotify playlist:", error);
+    }
+  };
+
+  const setupAutoDucking = () => {
+    if (!spotifyPlayerRef.current) return;
+
+    const { player } = spotifyPlayerRef.current;
+
+    // Monitor narrator audio element
+    const checkNarratorPlaying = setInterval(() => {
+      const audioElement = document.querySelector("audio") as HTMLAudioElement;
+
+      if (audioElement && !audioElement.paused) {
+        // Narrator is speaking - duck Spotify to 15%
+        player.setVolume(0.15);
+      } else {
+        // Narrator paused - restore Spotify to 30%
+        player.setVolume(0.3);
+      }
+    }, 200);
+
+    // Cleanup on component unmount
+    return () => clearInterval(checkNarratorPlaying);
+  };
+
+  const disconnectSpotify = () => {
+    if (spotifyPlayerRef.current) {
+      spotifyPlayerRef.current.player.disconnect();
+      spotifyPlayerRef.current = null;
+    }
+    setSpotifyEnabled(false);
+    setSpotifyAccessToken(null);
+    setSpotifyPlaylists([]);
+    setSelectedPlaylist(null);
+  };
+
   const generateAudio = async () => {
     setIsLoading(true);
     setError(null);
@@ -3072,6 +3262,52 @@ export default function ListenModeLuxury({
                         </div>
                       )}
                     </div>
+
+                    {/* 🎵 PANDORA'S BOX #10: Spotify Integration */}
+                    <div className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 rounded-xl p-4 border-2 border-green-400/50 shadow-xl shadow-green-500/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">🎵</span>
+                          <div>
+                            <div className="text-sm font-bold text-green-200">
+                              Spotify Integration
+                            </div>
+                            <div className="text-xs text-green-300/60">
+                              {spotifyAccessToken
+                                ? selectedPlaylist
+                                  ? "Playing your music"
+                                  : `${spotifyPlaylists.length} playlists`
+                                : "Use YOUR music"}
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setShowSpotifyModal(true)}
+                          className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg text-xs font-bold transition-all shadow-lg"
+                        >
+                          {spotifyAccessToken ? "Browse" : "Connect"}
+                        </button>
+                      </div>
+                      {spotifyAccessToken && selectedPlaylist && (
+                        <div className="mt-3 p-3 bg-black/30 rounded-lg border border-green-500/20">
+                          <div className="flex items-center gap-2">
+                            <Music className="w-4 h-4 text-green-400" />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs text-green-200 truncate">
+                                {
+                                  spotifyPlaylists.find(
+                                    (p) => p.id === selectedPlaylist
+                                  )?.name
+                                }
+                              </div>
+                              <div className="text-xs text-green-300/60 mt-0.5">
+                                Auto-ducking when narrator speaks
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -3603,6 +3839,128 @@ export default function ListenModeLuxury({
               className="mt-6 w-full text-pink-300/60 hover:text-pink-300 transition-colors text-sm"
             >
               Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Spotify Integration Modal */}
+      {showSpotifyModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-slate-950 via-green-950 to-slate-950 border-2 border-green-500/30 rounded-2xl shadow-2xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto">
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">🎵</div>
+              <h2 className="text-3xl font-bold text-white mb-2">
+                Spotify Integration
+              </h2>
+              <p className="text-green-300/70">
+                Use YOUR music as the perfect atmosphere
+              </p>
+            </div>
+
+            {!spotifyAccessToken ? (
+              <div className="space-y-6">
+                <div className="bg-black/30 rounded-xl p-6 border border-green-500/20">
+                  <h3 className="text-white font-bold mb-3 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-green-400" />
+                    Why Spotify?
+                  </h3>
+                  <ul className="space-y-2 text-sm text-green-200/80">
+                    <li>• Browse YOUR playlists</li>
+                    <li>• Pick ANY song you love</li>
+                    <li>• Auto-ducking when narrator speaks</li>
+                    <li>• Ultimate personalization</li>
+                  </ul>
+                </div>
+
+                <button
+                  onClick={() => {
+                    authenticateSpotify();
+                    initializeSpotifyPlayer();
+                  }}
+                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg shadow-green-500/20 hover:shadow-green-500/40"
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <Music className="w-5 h-5" />
+                    Connect Spotify
+                  </div>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
+                      <Music className="w-5 h-5 text-green-400" />
+                    </div>
+                    <div>
+                      <div className="text-white font-bold">Connected</div>
+                      <div className="text-green-300/60 text-sm">
+                        {spotifyPlaylists.length} playlists available
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={disconnectSpotify}
+                    className="text-red-400/60 hover:text-red-400 text-sm transition-colors"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+
+                <div>
+                  <h3 className="text-white font-bold mb-4">
+                    Your Playlists
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+                    {spotifyPlaylists.map((playlist) => (
+                      <button
+                        key={playlist.id}
+                        onClick={() => {
+                          playSpotifyPlaylist(playlist.id);
+                          setShowSpotifyModal(false);
+                        }}
+                        className={`p-3 rounded-xl border-2 transition-all text-left ${
+                          selectedPlaylist === playlist.id
+                            ? "bg-green-500/20 border-green-500/50"
+                            : "bg-black/20 border-green-500/10 hover:border-green-500/30"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {playlist.images[0] ? (
+                            <img
+                              src={playlist.images[0].url}
+                              alt={playlist.name}
+                              className="w-12 h-12 rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                              <Music className="w-6 h-6 text-green-400" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="text-white font-medium text-sm truncate">
+                              {playlist.name}
+                            </div>
+                            {selectedPlaylist === playlist.id && (
+                              <div className="text-green-400 text-xs mt-1">
+                                ✓ Playing
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={() => setShowSpotifyModal(false)}
+              className="mt-6 w-full text-green-300/60 hover:text-green-300 transition-colors text-sm"
+            >
+              Close
             </button>
           </div>
         </div>
