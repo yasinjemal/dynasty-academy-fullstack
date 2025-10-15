@@ -4,7 +4,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/db/prisma";
 import crypto from "crypto";
 
 /**
@@ -48,7 +48,9 @@ export async function analyzeContentSemantics(
   try {
     // Check if Anthropic API key is available
     if (!process.env.ANTHROPIC_API_KEY) {
-      console.warn('⚠️  ANTHROPIC_API_KEY not set - falling back to basic analysis');
+      console.warn(
+        "⚠️  ANTHROPIC_API_KEY not set - falling back to basic analysis"
+      );
       return fallbackSemanticAnalysis(text);
     }
 
@@ -104,8 +106,12 @@ Return:
       keyThemes: analysis.keyThemes || [],
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.warn('⚠️  Semantic analysis failed, falling back to basic analysis:', errorMessage);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.warn(
+      "⚠️  Semantic analysis failed, falling back to basic analysis:",
+      errorMessage
+    );
     return fallbackSemanticAnalysis(text);
   }
 }
@@ -116,37 +122,56 @@ Return:
 function fallbackSemanticAnalysis(text: string): SemanticAnalysis {
   // Simple heuristic-based analysis
   const lowercaseText = text.toLowerCase();
-  
+
   // Detect content type
-  let contentType: SemanticAnalysis['contentType'] = 'narrative';
-  if (lowercaseText.includes('"') || lowercaseText.includes("'") || lowercaseText.includes('said')) {
-    contentType = 'dialogue';
-  } else if (lowercaseText.match(/\b(function|algorithm|method|process|system)\b/)) {
-    contentType = 'technical';
+  let contentType: SemanticAnalysis["contentType"] = "narrative";
+  if (
+    lowercaseText.includes('"') ||
+    lowercaseText.includes("'") ||
+    lowercaseText.includes("said")
+  ) {
+    contentType = "dialogue";
+  } else if (
+    lowercaseText.match(/\b(function|algorithm|method|process|system)\b/)
+  ) {
+    contentType = "technical";
   } else if (lowercaseText.match(/\b(feel|love|hate|fear|joy|sad)\b/)) {
-    contentType = 'emotional';
+    contentType = "emotional";
   }
-  
+
   // Estimate emotional tone
-  const emotionalWords = (lowercaseText.match(/\b(love|beautiful|terrible|amazing|horrible|wonderful)\b/g) || []).length;
+  const emotionalWords = (
+    lowercaseText.match(
+      /\b(love|beautiful|terrible|amazing|horrible|wonderful)\b/g
+    ) || []
+  ).length;
   const emotionalTone = Math.min(emotionalWords / 10, 1);
-  
+
   // Estimate complexity
-  const avgWordLength = text.split(/\s+/).reduce((sum, word) => sum + word.length, 0) / text.split(/\s+/).length;
+  const avgWordLength =
+    text.split(/\s+/).reduce((sum, word) => sum + word.length, 0) /
+    text.split(/\s+/).length;
   const complexity = Math.min(avgWordLength / 10, 1);
-  
+
   // Detect audience
-  let targetAudience: SemanticAnalysis['targetAudience'] = 'adult';
+  let targetAudience: SemanticAnalysis["targetAudience"] = "adult";
   if (lowercaseText.match(/\b(kid|child|fun|play)\b/)) {
-    targetAudience = 'children';
+    targetAudience = "children";
   } else if (lowercaseText.match(/\b(research|thesis|academic|scholarly)\b/)) {
-    targetAudience = 'academic';
+    targetAudience = "academic";
   }
-  
+
   // Create simple semantic hash
-  const semanticString = `${contentType}|${targetAudience}|${text.substring(0, 100).toLowerCase().replace(/\s+/g, ' ').trim()}`;
-  const semanticHash = crypto.createHash("sha256").update(semanticString).digest("hex");
-  
+  const semanticString = `${contentType}|${targetAudience}|${text
+    .substring(0, 100)
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim()}`;
+  const semanticHash = crypto
+    .createHash("sha256")
+    .update(semanticString)
+    .digest("hex");
+
   return {
     semanticHash,
     contentType,

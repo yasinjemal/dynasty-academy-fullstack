@@ -2,64 +2,69 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 import { prisma } from "@/lib/db/prisma";
+import crypto from "crypto";
 
-// ElevenLabs API configuration
-const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY!;
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 const ELEVENLABS_API_URL = "https://api.elevenlabs.io/v1";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: { slug: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const { slug } = await params;
-
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get book by slug
-    const book = await prisma.book.findUnique({
-      where: { slug },
-    });
+    const { chapterNumber, content, voiceId } = await req.json();
+    const { slug } = params;
 
+    if (!chapterNumber || !content || !voiceId) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const book = await prisma.book.findFirst({ where: { slug } });
     if (!book) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const {
-      chapterNumber,
-      content,
-      voiceId = "EXAVITQu4vr4xnSDxMaL",
-    } = await req.json();
+    const cleanText = content
+      .replace(/\*\*/g, "")
+      .replace(/\*/g, "")
+      .replace(/\n\n+/g, "\n\n")
+      .trim();
+    const contentHash = crypto
+      .createHash("sha256")
+      .update(cleanText + voiceId)
+      .digest("hex");
 
-    // Check if audio already exists in AudioAsset table
+    // Check cache first (by bookId + chapterNumber)
     const existingAudio = await prisma.audioAsset.findFirst({
       where: {
         bookId: book.id,
         chapterNumber: parseInt(chapterNumber),
       },
-      orderBy: {
-        createdAt: "desc",
-      },
     });
 
     if (existingAudio) {
+      const metadata = (existingAudio.metadata as { wordCount?: number }) || {};
+      console.log(
+        "✅ Cache hit! Saved $",
+        (((metadata.wordCount || 500) / 1000) * 0.18).toFixed(2)
+      );
       return NextResponse.json({
         success: true,
         audioUrl: existingAudio.audioUrl,
+        duration: existingAudio.duration || "1:00",
         cached: true,
       });
     }
 
-    // Strip HTML tags from content
-    const cleanText = content
-      .replace(/<[^>]*>/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    // Generate audio with ElevenLabs
+    console.log("🎙️ Generating new audio with ElevenLabs...");
     const response = await fetch(
       `${ELEVENLABS_API_URL}/text-to-speech/${voiceId}`,
       {
@@ -67,124 +72,119 @@ export async function POST(
         headers: {
           Accept: "audio/mpeg",
           "Content-Type": "application/json",
-          "xi-api-key": ELEVENLABS_API_KEY,
+          "xi-api-key": ELEVENLABS_API_KEY!,
         },
         body: JSON.stringify({
           text: cleanText,
           model_id: "eleven_multilingual_v2",
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.75,
-            style: 0.0,
-            use_speaker_boost: true,
-          },
+          voice_settings: { stability: 0.5, similarity_boost: 0.75 },
         }),
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("ElevenLabs API error:", {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorText,
-      });
-      throw new Error(
-        `ElevenLabs API error: ${response.status} - ${errorText}`
-      );
+      console.error("ElevenLabs error:", errorText);
+      throw new Error(`ElevenLabs API error: ${response.status}`);
     }
 
-    // Get audio buffer
     const audioBuffer = await response.arrayBuffer();
-    const audioBase64 = Buffer.from(audioBuffer).toString("base64");
-
-    // Store as base64 data URL (for now - in production should upload to Supabase Storage)
-    const audioUrl = `data:audio/mpeg;base64,${audioBase64}`;
-
+    const audioUrl = `data:audio/mpeg;base64,${Buffer.from(
+      audioBuffer
+    ).toString("base64")}`;
     const wordCount = cleanText.split(/\s+/).length;
-    const estimatedDuration = (wordCount / 150) * 60; // ~150 words per minute
+    const estimatedSeconds = Math.ceil((wordCount / 150) * 60);
+    const duration = `${Math.floor(estimatedSeconds / 60)}:${(
+      estimatedSeconds % 60
+    )
+      .toString()
+      .padStart(2, "0")}`;
 
-    // Save to database using AudioAsset model
-    const bookAudio = await prisma.audioAsset.create({
+    await prisma.audioAsset.create({
       data: {
         bookId: book.id,
         chapterNumber: parseInt(chapterNumber),
-        audioUrl,
         voiceId,
-        duration: `${Math.floor(estimatedDuration / 60)}:${Math.floor(
-          estimatedDuration % 60
-        )
-          .toString()
-          .padStart(2, "0")}`,
+        audioUrl,
+        duration,
         metadata: {
-          generatedAt: new Date().toISOString(),
+          contentHash,
           wordCount,
-          chapterNumber,
-          bookTitle: book.title,
+          generatedAt: new Date().toISOString(),
         },
       },
     });
 
+    console.log(
+      `✅ Audio generated! ${wordCount} words, ~$${(
+        (wordCount / 1000) *
+        0.18
+      ).toFixed(2)}`
+    );
     return NextResponse.json({
       success: true,
-      audioUrl: bookAudio.audioUrl,
+      audioUrl,
+      duration,
       cached: false,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Audio generation error:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      {
-        error: "Failed to generate audio",
-        details: error.message || String(error),
-        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-      },
+      { error: "Failed to generate audio", details: message },
       { status: 500 }
     );
   }
 }
 
-// Get audio for a chapter
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: { slug: string } }
 ) {
   try {
-    const { slug } = await params;
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(req.url);
-    const chapterNumber = parseInt(searchParams.get("chapter") || "1");
+    const chapterNumber = searchParams.get("chapterNumber");
+    const { slug } = params;
 
-    // Get book by slug
-    const book = await prisma.book.findUnique({
-      where: { slug },
-    });
+    if (!chapterNumber) {
+      return NextResponse.json(
+        { error: "Chapter number required" },
+        { status: 400 }
+      );
+    }
 
+    const book = await prisma.book.findFirst({ where: { slug } });
     if (!book) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    const audio = await prisma.audioAsset.findFirst({
+    const audioAsset = await prisma.audioAsset.findFirst({
       where: {
         bookId: book.id,
-        chapterNumber,
-      },
-      orderBy: {
-        createdAt: "desc",
+        chapterNumber: parseInt(chapterNumber),
       },
     });
 
-    if (!audio) {
+    if (!audioAsset) {
       return NextResponse.json({ error: "Audio not found" }, { status: 404 });
     }
 
     return NextResponse.json({
       success: true,
-      audioUrl: audio.audioUrl,
-      duration: audio.duration,
+      audioUrl: audioAsset.audioUrl,
+      duration: audioAsset.duration || "1:00",
+      metadata: audioAsset.metadata,
     });
   } catch (error) {
-    console.error("Audio fetch error:", error);
+    console.error("Error fetching audio:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to fetch audio" },
+      { error: "Failed to fetch audio", details: message },
       { status: 500 }
     );
   }
