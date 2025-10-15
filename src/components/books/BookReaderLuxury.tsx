@@ -175,19 +175,21 @@ export default function BookReaderLuxury({
   const [backgroundUrl, setBackgroundUrl] = useState<string>("");
   const [backgroundOpacity, setBackgroundOpacity] = useState(0.15);
   const [backgroundBlur, setBackgroundBlur] = useState(8);
-  
+
   // 🎵🔥 NEXT LEVEL: AUDIO ATMOSPHERE SYNC (REVOLUTIONARY!)
   const [audioAtmosphere, setAudioAtmosphere] = useState(false);
   const [audioAtmosphereUrl, setAudioAtmosphereUrl] = useState<string>("");
   const [audioVolume, setAudioVolume] = useState(0.3);
-  
+
   // 🌊✨ PARALLAX MAGIC (SUBTLE MOVEMENT FOR DEPTH)
   const [parallaxEffect, setParallaxEffect] = useState(false);
   const [parallaxIntensity, setParallaxIntensity] = useState(5);
-  
+
   // ⏰🌅 TIME-BASED AUTO-SWITCHING (AI-POWERED)
   const [autoTimeSwitch, setAutoTimeSwitch] = useState(false);
-  const [currentTimeOfDay, setCurrentTimeOfDay] = useState<"dawn" | "day" | "dusk" | "night">("day");
+  const [currentTimeOfDay, setCurrentTimeOfDay] = useState<
+    "dawn" | "day" | "dusk" | "night"
+  >("day");
 
   // ===========================================
   // ADVANCED READING FEATURES
@@ -480,7 +482,8 @@ export default function BookReaderLuxury({
     "focus-flow": {
       name: "🎯 Focus Flow",
       description: "Deep concentration mode",
-      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-ocean-waves-loop-1196.mp3", // Ocean waves
+      audioUrl:
+        "https://assets.mixkit.co/music/preview/mixkit-ocean-waves-loop-1196.mp3", // Ocean waves
       settings: {
         theme: "ocean" as const,
         fontFamily: "serif" as const,
@@ -497,7 +500,8 @@ export default function BookReaderLuxury({
     "night-owl": {
       name: "🌙 Night Owl",
       description: "Perfect for late reading",
-      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-night-ambient-947.mp3", // Night ambience
+      audioUrl:
+        "https://assets.mixkit.co/music/preview/mixkit-night-ambient-947.mp3", // Night ambience
       settings: {
         theme: "midnight" as const,
         fontFamily: "elegant" as const,
@@ -530,7 +534,8 @@ export default function BookReaderLuxury({
     "vintage-study": {
       name: "📜 Vintage Study",
       description: "Classic scholarly atmosphere",
-      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-fireplace-crackle-1330.mp3", // Fireplace ambience
+      audioUrl:
+        "https://assets.mixkit.co/music/preview/mixkit-fireplace-crackle-1330.mp3", // Fireplace ambience
       settings: {
         theme: "sepia" as const,
         fontFamily: "typewriter" as const,
@@ -547,7 +552,8 @@ export default function BookReaderLuxury({
     "zen-garden": {
       name: "🌸 Zen Garden",
       description: "Peaceful mindful reading",
-      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-zen-garden-958.mp3", // Zen meditation
+      audioUrl:
+        "https://assets.mixkit.co/music/preview/mixkit-zen-garden-958.mp3", // Zen meditation
       settings: {
         theme: "mint" as const,
         fontFamily: "elegant" as const,
@@ -564,7 +570,8 @@ export default function BookReaderLuxury({
     "luxury-lounge": {
       name: "💎 Luxury Lounge",
       description: "Premium reading experience",
-      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-jazz-lounge-547.mp3", // Smooth jazz
+      audioUrl:
+        "https://assets.mixkit.co/music/preview/mixkit-jazz-lounge-547.mp3", // Smooth jazz
       settings: {
         theme: "royal" as const,
         fontFamily: "elegant" as const,
@@ -691,10 +698,10 @@ export default function BookReaderLuxury({
   // ===========================================
   useEffect(() => {
     if (!autoTimeSwitch) return;
-    
+
     const updateTimeOfDay = () => {
       const hour = new Date().getHours();
-      
+
       if (hour >= 5 && hour < 8) {
         setCurrentTimeOfDay("dawn");
         // Auto-apply zen garden for peaceful morning
@@ -721,10 +728,10 @@ export default function BookReaderLuxury({
         }
       }
     };
-    
+
     updateTimeOfDay();
     const interval = setInterval(updateTimeOfDay, 60000); // Check every minute
-    
+
     return () => clearInterval(interval);
   }, [autoTimeSwitch, atmospherePreset]);
 
@@ -733,7 +740,7 @@ export default function BookReaderLuxury({
   // ===========================================
   useEffect(() => {
     if (!parallaxEffect || !immersiveMode) return;
-    
+
     const handleScroll = () => {
       const scrolled = window.pageYOffset;
       const background = document.getElementById("immersive-background");
@@ -742,7 +749,7 @@ export default function BookReaderLuxury({
         background.style.transform = `translateY(${offset}px) scale(1.1)`;
       }
     };
-    
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [parallaxEffect, immersiveMode, parallaxIntensity]);
@@ -963,7 +970,7 @@ export default function BookReaderLuxury({
     } else {
       setImmersiveMode(false);
     }
-    
+
     // 🎵🔥 REVOLUTIONARY: Apply audio atmosphere!
     if (preset.audioUrl && audioAtmosphere) {
       setAudioAtmosphereUrl(preset.audioUrl);
@@ -1114,11 +1121,11 @@ export default function BookReaderLuxury({
           Cinema-Quality Reading Atmosphere
           =========================================== */}
       {immersiveMode && backgroundUrl && (
-        <div 
+        <div
           id="immersive-background"
           className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
           style={{
-            transition: parallaxEffect ? "transform 0.1s ease-out" : "none"
+            transition: parallaxEffect ? "transform 0.1s ease-out" : "none",
           }}
         >
           {backgroundType === "image" && (
@@ -1158,7 +1165,6 @@ export default function BookReaderLuxury({
           )}
         </div>
       )}
-      
       {/* 🎵🔥 AUDIO ATMOSPHERE (REVOLUTIONARY SYNC!) */}
       {audioAtmosphere && audioAtmosphereUrl && (
         <audio
@@ -1171,7 +1177,6 @@ export default function BookReaderLuxury({
           }}
         />
       )}
-
       {/* All content now sits above immersive background */}
       <div className="relative z-10">
         {/* ===========================================
@@ -2057,7 +2062,9 @@ export default function BookReaderLuxury({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-xl">🎵</span>
-                          <span className="text-sm font-bold">Audio Atmosphere</span>
+                          <span className="text-sm font-bold">
+                            Audio Atmosphere
+                          </span>
                         </div>
                         <button
                           onClick={() => setAudioAtmosphere(!audioAtmosphere)}
@@ -2069,12 +2076,14 @@ export default function BookReaderLuxury({
                         >
                           <div
                             className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                              audioAtmosphere ? "translate-x-7" : "translate-x-1"
+                              audioAtmosphere
+                                ? "translate-x-7"
+                                : "translate-x-1"
                             }`}
                           />
                         </button>
                       </div>
-                      
+
                       {audioAtmosphere && (
                         <>
                           <div className="space-y-2">
@@ -2111,7 +2120,9 @@ export default function BookReaderLuxury({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span className="text-xl">🌊</span>
-                            <span className="text-sm font-bold">Parallax Effect</span>
+                            <span className="text-sm font-bold">
+                              Parallax Effect
+                            </span>
                           </div>
                           <button
                             onClick={() => setParallaxEffect(!parallaxEffect)}
@@ -2123,12 +2134,14 @@ export default function BookReaderLuxury({
                           >
                             <div
                               className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                                parallaxEffect ? "translate-x-7" : "translate-x-1"
+                                parallaxEffect
+                                  ? "translate-x-7"
+                                  : "translate-x-1"
                               }`}
                             />
                           </button>
                         </div>
-                        
+
                         {parallaxEffect && (
                           <>
                             <div className="space-y-2">
@@ -2165,7 +2178,9 @@ export default function BookReaderLuxury({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-xl">⏰</span>
-                          <span className="text-sm font-bold">Smart Time Switching</span>
+                          <span className="text-sm font-bold">
+                            Smart Time Switching
+                          </span>
                         </div>
                         <button
                           onClick={() => setAutoTimeSwitch(!autoTimeSwitch)}
@@ -2182,25 +2197,50 @@ export default function BookReaderLuxury({
                           />
                         </button>
                       </div>
-                      
+
                       {autoTimeSwitch && (
                         <div className="space-y-2">
                           <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className={`p-2 rounded-lg ${currentTimeOfDay === "dawn" ? "bg-orange-200 dark:bg-orange-900/40 font-bold" : "bg-white/50 dark:bg-black/20"}`}>
+                            <div
+                              className={`p-2 rounded-lg ${
+                                currentTimeOfDay === "dawn"
+                                  ? "bg-orange-200 dark:bg-orange-900/40 font-bold"
+                                  : "bg-white/50 dark:bg-black/20"
+                              }`}
+                            >
                               🌅 Dawn (5-8am)
                             </div>
-                            <div className={`p-2 rounded-lg ${currentTimeOfDay === "day" ? "bg-blue-200 dark:bg-blue-900/40 font-bold" : "bg-white/50 dark:bg-black/20"}`}>
+                            <div
+                              className={`p-2 rounded-lg ${
+                                currentTimeOfDay === "day"
+                                  ? "bg-blue-200 dark:bg-blue-900/40 font-bold"
+                                  : "bg-white/50 dark:bg-black/20"
+                              }`}
+                            >
                               ☀️ Day (8am-5pm)
                             </div>
-                            <div className={`p-2 rounded-lg ${currentTimeOfDay === "dusk" ? "bg-purple-200 dark:bg-purple-900/40 font-bold" : "bg-white/50 dark:bg-black/20"}`}>
+                            <div
+                              className={`p-2 rounded-lg ${
+                                currentTimeOfDay === "dusk"
+                                  ? "bg-purple-200 dark:bg-purple-900/40 font-bold"
+                                  : "bg-white/50 dark:bg-black/20"
+                              }`}
+                            >
                               🌆 Dusk (5-8pm)
                             </div>
-                            <div className={`p-2 rounded-lg ${currentTimeOfDay === "night" ? "bg-indigo-200 dark:bg-indigo-900/40 font-bold" : "bg-white/50 dark:bg-black/20"}`}>
+                            <div
+                              className={`p-2 rounded-lg ${
+                                currentTimeOfDay === "night"
+                                  ? "bg-indigo-200 dark:bg-indigo-900/40 font-bold"
+                                  : "bg-white/50 dark:bg-black/20"
+                              }`}
+                            >
                               🌙 Night (8pm-5am)
                             </div>
                           </div>
                           <p className="text-xs opacity-60 text-center">
-                            🤖 AI automatically switches atmosphere based on time
+                            🤖 AI automatically switches atmosphere based on
+                            time
                           </p>
                         </div>
                       )}

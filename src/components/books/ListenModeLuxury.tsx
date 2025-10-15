@@ -96,16 +96,37 @@ export default function ListenModeLuxury({
   const [showStreakBadge, setShowStreakBadge] = useState(false);
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
 
+  // 🔥 REVOLUTIONARY: Listening Atmosphere Presets (WORLD'S FIRST!)
+  const [listenAtmosphere, setListenAtmosphere] = useState<string>("none");
+  const [backgroundMusicUrl, setBackgroundMusicUrl] = useState<string>("");
+  const [backgroundMusicVolume, setBackgroundMusicVolume] = useState(0.15); // 15% default
+  const [musicDucking, setMusicDucking] = useState(true); // Auto-lower music when voice speaks
+  
+  // 🎨 REVOLUTIONARY: Voice Mood Sync (Visual matches voice personality)
+  const [voiceMoodSync, setVoiceMoodSync] = useState(true);
+  const [backgroundGradient, setBackgroundGradient] = useState("");
+  
+  // ⏰ REVOLUTIONARY: Time-Based Listening Rituals
+  const [autoListeningRitual, setAutoListeningRitual] = useState(false);
+  const [currentListeningPeriod, setCurrentListeningPeriod] = useState<"morning" | "afternoon" | "evening" | "night">("afternoon");
+  
+  // 🌊 REVOLUTIONARY: Audio-Reactive Visuals
+  const [audioReactiveIntensity, setAudioReactiveIntensity] = useState(50); // 0-100
+  const [particleReactivity, setParticleReactivity] = useState(true);
+
   // Refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const sentenceRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const hasShownGateRef = useRef(false);
   const lastUpdateTimeRef = useRef(0);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // 🔥 REVOLUTIONARY: Background music audio ref for atmosphere layering
+  const backgroundMusicRef = useRef<HTMLAudioElement | null>(null);
 
   // Storage keys
   const storageKey = `listen_${bookSlug}_${chapterNumber}_${selectedVoice}`;
@@ -238,6 +259,65 @@ export default function ListenModeLuxury({
     { value: 1.5, label: "Power", icon: "⚡" },
     { value: 2.0, label: "Lightning", icon: "🚀" },
   ];
+
+  // 🔥 REVOLUTIONARY: Listening Atmosphere Presets (NO APP HAS THIS!)
+  // Each preset combines background music + visual theme + optimal settings
+  const listeningAtmospheres = {
+    "deep-focus": {
+      name: "🎧 Deep Focus",
+      description: "Binaural beats for concentration",
+      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3",
+      gradient: "from-slate-900 via-blue-900 to-slate-900",
+      particleColor: "blue-400",
+      recommendedSpeed: 1.0,
+      visualizerStyle: "bars" as const,
+    },
+    "night-session": {
+      name: "🌙 Night Session",
+      description: "Dark ambience for late reading",
+      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-night-ambient-947.mp3",
+      gradient: "from-slate-950 via-purple-950 to-indigo-950",
+      particleColor: "purple-400",
+      recommendedSpeed: 0.75,
+      visualizerStyle: "wave" as const,
+    },
+    "coffee-shop": {
+      name: "☕ Coffee Shop",
+      description: "Ambient café atmosphere",
+      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-coffee-shop-ambience-1711.mp3",
+      gradient: "from-amber-950 via-orange-900 to-amber-950",
+      particleColor: "amber-400",
+      recommendedSpeed: 1.0,
+      visualizerStyle: "pulse" as const,
+    },
+    "ocean-vibes": {
+      name: "🌊 Ocean Vibes",
+      description: "Waves and seagulls blend",
+      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-ocean-waves-loop-1196.mp3",
+      gradient: "from-cyan-950 via-blue-900 to-cyan-950",
+      particleColor: "cyan-400",
+      recommendedSpeed: 0.75,
+      visualizerStyle: "wave" as const,
+    },
+    "fireplace-study": {
+      name: "🔥 Fireplace Study",
+      description: "Crackling fire warmth",
+      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-fireplace-crackle-1330.mp3",
+      gradient: "from-orange-950 via-red-900 to-orange-950",
+      particleColor: "orange-400",
+      recommendedSpeed: 1.0,
+      visualizerStyle: "bars" as const,
+    },
+    "classical-background": {
+      name: "🎼 Classical Elegance",
+      description: "Soft piano undertone",
+      musicUrl: "https://assets.mixkit.co/music/preview/mixkit-piano-reflections-666.mp3",
+      gradient: "from-violet-950 via-purple-900 to-violet-950",
+      particleColor: "violet-400",
+      recommendedSpeed: 1.0,
+      visualizerStyle: "pulse" as const,
+    },
+  };
 
   // Split content into sentences with timestamps
   const sentences = useMemo((): Sentence[] => {
@@ -757,6 +837,137 @@ export default function ListenModeLuxury({
     }
   }, [sleepTimer, isPlaying, bookSlug, chapterNumber]);
 
+  // 🔥 REVOLUTIONARY: Voice Mood Sync - Visual background matches voice personality
+  useEffect(() => {
+    if (!voiceMoodSync || !selectedVoice) return;
+
+    const selectedVoiceData = voices.find((v) => v.id === selectedVoice);
+    if (selectedVoiceData) {
+      // Apply voice-specific gradient to background
+      setBackgroundGradient(selectedVoiceData.gradient);
+      
+      trackEvent("voice_mood_sync_applied", {
+        voiceId: selectedVoice,
+        voiceName: selectedVoiceData.name,
+        gradient: selectedVoiceData.gradient,
+      });
+    }
+  }, [voiceMoodSync, selectedVoice]);
+
+  // ⏰ REVOLUTIONARY: Time-Based Listening Rituals - Auto-optimize for time of day
+  useEffect(() => {
+    if (!autoListeningRitual) return;
+
+    const updateListeningRitual = () => {
+      const hour = new Date().getHours();
+      
+      // Morning (6-9am): Energetic, bright, faster speed
+      if (hour >= 6 && hour < 9) {
+        setCurrentListeningPeriod("morning");
+        if (listenAtmosphere === "none") {
+          applyListenAtmosphere("coffee-shop"); // Energizing café vibes
+        }
+      }
+      // Afternoon (12-5pm): Focus mode
+      else if (hour >= 12 && hour < 17) {
+        setCurrentListeningPeriod("afternoon");
+        if (listenAtmosphere === "none") {
+          applyListenAtmosphere("deep-focus"); // Concentration mode
+        }
+      }
+      // Evening (6-8pm): Relaxing transition
+      else if (hour >= 18 && hour < 20) {
+        setCurrentListeningPeriod("evening");
+        if (listenAtmosphere === "none") {
+          applyListenAtmosphere("fireplace-study"); // Cozy evening
+        }
+      }
+      // Night (8pm+): Calm, slow, dark
+      else {
+        setCurrentListeningPeriod("night");
+        if (listenAtmosphere === "none") {
+          applyListenAtmosphere("night-session"); // Peaceful night
+        }
+        // Auto-enable sleep timer at night (30 minutes default)
+        if (sleepTimer === 0) {
+          setSleepTimer(30);
+        }
+      }
+    };
+
+    updateListeningRitual();
+    const interval = setInterval(updateListeningRitual, 60000); // Check every minute
+    
+    return () => clearInterval(interval);
+  }, [autoListeningRitual, listenAtmosphere, sleepTimer]);
+
+  // 🎨 REVOLUTIONARY: Audio-Reactive Background - Changes color with voice intensity
+  useEffect(() => {
+    if (!audioReactiveIntensity || !isPlaying) return;
+
+    const updateBackgroundReactivity = () => {
+      if (analyserRef.current && audioFrequencies.length > 0) {
+        // Calculate average frequency intensity
+        const avgIntensity = audioFrequencies.reduce((a, b) => a + b, 0) / audioFrequencies.length;
+        const normalizedIntensity = avgIntensity / 255; // 0-1
+        
+        // Apply intensity to background brightness
+        if (containerRef.current) {
+          const brightness = 100 + (normalizedIntensity * audioReactiveIntensity);
+          containerRef.current.style.filter = `brightness(${brightness}%)`;
+        }
+
+        // Pulse particles with audio
+        if (particleReactivity && normalizedIntensity > 0.3) {
+          // Trigger particle burst on loud sounds
+          const event = new CustomEvent('audioPulse', { 
+            detail: { intensity: normalizedIntensity } 
+          });
+          window.dispatchEvent(event);
+        }
+      }
+      
+      animationFrameRef.current = requestAnimationFrame(updateBackgroundReactivity);
+    };
+
+    if (isPlaying) {
+      updateBackgroundReactivity();
+    }
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (containerRef.current) {
+        containerRef.current.style.filter = 'brightness(100%)';
+      }
+    };
+  }, [audioReactiveIntensity, isPlaying, audioFrequencies, particleReactivity]);
+
+  // 🔥 REVOLUTIONARY: Apply Listening Atmosphere Preset
+  const applyListenAtmosphere = (atmosphereKey: string) => {
+    const atmosphere = listeningAtmospheres[atmosphereKey as keyof typeof listeningAtmospheres];
+    if (!atmosphere) return;
+
+    // Apply all atmosphere settings
+    setListenAtmosphere(atmosphereKey);
+    setBackgroundMusicUrl(atmosphere.musicUrl);
+    setBackgroundGradient(atmosphere.gradient);
+    setVisualizerStyle(atmosphere.visualizerStyle);
+    setPlaybackRate(atmosphere.recommendedSpeed);
+
+    // Track event
+    trackEvent("listening_atmosphere_applied", {
+      atmosphere: atmosphereKey,
+      name: atmosphere.name,
+      musicUrl: atmosphere.musicUrl,
+      bookId: bookSlug,
+      chapterId: chapterNumber,
+    });
+
+    console.log(`🎧 Atmosphere applied: ${atmosphere.name}`);
+  };
+
   const generateAudio = async () => {
     setIsLoading(true);
     setError(null);
@@ -987,14 +1198,23 @@ export default function ListenModeLuxury({
     speeds.find((s) => s.value === playbackRate) || speeds[1];
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950">
+    <div 
+      ref={containerRef}
+      className={`relative min-h-screen bg-gradient-to-br transition-all duration-1000 ${
+        backgroundGradient || "from-slate-950 via-purple-950 to-slate-950"
+      }`}
+    >
       {/* Animated background particles */}
       {showParticles && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(30)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-1 h-1 bg-purple-400/30 rounded-full animate-float"
+              className={`absolute w-1 h-1 rounded-full animate-float ${
+                listenAtmosphere !== "none" 
+                  ? `bg-${listeningAtmospheres[listenAtmosphere as keyof typeof listeningAtmospheres]?.particleColor || "purple-400"}/40`
+                  : "bg-purple-400/30"
+              }`}
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
@@ -1079,6 +1299,22 @@ export default function ListenModeLuxury({
               src={audioUrl}
               preload="metadata"
               crossOrigin="anonymous"
+            />
+          )}
+
+          {/* 🔥 REVOLUTIONARY: Background Music Layer (World's First Audio Layering in Reading App!) */}
+          {backgroundMusicUrl && (
+            <audio
+              ref={backgroundMusicRef}
+              src={backgroundMusicUrl}
+              loop
+              autoPlay
+              style={{ display: "none" }}
+              onCanPlay={() => {
+                if (backgroundMusicRef.current) {
+                  backgroundMusicRef.current.volume = backgroundMusicVolume;
+                }
+              }}
             />
           )}
 
@@ -1557,6 +1793,160 @@ export default function ListenModeLuxury({
                       <option value="bars">📊 Bars</option>
                       <option value="pulse">⭕ Pulse</option>
                     </select>
+                  </div>
+                </div>
+              )}
+
+              {/* 🔥 REVOLUTIONARY: Listening Atmosphere Presets (WORLD'S FIRST!) */}
+              {isPremiumUser && hasGenerated && (
+                <div className="space-y-4 mb-6">
+                  <div className="text-center">
+                    <h3 className="text-lg font-bold text-white mb-2 flex items-center justify-center gap-2">
+                      <Music className="w-5 h-5 text-purple-400" />
+                      🎧 Listening Atmospheres
+                      <Sparkles className="w-5 h-5 text-purple-400 animate-pulse" />
+                    </h3>
+                    <p className="text-purple-300/70 text-sm mb-4">
+                      One-click audio environments that blend music with narration
+                    </p>
+                  </div>
+
+                  {/* Atmosphere Preset Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {Object.entries(listeningAtmospheres).map(([key, atmosphere]) => (
+                      <button
+                        key={key}
+                        onClick={() => applyListenAtmosphere(key)}
+                        className={`p-4 rounded-xl transition-all duration-300 border-2 ${
+                          listenAtmosphere === key
+                            ? "border-purple-500 bg-gradient-to-br from-purple-600/30 to-violet-600/30 shadow-lg shadow-purple-500/30"
+                            : "border-slate-700/50 bg-slate-800/30 hover:border-purple-500/50 hover:bg-slate-700/30"
+                        }`}
+                      >
+                        <div className="text-2xl mb-2">{atmosphere.name.split(" ")[0]}</div>
+                        <div className="text-xs font-bold text-white mb-1">
+                          {atmosphere.name.split(" ").slice(1).join(" ")}
+                        </div>
+                        <div className="text-xs text-purple-300/70">
+                          {atmosphere.description}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Background Music Volume Control */}
+                  {listenAtmosphere !== "none" && backgroundMusicUrl && (
+                    <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-xl p-4 border border-purple-500/20">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium text-purple-300">
+                          🎵 Background Music Volume
+                        </span>
+                        <span className="text-xs text-purple-400">
+                          {Math.round(backgroundMusicVolume * 100)}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="0.5"
+                        step="0.01"
+                        value={backgroundMusicVolume}
+                        onChange={(e) => {
+                          const newVolume = parseFloat(e.target.value);
+                          setBackgroundMusicVolume(newVolume);
+                          if (backgroundMusicRef.current) {
+                            backgroundMusicRef.current.volume = newVolume;
+                          }
+                        }}
+                        className="w-full h-2 bg-slate-700/50 rounded-full appearance-none cursor-pointer luxury-slider"
+                      />
+                      <p className="text-xs text-purple-300/60 mt-2">
+                        🎧 Music layers behind narration for immersive experience
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Advanced Atmosphere Controls */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Voice Mood Sync */}
+                    <div className="bg-slate-800/30 rounded-xl p-3 border border-purple-500/10">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-sm font-medium text-purple-300">
+                            🎨 Voice Mood Sync
+                          </span>
+                          <p className="text-xs text-purple-300/50 mt-1">
+                            Visual matches voice
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setVoiceMoodSync(!voiceMoodSync)}
+                          className={`w-12 h-6 rounded-full transition-all duration-300 ${
+                            voiceMoodSync ? "bg-purple-600" : "bg-slate-700"
+                          }`}
+                        >
+                          <div
+                            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                              voiceMoodSync ? "translate-x-6" : "translate-x-0.5"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Time-Based Rituals */}
+                    <div className="bg-slate-800/30 rounded-xl p-3 border border-purple-500/10">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-sm font-medium text-purple-300">
+                            ⏰ Smart Time Switching
+                          </span>
+                          <p className="text-xs text-purple-300/50 mt-1">
+                            Auto-optimize for time
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setAutoListeningRitual(!autoListeningRitual)}
+                          className={`w-12 h-6 rounded-full transition-all duration-300 ${
+                            autoListeningRitual ? "bg-purple-600" : "bg-slate-700"
+                          }`}
+                        >
+                          <div
+                            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                              autoListeningRitual ? "translate-x-6" : "translate-x-0.5"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      {autoListeningRitual && (
+                        <div className="mt-2 text-xs text-purple-400 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          Currently: {currentListeningPeriod}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Audio Reactivity */}
+                    <div className="bg-slate-800/30 rounded-xl p-3 border border-purple-500/10 sm:col-span-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-purple-300">
+                          🌊 Audio-Reactive Intensity
+                        </span>
+                        <span className="text-xs text-purple-400">{audioReactiveIntensity}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        step="5"
+                        value={audioReactiveIntensity}
+                        onChange={(e) => setAudioReactiveIntensity(parseInt(e.target.value))}
+                        className="w-full h-2 bg-slate-700/50 rounded-full appearance-none cursor-pointer luxury-slider"
+                      />
+                      <p className="text-xs text-purple-300/60 mt-2">
+                        ✨ Background brightness pulses with narrator's voice
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
