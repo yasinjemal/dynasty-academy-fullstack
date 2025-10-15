@@ -33,18 +33,23 @@ export async function GET(request: NextRequest) {
     const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
     const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/spotify/callback`;
 
-    const tokenResponse = await fetch("https://accounts.spotify.com/api/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`,
-      },
-      body: new URLSearchParams({
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: redirectUri,
-      }),
-    });
+    const tokenResponse = await fetch(
+      "https://accounts.spotify.com/api/token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Basic ${Buffer.from(
+            `${clientId}:${clientSecret}`
+          ).toString("base64")}`,
+        },
+        body: new URLSearchParams({
+          grant_type: "authorization_code",
+          code,
+          redirect_uri: redirectUri,
+        }),
+      }
+    );
 
     if (!tokenResponse.ok) {
       throw new Error("Failed to exchange code for token");

@@ -214,21 +214,20 @@ We built **10 features** that **BILLION-DOLLAR COMPANIES** like Audible, Spotify
 
 ## 💰 **THE INSANE VALUE:**
 
-| What Users Get     | Market Value          | Our Price    |
-| ------------------ | --------------------- | ------------ |
-| Voice Cloning      | $99/mo (ElevenLabs)   | ✅ Included  |
-| AI Insights        | $10/mo (Notion AI)    | ✅ Included  |
-| Highlights         | $8/mo (Readwise)      | ✅ Included  |
-| Learning Quizzes   | $12/mo (Duolingo)     | ✅ Included  |
-| Study Buddy        | $20/mo (ChatGPT Plus) | ✅ Included  |
-| Spotify Premium    | $10.99/mo (Spotify)   | ✅ Included  |
-| Audiobooks         | $15/mo (Audible)      | ✅ Included  |
-| **TOTAL**          | **$174.99/mo**        | **$9.99/mo** |
+| What Users Get   | Market Value          | Our Price    |
+| ---------------- | --------------------- | ------------ |
+| Voice Cloning    | $99/mo (ElevenLabs)   | ✅ Included  |
+| AI Insights      | $10/mo (Notion AI)    | ✅ Included  |
+| Highlights       | $8/mo (Readwise)      | ✅ Included  |
+| Learning Quizzes | $12/mo (Duolingo)     | ✅ Included  |
+| Study Buddy      | $20/mo (ChatGPT Plus) | ✅ Included  |
+| Spotify Premium  | $10.99/mo (Spotify)   | ✅ Included  |
+| Audiobooks       | $15/mo (Audible)      | ✅ Included  |
+| **TOTAL**        | **$174.99/mo**        | **$9.99/mo** |
 
 **DISCOUNT: 95% OFF** 🤯
 
 **Users save $169.91 per month. That's $2,038.92 per year.**
-
 
 ## 🎯 **WHAT HAPPENS NEXT:**
 

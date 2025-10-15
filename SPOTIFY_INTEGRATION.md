@@ -93,6 +93,7 @@ const setupAutoDucking = () => {
 **Method**: GET
 **Purpose**: Exchange OAuth code for access token
 **Flow**:
+
 1. Receive authorization code from Spotify
 2. Exchange for access token using client secret
 3. Return token to frontend via `postMessage`
@@ -129,11 +130,13 @@ const setupAutoDucking = () => {
 ## Value Proposition
 
 **Competitors:**
+
 - Audible: No background music customization ($14.95/mo)
 - Spotify Premium: No audiobook narration ($10.99/mo)
 - Apple Books: Limited atmosphere options ($9.99/mo)
 
 **Dynasty Academy:**
+
 - Spotify integration + AI narration + 9 other Pandora features
 - Total value: $179/month
 - Price: $9.99/month
@@ -145,7 +148,9 @@ const setupAutoDucking = () => {
 
 ```typescript
 const [spotifyEnabled, setSpotifyEnabled] = useState(false);
-const [spotifyAccessToken, setSpotifyAccessToken] = useState<string | null>(null);
+const [spotifyAccessToken, setSpotifyAccessToken] = useState<string | null>(
+  null
+);
 const [spotifyPlaylists, setSpotifyPlaylists] = useState<PlaylistData[]>([]);
 const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
 const [showSpotifyModal, setShowSpotifyModal] = useState(false);
@@ -175,16 +180,19 @@ const spotifyPlayerRef = useRef<any>(null);
 ## Troubleshooting
 
 ### "Authentication failed"
+
 - Check `NEXT_PUBLIC_SPOTIFY_CLIENT_ID` is correct
 - Check `SPOTIFY_CLIENT_SECRET` is correct
 - Verify redirect URI matches exactly
 
 ### "No playlists showing"
+
 - Check access token is valid
 - Verify user has Spotify Premium (required for Web Playback SDK)
 - Check browser console for API errors
 
 ### "Playback not starting"
+
 - Ensure Spotify Premium subscription
 - Check Web Playback SDK loaded (`window.Spotify` exists)
 - Verify device transfer succeeded

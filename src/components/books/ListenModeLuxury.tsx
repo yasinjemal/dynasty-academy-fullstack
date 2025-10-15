@@ -213,12 +213,16 @@ export default function ListenModeLuxury({
 
   // 🎵 PANDORA'S BOX #11: Spotify Integration (YOUR Music as Background!)
   const [spotifyEnabled, setSpotifyEnabled] = useState(false);
-  const [spotifyAccessToken, setSpotifyAccessToken] = useState<string | null>(null);
-  const [spotifyPlaylists, setSpotifyPlaylists] = useState<Array<{
-    id: string;
-    name: string;
-    images: Array<{ url: string }>;
-  }>>([]);
+  const [spotifyAccessToken, setSpotifyAccessToken] = useState<string | null>(
+    null
+  );
+  const [spotifyPlaylists, setSpotifyPlaylists] = useState<
+    Array<{
+      id: string;
+      name: string;
+      images: Array<{ url: string }>;
+    }>
+  >([]);
   const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
   const [showSpotifyModal, setShowSpotifyModal] = useState(false);
   const spotifyPlayerRef = useRef<any>(null);
@@ -1763,11 +1767,14 @@ export default function ListenModeLuxury({
 
   const fetchUserPlaylists = async (token: string) => {
     try {
-      const response = await fetch("https://api.spotify.com/v1/me/playlists?limit=50", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        "https://api.spotify.com/v1/me/playlists?limit=50",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) throw new Error("Failed to fetch playlists");
 
@@ -1808,7 +1815,9 @@ export default function ListenModeLuxury({
       player.addListener("authentication_error", ({ message }: any) =>
         console.error("Spotify Auth Error:", message)
       );
-      player.addListener("account_error", ({ message }: any) => console.error("Spotify Account Error:", message));
+      player.addListener("account_error", ({ message }: any) =>
+        console.error("Spotify Account Error:", message)
+      );
       player.addListener("playback_error", ({ message }: any) =>
         console.error("Spotify Playback Error:", message)
       );
@@ -1844,16 +1853,19 @@ export default function ListenModeLuxury({
       });
 
       // Play the playlist
-      await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${spotifyAccessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          context_uri: `spotify:playlist:${playlistId}`,
-        }),
-      });
+      await fetch(
+        `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${spotifyAccessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            context_uri: `spotify:playlist:${playlistId}`,
+          }),
+        }
+      );
 
       setSelectedPlaylist(playlistId);
       setupAutoDucking();
@@ -3909,9 +3921,7 @@ export default function ListenModeLuxury({
                 </div>
 
                 <div>
-                  <h3 className="text-white font-bold mb-4">
-                    Your Playlists
-                  </h3>
+                  <h3 className="text-white font-bold mb-4">Your Playlists</h3>
                   <div className="grid grid-cols-2 gap-3 max-h-96 overflow-y-auto">
                     {spotifyPlaylists.map((playlist) => (
                       <button
