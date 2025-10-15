@@ -1090,7 +1090,7 @@ export default function ListenModeLuxury({
   };
 
   const downloadAudio = () => {
-    if (!audioUrl || !isPremiumUser) return;
+    if (!audioUrl) return; // 🔥 OPEN ACCESS: Download available to all
 
     trackEvent("audio_download", {
       bookId: bookSlug,
@@ -1568,6 +1568,22 @@ export default function ListenModeLuxury({
                   >
                     <SkipBack className="w-6 h-6 text-purple-400 group-hover:scale-110 transition-transform" />
                   </button>
+                  
+                  {/* 💾 Download Button */}
+                  <button
+                    onClick={downloadAudio}
+                    disabled={!audioUrl}
+                    className={`p-4 min-w-[44px] min-h-[44px] rounded-full transition-all duration-200 group touch-manipulation ${
+                      audioUrl
+                        ? "bg-gradient-to-br from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:from-emerald-700 active:to-teal-700 shadow-lg shadow-emerald-500/30"
+                        : "bg-slate-800/30 cursor-not-allowed opacity-50"
+                    }`}
+                    aria-label="Download audio"
+                    title="Download audio (MP3)"
+                  >
+                    <Download className={`w-6 h-6 ${audioUrl ? "text-white" : "text-slate-500"} group-hover:scale-110 transition-transform`} />
+                  </button>
+                  
                   <button
                     onClick={skipForward}
                     className="p-4 min-w-[44px] min-h-[44px] bg-slate-800/50 hover:bg-slate-700/50 active:bg-slate-700/70 rounded-full transition-all duration-200 group touch-manipulation"
