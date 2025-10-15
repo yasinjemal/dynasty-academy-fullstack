@@ -28,16 +28,26 @@ export async function POST(req: NextRequest) {
     // 🎙️ Step 1: Add voice to ElevenLabs Voice Lab
     const addVoiceFormData = new FormData();
     addVoiceFormData.append("name", voiceName || "User Cloned Voice");
-    addVoiceFormData.append("files", new Blob([buffer], { type: "audio/webm" }), "sample.webm");
-    addVoiceFormData.append("description", "User cloned voice from Dynasty Academy");
+    addVoiceFormData.append(
+      "files",
+      new Blob([buffer], { type: "audio/webm" }),
+      "sample.webm"
+    );
+    addVoiceFormData.append(
+      "description",
+      "User cloned voice from Dynasty Academy"
+    );
 
-    const addVoiceResponse = await fetch("https://api.elevenlabs.io/v1/voices/add", {
-      method: "POST",
-      headers: {
-        "xi-api-key": elevenlabsApiKey,
-      },
-      body: addVoiceFormData,
-    });
+    const addVoiceResponse = await fetch(
+      "https://api.elevenlabs.io/v1/voices/add",
+      {
+        method: "POST",
+        headers: {
+          "xi-api-key": elevenlabsApiKey,
+        },
+        body: addVoiceFormData,
+      }
+    );
 
     if (!addVoiceResponse.ok) {
       const error = await addVoiceResponse.text();
@@ -61,7 +71,6 @@ export async function POST(req: NextRequest) {
       name: voiceName,
       message: "Voice cloned successfully! You can now use it for audiobooks.",
     });
-
   } catch (error) {
     console.error("[Voice Cloning] Error:", error);
     return NextResponse.json(

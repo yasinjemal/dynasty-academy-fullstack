@@ -169,6 +169,36 @@ export default function ListenModeLuxury({
   const pannerNodeRef = useRef<PannerNode | null>(null);
   const musicPannerNodeRef = useRef<PannerNode | null>(null);
 
+  // 🎮 PANDORA'S BOX #8: Learning Mode with Quizzes (Duolingo meets Audiobooks!)
+  const [learningModeEnabled, setLearningModeEnabled] = useState(false);
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [currentQuiz, setCurrentQuiz] = useState<{
+    question: string;
+    options: string[];
+    correctAnswer: number;
+    explanation: string;
+  } | null>(null);
+  const [quizXP, setQuizXP] = useState(0);
+  const [lastQuizTime, setLastQuizTime] = useState(0);
+  const [quizAnswer, setQuizAnswer] = useState<number | null>(null);
+  const [showQuizResult, setShowQuizResult] = useState(false);
+
+  // 👥 PANDORA'S BOX #9: Social Listening Rooms (Netflix Party for Books!)
+  const [socialRoomEnabled, setSocialRoomEnabled] = useState(false);
+  const [roomId, setRoomId] = useState<string | null>(null);
+  const [roomParticipants, setRoomParticipants] = useState<Array<{
+    id: string;
+    name: string;
+    avatar: string;
+  }>>([]);
+  const [showRoomChat, setShowRoomChat] = useState(false);
+
+  // 👁️ PANDORA'S BOX #10: Biometric Focus Detection (Never Zone Out!)
+  const [focusDetectionEnabled, setFocusDetectionEnabled] = useState(false);
+  const [isUserFocused, setIsUserFocused] = useState(true);
+  const [focusLostTime, setFocusLostTime] = useState(0);
+  const videoStreamRef = useRef<MediaStream | null>(null);
+
   // Refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const sentenceRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -984,7 +1014,21 @@ export default function ListenModeLuxury({
     }
   }, [spatialAudioEnabled, hasGenerated]);
 
-  // 🎨 REVOLUTIONARY: Audio-Reactive Background - Changes color with voice intensity
+  // � PANDORA'S BOX: Learning Mode - Generate quiz every 5 minutes
+  useEffect(() => {
+    if (!learningModeEnabled || !isPlaying) return;
+
+    const checkQuizTime = () => {
+      if (currentTime - lastQuizTime >= 300) { // 5 minutes = 300 seconds
+        generateQuiz();
+      }
+    };
+
+    const interval = setInterval(checkQuizTime, 10000); // Check every 10 seconds
+    return () => clearInterval(interval);
+  }, [learningModeEnabled, isPlaying, currentTime, lastQuizTime]);
+
+  // �🎨 REVOLUTIONARY: Audio-Reactive Background - Changes color with voice intensity
   useEffect(() => {
     if (!audioReactiveIntensity || !isPlaying) return;
 
@@ -1336,7 +1380,9 @@ export default function ListenModeLuxury({
       };
 
       mediaRecorder.onstop = () => {
-        const blob = new Blob(recordingChunksRef.current, { type: "audio/webm" });
+        const blob = new Blob(recordingChunksRef.current, {
+          type: "audio/webm",
+        });
         setAudioBlob(blob);
         stream.getTracks().forEach((track) => track.stop());
       };
@@ -1401,7 +1447,9 @@ export default function ListenModeLuxury({
           chapterId: chapterNumber,
         });
 
-        alert("🎉 Voice cloned successfully! Now generating audio in YOUR voice...");
+        alert(
+          "🎉 Voice cloned successfully! Now generating audio in YOUR voice..."
+        );
       } else {
         throw new Error("Voice cloning failed");
       }
@@ -1414,20 +1462,24 @@ export default function ListenModeLuxury({
   };
 
   // 🎭 PANDORA'S BOX #6: Multi-Voice Character Detection
-  const detectDialogue = (text: string): { speaker: "narrator" | "male" | "female"; text: string } => {
+  const detectDialogue = (
+    text: string
+  ): { speaker: "narrator" | "male" | "female"; text: string } => {
     // Detect quoted dialogue
     const hasQuotes = /"([^"]+)"|'([^']+)'/.test(text);
-    
+
     if (!hasQuotes) {
       return { speaker: "narrator", text };
     }
 
     // Analyze surrounding context for gender indicators
-    const maleIndicators = /\b(he|him|his|man|boy|male|gentleman|sir|mr\.|father|brother|son)\b/i;
-    const femaleIndicators = /\b(she|her|hers|woman|girl|female|lady|madam|mrs\.|ms\.|mother|sister|daughter)\b/i;
+    const maleIndicators =
+      /\b(he|him|his|man|boy|male|gentleman|sir|mr\.|father|brother|son)\b/i;
+    const femaleIndicators =
+      /\b(she|her|hers|woman|girl|female|lady|madam|mrs\.|ms\.|mother|sister|daughter)\b/i;
 
     const lowerText = text.toLowerCase();
-    
+
     if (femaleIndicators.test(lowerText)) {
       return { speaker: "female", text };
     } else if (maleIndicators.test(lowerText)) {
@@ -1438,7 +1490,9 @@ export default function ListenModeLuxury({
     return { speaker: "narrator", text };
   };
 
-  const getVoiceForSpeaker = (speaker: "narrator" | "male" | "female"): string => {
+  const getVoiceForSpeaker = (
+    speaker: "narrator" | "male" | "female"
+  ): string => {
     if (!multiVoiceMode) return selectedVoice;
 
     const voiceMap = {
@@ -1455,9 +1509,10 @@ export default function ListenModeLuxury({
     if (!audioRef.current || !spatialAudioEnabled) return;
 
     try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioContext = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
       const source = audioContext.createMediaElementSource(audioRef.current);
-      
+
       // Create panner for narrator voice (FRONT CENTER)
       const pannerNode = audioContext.createPanner();
       pannerNode.panningModel = "HRTF"; // Head-Related Transfer Function for realistic 3D
@@ -1468,31 +1523,181 @@ export default function ListenModeLuxury({
       pannerNode.coneInnerAngle = 360;
       pannerNode.coneOuterAngle = 0;
       pannerNode.coneOuterGain = 0;
-      
+
       // Position: Front center (0, 0, -1) = straight ahead
       pannerNode.setPosition(0, 0, -1);
       pannerNode.setOrientation(0, 0, -1);
-      
+
       source.connect(pannerNode);
       pannerNode.connect(audioContext.destination);
       pannerNodeRef.current = pannerNode;
 
       // Setup background music panner (BEHIND)
       if (backgroundMusicRef.current) {
-        const musicSource = audioContext.createMediaElementSource(backgroundMusicRef.current);
+        const musicSource = audioContext.createMediaElementSource(
+          backgroundMusicRef.current
+        );
         const musicPanner = audioContext.createPanner();
         musicPanner.panningModel = "HRTF";
         musicPanner.setPosition(0, 0, 1); // Behind listener
-        
+
         musicSource.connect(musicPanner);
         musicPanner.connect(audioContext.destination);
         musicPannerNodeRef.current = musicPanner;
       }
 
-      console.log("[3D Spatial Audio] Setup complete - Use headphones for full immersion!");
+      console.log(
+        "[3D Spatial Audio] Setup complete - Use headphones for full immersion!"
+      );
     } catch (error) {
       console.error("[3D Spatial Audio] Setup failed:", error);
     }
+  };
+
+  // 🎮 PANDORA'S BOX #8: Learning Mode - Generate AI quiz from listening section
+  const generateQuiz = async () => {
+    if (!learningModeEnabled || showQuiz) return;
+
+    // Get last 5 minutes of content (approx 10-15 sentences)
+    const recentSentences = sentences
+      .slice(Math.max(0, activeSentenceIndex - 15), activeSentenceIndex)
+      .map(s => s.text)
+      .join(' ');
+
+    if (recentSentences.length < 100) return; // Not enough content
+
+    try {
+      const response = await fetch('/api/ai/generate-quiz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: recentSentences,
+          bookId: bookSlug,
+          chapterId: chapterNumber,
+        }),
+      });
+
+      if (response.ok) {
+        const quiz = await response.json();
+        setCurrentQuiz(quiz);
+        setShowQuiz(true);
+        setLastQuizTime(currentTime);
+        
+        // Pause playback for quiz
+        if (audioRef.current && isPlaying) {
+          audioRef.current.pause();
+        }
+
+        trackEvent('learning_mode_quiz_generated', {
+          sentenceIndex: activeSentenceIndex,
+          bookId: bookSlug,
+          chapterId: chapterNumber,
+        });
+      }
+    } catch (error) {
+      console.error('[Learning Mode] Quiz generation failed:', error);
+    }
+  };
+
+  const submitQuizAnswer = (selectedAnswer: number) => {
+    if (!currentQuiz) return;
+
+    setQuizAnswer(selectedAnswer);
+    setShowQuizResult(true);
+
+    const isCorrect = selectedAnswer === currentQuiz.correctAnswer;
+    const xpEarned = isCorrect ? 10 : 5;
+    setQuizXP(prev => prev + xpEarned);
+
+    trackEvent('learning_mode_quiz_answered', {
+      isCorrect,
+      xpEarned,
+      totalXP: quizXP + xpEarned,
+      bookId: bookSlug,
+      chapterId: chapterNumber,
+    });
+
+    // Auto-close quiz after 3 seconds and resume playback
+    setTimeout(() => {
+      setShowQuiz(false);
+      setShowQuizResult(false);
+      setQuizAnswer(null);
+      if (audioRef.current && !isPlaying) {
+        audioRef.current.play();
+      }
+    }, 3000);
+  };
+
+  // 👥 PANDORA'S BOX #9: Social Listening - Create/Join room
+  const createSocialRoom = () => {
+    const newRoomId = `room_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    setRoomId(newRoomId);
+    setSocialRoomEnabled(true);
+    setShowRoomChat(true);
+
+    trackEvent('social_room_created', {
+      roomId: newRoomId,
+      bookId: bookSlug,
+      chapterId: chapterNumber,
+    });
+
+    // Copy room link to clipboard
+    const roomLink = `${window.location.origin}/listen-together/${newRoomId}`;
+    navigator.clipboard.writeText(roomLink);
+    alert(`🎉 Room created! Link copied to clipboard:\n${roomLink}`);
+  };
+
+  // 👁️ PANDORA'S BOX #10: Biometric Focus Detection
+  const startFocusDetection = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user' } 
+      });
+      videoStreamRef.current = stream;
+      setFocusDetectionEnabled(true);
+
+      // TODO: Integrate TensorFlow.js FaceMesh for eye tracking
+      // For now, use basic visibility API
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+
+      trackEvent('focus_detection_started', {
+        bookId: bookSlug,
+        chapterId: chapterNumber,
+      });
+    } catch (error) {
+      console.error('[Focus Detection] Camera access denied:', error);
+      alert('Camera access required for focus detection.');
+    }
+  };
+
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      setIsUserFocused(false);
+      setFocusLostTime(Date.now());
+    } else {
+      setIsUserFocused(true);
+      
+      // If user was unfocused for more than 5 seconds, rewind
+      if (focusLostTime && Date.now() - focusLostTime > 5000) {
+        if (audioRef.current) {
+          audioRef.current.currentTime = Math.max(0, currentTime - 30);
+        }
+        trackEvent('focus_lost_rewind', {
+          lostDuration: Date.now() - focusLostTime,
+          rewoundSeconds: 30,
+          bookId: bookSlug,
+        });
+      }
+    }
+  };
+
+  const stopFocusDetection = () => {
+    if (videoStreamRef.current) {
+      videoStreamRef.current.getTracks().forEach(track => track.stop());
+      videoStreamRef.current = null;
+    }
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    setFocusDetectionEnabled(false);
   };
 
   const generateAudio = async () => {
@@ -1908,11 +2113,14 @@ export default function ListenModeLuxury({
                 >
                   <span className="text-2xl">🎙️</span>
                   <span>Clone YOUR Voice</span>
-                  <span className="px-2 py-0.5 bg-white/20 text-xs rounded-full">WORLD'S FIRST</span>
+                  <span className="px-2 py-0.5 bg-white/20 text-xs rounded-full">
+                    WORLD'S FIRST
+                  </span>
                   <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 </button>
                 <p className="text-xs text-center text-purple-300/60 mt-2">
-                  Hear books in your own voice • Takes 30 seconds • Powered by ElevenLabs
+                  Hear books in your own voice • Takes 30 seconds • Powered by
+                  ElevenLabs
                 </p>
               </div>
 
@@ -2654,7 +2862,8 @@ export default function ListenModeLuxury({
                               Multi-Voice Dialogues
                             </div>
                             <p className="text-xs text-orange-300/70 mt-1">
-                              Different voice for each character • Radio drama mode
+                              Different voice for each character • Radio drama
+                              mode
                             </p>
                           </div>
                         </div>
@@ -2668,7 +2877,9 @@ export default function ListenModeLuxury({
                         >
                           <div
                             className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                              multiVoiceMode ? "translate-x-6" : "translate-x-0.5"
+                              multiVoiceMode
+                                ? "translate-x-6"
+                                : "translate-x-0.5"
                             }`}
                           />
                         </button>
@@ -2679,9 +2890,15 @@ export default function ListenModeLuxury({
                             <strong>Voice Assignment:</strong>
                           </p>
                           <div className="space-y-1 text-xs">
-                            <p className="text-orange-300/70">📖 Narrator → Rachel (Professional Female)</p>
-                            <p className="text-orange-300/70">👨 Male Characters → Adam (Deep Male)</p>
-                            <p className="text-orange-300/70">👩 Female Characters → Bella (Warm Female)</p>
+                            <p className="text-orange-300/70">
+                              📖 Narrator → Rachel (Professional Female)
+                            </p>
+                            <p className="text-orange-300/70">
+                              👨 Male Characters → Adam (Deep Male)
+                            </p>
+                            <p className="text-orange-300/70">
+                              👩 Female Characters → Bella (Warm Female)
+                            </p>
                           </div>
                         </div>
                       )}
@@ -2702,7 +2919,9 @@ export default function ListenModeLuxury({
                           </div>
                         </div>
                         <button
-                          onClick={() => setSpatialAudioEnabled(!spatialAudioEnabled)}
+                          onClick={() =>
+                            setSpatialAudioEnabled(!spatialAudioEnabled)
+                          }
                           className={`w-12 h-6 rounded-full transition-all duration-300 ${
                             spatialAudioEnabled
                               ? "bg-gradient-to-r from-cyan-600 to-blue-600"
@@ -2711,7 +2930,9 @@ export default function ListenModeLuxury({
                         >
                           <div
                             className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                              spatialAudioEnabled ? "translate-x-6" : "translate-x-0.5"
+                              spatialAudioEnabled
+                                ? "translate-x-6"
+                                : "translate-x-0.5"
                             }`}
                           />
                         </button>
@@ -2723,10 +2944,114 @@ export default function ListenModeLuxury({
                             <strong>Use headphones for full effect!</strong>
                           </p>
                           <div className="space-y-1 text-xs">
-                            <p className="text-cyan-300/70">🎙️ Narrator voice → Front (straight ahead)</p>
-                            <p className="text-cyan-300/70">🎵 Background music → Behind you</p>
-                            <p className="text-cyan-300/70">✨ Sound effects → Sides (L/R)</p>
+                            <p className="text-cyan-300/70">
+                              🎙️ Narrator voice → Front (straight ahead)
+                            </p>
+                            <p className="text-cyan-300/70">
+                              🎵 Background music → Behind you
+                            </p>
+                            <p className="text-cyan-300/70">
+                              ✨ Sound effects → Sides (L/R)
+                            </p>
                           </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 🎮 PANDORA'S BOX: Learning Mode with Quizzes */}
+                    <div className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 rounded-xl p-4 border-2 border-green-400/50 shadow-xl shadow-green-500/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">🎮</span>
+                          <div>
+                            <div className="text-sm font-bold text-green-200 flex items-center gap-2">
+                              Learning Mode
+                              <span className="text-xs bg-green-500/30 px-2 py-0.5 rounded-full">{quizXP} XP</span>
+                            </div>
+                            <p className="text-xs text-green-300/70 mt-1">
+                              Quiz every 5 min • Gamified retention
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setLearningModeEnabled(!learningModeEnabled)}
+                          className={`w-12 h-6 rounded-full transition-all duration-300 ${
+                            learningModeEnabled
+                              ? "bg-gradient-to-r from-green-600 to-emerald-600"
+                              : "bg-slate-700"
+                          }`}
+                        >
+                          <div
+                            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                              learningModeEnabled ? "translate-x-6" : "translate-x-0.5"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 👥 PANDORA'S BOX: Social Listening Rooms */}
+                    <div className="bg-gradient-to-br from-pink-900/40 to-rose-900/40 rounded-xl p-4 border-2 border-pink-400/50 shadow-xl shadow-pink-500/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">👥</span>
+                          <div>
+                            <div className="text-sm font-bold text-pink-200">
+                              Social Listening
+                            </div>
+                            <p className="text-xs text-pink-300/70 mt-1">
+                              Listen with friends • Real-time sync
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={createSocialRoom}
+                          disabled={socialRoomEnabled}
+                          className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${
+                            socialRoomEnabled
+                              ? "bg-pink-600/50 text-pink-200"
+                              : "bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white"
+                          }`}
+                        >
+                          {socialRoomEnabled ? "In Room" : "Create Room"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 👁️ PANDORA'S BOX: Biometric Focus Detection */}
+                    <div className="bg-gradient-to-br from-indigo-900/40 to-violet-900/40 rounded-xl p-4 border-2 border-indigo-400/50 shadow-xl shadow-indigo-500/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">👁️</span>
+                          <div>
+                            <div className="text-sm font-bold text-indigo-200">
+                              Focus Detection
+                            </div>
+                            <p className="text-xs text-indigo-300/70 mt-1">
+                              Never zone out • Auto-rewind
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => focusDetectionEnabled ? stopFocusDetection() : startFocusDetection()}
+                          className={`w-12 h-6 rounded-full transition-all duration-300 ${
+                            focusDetectionEnabled
+                              ? "bg-gradient-to-r from-indigo-600 to-violet-600"
+                              : "bg-slate-700"
+                          }`}
+                        >
+                          <div
+                            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                              focusDetectionEnabled ? "translate-x-6" : "translate-x-0.5"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      {focusDetectionEnabled && !isUserFocused && (
+                        <div className="mt-3 p-3 bg-red-500/20 rounded-lg border border-red-500/30 animate-pulse">
+                          <p className="text-xs text-red-200 font-bold text-center">
+                            ⚠️ Focus lost! Rewinding in 5s...
+                          </p>
                         </div>
                       )}
                     </div>
@@ -3071,13 +3396,82 @@ export default function ListenModeLuxury({
         </div>
       </div>
 
-      {/* 🎙️ VOICE CLONING MODAL */}
+      {/* � LEARNING MODE QUIZ MODAL */}
+      {showQuiz && currentQuiz && (
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-slate-950 via-green-950 to-slate-950 border-2 border-green-500/30 rounded-2xl shadow-2xl max-w-2xl w-full p-8">
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">🎮</div>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Learning Mode Quiz
+              </h2>
+              <p className="text-green-300/70">
+                Test your retention • Earn XP!
+              </p>
+            </div>
+
+            {!showQuizResult ? (
+              <div className="space-y-6">
+                <div className="bg-black/30 rounded-xl p-6 border border-green-500/20">
+                  <p className="text-lg text-white font-medium">{currentQuiz.question}</p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3">
+                  {currentQuiz.options.map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => submitQuizAnswer(index)}
+                      className="text-left p-4 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border-2 border-green-500/20 hover:border-green-500/50 transition-all text-white"
+                    >
+                      <span className="font-bold text-green-400 mr-3">
+                        {String.fromCharCode(65 + index)}.
+                      </span>
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className={`text-center p-6 rounded-xl ${
+                  quizAnswer === currentQuiz.correctAnswer
+                    ? 'bg-green-500/20 border-2 border-green-500/50'
+                    : 'bg-red-500/20 border-2 border-red-500/50'
+                }`}>
+                  <div className="text-6xl mb-3">
+                    {quizAnswer === currentQuiz.correctAnswer ? '✅' : '❌'}
+                  </div>
+                  <p className="text-2xl font-bold text-white mb-2">
+                    {quizAnswer === currentQuiz.correctAnswer ? 'Correct! +10 XP' : 'Not quite! +5 XP'}
+                  </p>
+                  <p className="text-sm text-white/70">
+                    Total XP: {quizXP}
+                  </p>
+                </div>
+
+                <div className="bg-black/30 rounded-xl p-6 border border-green-500/20">
+                  <p className="text-sm font-bold text-green-400 mb-2">Explanation:</p>
+                  <p className="text-white/80">{currentQuiz.explanation}</p>
+                </div>
+
+                <p className="text-center text-green-300/60 text-sm">
+                  Resuming playback in 3 seconds...
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* �🎙️ VOICE CLONING MODAL */}
       {showVoiceCloning && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-gradient-to-br from-slate-950 via-pink-950 to-slate-950 border-2 border-pink-500/30 rounded-2xl shadow-2xl max-w-lg w-full p-8">
             <div className="text-center mb-6">
               <div className="text-6xl mb-4">🎙️</div>
-              <h2 className="text-3xl font-bold text-white mb-2">Clone Your Voice</h2>
+              <h2 className="text-3xl font-bold text-white mb-2">
+                Clone Your Voice
+              </h2>
               <p className="text-pink-300/70">
                 Record 30 seconds and hear books in YOUR voice
               </p>
@@ -3115,7 +3509,9 @@ export default function ListenModeLuxury({
                         <div className="text-6xl font-bold text-pink-400 mb-2">
                           {recordingTime}s
                         </div>
-                        <p className="text-pink-300/70">Recording... (30s max)</p>
+                        <p className="text-pink-300/70">
+                          Recording... (30s max)
+                        </p>
                       </div>
                       <div className="flex gap-1 justify-center">
                         {[...Array(30)].map((_, i) => (
@@ -3141,7 +3537,9 @@ export default function ListenModeLuxury({
               <div className="space-y-6">
                 <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-6 text-center">
                   <div className="text-4xl mb-3">✅</div>
-                  <p className="text-emerald-200 font-bold mb-2">Recording Complete!</p>
+                  <p className="text-emerald-200 font-bold mb-2">
+                    Recording Complete!
+                  </p>
                   <p className="text-sm text-emerald-300/70">
                     {recordingTime} seconds recorded
                   </p>
