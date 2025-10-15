@@ -124,9 +124,9 @@ export default function BookReaderLuxury({
   // ===========================================
   const [fontSize, setFontSize] = useState(18);
   const [lineHeight, setLineHeight] = useState(1.8);
-  const [fontFamily, setFontFamily] = useState<"serif" | "sans" | "mono">(
-    "serif"
-  );
+  const [fontFamily, setFontFamily] = useState<
+    "serif" | "sans" | "mono" | "dyslexic" | "typewriter" | "elegant" | "modern"
+  >("serif");
   const [theme, setTheme] = useState<
     | "light"
     | "sepia"
@@ -138,6 +138,11 @@ export default function BookReaderLuxury({
     | "lavender"
     | "mocha"
     | "midnight"
+    | "cherry"
+    | "royal"
+    | "mint"
+    | "cosmic"
+    | "rose"
   >("light");
   const [layout, setLayout] = useState<"standard" | "wide" | "narrow">(
     "standard"
@@ -147,11 +152,19 @@ export default function BookReaderLuxury({
   // ===========================================
   // 🎨 NEW LUXURY FEATURES!
   // ===========================================
-  const [pageTransition, setPageTransition] = useState<"fade" | "slide" | "flip" | "none">("fade");
-  const [accentColor, setAccentColor] = useState<"purple" | "blue" | "pink" | "orange" | "green">("purple");
+  const [pageTransition, setPageTransition] = useState<
+    "fade" | "slide" | "flip" | "none"
+  >("fade");
+  const [accentColor, setAccentColor] = useState<
+    "purple" | "blue" | "pink" | "orange" | "green"
+  >("purple");
   const [showReadingSpeedLive, setShowReadingSpeedLive] = useState(true);
   const [showAchievementToast, setShowAchievementToast] = useState(false);
   const [currentAchievement, setCurrentAchievement] = useState<string>("");
+  
+  // 🎨 CUSTOM TEXT COLOR MIXER - ULTIMATE PERSONALIZATION!
+  const [customTextColor, setCustomTextColor] = useState<string>("");
+  const [useCustomTextColor, setUseCustomTextColor] = useState(false);
 
   // ===========================================
   // ADVANCED READING FEATURES
@@ -221,7 +234,7 @@ export default function BookReaderLuxury({
   const progressPercentage = (currentPage / totalPages) * 100;
 
   // ===========================================
-  // THEME DEFINITIONS (ULTRA-LUXURY PRESETS) - 10 AMAZING THEMES!
+  // THEME DEFINITIONS (ULTRA-LUXURY PRESETS) - 15 AMAZING THEMES!
   // ===========================================
   const themes = {
     light: {
@@ -334,17 +347,77 @@ export default function BookReaderLuxury({
       name: "🌌 Midnight",
       description: "GitHub dark",
     },
+    // 🎨 NEW LUXURY THEMES!
+    cherry: {
+      bg: "bg-[#fff0f5]",
+      text: "text-[#5c1a3d]",
+      accent: "from-[#ff69b4] to-[#ff1493]",
+      secondary: "bg-[#ffe4ef]",
+      border: "border-[#ffc9e0]",
+      card: "bg-[#ffebf3]",
+      gradient: "from-[#ffebf3] via-[#fff0f5] to-[#ffebf3]",
+      name: "🍒 Cherry",
+      description: "Sweet bloom",
+    },
+    royal: {
+      bg: "bg-[#1a0f2e]",
+      text: "text-[#e0d4ff]",
+      accent: "from-[#7c3aed] to-[#c026d3]",
+      secondary: "bg-[#2d1b4e]",
+      border: "border-[#4c2e7a]",
+      card: "bg-[#2d1b4e]/50",
+      gradient: "from-[#1a0f2e] via-[#2d1b4e] to-[#1a0f2e]",
+      name: "👑 Royal",
+      description: "Majestic purple",
+    },
+    mint: {
+      bg: "bg-[#f0fff4]",
+      text: "text-[#1a4d2e]",
+      accent: "from-[#10b981] to-[#34d399]",
+      secondary: "bg-[#dcfce7]",
+      border: "border-[#bbf7d0]",
+      card: "bg-[#e8fdf2]",
+      gradient: "from-[#e8fdf2] via-[#f0fff4] to-[#e8fdf2]",
+      name: "🍃 Mint",
+      description: "Fresh breeze",
+    },
+    cosmic: {
+      bg: "bg-[#0c0a1d]",
+      text: "text-[#e0e7ff]",
+      accent: "from-[#8b5cf6] to-[#3b82f6]",
+      secondary: "bg-[#1e1b3c]",
+      border: "border-[#312e5a]",
+      card: "bg-[#1e1b3c]/50",
+      gradient: "from-[#0c0a1d] via-[#1e1b3c] to-[#0c0a1d]",
+      name: "🌠 Cosmic",
+      description: "Space odyssey",
+    },
+    rose: {
+      bg: "bg-[#fff5f7]",
+      text: "text-[#4a1e2c]",
+      accent: "from-[#f43f5e] to-[#fb7185]",
+      secondary: "bg-[#ffe4e9]",
+      border: "border-[#fecdd3]",
+      card: "bg-[#ffecf0]",
+      gradient: "from-[#ffecf0] via-[#fff5f7] to-[#ffecf0]",
+      name: "🌹 Rose",
+      description: "Elegant pink",
+    },
   };
 
   const currentTheme = themes[theme];
 
   // ===========================================
-  // FONT FAMILY OPTIONS
+  // FONT FAMILY OPTIONS - 7 BEAUTIFUL FONTS!
   // ===========================================
   const fontFamilies = {
-    serif: "font-serif",
-    sans: "font-sans",
-    mono: "font-mono",
+    serif: { class: "font-serif", name: "📖 Serif", description: "Classic book" },
+    sans: { class: "font-sans", name: "🔤 Sans", description: "Modern clean" },
+    mono: { class: "font-mono", name: "💻 Mono", description: "Code style" },
+    dyslexic: { class: "font-[OpenDyslexic,Arial]", name: "👁️ Dyslexic", description: "Easy reading" },
+    typewriter: { class: "font-['Courier_New',monospace]", name: "⌨️ Typewriter", description: "Vintage feel" },
+    elegant: { class: "font-['Georgia',serif]", name: "✨ Elegant", description: "Sophisticated" },
+    modern: { class: "font-['Inter',sans-serif]", name: "🎯 Modern", description: "Fresh minimal" },
   };
 
   // ===========================================
@@ -402,25 +475,34 @@ export default function BookReaderLuxury({
           setTotalReadingTime(stats.totalTime || 0);
           setWordsRead(stats.wordsRead || 0);
           setStreak(stats.streak || 0);
-          
+
           // 🔥 STREAK ACHIEVEMENTS - LUXURY GAMIFICATION
           const currentStreak = stats.streak || 0;
-          if (currentStreak === 3 && !localStorage.getItem(`achievement-streak-3`)) {
+          if (
+            currentStreak === 3 &&
+            !localStorage.getItem(`achievement-streak-3`)
+          ) {
             setCurrentAchievement("🔥 3 Day Streak - Building Momentum!");
             setShowAchievementToast(true);
-            localStorage.setItem(`achievement-streak-3`, 'true');
+            localStorage.setItem(`achievement-streak-3`, "true");
             setTimeout(() => setShowAchievementToast(false), 4000);
           }
-          if (currentStreak === 7 && !localStorage.getItem(`achievement-streak-7`)) {
+          if (
+            currentStreak === 7 &&
+            !localStorage.getItem(`achievement-streak-7`)
+          ) {
             setCurrentAchievement("🔥 7 Day Streak - One Week Strong!");
             setShowAchievementToast(true);
-            localStorage.setItem(`achievement-streak-7`, 'true');
+            localStorage.setItem(`achievement-streak-7`, "true");
             setTimeout(() => setShowAchievementToast(false), 4000);
           }
-          if (currentStreak === 30 && !localStorage.getItem(`achievement-streak-30`)) {
+          if (
+            currentStreak === 30 &&
+            !localStorage.getItem(`achievement-streak-30`)
+          ) {
             setCurrentAchievement("🔥 30 Day Streak - Reading Habit Master!");
             setShowAchievementToast(true);
-            localStorage.setItem(`achievement-streak-30`, 'true');
+            localStorage.setItem(`achievement-streak-30`, "true");
             setTimeout(() => setShowAchievementToast(false), 5000);
           }
         } catch (e) {
@@ -546,44 +628,62 @@ export default function BookReaderLuxury({
 
       // 🏆 ACHIEVEMENT TRACKING - LUXURY GAMIFICATION
       const newCompletion = (pageNum / totalPages) * 100;
-      
+
       // First page achievement
-      if (pageNum === 1 && !localStorage.getItem(`achievement-first-page-${bookId}`)) {
+      if (
+        pageNum === 1 &&
+        !localStorage.getItem(`achievement-first-page-${bookId}`)
+      ) {
         setCurrentAchievement("📖 Reading Journey Started!");
         setShowAchievementToast(true);
-        localStorage.setItem(`achievement-first-page-${bookId}`, 'true');
+        localStorage.setItem(`achievement-first-page-${bookId}`, "true");
         setTimeout(() => setShowAchievementToast(false), 4000);
       }
-      
+
       // 25% completion
-      if (newCompletion >= 25 && newCompletion < 26 && !localStorage.getItem(`achievement-25-${bookId}`)) {
+      if (
+        newCompletion >= 25 &&
+        newCompletion < 26 &&
+        !localStorage.getItem(`achievement-25-${bookId}`)
+      ) {
         setCurrentAchievement("🎯 25% Complete - You're On Fire!");
         setShowAchievementToast(true);
-        localStorage.setItem(`achievement-25-${bookId}`, 'true');
+        localStorage.setItem(`achievement-25-${bookId}`, "true");
         setTimeout(() => setShowAchievementToast(false), 4000);
       }
-      
+
       // 50% completion
-      if (newCompletion >= 50 && newCompletion < 51 && !localStorage.getItem(`achievement-50-${bookId}`)) {
+      if (
+        newCompletion >= 50 &&
+        newCompletion < 51 &&
+        !localStorage.getItem(`achievement-50-${bookId}`)
+      ) {
         setCurrentAchievement("🌟 Halfway There - Keep Going!");
         setShowAchievementToast(true);
-        localStorage.setItem(`achievement-50-${bookId}`, 'true');
+        localStorage.setItem(`achievement-50-${bookId}`, "true");
         setTimeout(() => setShowAchievementToast(false), 4000);
       }
-      
+
       // 75% completion
-      if (newCompletion >= 75 && newCompletion < 76 && !localStorage.getItem(`achievement-75-${bookId}`)) {
+      if (
+        newCompletion >= 75 &&
+        newCompletion < 76 &&
+        !localStorage.getItem(`achievement-75-${bookId}`)
+      ) {
         setCurrentAchievement("💪 75% Done - Almost Finished!");
         setShowAchievementToast(true);
-        localStorage.setItem(`achievement-75-${bookId}`, 'true');
+        localStorage.setItem(`achievement-75-${bookId}`, "true");
         setTimeout(() => setShowAchievementToast(false), 4000);
       }
-      
+
       // 100% completion
-      if (newCompletion >= 100 && !localStorage.getItem(`achievement-100-${bookId}`)) {
+      if (
+        newCompletion >= 100 &&
+        !localStorage.getItem(`achievement-100-${bookId}`)
+      ) {
         setCurrentAchievement("🏆 Book Completed - Amazing Work!");
         setShowAchievementToast(true);
-        localStorage.setItem(`achievement-100-${bookId}`, 'true');
+        localStorage.setItem(`achievement-100-${bookId}`, "true");
         setTimeout(() => setShowAchievementToast(false), 5000);
       }
 
@@ -799,14 +899,30 @@ export default function BookReaderLuxury({
                       strokeWidth="4"
                       fill="none"
                       strokeDasharray={`${2 * Math.PI * 28}`}
-                      strokeDashoffset={`${2 * Math.PI * 28 * (1 - completionPercentage / 100)}`}
+                      strokeDashoffset={`${
+                        2 * Math.PI * 28 * (1 - completionPercentage / 100)
+                      }`}
                       className="transition-all duration-500"
                       strokeLinecap="round"
                     />
                     <defs>
-                      <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" className="text-purple-500" stopColor="currentColor" />
-                        <stop offset="100%" className="text-pink-500" stopColor="currentColor" />
+                      <linearGradient
+                        id="gradient"
+                        x1="0%"
+                        y1="0%"
+                        x2="100%"
+                        y2="100%"
+                      >
+                        <stop
+                          offset="0%"
+                          className="text-purple-500"
+                          stopColor="currentColor"
+                        />
+                        <stop
+                          offset="100%"
+                          className="text-pink-500"
+                          stopColor="currentColor"
+                        />
                       </linearGradient>
                     </defs>
                   </svg>
@@ -1092,20 +1208,22 @@ export default function BookReaderLuxury({
                   Font Family
                 </h3>
                 <div className="grid grid-cols-3 gap-2">
-                  {(["serif", "sans", "mono"] as const).map((font) => (
+                  {(["serif", "sans", "mono", "dyslexic", "typewriter", "elegant", "modern"] as const).map((font) => (
                     <button
                       key={font}
                       onClick={() => setFontFamily(font)}
-                      className={`px-4 py-3 rounded-xl border-2 transition-all ${
+                      className={`px-3 py-2.5 rounded-xl border-2 transition-all hover:scale-105 ${
                         fontFamily === font
-                          ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                          ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg shadow-purple-500/20"
                           : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
                       }`}
                     >
-                      <div className={fontFamilies[font]}>Ag</div>
+                      <div className={`${fontFamilies[font].class} text-lg font-bold mb-1`}>Ag</div>
+                      <div className="text-xs opacity-60">{fontFamilies[font].name}</div>
                     </button>
                   ))}
                 </div>
+                <p className="text-xs text-center opacity-50">✍️ Choose your perfect reading font</p>
               </div>
 
               {/* Layout Width */}
@@ -1182,35 +1300,43 @@ export default function BookReaderLuxury({
                   Luxury Effects
                 </h3>
                 <div className="space-y-3">
-                  <h4 className="text-sm font-semibold opacity-60">Page Turn Animation</h4>
+                  <h4 className="text-sm font-semibold opacity-60">
+                    Page Turn Animation
+                  </h4>
                   <div className="grid grid-cols-4 gap-2">
-                    {(["fade", "slide", "flip", "none"] as const).map((transition) => (
-                      <button
-                        key={transition}
-                        onClick={() => setPageTransition(transition)}
-                        className={`px-3 py-2 rounded-xl border-2 capitalize transition-all text-xs ${
-                          pageTransition === transition
-                            ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg"
-                            : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary} hover:border-purple-300`
-                        }`}
-                      >
-                        {transition}
-                      </button>
-                    ))}
+                    {(["fade", "slide", "flip", "none"] as const).map(
+                      (transition) => (
+                        <button
+                          key={transition}
+                          onClick={() => setPageTransition(transition)}
+                          className={`px-3 py-2 rounded-xl border-2 capitalize transition-all text-xs ${
+                            pageTransition === transition
+                              ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg"
+                              : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary} hover:border-purple-300`
+                          }`}
+                        >
+                          {transition}
+                        </button>
+                      )
+                    )}
                   </div>
                 </div>
 
                 {/* Accent Color Selector */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-semibold opacity-60">Accent Color</h4>
+                  <h4 className="text-sm font-semibold opacity-60">
+                    Accent Color
+                  </h4>
                   <div className="grid grid-cols-5 gap-2">
-                    {([
-                      { name: "purple", color: "bg-purple-500" },
-                      { name: "blue", color: "bg-blue-500" },
-                      { name: "pink", color: "bg-pink-500" },
-                      { name: "orange", color: "bg-orange-500" },
-                      { name: "green", color: "bg-green-500" },
-                    ] as const).map((accent) => (
+                    {(
+                      [
+                        { name: "purple", color: "bg-purple-500" },
+                        { name: "blue", color: "bg-blue-500" },
+                        { name: "pink", color: "bg-pink-500" },
+                        { name: "orange", color: "bg-orange-500" },
+                        { name: "green", color: "bg-green-500" },
+                      ] as const
+                    ).map((accent) => (
                       <button
                         key={accent.name}
                         onClick={() => setAccentColor(accent.name)}
@@ -1220,7 +1346,9 @@ export default function BookReaderLuxury({
                             : "border-gray-300 dark:border-gray-600"
                         }`}
                       >
-                        <div className={`absolute inset-0 rounded-lg ${accent.color}`} />
+                        <div
+                          className={`absolute inset-0 rounded-lg ${accent.color}`}
+                        />
                         {accentColor === accent.name && (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <Check className="w-4 h-4 text-white drop-shadow-lg" />
@@ -1235,18 +1363,78 @@ export default function BookReaderLuxury({
                 <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-orange-500" />
-                    <span className="text-sm font-semibold">Show Reading Speed</span>
+                    <span className="text-sm font-semibold">
+                      Show Reading Speed
+                    </span>
                   </div>
                   <button
-                    onClick={() => setShowReadingSpeedLive(!showReadingSpeedLive)}
+                    onClick={() =>
+                      setShowReadingSpeedLive(!showReadingSpeedLive)
+                    }
                     className={`relative w-12 h-6 rounded-full transition-colors ${
-                      showReadingSpeedLive ? 'bg-purple-500' : 'bg-gray-300 dark:bg-gray-600'
+                      showReadingSpeedLive
+                        ? "bg-purple-500"
+                        : "bg-gray-300 dark:bg-gray-600"
                     }`}
                   >
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                      showReadingSpeedLive ? 'translate-x-7' : 'translate-x-1'
-                    }`} />
+                    <div
+                      className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                        showReadingSpeedLive ? "translate-x-7" : "translate-x-1"
+                      }`}
+                    />
                   </button>
+                </div>
+
+                {/* 🎨 CUSTOM TEXT COLOR MIXER - ULTIMATE PERSONALIZATION! */}
+                <div className="space-y-3 p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-700">
+                  <h4 className="text-sm font-bold flex items-center gap-2">
+                    <Palette className="w-4 h-4" />
+                    Custom Text Color
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={customTextColor || "#000000"}
+                        onChange={(e) => setCustomTextColor(e.target.value)}
+                        className="w-12 h-12 rounded-xl cursor-pointer border-2 border-purple-300"
+                      />
+                      <div className="flex-1">
+                        <input
+                          type="text"
+                          value={customTextColor}
+                          onChange={(e) => setCustomTextColor(e.target.value)}
+                          placeholder="#000000"
+                          className="w-full px-3 py-2 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none text-sm font-mono"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-black/20 rounded-lg">
+                      <span className="text-xs font-semibold">Use Custom Color</span>
+                      <button
+                        onClick={() => setUseCustomTextColor(!useCustomTextColor)}
+                        className={`relative w-10 h-5 rounded-full transition-colors ${
+                          useCustomTextColor
+                            ? "bg-purple-500"
+                            : "bg-gray-300 dark:bg-gray-600"
+                        }`}
+                      >
+                        <div
+                          className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                            useCustomTextColor ? "translate-x-5" : "translate-x-0.5"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    {useCustomTextColor && customTextColor && (
+                      <div className="p-3 rounded-lg border-2 border-purple-300 bg-white dark:bg-gray-800">
+                        <p style={{ color: customTextColor }} className="text-sm font-semibold">
+                          Preview: This is how your text will look! 📖
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-center opacity-60">🎨 Mix your perfect reading color</p>
                 </div>
               </div>
 
@@ -1260,6 +1448,8 @@ export default function BookReaderLuxury({
                   setPageTransition("fade");
                   setAccentColor("purple");
                   setShowReadingSpeedLive(true);
+                  setCustomTextColor("");
+                  setUseCustomTextColor(false);
                   setLayout("standard");
                   setColumnMode(1);
                 }}
@@ -1533,7 +1723,7 @@ export default function BookReaderLuxury({
                             ? "opacity-0 scale-95 rotate-3"
                             : "opacity-100 translate-x-0 scale-100 rotate-0"
                         }
-                        ${fontFamilies[fontFamily]}
+                        ${fontFamilies[fontFamily].class}
                         ${
                           focusMode
                             ? "prose-p:opacity-50 hover:prose-p:opacity-100"
@@ -1544,6 +1734,7 @@ export default function BookReaderLuxury({
                       style={{
                         fontSize: `${fontSize}px`,
                         lineHeight: lineHeight,
+                        ...(useCustomTextColor && customTextColor ? { color: customTextColor } : {}),
                       }}
                       dangerouslySetInnerHTML={{ __html: pageContent }}
                     />
@@ -1806,8 +1997,12 @@ export default function BookReaderLuxury({
                   <Trophy className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h4 className="text-white font-bold text-lg">{currentAchievement}</h4>
-                  <p className="text-white/60 text-sm">Keep up the great work!</p>
+                  <h4 className="text-white font-bold text-lg">
+                    {currentAchievement}
+                  </h4>
+                  <p className="text-white/60 text-sm">
+                    Keep up the great work!
+                  </p>
                 </div>
                 <button
                   onClick={() => setShowAchievementToast(false)}
