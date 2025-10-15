@@ -169,10 +169,25 @@ export default function BookReaderLuxury({
   // 🎭🌟 IMMERSIVE READING REVOLUTION - THE GAME CHANGER!
   const [atmospherePreset, setAtmospherePreset] = useState<string | null>(null);
   const [immersiveMode, setImmersiveMode] = useState(false);
-  const [backgroundType, setBackgroundType] = useState<"image" | "video" | "gradient">("gradient");
+  const [backgroundType, setBackgroundType] = useState<
+    "image" | "video" | "gradient"
+  >("gradient");
   const [backgroundUrl, setBackgroundUrl] = useState<string>("");
   const [backgroundOpacity, setBackgroundOpacity] = useState(0.15);
   const [backgroundBlur, setBackgroundBlur] = useState(8);
+  
+  // 🎵🔥 NEXT LEVEL: AUDIO ATMOSPHERE SYNC (REVOLUTIONARY!)
+  const [audioAtmosphere, setAudioAtmosphere] = useState(false);
+  const [audioAtmosphereUrl, setAudioAtmosphereUrl] = useState<string>("");
+  const [audioVolume, setAudioVolume] = useState(0.3);
+  
+  // 🌊✨ PARALLAX MAGIC (SUBTLE MOVEMENT FOR DEPTH)
+  const [parallaxEffect, setParallaxEffect] = useState(false);
+  const [parallaxIntensity, setParallaxIntensity] = useState(5);
+  
+  // ⏰🌅 TIME-BASED AUTO-SWITCHING (AI-POWERED)
+  const [autoTimeSwitch, setAutoTimeSwitch] = useState(false);
+  const [currentTimeOfDay, setCurrentTimeOfDay] = useState<"dawn" | "day" | "dusk" | "night">("day");
 
   // ===========================================
   // ADVANCED READING FEATURES
@@ -459,11 +474,13 @@ export default function BookReaderLuxury({
 
   // ===========================================
   // 🎭 ATMOSPHERE PRESETS - ONE-CLICK MAGIC!
+  // NOW WITH AUDIO ATMOSPHERE SYNC! 🎵🔥
   // ===========================================
   const atmospherePresets = {
     "focus-flow": {
       name: "🎯 Focus Flow",
       description: "Deep concentration mode",
+      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-ocean-waves-loop-1196.mp3", // Ocean waves
       settings: {
         theme: "ocean" as const,
         fontFamily: "serif" as const,
@@ -472,13 +489,15 @@ export default function BookReaderLuxury({
         focusMode: true,
         pageTransition: "fade" as const,
         accentColor: "blue" as const,
-        backgroundUrl: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&q=80",
+        backgroundUrl:
+          "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&q=80",
         backgroundType: "image" as const,
-      }
+      },
     },
     "night-owl": {
       name: "🌙 Night Owl",
       description: "Perfect for late reading",
+      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-night-ambient-947.mp3", // Night ambience
       settings: {
         theme: "midnight" as const,
         fontFamily: "elegant" as const,
@@ -487,13 +506,15 @@ export default function BookReaderLuxury({
         zenMode: true,
         pageTransition: "fade" as const,
         accentColor: "purple" as const,
-        backgroundUrl: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80",
+        backgroundUrl:
+          "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80",
         backgroundType: "image" as const,
-      }
+      },
     },
     "speed-reader": {
       name: "⚡ Speed Reader",
       description: "Maximum reading velocity",
+      audioUrl: "", // Silence for speed
       settings: {
         theme: "light" as const,
         fontFamily: "sans" as const,
@@ -504,11 +525,12 @@ export default function BookReaderLuxury({
         accentColor: "orange" as const,
         backgroundUrl: "",
         backgroundType: "gradient" as const,
-      }
+      },
     },
     "vintage-study": {
       name: "📜 Vintage Study",
       description: "Classic scholarly atmosphere",
+      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-fireplace-crackle-1330.mp3", // Fireplace ambience
       settings: {
         theme: "sepia" as const,
         fontFamily: "typewriter" as const,
@@ -517,13 +539,15 @@ export default function BookReaderLuxury({
         columnMode: 2 as const,
         pageTransition: "slide" as const,
         accentColor: "orange" as const,
-        backgroundUrl: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&q=80",
+        backgroundUrl:
+          "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&q=80",
         backgroundType: "image" as const,
-      }
+      },
     },
     "zen-garden": {
       name: "🌸 Zen Garden",
       description: "Peaceful mindful reading",
+      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-zen-garden-958.mp3", // Zen meditation
       settings: {
         theme: "mint" as const,
         fontFamily: "elegant" as const,
@@ -532,13 +556,15 @@ export default function BookReaderLuxury({
         zenMode: true,
         pageTransition: "fade" as const,
         accentColor: "green" as const,
-        backgroundUrl: "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1920&q=80",
+        backgroundUrl:
+          "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1920&q=80",
         backgroundType: "image" as const,
-      }
+      },
     },
     "luxury-lounge": {
       name: "💎 Luxury Lounge",
       description: "Premium reading experience",
+      audioUrl: "https://assets.mixkit.co/music/preview/mixkit-jazz-lounge-547.mp3", // Smooth jazz
       settings: {
         theme: "royal" as const,
         fontFamily: "elegant" as const,
@@ -547,9 +573,10 @@ export default function BookReaderLuxury({
         layout: "wide" as const,
         pageTransition: "flip" as const,
         accentColor: "purple" as const,
-        backgroundUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=80",
+        backgroundUrl:
+          "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1920&q=80",
         backgroundType: "image" as const,
-      }
+      },
     },
   };
 
@@ -658,6 +685,67 @@ export default function BookReaderLuxury({
       console.error("Error saving preferences:", err);
     }
   }, [fontSize, lineHeight, fontFamily, theme, layout, columnMode, bookId]);
+
+  // ===========================================
+  // ⏰🌅 TIME-BASED AUTO-SWITCHING (AI-POWERED MAGIC!)
+  // ===========================================
+  useEffect(() => {
+    if (!autoTimeSwitch) return;
+    
+    const updateTimeOfDay = () => {
+      const hour = new Date().getHours();
+      
+      if (hour >= 5 && hour < 8) {
+        setCurrentTimeOfDay("dawn");
+        // Auto-apply zen garden for peaceful morning
+        if (atmospherePreset !== "zen-garden") {
+          applyAtmospherePreset("zen-garden");
+        }
+      } else if (hour >= 8 && hour < 17) {
+        setCurrentTimeOfDay("day");
+        // Auto-apply focus flow for productive day
+        if (atmospherePreset !== "focus-flow") {
+          applyAtmospherePreset("focus-flow");
+        }
+      } else if (hour >= 17 && hour < 20) {
+        setCurrentTimeOfDay("dusk");
+        // Auto-apply vintage study for cozy evening
+        if (atmospherePreset !== "vintage-study") {
+          applyAtmospherePreset("vintage-study");
+        }
+      } else {
+        setCurrentTimeOfDay("night");
+        // Auto-apply night owl for late reading
+        if (atmospherePreset !== "night-owl") {
+          applyAtmospherePreset("night-owl");
+        }
+      }
+    };
+    
+    updateTimeOfDay();
+    const interval = setInterval(updateTimeOfDay, 60000); // Check every minute
+    
+    return () => clearInterval(interval);
+  }, [autoTimeSwitch, atmospherePreset]);
+
+  // ===========================================
+  // 🌊✨ PARALLAX EFFECT (SUBTLE DEPTH MAGIC!)
+  // ===========================================
+  useEffect(() => {
+    if (!parallaxEffect || !immersiveMode) return;
+    
+    const handleScroll = () => {
+      const scrolled = window.pageYOffset;
+      const background = document.getElementById("immersive-background");
+      if (background) {
+        const offset = scrolled * (parallaxIntensity / 100);
+        background.style.transform = `translateY(${offset}px) scale(1.1)`;
+      }
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [parallaxEffect, immersiveMode, parallaxIntensity]);
 
   // ===========================================
   // TRACK READING TIME
@@ -842,28 +930,31 @@ export default function BookReaderLuxury({
 
   // ===========================================
   // 🎭 APPLY ATMOSPHERE PRESET - MAGIC TRANSFORMATION!
+  // NOW WITH AUDIO SYNC! 🎵🔥
   // ===========================================
   const applyAtmospherePreset = (presetKey: string) => {
-    const preset = atmospherePresets[presetKey as keyof typeof atmospherePresets];
+    const preset =
+      atmospherePresets[presetKey as keyof typeof atmospherePresets];
     if (!preset) return;
 
     const settings = preset.settings;
-    
+
     // Apply all settings with type-safe checks
     if (settings.theme) setTheme(settings.theme);
     if (settings.fontFamily) setFontFamily(settings.fontFamily);
     if (settings.fontSize) setFontSize(settings.fontSize);
     if (settings.lineHeight) setLineHeight(settings.lineHeight);
-    if ('layout' in settings && settings.layout) setLayout(settings.layout);
-    if ('columnMode' in settings && settings.columnMode) setColumnMode(settings.columnMode);
+    if ("layout" in settings && settings.layout) setLayout(settings.layout);
+    if ("columnMode" in settings && settings.columnMode)
+      setColumnMode(settings.columnMode);
     if (settings.pageTransition) setPageTransition(settings.pageTransition);
     if (settings.accentColor) setAccentColor(settings.accentColor);
-    
+
     // Apply modes with safe checks
-    setFocusMode('focusMode' in settings ? settings.focusMode : false);
-    setZenMode('zenMode' in settings ? settings.zenMode : false);
-    setAutoScroll('autoScroll' in settings ? settings.autoScroll : false);
-    
+    setFocusMode("focusMode" in settings ? settings.focusMode : false);
+    setZenMode("zenMode" in settings ? settings.zenMode : false);
+    setAutoScroll("autoScroll" in settings ? settings.autoScroll : false);
+
     // Apply immersive background
     if (settings.backgroundUrl) {
       setBackgroundUrl(settings.backgroundUrl);
@@ -873,10 +964,17 @@ export default function BookReaderLuxury({
       setImmersiveMode(false);
     }
     
+    // 🎵🔥 REVOLUTIONARY: Apply audio atmosphere!
+    if (preset.audioUrl && audioAtmosphere) {
+      setAudioAtmosphereUrl(preset.audioUrl);
+      // Audio will auto-play via the audio element
+    }
+
     setAtmospherePreset(presetKey);
-    
-    // Show success toast
-    setCurrentAchievement(`${preset.name} Activated!`);
+
+    // Show success toast with audio indicator
+    const audioStatus = audioAtmosphere && preset.audioUrl ? " + 🎵 Audio" : "";
+    setCurrentAchievement(`${preset.name}${audioStatus} Activated!`);
     setShowAchievementToast(true);
     setTimeout(() => setShowAchievementToast(false), 3000);
   };
@@ -1016,7 +1114,13 @@ export default function BookReaderLuxury({
           Cinema-Quality Reading Atmosphere
           =========================================== */}
       {immersiveMode && backgroundUrl && (
-        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div 
+          id="immersive-background"
+          className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
+          style={{
+            transition: parallaxEffect ? "transform 0.1s ease-out" : "none"
+          }}
+        >
           {backgroundType === "image" && (
             <div
               className="w-full h-full bg-cover bg-center transition-all duration-1000"
@@ -1054,1160 +1158,1335 @@ export default function BookReaderLuxury({
           )}
         </div>
       )}
+      
+      {/* 🎵🔥 AUDIO ATMOSPHERE (REVOLUTIONARY SYNC!) */}
+      {audioAtmosphere && audioAtmosphereUrl && (
+        <audio
+          autoPlay
+          loop
+          src={audioAtmosphereUrl}
+          style={{ display: "none" }}
+          ref={(audio) => {
+            if (audio) audio.volume = audioVolume;
+          }}
+        />
+      )}
 
       {/* All content now sits above immersive background */}
       <div className="relative z-10">
         {/* ===========================================
             ULTRA-LUXURY HEADER
             =========================================== */}
-      {!zenMode && (
-        <header
-          className={`${currentTheme.secondary} border-b ${currentTheme.border} sticky top-0 z-50 backdrop-blur-xl bg-opacity-90 transition-all duration-300`}
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              {/* Left: Back Button + Title */}
-              <div className="flex items-center gap-4 flex-1 min-w-0">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.back()}
-                  className="shrink-0 hover:scale-105 transition-transform"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back
-                </Button>
-
-                <div className="flex items-center gap-3 min-w-0">
-                  <BookOpen className="w-5 h-5 text-purple-500 shrink-0" />
-                  <h1 className="text-base font-semibold truncate">
-                    {bookTitle}
-                  </h1>
-                </div>
-              </div>
-
-              {/* Center: LUXURY Progress Ring + Live Stats */}
-              <div className="hidden lg:flex items-center gap-6 px-8">
-                {/* Circular Progress Ring */}
-                <div className="relative flex items-center justify-center">
-                  <svg className="w-16 h-16 transform -rotate-90">
-                    {/* Background circle */}
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                      className="text-gray-200 dark:text-gray-700"
-                    />
-                    {/* Progress circle */}
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      stroke="url(#gradient)"
-                      strokeWidth="4"
-                      fill="none"
-                      strokeDasharray={`${2 * Math.PI * 28}`}
-                      strokeDashoffset={`${
-                        2 * Math.PI * 28 * (1 - completionPercentage / 100)
-                      }`}
-                      className="transition-all duration-500"
-                      strokeLinecap="round"
-                    />
-                    <defs>
-                      <linearGradient
-                        id="gradient"
-                        x1="0%"
-                        y1="0%"
-                        x2="100%"
-                        y2="100%"
-                      >
-                        <stop
-                          offset="0%"
-                          className="text-purple-500"
-                          stopColor="currentColor"
-                        />
-                        <stop
-                          offset="100%"
-                          className="text-pink-500"
-                          stopColor="currentColor"
-                        />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-xs font-bold">
-                      {Math.round(completionPercentage)}%
-                    </span>
-                    <Target className="w-3 h-3 text-purple-500" />
-                  </div>
-                </div>
-
-                {/* Live Reading Speed */}
-                {showReadingSpeedLive && (
-                  <div className="flex flex-col items-start">
-                    <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-orange-500" />
-                      <span className="text-sm font-bold text-orange-500">
-                        {readingSpeed} WPM
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs opacity-60">
-                      <Clock className="w-3 h-3" />
-                      <span>{readingTime} min today</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Right: Actions */}
-              <div className="flex items-center gap-2 flex-1 justify-end">
-                {/* Reading Stats */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowReadingStats(!showReadingStats)}
-                  className="hidden sm:flex items-center gap-2"
-                >
-                  <TrendingUp className="w-4 h-4" />
-                  <span className="text-sm">
-                    {Math.floor(totalReadingTime)}m
-                  </span>
-                </Button>
-
-                {/* Bookmark */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={toggleBookmark}
-                  className={currentPageBookmarked ? "text-purple-500" : ""}
-                >
-                  <Bookmark
-                    className={`w-4 h-4 ${
-                      currentPageBookmarked ? "fill-current" : ""
-                    }`}
-                  />
-                </Button>
-
-                {/* Listen Mode */}
-                <Button
-                  variant={listenMode ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setListenMode(!listenMode)}
-                  className={
-                    listenMode
-                      ? `bg-gradient-to-r ${currentTheme.accent} text-white`
-                      : ""
-                  }
-                >
-                  {listenMode ? (
-                    <PlayCircle className="w-4 h-4" />
-                  ) : (
-                    <Headphones className="w-4 h-4" />
-                  )}
-                </Button>
-
-                {/* Settings */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowSettings(!showSettings)}
-                >
-                  <Settings className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Sub-header: Quick Actions - Enhanced Visibility! */}
-            <div className="flex items-center justify-between pb-3 border-t border-gray-200/50 dark:border-gray-700/50 mt-2 pt-3">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setFocusMode(!focusMode)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
-                    focusMode
-                      ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
-                      : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-purple-400 hover:shadow-lg`
-                  }`}
-                >
-                  <Eye className="w-4 h-4" />
-                  Focus
-                </button>
-
-                <button
-                  onClick={() => setZenMode(!zenMode)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
-                    zenMode
-                      ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
-                      : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-blue-400 hover:shadow-lg`
-                  }`}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Zen
-                </button>
-
-                <button
-                  onClick={() => setAutoScroll(!autoScroll)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
-                    autoScroll
-                      ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
-                      : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-green-400 hover:shadow-lg`
-                  }`}
-                >
-                  <FastForward className="w-4 h-4" />
-                  Auto
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3 text-sm">
-                <div className="flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                  <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span className="font-medium text-purple-600 dark:text-purple-400">
-                    {readingTime} min
-                  </span>
-                </div>
-
-                {!isPurchased && currentPage <= freePages && (
-                  <div className="flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                    <Gift className="w-4 h-4 text-green-600 dark:text-green-400" />
-                    <span className="font-medium text-green-600 dark:text-green-400">
-                      {freePages - currentPage} free pages left
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
-      )}
-
-      {/* ===========================================
-          SETTINGS PANEL (SLIDE-OUT)
-          =========================================== */}
-      {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-start justify-end">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowSettings(false)}
-          />
-
-          {/* Settings Panel */}
-          <div
-            className={`relative ${currentTheme.bg} w-full max-w-md h-full overflow-y-auto shadow-2xl animate-slide-in-right`}
+        {!zenMode && (
+          <header
+            className={`${currentTheme.secondary} border-b ${currentTheme.border} sticky top-0 z-50 backdrop-blur-xl bg-opacity-90 transition-all duration-300`}
           >
-            <div className="p-6 space-y-6">
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <Palette className="w-6 h-6 text-purple-500" />
-                  Reading Settings
-                </h2>
-                <button
-                  onClick={() => setShowSettings(false)}
-                  className={`p-2 ${currentTheme.secondary} rounded-lg hover:scale-105 transition-transform`}
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-16">
+                {/* Left: Back Button + Title */}
+                <div className="flex items-center gap-4 flex-1 min-w-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => router.back()}
+                    className="shrink-0 hover:scale-105 transition-transform"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
 
-              {/* Theme Selection - 10 LUXURY THEMES! */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                  <Palette className="w-5 h-5" />
-                  Reading Theme
-                </h3>
-                <div className="grid grid-cols-5 gap-3">
-                  {Object.entries(themes).map(([themeKey, themeData]) => (
-                    <button
-                      key={themeKey}
-                      onClick={() => setTheme(themeKey as any)}
-                      className={`group relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all hover:scale-105 ${
-                        theme === themeKey
-                          ? "border-purple-500 shadow-lg shadow-purple-500/30 bg-purple-50 dark:bg-purple-900/20"
-                          : "border-gray-300 dark:border-gray-600 hover:border-purple-300"
-                      }`}
-                      title={themeData.description}
-                    >
-                      <div
-                        className={`w-full aspect-square rounded-lg ${themeData.bg} border-2 ${themeData.border} shadow-inner relative overflow-hidden`}
-                      >
-                        <div
-                          className={`absolute inset-0 bg-gradient-to-br ${themeData.accent} opacity-20`}
-                        />
-                        {theme === themeKey && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Check className="w-6 h-6 text-purple-600 dark:text-purple-400 drop-shadow-lg" />
-                          </div>
-                        )}
-                      </div>
-                      <span
-                        className={`text-xs font-semibold text-center ${
-                          theme === themeKey
-                            ? "text-purple-600 dark:text-purple-400"
-                            : "opacity-70"
+                  <div className="flex items-center gap-3 min-w-0">
+                    <BookOpen className="w-5 h-5 text-purple-500 shrink-0" />
+                    <h1 className="text-base font-semibold truncate">
+                      {bookTitle}
+                    </h1>
+                  </div>
+                </div>
+
+                {/* Center: LUXURY Progress Ring + Live Stats */}
+                <div className="hidden lg:flex items-center gap-6 px-8">
+                  {/* Circular Progress Ring */}
+                  <div className="relative flex items-center justify-center">
+                    <svg className="w-16 h-16 transform -rotate-90">
+                      {/* Background circle */}
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="28"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                        className="text-gray-200 dark:text-gray-700"
+                      />
+                      {/* Progress circle */}
+                      <circle
+                        cx="32"
+                        cy="32"
+                        r="28"
+                        stroke="url(#gradient)"
+                        strokeWidth="4"
+                        fill="none"
+                        strokeDasharray={`${2 * Math.PI * 28}`}
+                        strokeDashoffset={`${
+                          2 * Math.PI * 28 * (1 - completionPercentage / 100)
                         }`}
-                      >
-                        {themeData.name}
+                        className="transition-all duration-500"
+                        strokeLinecap="round"
+                      />
+                      <defs>
+                        <linearGradient
+                          id="gradient"
+                          x1="0%"
+                          y1="0%"
+                          x2="100%"
+                          y2="100%"
+                        >
+                          <stop
+                            offset="0%"
+                            className="text-purple-500"
+                            stopColor="currentColor"
+                          />
+                          <stop
+                            offset="100%"
+                            className="text-pink-500"
+                            stopColor="currentColor"
+                          />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-xs font-bold">
+                        {Math.round(completionPercentage)}%
                       </span>
-                    </button>
-                  ))}
+                      <Target className="w-3 h-3 text-purple-500" />
+                    </div>
+                  </div>
+
+                  {/* Live Reading Speed */}
+                  {showReadingSpeedLive && (
+                    <div className="flex flex-col items-start">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-orange-500" />
+                        <span className="text-sm font-bold text-orange-500">
+                          {readingSpeed} WPM
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs opacity-60">
+                        <Clock className="w-3 h-3" />
+                        <span>{readingTime} min today</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-center opacity-60 italic">
-                  ✨ Choose your perfect reading atmosphere
-                </p>
+
+                {/* Right: Actions */}
+                <div className="flex items-center gap-2 flex-1 justify-end">
+                  {/* Reading Stats */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowReadingStats(!showReadingStats)}
+                    className="hidden sm:flex items-center gap-2"
+                  >
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="text-sm">
+                      {Math.floor(totalReadingTime)}m
+                    </span>
+                  </Button>
+
+                  {/* Bookmark */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleBookmark}
+                    className={currentPageBookmarked ? "text-purple-500" : ""}
+                  >
+                    <Bookmark
+                      className={`w-4 h-4 ${
+                        currentPageBookmarked ? "fill-current" : ""
+                      }`}
+                    />
+                  </Button>
+
+                  {/* Listen Mode */}
+                  <Button
+                    variant={listenMode ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setListenMode(!listenMode)}
+                    className={
+                      listenMode
+                        ? `bg-gradient-to-r ${currentTheme.accent} text-white`
+                        : ""
+                    }
+                  >
+                    {listenMode ? (
+                      <PlayCircle className="w-4 h-4" />
+                    ) : (
+                      <Headphones className="w-4 h-4" />
+                    )}
+                  </Button>
+
+                  {/* Settings */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowSettings(!showSettings)}
+                  >
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
 
-              {/* Font Size */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
-                    Font Size
-                  </h3>
-                  <span className="text-sm font-bold">{fontSize}px</span>
-                </div>
+              {/* Sub-header: Quick Actions - Enhanced Visibility! */}
+              <div className="flex items-center justify-between pb-3 border-t border-gray-200/50 dark:border-gray-700/50 mt-2 pt-3">
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={() => setFontSize(Math.max(12, fontSize - 2))}
-                    className={`p-2 ${currentTheme.secondary} rounded-lg hover:scale-105 transition-transform`}
+                    onClick={() => setFocusMode(!focusMode)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
+                      focusMode
+                        ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
+                        : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-purple-400 hover:shadow-lg`
+                    }`}
                   >
-                    <MinusCircle className="w-5 h-5" />
+                    <Eye className="w-4 h-4" />
+                    Focus
                   </button>
-                  <input
-                    type="range"
-                    min="12"
-                    max="32"
-                    step="2"
-                    value={fontSize}
-                    onChange={(e) => setFontSize(parseInt(e.target.value))}
-                    className="flex-1"
-                  />
+
                   <button
-                    onClick={() => setFontSize(Math.min(32, fontSize + 2))}
-                    className={`p-2 ${currentTheme.secondary} rounded-lg hover:scale-105 transition-transform`}
+                    onClick={() => setZenMode(!zenMode)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
+                      zenMode
+                        ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
+                        : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-blue-400 hover:shadow-lg`
+                    }`}
                   >
-                    <PlusCircle className="w-5 h-5" />
+                    <Sparkles className="w-4 h-4" />
+                    Zen
+                  </button>
+
+                  <button
+                    onClick={() => setAutoScroll(!autoScroll)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all border-2 shadow-md ${
+                      autoScroll
+                        ? `bg-gradient-to-r ${currentTheme.accent} text-white shadow-lg shadow-purple-500/30 border-transparent scale-105`
+                        : `${currentTheme.secondary} border-gray-300 dark:border-gray-600 hover:scale-105 hover:border-green-400 hover:shadow-lg`
+                    }`}
+                  >
+                    <FastForward className="w-4 h-4" />
+                    Auto
                   </button>
                 </div>
-              </div>
 
-              {/* Line Height */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
-                    Line Height
-                  </h3>
-                  <span className="text-sm font-bold">
-                    {lineHeight.toFixed(1)}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="1.4"
-                  max="2.5"
-                  step="0.1"
-                  value={lineHeight}
-                  onChange={(e) => setLineHeight(parseFloat(e.target.value))}
-                  className="w-full"
-                />
-              </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                    <Clock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <span className="font-medium text-purple-600 dark:text-purple-400">
+                      {readingTime} min
+                    </span>
+                  </div>
 
-              {/* Font Family */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
-                  Font Family
-                </h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {(
-                    [
-                      "serif",
-                      "sans",
-                      "mono",
-                      "dyslexic",
-                      "typewriter",
-                      "elegant",
-                      "modern",
-                    ] as const
-                  ).map((font) => (
-                    <button
-                      key={font}
-                      onClick={() => setFontFamily(font)}
-                      className={`px-3 py-2.5 rounded-xl border-2 transition-all hover:scale-105 ${
-                        fontFamily === font
-                          ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg shadow-purple-500/20"
-                          : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
-                      }`}
-                    >
-                      <div
-                        className={`${fontFamilies[font].class} text-lg font-bold mb-1`}
-                      >
-                        Ag
-                      </div>
-                      <div className="text-xs opacity-60">
-                        {fontFamilies[font].name}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                <p className="text-xs text-center opacity-50">
-                  ✍️ Choose your perfect reading font
-                </p>
-              </div>
-
-              {/* Layout Width */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
-                  Layout Width
-                </h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {(["narrow", "standard", "wide"] as const).map(
-                    (layoutType) => (
-                      <button
-                        key={layoutType}
-                        onClick={() => setLayout(layoutType)}
-                        className={`px-4 py-3 rounded-xl border-2 capitalize transition-all ${
-                          layout === layoutType
-                            ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
-                            : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
-                        }`}
-                      >
-                        {layoutType}
-                      </button>
-                    )
+                  {!isPurchased && currentPage <= freePages && (
+                    <div className="flex items-center gap-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                      <Gift className="w-4 h-4 text-green-600 dark:text-green-400" />
+                      <span className="font-medium text-green-600 dark:text-green-400">
+                        {freePages - currentPage} free pages left
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
+            </div>
+          </header>
+        )}
 
-              {/* Column Mode */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
-                  Columns
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {([1, 2] as const).map((cols) => (
-                    <button
-                      key={cols}
-                      onClick={() => setColumnMode(cols)}
-                      className={`px-4 py-3 rounded-xl border-2 transition-all ${
-                        columnMode === cols
-                          ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
-                          : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
-                      }`}
-                    >
-                      {cols} Column{cols > 1 ? "s" : ""}
-                    </button>
-                  ))}
+        {/* ===========================================
+          SETTINGS PANEL (SLIDE-OUT)
+          =========================================== */}
+        {showSettings && (
+          <div className="fixed inset-0 z-50 flex items-start justify-end">
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowSettings(false)}
+            />
+
+            {/* Settings Panel */}
+            <div
+              className={`relative ${currentTheme.bg} w-full max-w-md h-full overflow-y-auto shadow-2xl animate-slide-in-right`}
+            >
+              <div className="p-6 space-y-6">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <Palette className="w-6 h-6 text-purple-500" />
+                    Reading Settings
+                  </h2>
+                  <button
+                    onClick={() => setShowSettings(false)}
+                    className={`p-2 ${currentTheme.secondary} rounded-lg hover:scale-105 transition-transform`}
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-              </div>
 
-              {/* Auto-Scroll Speed */}
-              {autoScroll && (
+                {/* Theme Selection - 10 LUXURY THEMES! */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                    <Palette className="w-5 h-5" />
+                    Reading Theme
+                  </h3>
+                  <div className="grid grid-cols-5 gap-3">
+                    {Object.entries(themes).map(([themeKey, themeData]) => (
+                      <button
+                        key={themeKey}
+                        onClick={() => setTheme(themeKey as any)}
+                        className={`group relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all hover:scale-105 ${
+                          theme === themeKey
+                            ? "border-purple-500 shadow-lg shadow-purple-500/30 bg-purple-50 dark:bg-purple-900/20"
+                            : "border-gray-300 dark:border-gray-600 hover:border-purple-300"
+                        }`}
+                        title={themeData.description}
+                      >
+                        <div
+                          className={`w-full aspect-square rounded-lg ${themeData.bg} border-2 ${themeData.border} shadow-inner relative overflow-hidden`}
+                        >
+                          <div
+                            className={`absolute inset-0 bg-gradient-to-br ${themeData.accent} opacity-20`}
+                          />
+                          {theme === themeKey && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Check className="w-6 h-6 text-purple-600 dark:text-purple-400 drop-shadow-lg" />
+                            </div>
+                          )}
+                        </div>
+                        <span
+                          className={`text-xs font-semibold text-center ${
+                            theme === themeKey
+                              ? "text-purple-600 dark:text-purple-400"
+                              : "opacity-70"
+                          }`}
+                        >
+                          {themeData.name}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-center opacity-60 italic">
+                    ✨ Choose your perfect reading atmosphere
+                  </p>
+                </div>
+
+                {/* Font Size */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
-                      Scroll Speed
+                      Font Size
                     </h3>
-                    <span className="text-sm font-bold">{scrollSpeed}</span>
+                    <span className="text-sm font-bold">{fontSize}px</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setFontSize(Math.max(12, fontSize - 2))}
+                      className={`p-2 ${currentTheme.secondary} rounded-lg hover:scale-105 transition-transform`}
+                    >
+                      <MinusCircle className="w-5 h-5" />
+                    </button>
+                    <input
+                      type="range"
+                      min="12"
+                      max="32"
+                      step="2"
+                      value={fontSize}
+                      onChange={(e) => setFontSize(parseInt(e.target.value))}
+                      className="flex-1"
+                    />
+                    <button
+                      onClick={() => setFontSize(Math.min(32, fontSize + 2))}
+                      className={`p-2 ${currentTheme.secondary} rounded-lg hover:scale-105 transition-transform`}
+                    >
+                      <PlusCircle className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Line Height */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
+                      Line Height
+                    </h3>
+                    <span className="text-sm font-bold">
+                      {lineHeight.toFixed(1)}
+                    </span>
                   </div>
                   <input
                     type="range"
-                    min="10"
-                    max="100"
-                    step="10"
-                    value={scrollSpeed}
-                    onChange={(e) => setScrollSpeed(parseInt(e.target.value))}
+                    min="1.4"
+                    max="2.5"
+                    step="0.1"
+                    value={lineHeight}
+                    onChange={(e) => setLineHeight(parseFloat(e.target.value))}
                     className="w-full"
                   />
                 </div>
-              )}
 
-              {/* 🎨 NEW! Page Transition Effect */}
-              <div className="space-y-4 pt-6 border-t border-white/10">
-                <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                  <Sparkles className="w-5 h-5" />
-                  Luxury Effects
-                </h3>
+                {/* Font Family */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-semibold opacity-60">
-                    Page Turn Animation
-                  </h4>
-                  <div className="grid grid-cols-4 gap-2">
-                    {(["fade", "slide", "flip", "none"] as const).map(
-                      (transition) => (
+                  <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
+                    Font Family
+                  </h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(
+                      [
+                        "serif",
+                        "sans",
+                        "mono",
+                        "dyslexic",
+                        "typewriter",
+                        "elegant",
+                        "modern",
+                      ] as const
+                    ).map((font) => (
+                      <button
+                        key={font}
+                        onClick={() => setFontFamily(font)}
+                        className={`px-3 py-2.5 rounded-xl border-2 transition-all hover:scale-105 ${
+                          fontFamily === font
+                            ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg shadow-purple-500/20"
+                            : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
+                        }`}
+                      >
+                        <div
+                          className={`${fontFamilies[font].class} text-lg font-bold mb-1`}
+                        >
+                          Ag
+                        </div>
+                        <div className="text-xs opacity-60">
+                          {fontFamilies[font].name}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-center opacity-50">
+                    ✍️ Choose your perfect reading font
+                  </p>
+                </div>
+
+                {/* Layout Width */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
+                    Layout Width
+                  </h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["narrow", "standard", "wide"] as const).map(
+                      (layoutType) => (
                         <button
-                          key={transition}
-                          onClick={() => setPageTransition(transition)}
-                          className={`px-3 py-2 rounded-xl border-2 capitalize transition-all text-xs ${
-                            pageTransition === transition
-                              ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg"
-                              : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary} hover:border-purple-300`
+                          key={layoutType}
+                          onClick={() => setLayout(layoutType)}
+                          className={`px-4 py-3 rounded-xl border-2 capitalize transition-all ${
+                            layout === layoutType
+                              ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                              : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
                           }`}
                         >
-                          {transition}
+                          {layoutType}
                         </button>
                       )
                     )}
                   </div>
                 </div>
 
-                {/* Accent Color Selector */}
+                {/* Column Mode */}
                 <div className="space-y-3">
-                  <h4 className="text-sm font-semibold opacity-60">
-                    Accent Color
-                  </h4>
-                  <div className="grid grid-cols-5 gap-2">
-                    {(
-                      [
-                        { name: "purple", color: "bg-purple-500" },
-                        { name: "blue", color: "bg-blue-500" },
-                        { name: "pink", color: "bg-pink-500" },
-                        { name: "orange", color: "bg-orange-500" },
-                        { name: "green", color: "bg-green-500" },
-                      ] as const
-                    ).map((accent) => (
+                  <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
+                    Columns
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    {([1, 2] as const).map((cols) => (
                       <button
-                        key={accent.name}
-                        onClick={() => setAccentColor(accent.name)}
-                        className={`relative w-full aspect-square rounded-xl border-2 transition-all hover:scale-110 ${
-                          accentColor === accent.name
-                            ? "border-purple-500 shadow-lg scale-105"
-                            : "border-gray-300 dark:border-gray-600"
+                        key={cols}
+                        onClick={() => setColumnMode(cols)}
+                        className={`px-4 py-3 rounded-xl border-2 transition-all ${
+                          columnMode === cols
+                            ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                            : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
                         }`}
                       >
-                        <div
-                          className={`absolute inset-0 rounded-lg ${accent.color}`}
-                        />
-                        {accentColor === accent.name && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Check className="w-4 h-4 text-white drop-shadow-lg" />
-                          </div>
-                        )}
+                        {cols} Column{cols > 1 ? "s" : ""}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Live Reading Speed Toggle */}
-                <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-orange-500" />
-                    <span className="text-sm font-semibold">
-                      Show Reading Speed
-                    </span>
-                  </div>
-                  <button
-                    onClick={() =>
-                      setShowReadingSpeedLive(!showReadingSpeedLive)
-                    }
-                    className={`relative w-12 h-6 rounded-full transition-colors ${
-                      showReadingSpeedLive
-                        ? "bg-purple-500"
-                        : "bg-gray-300 dark:bg-gray-600"
-                    }`}
-                  >
-                    <div
-                      className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                        showReadingSpeedLive ? "translate-x-7" : "translate-x-1"
-                      }`}
+                {/* Auto-Scroll Speed */}
+                {autoScroll && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
+                        Scroll Speed
+                      </h3>
+                      <span className="text-sm font-bold">{scrollSpeed}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="10"
+                      max="100"
+                      step="10"
+                      value={scrollSpeed}
+                      onChange={(e) => setScrollSpeed(parseInt(e.target.value))}
+                      className="w-full"
                     />
-                  </button>
-                </div>
+                  </div>
+                )}
 
-                {/* 🎨 CUSTOM TEXT COLOR MIXER - ULTIMATE PERSONALIZATION! */}
-                <div className="space-y-3 p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-700">
-                  <h4 className="text-sm font-bold flex items-center gap-2">
-                    <Palette className="w-4 h-4" />
-                    Custom Text Color
-                  </h4>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={customTextColor || "#000000"}
-                        onChange={(e) => setCustomTextColor(e.target.value)}
-                        className="w-12 h-12 rounded-xl cursor-pointer border-2 border-purple-300"
-                      />
-                      <div className="flex-1">
-                        <input
-                          type="text"
-                          value={customTextColor}
-                          onChange={(e) => setCustomTextColor(e.target.value)}
-                          placeholder="#000000"
-                          className="w-full px-3 py-2 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none text-sm font-mono"
-                        />
-                      </div>
+                {/* 🎨 NEW! Page Transition Effect */}
+                <div className="space-y-4 pt-6 border-t border-white/10">
+                  <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                    <Sparkles className="w-5 h-5" />
+                    Luxury Effects
+                  </h3>
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold opacity-60">
+                      Page Turn Animation
+                    </h4>
+                    <div className="grid grid-cols-4 gap-2">
+                      {(["fade", "slide", "flip", "none"] as const).map(
+                        (transition) => (
+                          <button
+                            key={transition}
+                            onClick={() => setPageTransition(transition)}
+                            className={`px-3 py-2 rounded-xl border-2 capitalize transition-all text-xs ${
+                              pageTransition === transition
+                                ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg"
+                                : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary} hover:border-purple-300`
+                            }`}
+                          >
+                            {transition}
+                          </button>
+                        )
+                      )}
                     </div>
-                    <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-black/20 rounded-lg">
-                      <span className="text-xs font-semibold">
-                        Use Custom Color
-                      </span>
-                      <button
-                        onClick={() =>
-                          setUseCustomTextColor(!useCustomTextColor)
-                        }
-                        className={`relative w-10 h-5 rounded-full transition-colors ${
-                          useCustomTextColor
-                            ? "bg-purple-500"
-                            : "bg-gray-300 dark:bg-gray-600"
-                        }`}
-                      >
-                        <div
-                          className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
-                            useCustomTextColor
-                              ? "translate-x-5"
-                              : "translate-x-0.5"
+                  </div>
+
+                  {/* Accent Color Selector */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold opacity-60">
+                      Accent Color
+                    </h4>
+                    <div className="grid grid-cols-5 gap-2">
+                      {(
+                        [
+                          { name: "purple", color: "bg-purple-500" },
+                          { name: "blue", color: "bg-blue-500" },
+                          { name: "pink", color: "bg-pink-500" },
+                          { name: "orange", color: "bg-orange-500" },
+                          { name: "green", color: "bg-green-500" },
+                        ] as const
+                      ).map((accent) => (
+                        <button
+                          key={accent.name}
+                          onClick={() => setAccentColor(accent.name)}
+                          className={`relative w-full aspect-square rounded-xl border-2 transition-all hover:scale-110 ${
+                            accentColor === accent.name
+                              ? "border-purple-500 shadow-lg scale-105"
+                              : "border-gray-300 dark:border-gray-600"
                           }`}
-                        />
-                      </button>
-                    </div>
-                    {useCustomTextColor && customTextColor && (
-                      <div className="p-3 rounded-lg border-2 border-purple-300 bg-white dark:bg-gray-800">
-                        <p
-                          style={{ color: customTextColor }}
-                          className="text-sm font-semibold"
                         >
-                          Preview: This is how your text will look! 📖
-                        </p>
-                      </div>
-                    )}
+                          <div
+                            className={`absolute inset-0 rounded-lg ${accent.color}`}
+                          />
+                          {accentColor === accent.name && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Check className="w-4 h-4 text-white drop-shadow-lg" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                  <p className="text-xs text-center opacity-60">
-                    🎨 Mix your perfect reading color
-                  </p>
-                </div>
 
-                {/* 🎭🌟 ATMOSPHERE PRESETS - ONE-CLICK MOOD TRANSFORMATION! */}
-                <div className="space-y-4 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 dark:from-purple-900/30 dark:via-pink-900/30 dark:to-orange-900/30 rounded-xl border-2 border-purple-300 dark:border-purple-700 shadow-xl">
-                  <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-500" />
-                    🎭 Atmosphere Presets
-                  </h3>
-                  <p className="text-xs opacity-70 text-center">
-                    ✨ Transform your reading experience in one click
-                  </p>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    {Object.entries(atmospherePresets).map(([key, preset]) => (
-                      <button
-                        key={key}
-                        onClick={() => applyAtmospherePreset(key)}
-                        className={`p-4 rounded-xl border-2 transition-all hover:scale-105 hover:shadow-lg ${
-                          atmospherePreset === key
-                            ? "border-purple-500 bg-purple-100 dark:bg-purple-900/40 shadow-lg ring-2 ring-purple-300"
-                            : "border-purple-200 dark:border-purple-700 bg-white/50 dark:bg-black/20 hover:border-purple-400"
-                        }`}
-                      >
-                        <div className="text-3xl mb-2 filter drop-shadow">
-                          {preset.name.split(" ")[0]}
-                        </div>
-                        <div className="font-bold text-sm">
-                          {preset.name.split(" ").slice(1).join(" ")}
-                        </div>
-                        <div className="text-xs opacity-60 mt-1 line-clamp-2">
-                          {preset.description}
-                        </div>
-                        {atmospherePreset === key && (
-                          <div className="mt-2 flex items-center justify-center gap-1 text-xs text-purple-600 dark:text-purple-400 font-semibold">
-                            <Check className="w-3 h-3" />
-                            Active
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  {atmospherePreset && (
-                    <button
-                      onClick={() => {
-                        setAtmospherePreset(null);
-                        setImmersiveMode(false);
-                      }}
-                      className="w-full py-2 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all text-sm font-semibold"
-                    >
-                      Clear Preset
-                    </button>
-                  )}
-                </div>
-
-                {/* 🌟 IMMERSIVE BACKGROUND CONTROLS - CINEMA-QUALITY READING! */}
-                <div className="space-y-4 p-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-xl border-2 border-indigo-300 dark:border-indigo-700 shadow-xl">
-                  <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-indigo-500" />
-                    🌟 Immersive Backgrounds
-                  </h3>
-                  <p className="text-xs opacity-70 text-center">
-                    🎬 Create your perfect reading atmosphere
-                  </p>
-
-                  {/* Immersive Mode Toggle */}
-                  <div className="flex items-center justify-between p-3 bg-white/60 dark:bg-black/30 rounded-xl border border-indigo-200 dark:border-indigo-700">
+                  {/* Live Reading Speed Toggle */}
+                  <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
                     <div className="flex items-center gap-2">
-                      <Eye className="w-4 h-4 text-indigo-500" />
-                      <span className="text-sm font-bold">Immersive Mode</span>
+                      <Zap className="w-4 h-4 text-orange-500" />
+                      <span className="text-sm font-semibold">
+                        Show Reading Speed
+                      </span>
                     </div>
                     <button
-                      onClick={() => setImmersiveMode(!immersiveMode)}
-                      className={`relative w-14 h-7 rounded-full transition-all ${
-                        immersiveMode
-                          ? "bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg"
+                      onClick={() =>
+                        setShowReadingSpeedLive(!showReadingSpeedLive)
+                      }
+                      className={`relative w-12 h-6 rounded-full transition-colors ${
+                        showReadingSpeedLive
+                          ? "bg-purple-500"
                           : "bg-gray-300 dark:bg-gray-600"
                       }`}
                     >
                       <div
-                        className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform shadow-md ${
-                          immersiveMode ? "translate-x-8" : "translate-x-1"
+                        className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                          showReadingSpeedLive
+                            ? "translate-x-7"
+                            : "translate-x-1"
                         }`}
                       />
                     </button>
                   </div>
 
-                  {immersiveMode && (
-                    <>
-                      {/* Background Type Selector */}
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-semibold opacity-70">
-                          Background Type
-                        </h4>
-                        <div className="grid grid-cols-3 gap-2">
-                          {(["image", "video", "gradient"] as const).map(
-                            (type) => (
-                              <button
-                                key={type}
-                                onClick={() => setBackgroundType(type)}
-                                className={`px-3 py-2 rounded-lg border-2 capitalize transition-all text-xs font-semibold ${
-                                  backgroundType === type
-                                    ? "border-indigo-500 bg-indigo-100 dark:bg-indigo-900/40 shadow-md"
-                                    : "border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-300"
-                                }`}
-                              >
-                                {type}
-                              </button>
-                            )
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Background URL Input */}
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-semibold opacity-70">
-                          Background URL
-                        </h4>
+                  {/* 🎨 CUSTOM TEXT COLOR MIXER - ULTIMATE PERSONALIZATION! */}
+                  <div className="space-y-3 p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-700">
+                    <h4 className="text-sm font-bold flex items-center gap-2">
+                      <Palette className="w-4 h-4" />
+                      Custom Text Color
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
                         <input
-                          type="text"
-                          value={backgroundUrl}
-                          onChange={(e) => setBackgroundUrl(e.target.value)}
-                          placeholder={
-                            backgroundType === "gradient"
-                              ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                              : "https://images.unsplash.com/..."
-                          }
-                          className="w-full px-3 py-2 rounded-lg border-2 border-indigo-300 focus:border-indigo-500 focus:outline-none text-sm"
+                          type="color"
+                          value={customTextColor || "#000000"}
+                          onChange={(e) => setCustomTextColor(e.target.value)}
+                          className="w-12 h-12 rounded-xl cursor-pointer border-2 border-purple-300"
                         />
-                        <p className="text-xs opacity-60">
-                          💡 Tip: Use Unsplash for stunning images!
-                        </p>
-                      </div>
-
-                      {/* Background Opacity Slider */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-semibold opacity-70">
-                            Opacity
-                          </h4>
-                          <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
-                            {Math.round(backgroundOpacity * 100)}%
-                          </span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0"
-                          max="1"
-                          step="0.01"
-                          value={backgroundOpacity}
-                          onChange={(e) =>
-                            setBackgroundOpacity(parseFloat(e.target.value))
-                          }
-                          className="w-full h-2 bg-gradient-to-r from-transparent to-indigo-500 rounded-lg appearance-none cursor-pointer"
-                          style={{
-                            background: `linear-gradient(to right, transparent 0%, rgba(99, 102, 241, ${backgroundOpacity}) 100%)`,
-                          }}
-                        />
-                      </div>
-
-                      {/* Background Blur Slider */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-sm font-semibold opacity-70">
-                            Blur Amount
-                          </h4>
-                          <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
-                            {backgroundBlur}px
-                          </span>
-                        </div>
-                        <input
-                          type="range"
-                          min="0"
-                          max="20"
-                          step="1"
-                          value={backgroundBlur}
-                          onChange={(e) =>
-                            setBackgroundBlur(parseInt(e.target.value))
-                          }
-                          className="w-full h-2 bg-gradient-to-r from-indigo-200 to-indigo-500 rounded-lg appearance-none cursor-pointer"
-                        />
-                      </div>
-
-                      {/* Quick Background Suggestions */}
-                      <div className="space-y-2">
-                        <h4 className="text-sm font-semibold opacity-70">
-                          Quick Suggestions
-                        </h4>
-                        <div className="grid grid-cols-2 gap-2">
-                          {[
-                            {
-                              name: "Beach",
-                              url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-                            },
-                            {
-                              name: "Mountains",
-                              url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
-                            },
-                            {
-                              name: "Forest",
-                              url: "https://images.unsplash.com/photo-1511497584788-876760111969",
-                            },
-                            {
-                              name: "City",
-                              url: "https://images.unsplash.com/photo-1514565131-fce0801e5785",
-                            },
-                          ].map((suggestion) => (
-                            <button
-                              key={suggestion.name}
-                              onClick={() => {
-                                setBackgroundUrl(suggestion.url);
-                                setBackgroundType("image");
-                              }}
-                              className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
-                            >
-                              {suggestion.name}
-                            </button>
-                          ))}
+                        <div className="flex-1">
+                          <input
+                            type="text"
+                            value={customTextColor}
+                            onChange={(e) => setCustomTextColor(e.target.value)}
+                            placeholder="#000000"
+                            className="w-full px-3 py-2 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none text-sm font-mono"
+                          />
                         </div>
                       </div>
-
-                      {/* Preview */}
-                      {backgroundUrl && (
-                        <div className="p-3 rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-white/50 dark:bg-black/30">
-                          <p className="text-xs font-semibold mb-2 opacity-70">
-                            Preview
+                      <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-black/20 rounded-lg">
+                        <span className="text-xs font-semibold">
+                          Use Custom Color
+                        </span>
+                        <button
+                          onClick={() =>
+                            setUseCustomTextColor(!useCustomTextColor)
+                          }
+                          className={`relative w-10 h-5 rounded-full transition-colors ${
+                            useCustomTextColor
+                              ? "bg-purple-500"
+                              : "bg-gray-300 dark:bg-gray-600"
+                          }`}
+                        >
+                          <div
+                            className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                              useCustomTextColor
+                                ? "translate-x-5"
+                                : "translate-x-0.5"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      {useCustomTextColor && customTextColor && (
+                        <div className="p-3 rounded-lg border-2 border-purple-300 bg-white dark:bg-gray-800">
+                          <p
+                            style={{ color: customTextColor }}
+                            className="text-sm font-semibold"
+                          >
+                            Preview: This is how your text will look! 📖
                           </p>
-                          <div className="relative h-24 rounded-lg overflow-hidden">
-                            <div
-                              className="absolute inset-0 bg-cover bg-center"
-                              style={{
-                                backgroundImage:
-                                  backgroundType === "image"
-                                    ? `url(${backgroundUrl})`
-                                    : undefined,
-                                background:
-                                  backgroundType === "gradient"
-                                    ? backgroundUrl
-                                    : undefined,
-                                filter: `blur(${backgroundBlur}px)`,
-                                opacity: backgroundOpacity,
-                              }}
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-center opacity-60">
+                      🎨 Mix your perfect reading color
+                    </p>
+                  </div>
+
+                  {/* 🎭🌟 ATMOSPHERE PRESETS - ONE-CLICK MOOD TRANSFORMATION! */}
+                  <div className="space-y-4 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 dark:from-purple-900/30 dark:via-pink-900/30 dark:to-orange-900/30 rounded-xl border-2 border-purple-300 dark:border-purple-700 shadow-xl">
+                    <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-purple-500" />
+                      🎭 Atmosphere Presets
+                    </h3>
+                    <p className="text-xs opacity-70 text-center">
+                      ✨ Transform your reading experience in one click
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {Object.entries(atmospherePresets).map(
+                        ([key, preset]) => (
+                          <button
+                            key={key}
+                            onClick={() => applyAtmospherePreset(key)}
+                            className={`p-4 rounded-xl border-2 transition-all hover:scale-105 hover:shadow-lg ${
+                              atmospherePreset === key
+                                ? "border-purple-500 bg-purple-100 dark:bg-purple-900/40 shadow-lg ring-2 ring-purple-300"
+                                : "border-purple-200 dark:border-purple-700 bg-white/50 dark:bg-black/20 hover:border-purple-400"
+                            }`}
+                          >
+                            <div className="text-3xl mb-2 filter drop-shadow">
+                              {preset.name.split(" ")[0]}
+                            </div>
+                            <div className="font-bold text-sm">
+                              {preset.name.split(" ").slice(1).join(" ")}
+                            </div>
+                            <div className="text-xs opacity-60 mt-1 line-clamp-2">
+                              {preset.description}
+                            </div>
+                            {atmospherePreset === key && (
+                              <div className="mt-2 flex items-center justify-center gap-1 text-xs text-purple-600 dark:text-purple-400 font-semibold">
+                                <Check className="w-3 h-3" />
+                                Active
+                              </div>
+                            )}
+                          </button>
+                        )
+                      )}
+                    </div>
+
+                    {atmospherePreset && (
+                      <button
+                        onClick={() => {
+                          setAtmospherePreset(null);
+                          setImmersiveMode(false);
+                        }}
+                        className="w-full py-2 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all text-sm font-semibold"
+                      >
+                        Clear Preset
+                      </button>
+                    )}
+                  </div>
+
+                  {/* 🌟 IMMERSIVE BACKGROUND CONTROLS - CINEMA-QUALITY READING! */}
+                  <div className="space-y-4 p-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-xl border-2 border-indigo-300 dark:border-indigo-700 shadow-xl">
+                    <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-indigo-500" />
+                      🌟 Immersive Backgrounds
+                    </h3>
+                    <p className="text-xs opacity-70 text-center">
+                      🎬 Create your perfect reading atmosphere
+                    </p>
+
+                    {/* Immersive Mode Toggle */}
+                    <div className="flex items-center justify-between p-3 bg-white/60 dark:bg-black/30 rounded-xl border border-indigo-200 dark:border-indigo-700">
+                      <div className="flex items-center gap-2">
+                        <Eye className="w-4 h-4 text-indigo-500" />
+                        <span className="text-sm font-bold">
+                          Immersive Mode
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setImmersiveMode(!immersiveMode)}
+                        className={`relative w-14 h-7 rounded-full transition-all ${
+                          immersiveMode
+                            ? "bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg"
+                            : "bg-gray-300 dark:bg-gray-600"
+                        }`}
+                      >
+                        <div
+                          className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform shadow-md ${
+                            immersiveMode ? "translate-x-8" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {immersiveMode && (
+                      <>
+                        {/* Background Type Selector */}
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-semibold opacity-70">
+                            Background Type
+                          </h4>
+                          <div className="grid grid-cols-3 gap-2">
+                            {(["image", "video", "gradient"] as const).map(
+                              (type) => (
+                                <button
+                                  key={type}
+                                  onClick={() => setBackgroundType(type)}
+                                  className={`px-3 py-2 rounded-lg border-2 capitalize transition-all text-xs font-semibold ${
+                                    backgroundType === type
+                                      ? "border-indigo-500 bg-indigo-100 dark:bg-indigo-900/40 shadow-md"
+                                      : "border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-300"
+                                  }`}
+                                >
+                                  {type}
+                                </button>
+                              )
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Background URL Input */}
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-semibold opacity-70">
+                            Background URL
+                          </h4>
+                          <input
+                            type="text"
+                            value={backgroundUrl}
+                            onChange={(e) => setBackgroundUrl(e.target.value)}
+                            placeholder={
+                              backgroundType === "gradient"
+                                ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                                : "https://images.unsplash.com/..."
+                            }
+                            className="w-full px-3 py-2 rounded-lg border-2 border-indigo-300 focus:border-indigo-500 focus:outline-none text-sm"
+                          />
+                          <p className="text-xs opacity-60">
+                            💡 Tip: Use Unsplash for stunning images!
+                          </p>
+                        </div>
+
+                        {/* Background Opacity Slider */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-sm font-semibold opacity-70">
+                              Opacity
+                            </h4>
+                            <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
+                              {Math.round(backgroundOpacity * 100)}%
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value={backgroundOpacity}
+                            onChange={(e) =>
+                              setBackgroundOpacity(parseFloat(e.target.value))
+                            }
+                            className="w-full h-2 bg-gradient-to-r from-transparent to-indigo-500 rounded-lg appearance-none cursor-pointer"
+                            style={{
+                              background: `linear-gradient(to right, transparent 0%, rgba(99, 102, 241, ${backgroundOpacity}) 100%)`,
+                            }}
+                          />
+                        </div>
+
+                        {/* Background Blur Slider */}
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-sm font-semibold opacity-70">
+                              Blur Amount
+                            </h4>
+                            <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
+                              {backgroundBlur}px
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0"
+                            max="20"
+                            step="1"
+                            value={backgroundBlur}
+                            onChange={(e) =>
+                              setBackgroundBlur(parseInt(e.target.value))
+                            }
+                            className="w-full h-2 bg-gradient-to-r from-indigo-200 to-indigo-500 rounded-lg appearance-none cursor-pointer"
+                          />
+                        </div>
+
+                        {/* Quick Background Suggestions */}
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-semibold opacity-70">
+                            Quick Suggestions
+                          </h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {[
+                              {
+                                name: "Beach",
+                                url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
+                              },
+                              {
+                                name: "Mountains",
+                                url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
+                              },
+                              {
+                                name: "Forest",
+                                url: "https://images.unsplash.com/photo-1511497584788-876760111969",
+                              },
+                              {
+                                name: "City",
+                                url: "https://images.unsplash.com/photo-1514565131-fce0801e5785",
+                              },
+                            ].map((suggestion) => (
+                              <button
+                                key={suggestion.name}
+                                onClick={() => {
+                                  setBackgroundUrl(suggestion.url);
+                                  setBackgroundType("image");
+                                }}
+                                className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
+                              >
+                                {suggestion.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Preview */}
+                        {backgroundUrl && (
+                          <div className="p-3 rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-white/50 dark:bg-black/30">
+                            <p className="text-xs font-semibold mb-2 opacity-70">
+                              Preview
+                            </p>
+                            <div className="relative h-24 rounded-lg overflow-hidden">
+                              <div
+                                className="absolute inset-0 bg-cover bg-center"
+                                style={{
+                                  backgroundImage:
+                                    backgroundType === "image"
+                                      ? `url(${backgroundUrl})`
+                                      : undefined,
+                                  background:
+                                    backgroundType === "gradient"
+                                      ? backgroundUrl
+                                      : undefined,
+                                  filter: `blur(${backgroundBlur}px)`,
+                                  opacity: backgroundOpacity,
+                                }}
+                              />
+                              <div className="relative z-10 flex items-center justify-center h-full">
+                                <p className="text-sm font-bold drop-shadow-lg">
+                                  Your Reading Text
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* 🔥🎵 AUDIO ATMOSPHERE CONTROLS (REVOLUTIONARY!) */}
+                    <div className="space-y-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">🎵</span>
+                          <span className="text-sm font-bold">Audio Atmosphere</span>
+                        </div>
+                        <button
+                          onClick={() => setAudioAtmosphere(!audioAtmosphere)}
+                          className={`relative w-12 h-6 rounded-full transition-all ${
+                            audioAtmosphere
+                              ? "bg-gradient-to-r from-purple-500 to-pink-500"
+                              : "bg-gray-300 dark:bg-gray-600"
+                          }`}
+                        >
+                          <div
+                            className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                              audioAtmosphere ? "translate-x-7" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      
+                      {audioAtmosphere && (
+                        <>
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-xs font-semibold opacity-70">
+                                Audio Volume
+                              </h4>
+                              <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
+                                {Math.round(audioVolume * 100)}%
+                              </span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max="1"
+                              step="0.01"
+                              value={audioVolume}
+                              onChange={(e) =>
+                                setAudioVolume(parseFloat(e.target.value))
+                              }
+                              className="w-full h-2 bg-gradient-to-r from-purple-300 to-pink-500 rounded-lg appearance-none cursor-pointer"
                             />
-                            <div className="relative z-10 flex items-center justify-center h-full">
-                              <p className="text-sm font-bold drop-shadow-lg">
-                                Your Reading Text
-                              </p>
+                          </div>
+                          <p className="text-xs opacity-60 text-center">
+                            🎧 Ambient sounds sync with your atmosphere
+                          </p>
+                        </>
+                      )}
+                    </div>
+
+                    {/* 🌊✨ PARALLAX EFFECT CONTROLS (DEPTH MAGIC!) */}
+                    {immersiveMode && (
+                      <div className="space-y-3 p-3 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">🌊</span>
+                            <span className="text-sm font-bold">Parallax Effect</span>
+                          </div>
+                          <button
+                            onClick={() => setParallaxEffect(!parallaxEffect)}
+                            className={`relative w-12 h-6 rounded-full transition-all ${
+                              parallaxEffect
+                                ? "bg-gradient-to-r from-blue-500 to-cyan-500"
+                                : "bg-gray-300 dark:bg-gray-600"
+                            }`}
+                          >
+                            <div
+                              className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                                parallaxEffect ? "translate-x-7" : "translate-x-1"
+                              }`}
+                            />
+                          </button>
+                        </div>
+                        
+                        {parallaxEffect && (
+                          <>
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-xs font-semibold opacity-70">
+                                  Intensity
+                                </h4>
+                                <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
+                                  {parallaxIntensity}%
+                                </span>
+                              </div>
+                              <input
+                                type="range"
+                                min="0"
+                                max="20"
+                                step="1"
+                                value={parallaxIntensity}
+                                onChange={(e) =>
+                                  setParallaxIntensity(parseInt(e.target.value))
+                                }
+                                className="w-full h-2 bg-gradient-to-r from-blue-300 to-cyan-500 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+                            <p className="text-xs opacity-60 text-center">
+                              ✨ Subtle background movement as you scroll
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {/* ⏰🌅 TIME-BASED AUTO-SWITCHING (AI-POWERED!) */}
+                    <div className="space-y-3 p-3 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-xl border border-orange-200 dark:border-orange-700">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">⏰</span>
+                          <span className="text-sm font-bold">Smart Time Switching</span>
+                        </div>
+                        <button
+                          onClick={() => setAutoTimeSwitch(!autoTimeSwitch)}
+                          className={`relative w-12 h-6 rounded-full transition-all ${
+                            autoTimeSwitch
+                              ? "bg-gradient-to-r from-orange-500 to-yellow-500"
+                              : "bg-gray-300 dark:bg-gray-600"
+                          }`}
+                        >
+                          <div
+                            className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                              autoTimeSwitch ? "translate-x-7" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      
+                      {autoTimeSwitch && (
+                        <div className="space-y-2">
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className={`p-2 rounded-lg ${currentTimeOfDay === "dawn" ? "bg-orange-200 dark:bg-orange-900/40 font-bold" : "bg-white/50 dark:bg-black/20"}`}>
+                              🌅 Dawn (5-8am)
+                            </div>
+                            <div className={`p-2 rounded-lg ${currentTimeOfDay === "day" ? "bg-blue-200 dark:bg-blue-900/40 font-bold" : "bg-white/50 dark:bg-black/20"}`}>
+                              ☀️ Day (8am-5pm)
+                            </div>
+                            <div className={`p-2 rounded-lg ${currentTimeOfDay === "dusk" ? "bg-purple-200 dark:bg-purple-900/40 font-bold" : "bg-white/50 dark:bg-black/20"}`}>
+                              🌆 Dusk (5-8pm)
+                            </div>
+                            <div className={`p-2 rounded-lg ${currentTimeOfDay === "night" ? "bg-indigo-200 dark:bg-indigo-900/40 font-bold" : "bg-white/50 dark:bg-black/20"}`}>
+                              🌙 Night (8pm-5am)
+                            </div>
+                          </div>
+                          <p className="text-xs opacity-60 text-center">
+                            🤖 AI automatically switches atmosphere based on time
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-center opacity-60 pt-2 border-t border-indigo-200 dark:border-indigo-700">
+                      🎬 Cinema-quality reading experience
+                    </p>
+                  </div>
+                </div>
+
+                {/* Reset Button */}
+                <button
+                  onClick={() => {
+                    setFontSize(18);
+                    setLineHeight(1.8);
+                    setFontFamily("serif");
+                    setTheme("light");
+                    setPageTransition("fade");
+                    setAccentColor("purple");
+                    setShowReadingSpeedLive(true);
+                    setCustomTextColor("");
+                    setUseCustomTextColor(false);
+                    setLayout("standard");
+                    setColumnMode(1);
+                  }}
+                  className={`w-full px-4 py-3 ${currentTheme.secondary} rounded-xl hover:scale-105 transition-transform flex items-center justify-center gap-2`}
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset to Defaults
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===========================================
+          READING STATS MODAL
+          =========================================== */}
+        {showReadingStats && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowReadingStats(false)}
+            />
+
+            <div
+              className={`relative ${currentTheme.bg} rounded-3xl p-8 max-w-md w-full shadow-2xl border ${currentTheme.border}`}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <Trophy className="w-6 h-6 text-amber-500" />
+                  Reading Stats
+                </h2>
+                <button
+                  onClick={() => setShowReadingStats(false)}
+                  className={`p-2 ${currentTheme.secondary} rounded-lg`}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className={`${currentTheme.card} rounded-2xl p-6`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm opacity-60">
+                      Total Reading Time
+                    </span>
+                    <Clock className="w-5 h-5 text-purple-500" />
+                  </div>
+                  <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    {Math.floor(totalReadingTime)} min
+                  </div>
+                </div>
+
+                <div className={`${currentTheme.card} rounded-2xl p-6`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm opacity-60">Words Read</span>
+                    <BookOpen className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                    {wordsRead.toLocaleString()}
+                  </div>
+                </div>
+
+                <div className={`${currentTheme.card} rounded-2xl p-6`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm opacity-60">Reading Streak</span>
+                    <Flame className="w-5 h-5 text-orange-500" />
+                  </div>
+                  <div className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                    {streak} days
+                  </div>
+                </div>
+
+                <div className={`${currentTheme.card} rounded-2xl p-6`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm opacity-60">Completion</span>
+                    <Target className="w-5 h-5 text-green-500" />
+                  </div>
+                  <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                    {Math.round(completionPercentage)}%
+                  </div>
+                </div>
+              </div>
+
+              {/* Daily Goal Progress */}
+              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-medium">Daily Goal</span>
+                  <span className="text-sm opacity-60">
+                    {Math.floor(totalReadingTime)} / {dailyGoal} min
+                  </span>
+                </div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-500"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        (totalReadingTime / dailyGoal) * 100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ===========================================
+          MAIN READING CONTENT
+          =========================================== */}
+        <main className="flex-1 flex">
+          <div className="flex-1">
+            <div
+              className={`${layouts[layout]} mx-auto px-4 sm:px-6 lg:px-8 ${
+                zenMode ? "py-24" : "py-12"
+              }`}
+            >
+              {/* Page Info (if not Zen mode) */}
+              {!zenMode && (
+                <div className="flex items-center justify-between mb-8">
+                  <span className="text-sm font-medium opacity-60">
+                    Page {currentPage} of {totalPages}
+                  </span>
+
+                  <div className="flex items-center gap-4">
+                    {bookmarks.length > 0 && (
+                      <button
+                        onClick={() => setShowBookmarks(!showBookmarks)}
+                        className="flex items-center gap-2 text-sm opacity-60 hover:opacity-100 transition-opacity"
+                      >
+                        <Bookmark className="w-4 h-4" />
+                        {bookmarks.length} bookmarks
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Content */}
+              {loading ? (
+                <div className="flex items-center justify-center py-20">
+                  <div className="relative">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-200 dark:border-purple-800 border-t-purple-600 dark:border-t-purple-400"></div>
+                    <BookOpen className="absolute inset-0 m-auto w-6 h-6 text-purple-500 animate-pulse" />
+                  </div>
+                </div>
+              ) : showPaywall ? (
+                <div className="text-center py-20">
+                  {/* Premium Paywall */}
+                  <div
+                    className={`inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-full mb-8 animate-pulse`}
+                  >
+                    <Crown className="w-12 h-12 text-purple-600 dark:text-purple-400" />
+                  </div>
+
+                  <h3
+                    className={`text-4xl font-bold mb-4 bg-gradient-to-r ${currentTheme.accent} bg-clip-text text-transparent`}
+                  >
+                    🔒 Unlock Dynasty Premium
+                  </h3>
+
+                  <p className="text-xl font-medium mb-2">
+                    You've completed the free preview!
+                  </p>
+                  <p className="text-lg opacity-70 mb-8">
+                    Continue your journey through all {totalPages} pages
+                  </p>
+
+                  {/* Pricing Card */}
+                  <div
+                    className={`${currentTheme.card} rounded-3xl p-8 mb-8 border-2 ${currentTheme.border} max-w-md mx-auto`}
+                  >
+                    {salePrice ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-center gap-4">
+                          <span
+                            className={`text-6xl font-bold bg-gradient-to-r ${currentTheme.accent} bg-clip-text text-transparent`}
+                          >
+                            R{salePrice.toFixed(2)}
+                          </span>
+                          <div>
+                            <span className="text-3xl line-through opacity-40">
+                              R{price.toFixed(2)}
+                            </span>
+                            <div className="text-sm font-bold text-green-600 dark:text-green-400">
+                              Save{" "}
+                              {Math.round(((price - salePrice) / price) * 100)}%
+                              🔥
                             </div>
                           </div>
                         </div>
-                      )}
-                    </>
-                  )}
-
-                  <p className="text-xs text-center opacity-60 pt-2 border-t border-indigo-200 dark:border-indigo-700">
-                    🎬 Cinema-quality reading experience
-                  </p>
-                </div>
-              </div>
-
-              {/* Reset Button */}
-              <button
-                onClick={() => {
-                  setFontSize(18);
-                  setLineHeight(1.8);
-                  setFontFamily("serif");
-                  setTheme("light");
-                  setPageTransition("fade");
-                  setAccentColor("purple");
-                  setShowReadingSpeedLive(true);
-                  setCustomTextColor("");
-                  setUseCustomTextColor(false);
-                  setLayout("standard");
-                  setColumnMode(1);
-                }}
-                className={`w-full px-4 py-3 ${currentTheme.secondary} rounded-xl hover:scale-105 transition-transform flex items-center justify-center gap-2`}
-              >
-                <RotateCcw className="w-4 h-4" />
-                Reset to Defaults
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===========================================
-          READING STATS MODAL
-          =========================================== */}
-      {showReadingStats && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowReadingStats(false)}
-          />
-
-          <div
-            className={`relative ${currentTheme.bg} rounded-3xl p-8 max-w-md w-full shadow-2xl border ${currentTheme.border}`}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <Trophy className="w-6 h-6 text-amber-500" />
-                Reading Stats
-              </h2>
-              <button
-                onClick={() => setShowReadingStats(false)}
-                className={`p-2 ${currentTheme.secondary} rounded-lg`}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className={`${currentTheme.card} rounded-2xl p-6`}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm opacity-60">Total Reading Time</span>
-                  <Clock className="w-5 h-5 text-purple-500" />
-                </div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  {Math.floor(totalReadingTime)} min
-                </div>
-              </div>
-
-              <div className={`${currentTheme.card} rounded-2xl p-6`}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm opacity-60">Words Read</span>
-                  <BookOpen className="w-5 h-5 text-blue-500" />
-                </div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                  {wordsRead.toLocaleString()}
-                </div>
-              </div>
-
-              <div className={`${currentTheme.card} rounded-2xl p-6`}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm opacity-60">Reading Streak</span>
-                  <Flame className="w-5 h-5 text-orange-500" />
-                </div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                  {streak} days
-                </div>
-              </div>
-
-              <div className={`${currentTheme.card} rounded-2xl p-6`}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm opacity-60">Completion</span>
-                  <Target className="w-5 h-5 text-green-500" />
-                </div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  {Math.round(completionPercentage)}%
-                </div>
-              </div>
-            </div>
-
-            {/* Daily Goal Progress */}
-            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium">Daily Goal</span>
-                <span className="text-sm opacity-60">
-                  {Math.floor(totalReadingTime)} / {dailyGoal} min
-                </span>
-              </div>
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-500"
-                  style={{
-                    width: `${Math.min(
-                      100,
-                      (totalReadingTime / dailyGoal) * 100
-                    )}%`,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===========================================
-          MAIN READING CONTENT
-          =========================================== */}
-      <main className="flex-1 flex">
-        <div className="flex-1">
-          <div
-            className={`${layouts[layout]} mx-auto px-4 sm:px-6 lg:px-8 ${
-              zenMode ? "py-24" : "py-12"
-            }`}
-          >
-            {/* Page Info (if not Zen mode) */}
-            {!zenMode && (
-              <div className="flex items-center justify-between mb-8">
-                <span className="text-sm font-medium opacity-60">
-                  Page {currentPage} of {totalPages}
-                </span>
-
-                <div className="flex items-center gap-4">
-                  {bookmarks.length > 0 && (
-                    <button
-                      onClick={() => setShowBookmarks(!showBookmarks)}
-                      className="flex items-center gap-2 text-sm opacity-60 hover:opacity-100 transition-opacity"
-                    >
-                      <Bookmark className="w-4 h-4" />
-                      {bookmarks.length} bookmarks
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Content */}
-            {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <div className="relative">
-                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-200 dark:border-purple-800 border-t-purple-600 dark:border-t-purple-400"></div>
-                  <BookOpen className="absolute inset-0 m-auto w-6 h-6 text-purple-500 animate-pulse" />
-                </div>
-              </div>
-            ) : showPaywall ? (
-              <div className="text-center py-20">
-                {/* Premium Paywall */}
-                <div
-                  className={`inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-full mb-8 animate-pulse`}
-                >
-                  <Crown className="w-12 h-12 text-purple-600 dark:text-purple-400" />
-                </div>
-
-                <h3
-                  className={`text-4xl font-bold mb-4 bg-gradient-to-r ${currentTheme.accent} bg-clip-text text-transparent`}
-                >
-                  🔒 Unlock Dynasty Premium
-                </h3>
-
-                <p className="text-xl font-medium mb-2">
-                  You've completed the free preview!
-                </p>
-                <p className="text-lg opacity-70 mb-8">
-                  Continue your journey through all {totalPages} pages
-                </p>
-
-                {/* Pricing Card */}
-                <div
-                  className={`${currentTheme.card} rounded-3xl p-8 mb-8 border-2 ${currentTheme.border} max-w-md mx-auto`}
-                >
-                  {salePrice ? (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-center gap-4">
-                        <span
-                          className={`text-6xl font-bold bg-gradient-to-r ${currentTheme.accent} bg-clip-text text-transparent`}
-                        >
-                          R{salePrice.toFixed(2)}
-                        </span>
-                        <div>
-                          <span className="text-3xl line-through opacity-40">
-                            R{price.toFixed(2)}
-                          </span>
-                          <div className="text-sm font-bold text-green-600 dark:text-green-400">
-                            Save{" "}
-                            {Math.round(((price - salePrice) / price) * 100)}%
-                            🔥
-                          </div>
-                        </div>
+                        <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+                          💎 Early Reader Discount - Limited Time!
+                        </p>
                       </div>
-                      <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
-                        💎 Early Reader Discount - Limited Time!
-                      </p>
+                    ) : (
+                      <div
+                        className={`text-6xl font-bold bg-gradient-to-r ${currentTheme.accent} bg-clip-text text-transparent`}
+                      >
+                        R{price.toFixed(2)}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Benefits Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 max-w-2xl mx-auto">
+                    <div className={`${currentTheme.card} rounded-2xl p-4`}>
+                      <Unlock className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                      <p className="text-sm font-semibold">Full Access</p>
                     </div>
-                  ) : (
-                    <div
-                      className={`text-6xl font-bold bg-gradient-to-r ${currentTheme.accent} bg-clip-text text-transparent`}
+                    <div className={`${currentTheme.card} rounded-2xl p-4`}>
+                      <Download className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                      <p className="text-sm font-semibold">Download</p>
+                    </div>
+                    <div className={`${currentTheme.card} rounded-2xl p-4`}>
+                      <Headphones className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                      <p className="text-sm font-semibold">Audio TTS</p>
+                    </div>
+                    <div className={`${currentTheme.card} rounded-2xl p-4`}>
+                      <Trophy className="w-8 h-8 text-amber-500 mx-auto mb-2" />
+                      <p className="text-sm font-semibold">Lifetime</p>
+                    </div>
+                  </div>
+
+                  {/* CTA Buttons */}
+                  <div className="flex flex-col items-center gap-4 max-w-md mx-auto">
+                    <Button
+                      size="lg"
+                      onClick={() => handlePurchase("book")}
+                      className={`w-full bg-gradient-to-r ${currentTheme.accent} hover:scale-105 text-white font-bold py-6 text-lg shadow-2xl transition-all duration-300`}
                     >
-                      R{price.toFixed(2)}
-                    </div>
-                  )}
-                </div>
+                      <Zap className="w-5 h-5 mr-2" />
+                      Purchase Book - Full Access
+                    </Button>
 
-                {/* Benefits Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 max-w-2xl mx-auto">
-                  <div className={`${currentTheme.card} rounded-2xl p-4`}>
-                    <Unlock className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                    <p className="text-sm font-semibold">Full Access</p>
-                  </div>
-                  <div className={`${currentTheme.card} rounded-2xl p-4`}>
-                    <Download className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                    <p className="text-sm font-semibold">Download</p>
-                  </div>
-                  <div className={`${currentTheme.card} rounded-2xl p-4`}>
-                    <Headphones className="w-8 h-8 text-purple-500 mx-auto mb-2" />
-                    <p className="text-sm font-semibold">Audio TTS</p>
-                  </div>
-                  <div className={`${currentTheme.card} rounded-2xl p-4`}>
-                    <Trophy className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-                    <p className="text-sm font-semibold">Lifetime</p>
+                    <div className="text-sm opacity-50">or</div>
+
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() => handlePurchase("subscription")}
+                      className={`w-full border-2 ${currentTheme.border} hover:scale-105 font-semibold transition-transform`}
+                    >
+                      📚 Subscribe for Unlimited Books
+                    </Button>
                   </div>
                 </div>
-
-                {/* CTA Buttons */}
-                <div className="flex flex-col items-center gap-4 max-w-md mx-auto">
-                  <Button
-                    size="lg"
-                    onClick={() => handlePurchase("book")}
-                    className={`w-full bg-gradient-to-r ${currentTheme.accent} hover:scale-105 text-white font-bold py-6 text-lg shadow-2xl transition-all duration-300`}
-                  >
-                    <Zap className="w-5 h-5 mr-2" />
-                    Purchase Book - Full Access
-                  </Button>
-
-                  <div className="text-sm opacity-50">or</div>
-
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={() => handlePurchase("subscription")}
-                    className={`w-full border-2 ${currentTheme.border} hover:scale-105 font-semibold transition-transform`}
-                  >
-                    📚 Subscribe for Unlimited Books
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-8">
-                {/* Listen Mode */}
-                {listenMode ? (
-                  <ListenModeLuxury
-                    bookSlug={slug}
-                    chapterNumber={currentPage}
-                    pageContent={pageContent}
-                    isPremiumUser={isPremium}
-                  />
-                ) : (
-                  <>
-                    {/* Reading Content - LUXURY PAGE TRANSITIONS! */}
-                    <article
-                      ref={contentRef}
-                      className={`
+              ) : (
+                <div className="space-y-8">
+                  {/* Listen Mode */}
+                  {listenMode ? (
+                    <ListenModeLuxury
+                      bookSlug={slug}
+                      chapterNumber={currentPage}
+                      pageContent={pageContent}
+                      isPremiumUser={isPremium}
+                    />
+                  ) : (
+                    <>
+                      {/* Reading Content - LUXURY PAGE TRANSITIONS! */}
+                      <article
+                        ref={contentRef}
+                        className={`
                         prose prose-lg max-w-none leading-relaxed 
                         transition-all duration-500
                         ${
@@ -2228,265 +2507,265 @@ export default function BookReaderLuxury({
                         }
                         ${columnMode === 2 ? "columns-2 gap-8" : ""}
                       `}
-                      style={{
-                        fontSize: `${fontSize}px`,
-                        lineHeight: lineHeight,
-                        ...(useCustomTextColor && customTextColor
-                          ? { color: customTextColor }
-                          : {}),
-                      }}
-                      dangerouslySetInnerHTML={{ __html: pageContent }}
-                    />
+                        style={{
+                          fontSize: `${fontSize}px`,
+                          lineHeight: lineHeight,
+                          ...(useCustomTextColor && customTextColor
+                            ? { color: customTextColor }
+                            : {}),
+                        }}
+                        dangerouslySetInnerHTML={{ __html: pageContent }}
+                      />
 
-                    {/* Reflection CTA */}
-                    {!isTransitioning && pageContent && !focusMode && (
-                      <div
-                        className={`mt-16 pt-12 border-t ${currentTheme.border}`}
-                      >
+                      {/* Reflection CTA */}
+                      {!isTransitioning && pageContent && !focusMode && (
                         <div
-                          className={`bg-gradient-to-br ${currentTheme.gradient} rounded-3xl p-8 sm:p-12 border ${currentTheme.border}`}
+                          className={`mt-16 pt-12 border-t ${currentTheme.border}`}
                         >
-                          <div className="text-center">
-                            <div
-                              className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${currentTheme.accent} rounded-full mb-6 shadow-lg`}
-                            >
-                              <Lightbulb className="w-8 h-8 text-white" />
-                            </div>
-
-                            <h3
-                              className={`text-3xl font-bold bg-gradient-to-r ${currentTheme.accent} bg-clip-text text-transparent mb-3`}
-                            >
-                              ✨ Reflect on this Chapter
-                            </h3>
-
-                            <p className="text-base opacity-70 mb-8 max-w-lg mx-auto">
-                              What was your biggest realization? Share your
-                              insight with the Dynasty community and transform
-                              reading into wisdom.
-                            </p>
-
-                            <button
-                              onClick={() => setShowReflectionModal(true)}
-                              className={`inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r ${currentTheme.accent} hover:scale-105 text-white font-bold rounded-2xl transition-all shadow-xl`}
-                            >
-                              <MessageCircle className="w-5 h-5" />
-                              Share Your Reflection
-                            </button>
-
-                            <div className="mt-6 flex items-center justify-center gap-6 text-sm opacity-60">
-                              <div className="flex items-center gap-2">
-                                <Star className="w-4 h-4" />
-                                <span>Earn Dynasty Points</span>
+                          <div
+                            className={`bg-gradient-to-br ${currentTheme.gradient} rounded-3xl p-8 sm:p-12 border ${currentTheme.border}`}
+                          >
+                            <div className="text-center">
+                              <div
+                                className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br ${currentTheme.accent} rounded-full mb-6 shadow-lg`}
+                              >
+                                <Lightbulb className="w-8 h-8 text-white" />
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Award className="w-4 h-4" />
-                                <span>"Chapter Contributor" badge</span>
+
+                              <h3
+                                className={`text-3xl font-bold bg-gradient-to-r ${currentTheme.accent} bg-clip-text text-transparent mb-3`}
+                              >
+                                ✨ Reflect on this Chapter
+                              </h3>
+
+                              <p className="text-base opacity-70 mb-8 max-w-lg mx-auto">
+                                What was your biggest realization? Share your
+                                insight with the Dynasty community and transform
+                                reading into wisdom.
+                              </p>
+
+                              <button
+                                onClick={() => setShowReflectionModal(true)}
+                                className={`inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r ${currentTheme.accent} hover:scale-105 text-white font-bold rounded-2xl transition-all shadow-xl`}
+                              >
+                                <MessageCircle className="w-5 h-5" />
+                                Share Your Reflection
+                              </button>
+
+                              <div className="mt-6 flex items-center justify-center gap-6 text-sm opacity-60">
+                                <div className="flex items-center gap-2">
+                                  <Star className="w-4 h-4" />
+                                  <span>Earn Dynasty Points</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Award className="w-4 h-4" />
+                                  <span>"Chapter Contributor" badge</span>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
 
-      {/* ===========================================
+        {/* ===========================================
           REFLECTION MODAL
           =========================================== */}
-      <ReflectionModal
-        isOpen={showReflectionModal}
-        onClose={() => setShowReflectionModal(false)}
-        bookId={bookId}
-        bookTitle={bookTitle}
-        chapterNumber={currentPage}
-        onSubmit={handleReflectionSubmit}
-      />
+        <ReflectionModal
+          isOpen={showReflectionModal}
+          onClose={() => setShowReflectionModal(false)}
+          bookId={bookId}
+          bookTitle={bookTitle}
+          chapterNumber={currentPage}
+          onSubmit={handleReflectionSubmit}
+        />
 
-      {/* ===========================================
+        {/* ===========================================
           FOOTER NAVIGATION
           =========================================== */}
-      {!zenMode && (
-        <footer
-          className={`${currentTheme.secondary} border-t ${currentTheme.border} sticky bottom-0 z-50 backdrop-blur-xl bg-opacity-90`}
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              {/* Previous Button */}
-              <Button
-                variant="ghost"
-                onClick={prevPage}
-                disabled={currentPage === 1}
-                className="disabled:opacity-30"
-              >
-                <ChevronLeft className="w-5 h-5 mr-2" />
-                Previous
-              </Button>
-
-              {/* Page Navigation */}
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => goToPage(Math.max(1, currentPage - 10))}
-                  className={`${currentTheme.secondary} p-2 rounded-lg hover:scale-105 transition-transform`}
-                  title="Jump back 10 pages"
+        {!zenMode && (
+          <footer
+            className={`${currentTheme.secondary} border-t ${currentTheme.border} sticky bottom-0 z-50 backdrop-blur-xl bg-opacity-90`}
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-16">
+                {/* Previous Button */}
+                <Button
+                  variant="ghost"
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                  className="disabled:opacity-30"
                 >
-                  <Rewind className="w-4 h-4" />
-                </button>
+                  <ChevronLeft className="w-5 h-5 mr-2" />
+                  Previous
+                </Button>
 
-                <div className="flex items-center gap-3">
-                  <span className="text-sm opacity-60">Page:</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max={totalPages}
-                    value={currentPage}
-                    onChange={(e) => goToPage(parseInt(e.target.value) || 1)}
-                    className={`w-20 px-3 py-2 border ${currentTheme.border} rounded-lg ${currentTheme.bg} text-center font-medium`}
-                  />
-                  <span className="text-sm opacity-60">of {totalPages}</span>
+                {/* Page Navigation */}
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => goToPage(Math.max(1, currentPage - 10))}
+                    className={`${currentTheme.secondary} p-2 rounded-lg hover:scale-105 transition-transform`}
+                    title="Jump back 10 pages"
+                  >
+                    <Rewind className="w-4 h-4" />
+                  </button>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm opacity-60">Page:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max={totalPages}
+                      value={currentPage}
+                      onChange={(e) => goToPage(parseInt(e.target.value) || 1)}
+                      className={`w-20 px-3 py-2 border ${currentTheme.border} rounded-lg ${currentTheme.bg} text-center font-medium`}
+                    />
+                    <span className="text-sm opacity-60">of {totalPages}</span>
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      goToPage(Math.min(totalPages, currentPage + 10))
+                    }
+                    className={`${currentTheme.secondary} p-2 rounded-lg hover:scale-105 transition-transform`}
+                    title="Jump forward 10 pages"
+                  >
+                    <FastForward className="w-4 h-4" />
+                  </button>
                 </div>
 
-                <button
-                  onClick={() =>
-                    goToPage(Math.min(totalPages, currentPage + 10))
-                  }
-                  className={`${currentTheme.secondary} p-2 rounded-lg hover:scale-105 transition-transform`}
-                  title="Jump forward 10 pages"
+                {/* Next Button */}
+                <Button
+                  variant="ghost"
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages}
+                  className="disabled:opacity-30"
                 >
-                  <FastForward className="w-4 h-4" />
-                </button>
+                  Next
+                  <ChevronRight className="w-5 h-5 ml-2" />
+                </Button>
               </div>
-
-              {/* Next Button */}
-              <Button
-                variant="ghost"
-                onClick={nextPage}
-                disabled={currentPage === totalPages}
-                className="disabled:opacity-30"
-              >
-                Next
-                <ChevronRight className="w-5 h-5 ml-2" />
-              </Button>
             </div>
-          </div>
-        </footer>
-      )}
+          </footer>
+        )}
 
-      {/* ===========================================
+        {/* ===========================================
           FLOATING ACTION BUTTON (Zen Mode Only)
           =========================================== */}
-      {zenMode && (
-        <div className="fixed bottom-8 right-8 flex flex-col gap-3">
-          <button
-            onClick={prevPage}
-            disabled={currentPage === 1}
-            className={`w-14 h-14 rounded-full bg-gradient-to-r ${currentTheme.accent} text-white shadow-2xl hover:scale-110 transition-all disabled:opacity-30`}
-          >
-            <ChevronLeft className="w-6 h-6 mx-auto" />
-          </button>
+        {zenMode && (
+          <div className="fixed bottom-8 right-8 flex flex-col gap-3">
+            <button
+              onClick={prevPage}
+              disabled={currentPage === 1}
+              className={`w-14 h-14 rounded-full bg-gradient-to-r ${currentTheme.accent} text-white shadow-2xl hover:scale-110 transition-all disabled:opacity-30`}
+            >
+              <ChevronLeft className="w-6 h-6 mx-auto" />
+            </button>
 
-          <button
-            onClick={() => setZenMode(false)}
-            className={`w-14 h-14 rounded-full ${currentTheme.secondary} shadow-2xl hover:scale-110 transition-all`}
-          >
-            <Settings className="w-6 h-6 mx-auto" />
-          </button>
+            <button
+              onClick={() => setZenMode(false)}
+              className={`w-14 h-14 rounded-full ${currentTheme.secondary} shadow-2xl hover:scale-110 transition-all`}
+            >
+              <Settings className="w-6 h-6 mx-auto" />
+            </button>
 
-          <button
-            onClick={nextPage}
-            disabled={currentPage === totalPages}
-            className={`w-14 h-14 rounded-full bg-gradient-to-r ${currentTheme.accent} text-white shadow-2xl hover:scale-110 transition-all disabled:opacity-30`}
-          >
-            <ChevronRight className="w-6 h-6 mx-auto" />
-          </button>
-        </div>
-      )}
+            <button
+              onClick={nextPage}
+              disabled={currentPage === totalPages}
+              className={`w-14 h-14 rounded-full bg-gradient-to-r ${currentTheme.accent} text-white shadow-2xl hover:scale-110 transition-all disabled:opacity-30`}
+            >
+              <ChevronRight className="w-6 h-6 mx-auto" />
+            </button>
+          </div>
+        )}
 
-      {/* ===========================================
+        {/* ===========================================
           KEYBOARD SHORTCUTS HINT
           =========================================== */}
-      {!zenMode && (
-        <div className="fixed bottom-24 right-8 opacity-30 hover:opacity-100 transition-opacity">
-          <div
-            className={`${currentTheme.card} rounded-2xl p-4 text-xs space-y-2 border ${currentTheme.border}`}
-          >
-            <div className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                ←
-              </kbd>
-              <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                →
-              </kbd>
-              <span>Navigate</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                Ctrl
-              </kbd>
-              <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                F
-              </kbd>
-              <span>Focus Mode</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                Ctrl
-              </kbd>
-              <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                B
-              </kbd>
-              <span>Bookmark</span>
+        {!zenMode && (
+          <div className="fixed bottom-24 right-8 opacity-30 hover:opacity-100 transition-opacity">
+            <div
+              className={`${currentTheme.card} rounded-2xl p-4 text-xs space-y-2 border ${currentTheme.border}`}
+            >
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
+                  ←
+                </kbd>
+                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
+                  →
+                </kbd>
+                <span>Navigate</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
+                  Ctrl
+                </kbd>
+                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
+                  F
+                </kbd>
+                <span>Focus Mode</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
+                  Ctrl
+                </kbd>
+                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
+                  B
+                </kbd>
+                <span>Bookmark</span>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ===========================================
+        {/* ===========================================
           🔥 LIVE CO-READING FEATURES (NEW!)
           =========================================== */}
-      {!zenMode && (
-        <>
-          {/* Live Presence Indicator */}
-          <LivePresenceIndicator
-            readers={pageReaders}
-            count={readerCount}
-            isConnected={isConnected}
-          />
+        {!zenMode && (
+          <>
+            {/* Live Presence Indicator */}
+            <LivePresenceIndicator
+              readers={pageReaders}
+              count={readerCount}
+              isConnected={isConnected}
+            />
 
-          {/* Live Chat Widget */}
-          <LiveChatWidget
-            messages={messages}
-            typingUsers={typingUsers}
-            isLoadingMessages={isLoadingMessages}
-            hasMoreMessages={hasMoreMessages}
-            currentUserId={session?.user?.id}
-            onSendMessage={sendMessage}
-            onEditMessage={editMessage}
-            onDeleteMessage={deleteMessage}
-            onStartTyping={startTyping}
-            onLoadMore={loadMoreMessages}
-          />
+            {/* Live Chat Widget */}
+            <LiveChatWidget
+              messages={messages}
+              typingUsers={typingUsers}
+              isLoadingMessages={isLoadingMessages}
+              hasMoreMessages={hasMoreMessages}
+              currentUserId={session?.user?.id}
+              onSendMessage={sendMessage}
+              onEditMessage={editMessage}
+              onDeleteMessage={deleteMessage}
+              onStartTyping={startTyping}
+              onLoadMore={loadMoreMessages}
+            />
 
-          {/* Live Reactions */}
-          <LiveReactions reactions={reactions} onReact={sendReaction} />
+            {/* Live Reactions */}
+            <LiveReactions reactions={reactions} onReact={sendReaction} />
 
-          {/* Quick Reaction Bar */}
-          <QuickReactionBar onReact={sendReaction} currentTextIndex={0} />
+            {/* Quick Reaction Bar */}
+            <QuickReactionBar onReact={sendReaction} currentTextIndex={0} />
 
-          {/* Share Page Link */}
-          <SharePageLink
-            bookSlug={slug}
-            currentPage={currentPage}
-            bookTitle={bookTitle}
-          />
-        </>
-      )}
-      </div> {/* End of z-10 content wrapper */}
-
+            {/* Share Page Link */}
+            <SharePageLink
+              bookSlug={slug}
+              currentPage={currentPage}
+              bookTitle={bookTitle}
+            />
+          </>
+        )}
+      </div>{" "}
+      {/* End of z-10 content wrapper */}
       {/* ✨ ACHIEVEMENT TOAST NOTIFICATION - LUXURY GAMIFICATION */}
       {showAchievementToast && (
         <div className="fixed top-24 right-8 z-50 animate-slide-in-right">
