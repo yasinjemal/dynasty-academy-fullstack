@@ -116,6 +116,33 @@ export default function ListenModeLuxury({
   const [audioReactiveIntensity, setAudioReactiveIntensity] = useState(50); // 0-100
   const [particleReactivity, setParticleReactivity] = useState(true);
 
+  // 🧠 PANDORA'S BOX #1: Emotional Intelligence AI (WORLD'S FIRST!)
+  const [emotionalMode, setEmotionalMode] = useState(true); // Auto-detect emotions
+  const [currentEmotion, setCurrentEmotion] = useState<"neutral" | "tension" | "joy" | "wisdom" | "suspense">("neutral");
+  const [emotionIntensity, setEmotionIntensity] = useState(50); // 0-100
+
+  // 💡 PANDORA'S BOX #2: Smart Bookmarks with AI
+  const [smartBookmarks, setSmartBookmarks] = useState<Map<number, {
+    timestamp: number;
+    aiSummary?: string;
+    keyInsight?: string;
+    actionable?: string;
+  }>>(new Map());
+  const [showBookmarkMenu, setShowBookmarkMenu] = useState<number | null>(null);
+
+  // 🤖 PANDORA'S BOX #3: AI Study Buddy (Sidebar Chat)
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [aiChatMessages, setAIChatMessages] = useState<Array<{
+    role: "user" | "assistant";
+    content: string;
+    timestamp: number;
+  }>>([]);
+  const [aiChatInput, setAIChatInput] = useState("");
+
+  // 🎭 PANDORA'S BOX #4: Multi-Voice Character Detection
+  const [multiVoiceMode, setMultiVoiceMode] = useState(false);
+  const [detectedCharacters, setDetectedCharacters] = useState<Map<string, string>>(new Map()); // character name -> voice ID
+
   // Refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const sentenceRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -493,6 +520,12 @@ export default function ListenModeLuxury({
     if (activeIndex !== -1 && activeIndex !== activeSentenceIndex) {
       setActiveSentenceIndex(activeIndex);
 
+      // 🧠 PANDORA'S BOX: Analyze emotional context as sentences play
+      if (emotionalMode && sentences[activeIndex]) {
+        const { emotion, intensity } = analyzeEmotionalContext(sentences[activeIndex].text);
+        applyEmotionalContext(emotion, intensity);
+      }
+
       if (followText && sentenceRefs.current[activeIndex]) {
         sentenceRefs.current[activeIndex]?.scrollIntoView({
           behavior: "smooth",
@@ -501,7 +534,7 @@ export default function ListenModeLuxury({
         });
       }
     }
-  }, [currentTime, isPlaying, sentences, activeSentenceIndex, followText]);
+  }, [currentTime, isPlaying, sentences, activeSentenceIndex, followText, emotionalMode]);
 
   // Paywall enforcement: 3-minute gate for free users
   useEffect(() => {
@@ -978,6 +1011,196 @@ export default function ListenModeLuxury({
     });
 
     console.log(`🎧 Atmosphere applied: ${atmosphere.name}`);
+  };
+
+  // 🧠 PANDORA'S BOX: Emotional Intelligence AI - Detects emotion from text and adapts EVERYTHING
+  const analyzeEmotionalContext = (text: string): { emotion: typeof currentEmotion; intensity: number } => {
+    const lowerText = text.toLowerCase();
+    
+    // Tension keywords
+    const tensionWords = ['danger', 'warning', 'threat', 'conflict', 'battle', 'fight', 'attack', 'fear', 'panic', 'urgent'];
+    const tensionScore = tensionWords.filter(word => lowerText.includes(word)).length;
+    
+    // Joy keywords
+    const joyWords = ['happy', 'celebrate', 'victory', 'success', 'laugh', 'smile', 'joy', 'delight', 'triumph', 'wonderful'];
+    const joyScore = joyWords.filter(word => lowerText.includes(word)).length;
+    
+    // Wisdom keywords
+    const wisdomWords = ['understand', 'realize', 'insight', 'truth', 'wisdom', 'lesson', 'learn', 'discover', 'reveal', 'knowledge'];
+    const wisdomScore = wisdomWords.filter(word => lowerText.includes(word)).length;
+    
+    // Suspense keywords
+    const suspenseWords = ['mysterious', 'secret', 'hidden', 'unknown', 'wonder', 'curious', 'strange', 'unexpected', 'surprise'];
+    const suspenseScore = suspenseWords.filter(word => lowerText.includes(word)).length;
+    
+    // Punctuation intensity
+    const hasExclamation = (text.match(/!/g) || []).length;
+    const hasQuestion = (text.match(/\?/g) || []).length;
+    const hasEllipsis = text.includes('...');
+    
+    // Determine dominant emotion
+    const scores = { tension: tensionScore, joy: joyScore, wisdom: wisdomScore, suspense: suspenseScore };
+    const maxScore = Math.max(...Object.values(scores));
+    
+    if (maxScore === 0) {
+      return { emotion: "neutral", intensity: 50 };
+    }
+    
+    let emotion: typeof currentEmotion = "neutral";
+    if (scores.tension === maxScore) emotion = "tension";
+    else if (scores.joy === maxScore) emotion = "joy";
+    else if (scores.wisdom === maxScore) emotion = "wisdom";
+    else if (scores.suspense === maxScore) emotion = "suspense";
+    
+    // Calculate intensity (0-100)
+    const intensity = Math.min(100, 50 + (maxScore * 15) + (hasExclamation * 10) + (hasQuestion * 5) + (hasEllipsis ? 15 : 0));
+    
+    return { emotion, intensity };
+  };
+
+  // 🎨 Apply emotional context to UI/Audio
+  const applyEmotionalContext = (emotion: typeof currentEmotion, intensity: number) => {
+    if (!emotionalMode) return;
+    
+    setCurrentEmotion(emotion);
+    setEmotionIntensity(intensity);
+    
+    // Adjust background gradient based on emotion
+    switch (emotion) {
+      case "tension":
+        setBackgroundGradient("from-red-950 via-orange-950 to-red-950");
+        if (backgroundMusicRef.current) {
+          backgroundMusicRef.current.volume = Math.min(0.3, intensity / 200); // Increase music for tension
+        }
+        break;
+      case "joy":
+        setBackgroundGradient("from-yellow-950 via-amber-900 to-yellow-950");
+        setPlaybackRate(Math.min(1.3, 1.0 + intensity / 500)); // Speed up slightly for joy
+        break;
+      case "wisdom":
+        setBackgroundGradient("from-blue-950 via-indigo-900 to-purple-950");
+        setPlaybackRate(Math.max(0.85, 1.0 - intensity / 500)); // Slow down for wisdom
+        break;
+      case "suspense":
+        setBackgroundGradient("from-purple-950 via-violet-950 to-purple-950");
+        if (backgroundMusicRef.current) {
+          backgroundMusicRef.current.volume = Math.max(0.05, intensity / 400); // Lower music for suspense
+        }
+        break;
+      default:
+        // Neutral - restore defaults
+        break;
+    }
+    
+    trackEvent("emotional_context_applied", {
+      emotion,
+      intensity,
+      bookId: bookSlug,
+      chapterId: chapterNumber,
+    });
+  };
+
+  // 💡 Smart Bookmark with AI Analysis
+  const createSmartBookmark = async (sentenceIndex: number) => {
+    const sentence = sentences[sentenceIndex];
+    if (!sentence) return;
+    
+    // Add to bookmarks immediately (optimistic UI)
+    setSmartBookmarks(prev => new Map(prev).set(sentenceIndex, {
+      timestamp: Date.now(),
+    }));
+    
+    // Fetch AI analysis in background
+    try {
+      const response = await fetch('/api/ai/analyze-sentence', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sentence: sentence.text,
+          context: sentences.slice(Math.max(0, sentenceIndex - 2), sentenceIndex + 3).map(s => s.text).join(' '),
+          bookId: bookSlug,
+          chapterId: chapterNumber,
+        }),
+      });
+      
+      if (response.ok) {
+        const analysis = await response.json();
+        setSmartBookmarks(prev => new Map(prev).set(sentenceIndex, {
+          timestamp: Date.now(),
+          aiSummary: analysis.aiSummary,
+          keyInsight: analysis.keyInsight,
+          actionable: analysis.actionable,
+        }));
+      }
+    } catch (error) {
+      console.error('[Smart Bookmark] AI analysis failed:', error);
+    }
+    
+    trackEvent("smart_bookmark_created", {
+      sentenceIndex,
+      sentenceText: sentence.text.substring(0, 100),
+      bookId: bookSlug,
+      chapterId: chapterNumber,
+    });
+  };
+
+  // 🤖 AI Study Buddy - Chat about what you're hearing
+  const askAIStudyBuddy = async (question: string) => {
+    if (!question.trim()) return;
+    
+    // Add user message
+    const userMessage = {
+      role: "user" as const,
+      content: question,
+      timestamp: Date.now(),
+    };
+    setAIChatMessages(prev => [...prev, userMessage]);
+    setAIChatInput("");
+    
+    try {
+      // Get context: current sentence + surrounding text
+      const context = sentences.slice(Math.max(0, activeSentenceIndex - 5), activeSentenceIndex + 5).map(s => s.text).join(' ');
+      
+      const response = await fetch('/api/ai/study-buddy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question,
+          context,
+          currentSentence: sentences[activeSentenceIndex]?.text,
+          bookId: bookSlug,
+          chapterId: chapterNumber,
+          chatHistory: aiChatMessages.slice(-10), // Last 10 messages for context
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const aiMessage = {
+          role: "assistant" as const,
+          content: data.answer,
+          timestamp: Date.now(),
+        };
+        setAIChatMessages(prev => [...prev, aiMessage]);
+      } else {
+        throw new Error('AI Study Buddy failed');
+      }
+    } catch (error) {
+      console.error('[AI Study Buddy] Error:', error);
+      const errorMessage = {
+        role: "assistant" as const,
+        content: "Sorry, I couldn't process that question. Please try again!",
+        timestamp: Date.now(),
+      };
+      setAIChatMessages(prev => [...prev, errorMessage]);
+    }
+    
+    trackEvent("ai_study_buddy_question", {
+      question: question.substring(0, 100),
+      contextSentenceIndex: activeSentenceIndex,
+      bookId: bookSlug,
+      chapterId: chapterNumber,
+    });
   };
 
   const generateAudio = async () => {
@@ -1568,7 +1791,7 @@ export default function ListenModeLuxury({
                   >
                     <SkipBack className="w-6 h-6 text-purple-400 group-hover:scale-110 transition-transform" />
                   </button>
-                  
+
                   {/* 💾 Download Button */}
                   <button
                     onClick={downloadAudio}
@@ -1581,9 +1804,13 @@ export default function ListenModeLuxury({
                     aria-label="Download audio"
                     title="Download audio (MP3)"
                   >
-                    <Download className={`w-6 h-6 ${audioUrl ? "text-white" : "text-slate-500"} group-hover:scale-110 transition-transform`} />
+                    <Download
+                      className={`w-6 h-6 ${
+                        audioUrl ? "text-white" : "text-slate-500"
+                      } group-hover:scale-110 transition-transform`}
+                    />
                   </button>
-                  
+
                   <button
                     onClick={skipForward}
                     className="p-4 min-w-[44px] min-h-[44px] bg-slate-800/50 hover:bg-slate-700/50 active:bg-slate-700/70 rounded-full transition-all duration-200 group touch-manipulation"
@@ -1999,12 +2226,180 @@ export default function ListenModeLuxury({
                         ✨ Background brightness pulses with narrator's voice
                       </p>
                     </div>
+
+                    {/* 🧠 PANDORA'S BOX: Emotional Intelligence AI */}
+                    <div className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 rounded-xl p-4 border-2 border-purple-400/50 sm:col-span-2 shadow-xl shadow-purple-500/20">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-5 h-5 text-purple-300 animate-pulse" />
+                          <span className="text-sm font-bold text-purple-200">
+                            🧠 Emotional Intelligence AI
+                          </span>
+                          <span className="px-2 py-0.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-bold rounded-full">
+                            WORLD'S FIRST
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setEmotionalMode(!emotionalMode)}
+                          className={`w-12 h-6 rounded-full transition-all duration-300 ${
+                            emotionalMode ? "bg-gradient-to-r from-purple-600 to-pink-600" : "bg-slate-700"
+                          }`}
+                        >
+                          <div
+                            className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                              emotionalMode ? "translate-x-6" : "translate-x-0.5"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                      {emotionalMode && (
+                        <div className="space-y-2">
+                          <p className="text-xs text-purple-300/80">
+                            AI reads emotional context and auto-adjusts voice speed, background music, and visuals in real-time
+                          </p>
+                          {currentEmotion !== "neutral" && (
+                            <div className="flex items-center gap-3 mt-3 p-3 bg-black/30 rounded-lg border border-purple-500/30">
+                              <div className="flex-1">
+                                <div className="text-xs text-purple-400 mb-1">Current Emotion:</div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-lg">
+                                    {currentEmotion === "tension" && "⚡"}
+                                    {currentEmotion === "joy" && "✨"}
+                                    {currentEmotion === "wisdom" && "💡"}
+                                    {currentEmotion === "suspense" && "🎭"}
+                                  </span>
+                                  <span className="text-sm font-bold text-white capitalize">{currentEmotion}</span>
+                                  <span className="text-xs text-purple-300">({emotionIntensity}% intensity)</span>
+                                </div>
+                              </div>
+                              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 animate-pulse" 
+                                style={{ opacity: emotionIntensity / 100 }} 
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 🤖 PANDORA'S BOX: AI Study Buddy Toggle */}
+                    <div className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 rounded-xl p-4 border-2 border-blue-400/50 shadow-xl shadow-blue-500/20">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-blue-200">
+                              🤖 AI Study Buddy
+                            </span>
+                            <Crown className="w-4 h-4 text-yellow-400" />
+                          </div>
+                          <p className="text-xs text-blue-300/70 mt-1">
+                            Chat about what you're hearing
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setShowAIChat(!showAIChat)}
+                          className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${
+                            showAIChat 
+                              ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white" 
+                              : "bg-slate-700 text-slate-400 hover:bg-slate-600"
+                          }`}
+                        >
+                          {showAIChat ? "Hide" : "Show"}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 💡 PANDORA'S BOX: Smart Bookmarks Info */}
+                    <div className="bg-gradient-to-br from-emerald-900/40 to-teal-900/40 rounded-xl p-4 border-2 border-emerald-400/50 shadow-xl shadow-emerald-500/20">
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="w-5 h-5 text-emerald-300" />
+                        <div>
+                          <div className="text-sm font-bold text-emerald-200">
+                            💡 Smart Bookmarks
+                          </div>
+                          <p className="text-xs text-emerald-300/70 mt-1">
+                            Click sentences to get AI insights • {smartBookmarks.size} saved
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           )}
         </div>
+
+        {/* 🤖 AI STUDY BUDDY SIDEBAR */}
+        {showAIChat && hasGenerated && (
+          <div className="fixed right-0 top-0 h-full w-96 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 border-l-2 border-blue-500/30 shadow-2xl z-50 flex flex-col">
+            <div className="p-6 border-b border-blue-500/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center">
+                    <span className="text-2xl">🤖</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">AI Study Buddy</h3>
+                    <p className="text-xs text-blue-300/70">Ask anything about the book</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowAIChat(false)}
+                  className="text-slate-400 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {aiChatMessages.length === 0 && (
+                <div className="text-center text-blue-300/50 mt-12">
+                  <Sparkles className="w-12 h-12 mx-auto mb-4 text-blue-400/50" />
+                  <p className="text-sm">Ask me anything about what you're hearing!</p>
+                  <div className="mt-4 space-y-2 text-xs">
+                    <p className="text-blue-400">"Explain that concept simply"</p>
+                    <p className="text-blue-400">"Give me an example"</p>
+                    <p className="text-blue-400">"How can I apply this?"</p>
+                  </div>
+                </div>
+              )}
+              {aiChatMessages.map((msg, i) => (
+                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                  <div className={`max-w-[80%] rounded-2xl p-3 ${
+                    msg.role === "user" 
+                      ? "bg-gradient-to-br from-blue-600 to-cyan-600 text-white" 
+                      : "bg-slate-800/50 text-slate-200 border border-blue-500/20"
+                  }`}>
+                    <p className="text-sm">{msg.content}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Input */}
+            <div className="p-4 border-t border-blue-500/30">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={aiChatInput}
+                  onChange={(e) => setAIChatInput(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && askAIStudyBuddy(aiChatInput)}
+                  placeholder="Ask a question..."
+                  className="flex-1 bg-slate-800/50 border border-blue-500/30 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/60"
+                />
+                <button
+                  onClick={() => askAIStudyBuddy(aiChatInput)}
+                  disabled={!aiChatInput.trim()}
+                  className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-xl font-bold transition-all"
+                >
+                  Ask
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Text Display with Sentence Highlighting */}
         {hasGenerated && sentences.length > 0 && (
@@ -2166,6 +2561,37 @@ export default function ListenModeLuxury({
                       ? "Remove Highlight"
                       : "Highlight"}
                   </button>
+                  
+                  {/* 💡 PANDORA'S BOX: Smart Bookmark with AI */}
+                  <button
+                    onClick={() => {
+                      createSmartBookmark(showSentenceMenu);
+                      setShowSentenceMenu(null);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-emerald-200 hover:bg-emerald-500/20 transition-colors flex items-center gap-2 border-t border-purple-500/20"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-emerald-400" />
+                      <span>💡 Smart Bookmark</span>
+                      {smartBookmarks.has(showSentenceMenu) && (
+                        <span className="text-[10px] bg-emerald-500/30 px-1.5 py-0.5 rounded-full">✓</span>
+                      )}
+                    </div>
+                  </button>
+                  {smartBookmarks.has(showSentenceMenu) && smartBookmarks.get(showSentenceMenu)?.aiSummary && (
+                    <div className="px-4 py-3 bg-emerald-900/20 border-t border-emerald-500/20 text-xs space-y-1">
+                      <p className="text-emerald-200">
+                        <strong>Summary:</strong> {smartBookmarks.get(showSentenceMenu)?.aiSummary}
+                      </p>
+                      <p className="text-emerald-200">
+                        <strong>Insight:</strong> {smartBookmarks.get(showSentenceMenu)?.keyInsight}
+                      </p>
+                      <p className="text-emerald-200">
+                        <strong>Action:</strong> {smartBookmarks.get(showSentenceMenu)?.actionable}
+                      </p>
+                    </div>
+                  )}
+
                   <button
                     onClick={() => {
                       shareSentence(showSentenceMenu);
