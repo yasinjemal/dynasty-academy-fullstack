@@ -49,9 +49,9 @@ Provide:
     });
 
     const response = completion.choices[0]?.message?.content || "";
-    
+
     // Parse AI response (simple extraction with fallback)
-    const lines = response.split('\n').filter(l => l.trim());
+    const lines = response.split("\n").filter((l) => l.trim());
     let aiSummary = "This sentence captures a key idea.";
     let keyInsight = "Understanding this deepens your knowledge.";
     let actionable = "Reflect on how this applies to your life.";
@@ -59,12 +59,12 @@ Provide:
     // Extract sections by keyword matching
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      if (line.includes('Summary:')) {
-        aiSummary = line.replace(/^.*?Summary:\s*/i, '').trim() || aiSummary;
-      } else if (line.includes('Insight:')) {
-        keyInsight = line.replace(/^.*?Insight:\s*/i, '').trim() || keyInsight;
-      } else if (line.includes('Action:')) {
-        actionable = line.replace(/^.*?Action:\s*/i, '').trim() || actionable;
+      if (line.includes("Summary:")) {
+        aiSummary = line.replace(/^.*?Summary:\s*/i, "").trim() || aiSummary;
+      } else if (line.includes("Insight:")) {
+        keyInsight = line.replace(/^.*?Insight:\s*/i, "").trim() || keyInsight;
+      } else if (line.includes("Action:")) {
+        actionable = line.replace(/^.*?Action:\s*/i, "").trim() || actionable;
       }
     }
 
@@ -75,11 +75,10 @@ Provide:
       actionable,
       timestamp: Date.now(),
     });
-
   } catch (error) {
     console.error("AI Analysis Error:", error);
     return NextResponse.json(
-      { 
+      {
         error: "Failed to analyze sentence",
         aiSummary: "This sentence contains important information.",
         keyInsight: "Every sentence in a book serves a purpose.",

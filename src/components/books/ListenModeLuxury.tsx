@@ -118,30 +118,41 @@ export default function ListenModeLuxury({
 
   // 🧠 PANDORA'S BOX #1: Emotional Intelligence AI (WORLD'S FIRST!)
   const [emotionalMode, setEmotionalMode] = useState(true); // Auto-detect emotions
-  const [currentEmotion, setCurrentEmotion] = useState<"neutral" | "tension" | "joy" | "wisdom" | "suspense">("neutral");
+  const [currentEmotion, setCurrentEmotion] = useState<
+    "neutral" | "tension" | "joy" | "wisdom" | "suspense"
+  >("neutral");
   const [emotionIntensity, setEmotionIntensity] = useState(50); // 0-100
 
   // 💡 PANDORA'S BOX #2: Smart Bookmarks with AI
-  const [smartBookmarks, setSmartBookmarks] = useState<Map<number, {
-    timestamp: number;
-    aiSummary?: string;
-    keyInsight?: string;
-    actionable?: string;
-  }>>(new Map());
+  const [smartBookmarks, setSmartBookmarks] = useState<
+    Map<
+      number,
+      {
+        timestamp: number;
+        aiSummary?: string;
+        keyInsight?: string;
+        actionable?: string;
+      }
+    >
+  >(new Map());
   const [showBookmarkMenu, setShowBookmarkMenu] = useState<number | null>(null);
 
   // 🤖 PANDORA'S BOX #3: AI Study Buddy (Sidebar Chat)
   const [showAIChat, setShowAIChat] = useState(false);
-  const [aiChatMessages, setAIChatMessages] = useState<Array<{
-    role: "user" | "assistant";
-    content: string;
-    timestamp: number;
-  }>>([]);
+  const [aiChatMessages, setAIChatMessages] = useState<
+    Array<{
+      role: "user" | "assistant";
+      content: string;
+      timestamp: number;
+    }>
+  >([]);
   const [aiChatInput, setAIChatInput] = useState("");
 
   // 🎭 PANDORA'S BOX #4: Multi-Voice Character Detection
   const [multiVoiceMode, setMultiVoiceMode] = useState(false);
-  const [detectedCharacters, setDetectedCharacters] = useState<Map<string, string>>(new Map()); // character name -> voice ID
+  const [detectedCharacters, setDetectedCharacters] = useState<
+    Map<string, string>
+  >(new Map()); // character name -> voice ID
 
   // Refs
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -522,7 +533,9 @@ export default function ListenModeLuxury({
 
       // 🧠 PANDORA'S BOX: Analyze emotional context as sentences play
       if (emotionalMode && sentences[activeIndex]) {
-        const { emotion, intensity } = analyzeEmotionalContext(sentences[activeIndex].text);
+        const { emotion, intensity } = analyzeEmotionalContext(
+          sentences[activeIndex].text
+        );
         applyEmotionalContext(emotion, intensity);
       }
 
@@ -534,7 +547,14 @@ export default function ListenModeLuxury({
         });
       }
     }
-  }, [currentTime, isPlaying, sentences, activeSentenceIndex, followText, emotionalMode]);
+  }, [
+    currentTime,
+    isPlaying,
+    sentences,
+    activeSentenceIndex,
+    followText,
+    emotionalMode,
+  ]);
 
   // Paywall enforcement: 3-minute gate for free users
   useEffect(() => {
@@ -1014,57 +1034,123 @@ export default function ListenModeLuxury({
   };
 
   // 🧠 PANDORA'S BOX: Emotional Intelligence AI - Detects emotion from text and adapts EVERYTHING
-  const analyzeEmotionalContext = (text: string): { emotion: typeof currentEmotion; intensity: number } => {
+  const analyzeEmotionalContext = (
+    text: string
+  ): { emotion: typeof currentEmotion; intensity: number } => {
     const lowerText = text.toLowerCase();
-    
+
     // Tension keywords
-    const tensionWords = ['danger', 'warning', 'threat', 'conflict', 'battle', 'fight', 'attack', 'fear', 'panic', 'urgent'];
-    const tensionScore = tensionWords.filter(word => lowerText.includes(word)).length;
-    
+    const tensionWords = [
+      "danger",
+      "warning",
+      "threat",
+      "conflict",
+      "battle",
+      "fight",
+      "attack",
+      "fear",
+      "panic",
+      "urgent",
+    ];
+    const tensionScore = tensionWords.filter((word) =>
+      lowerText.includes(word)
+    ).length;
+
     // Joy keywords
-    const joyWords = ['happy', 'celebrate', 'victory', 'success', 'laugh', 'smile', 'joy', 'delight', 'triumph', 'wonderful'];
-    const joyScore = joyWords.filter(word => lowerText.includes(word)).length;
-    
+    const joyWords = [
+      "happy",
+      "celebrate",
+      "victory",
+      "success",
+      "laugh",
+      "smile",
+      "joy",
+      "delight",
+      "triumph",
+      "wonderful",
+    ];
+    const joyScore = joyWords.filter((word) => lowerText.includes(word)).length;
+
     // Wisdom keywords
-    const wisdomWords = ['understand', 'realize', 'insight', 'truth', 'wisdom', 'lesson', 'learn', 'discover', 'reveal', 'knowledge'];
-    const wisdomScore = wisdomWords.filter(word => lowerText.includes(word)).length;
-    
+    const wisdomWords = [
+      "understand",
+      "realize",
+      "insight",
+      "truth",
+      "wisdom",
+      "lesson",
+      "learn",
+      "discover",
+      "reveal",
+      "knowledge",
+    ];
+    const wisdomScore = wisdomWords.filter((word) =>
+      lowerText.includes(word)
+    ).length;
+
     // Suspense keywords
-    const suspenseWords = ['mysterious', 'secret', 'hidden', 'unknown', 'wonder', 'curious', 'strange', 'unexpected', 'surprise'];
-    const suspenseScore = suspenseWords.filter(word => lowerText.includes(word)).length;
-    
+    const suspenseWords = [
+      "mysterious",
+      "secret",
+      "hidden",
+      "unknown",
+      "wonder",
+      "curious",
+      "strange",
+      "unexpected",
+      "surprise",
+    ];
+    const suspenseScore = suspenseWords.filter((word) =>
+      lowerText.includes(word)
+    ).length;
+
     // Punctuation intensity
     const hasExclamation = (text.match(/!/g) || []).length;
     const hasQuestion = (text.match(/\?/g) || []).length;
-    const hasEllipsis = text.includes('...');
-    
+    const hasEllipsis = text.includes("...");
+
     // Determine dominant emotion
-    const scores = { tension: tensionScore, joy: joyScore, wisdom: wisdomScore, suspense: suspenseScore };
+    const scores = {
+      tension: tensionScore,
+      joy: joyScore,
+      wisdom: wisdomScore,
+      suspense: suspenseScore,
+    };
     const maxScore = Math.max(...Object.values(scores));
-    
+
     if (maxScore === 0) {
       return { emotion: "neutral", intensity: 50 };
     }
-    
+
     let emotion: typeof currentEmotion = "neutral";
     if (scores.tension === maxScore) emotion = "tension";
     else if (scores.joy === maxScore) emotion = "joy";
     else if (scores.wisdom === maxScore) emotion = "wisdom";
     else if (scores.suspense === maxScore) emotion = "suspense";
-    
+
     // Calculate intensity (0-100)
-    const intensity = Math.min(100, 50 + (maxScore * 15) + (hasExclamation * 10) + (hasQuestion * 5) + (hasEllipsis ? 15 : 0));
-    
+    const intensity = Math.min(
+      100,
+      50 +
+        maxScore * 15 +
+        hasExclamation * 10 +
+        hasQuestion * 5 +
+        (hasEllipsis ? 15 : 0)
+    );
+
     return { emotion, intensity };
   };
 
   // 🎨 Apply emotional context to UI/Audio
-  const applyEmotionalContext = (emotion: typeof currentEmotion, intensity: number) => {
+  const applyEmotionalContext = (
+    emotion: typeof currentEmotion,
+    intensity: number
+  ) => {
     if (!emotionalMode) return;
-    
+
     setCurrentEmotion(emotion);
     setEmotionIntensity(intensity);
-    
+
     // Adjust background gradient based on emotion
     switch (emotion) {
       case "tension":
@@ -1091,7 +1177,7 @@ export default function ListenModeLuxury({
         // Neutral - restore defaults
         break;
     }
-    
+
     trackEvent("emotional_context_applied", {
       emotion,
       intensity,
@@ -1104,38 +1190,45 @@ export default function ListenModeLuxury({
   const createSmartBookmark = async (sentenceIndex: number) => {
     const sentence = sentences[sentenceIndex];
     if (!sentence) return;
-    
+
     // Add to bookmarks immediately (optimistic UI)
-    setSmartBookmarks(prev => new Map(prev).set(sentenceIndex, {
-      timestamp: Date.now(),
-    }));
-    
+    setSmartBookmarks((prev) =>
+      new Map(prev).set(sentenceIndex, {
+        timestamp: Date.now(),
+      })
+    );
+
     // Fetch AI analysis in background
     try {
-      const response = await fetch('/api/ai/analyze-sentence', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/ai/analyze-sentence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sentence: sentence.text,
-          context: sentences.slice(Math.max(0, sentenceIndex - 2), sentenceIndex + 3).map(s => s.text).join(' '),
+          context: sentences
+            .slice(Math.max(0, sentenceIndex - 2), sentenceIndex + 3)
+            .map((s) => s.text)
+            .join(" "),
           bookId: bookSlug,
           chapterId: chapterNumber,
         }),
       });
-      
+
       if (response.ok) {
         const analysis = await response.json();
-        setSmartBookmarks(prev => new Map(prev).set(sentenceIndex, {
-          timestamp: Date.now(),
-          aiSummary: analysis.aiSummary,
-          keyInsight: analysis.keyInsight,
-          actionable: analysis.actionable,
-        }));
+        setSmartBookmarks((prev) =>
+          new Map(prev).set(sentenceIndex, {
+            timestamp: Date.now(),
+            aiSummary: analysis.aiSummary,
+            keyInsight: analysis.keyInsight,
+            actionable: analysis.actionable,
+          })
+        );
       }
     } catch (error) {
-      console.error('[Smart Bookmark] AI analysis failed:', error);
+      console.error("[Smart Bookmark] AI analysis failed:", error);
     }
-    
+
     trackEvent("smart_bookmark_created", {
       sentenceIndex,
       sentenceText: sentence.text.substring(0, 100),
@@ -1147,23 +1240,26 @@ export default function ListenModeLuxury({
   // 🤖 AI Study Buddy - Chat about what you're hearing
   const askAIStudyBuddy = async (question: string) => {
     if (!question.trim()) return;
-    
+
     // Add user message
     const userMessage = {
       role: "user" as const,
       content: question,
       timestamp: Date.now(),
     };
-    setAIChatMessages(prev => [...prev, userMessage]);
+    setAIChatMessages((prev) => [...prev, userMessage]);
     setAIChatInput("");
-    
+
     try {
       // Get context: current sentence + surrounding text
-      const context = sentences.slice(Math.max(0, activeSentenceIndex - 5), activeSentenceIndex + 5).map(s => s.text).join(' ');
-      
-      const response = await fetch('/api/ai/study-buddy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const context = sentences
+        .slice(Math.max(0, activeSentenceIndex - 5), activeSentenceIndex + 5)
+        .map((s) => s.text)
+        .join(" ");
+
+      const response = await fetch("/api/ai/study-buddy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           question,
           context,
@@ -1173,7 +1269,7 @@ export default function ListenModeLuxury({
           chatHistory: aiChatMessages.slice(-10), // Last 10 messages for context
         }),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         const aiMessage = {
@@ -1181,20 +1277,20 @@ export default function ListenModeLuxury({
           content: data.answer,
           timestamp: Date.now(),
         };
-        setAIChatMessages(prev => [...prev, aiMessage]);
+        setAIChatMessages((prev) => [...prev, aiMessage]);
       } else {
-        throw new Error('AI Study Buddy failed');
+        throw new Error("AI Study Buddy failed");
       }
     } catch (error) {
-      console.error('[AI Study Buddy] Error:', error);
+      console.error("[AI Study Buddy] Error:", error);
       const errorMessage = {
         role: "assistant" as const,
         content: "Sorry, I couldn't process that question. Please try again!",
         timestamp: Date.now(),
       };
-      setAIChatMessages(prev => [...prev, errorMessage]);
+      setAIChatMessages((prev) => [...prev, errorMessage]);
     }
-    
+
     trackEvent("ai_study_buddy_question", {
       question: question.substring(0, 100),
       contextSentenceIndex: activeSentenceIndex,
@@ -2242,12 +2338,16 @@ export default function ListenModeLuxury({
                         <button
                           onClick={() => setEmotionalMode(!emotionalMode)}
                           className={`w-12 h-6 rounded-full transition-all duration-300 ${
-                            emotionalMode ? "bg-gradient-to-r from-purple-600 to-pink-600" : "bg-slate-700"
+                            emotionalMode
+                              ? "bg-gradient-to-r from-purple-600 to-pink-600"
+                              : "bg-slate-700"
                           }`}
                         >
                           <div
                             className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                              emotionalMode ? "translate-x-6" : "translate-x-0.5"
+                              emotionalMode
+                                ? "translate-x-6"
+                                : "translate-x-0.5"
                             }`}
                           />
                         </button>
@@ -2255,12 +2355,15 @@ export default function ListenModeLuxury({
                       {emotionalMode && (
                         <div className="space-y-2">
                           <p className="text-xs text-purple-300/80">
-                            AI reads emotional context and auto-adjusts voice speed, background music, and visuals in real-time
+                            AI reads emotional context and auto-adjusts voice
+                            speed, background music, and visuals in real-time
                           </p>
                           {currentEmotion !== "neutral" && (
                             <div className="flex items-center gap-3 mt-3 p-3 bg-black/30 rounded-lg border border-purple-500/30">
                               <div className="flex-1">
-                                <div className="text-xs text-purple-400 mb-1">Current Emotion:</div>
+                                <div className="text-xs text-purple-400 mb-1">
+                                  Current Emotion:
+                                </div>
                                 <div className="flex items-center gap-2">
                                   <span className="text-lg">
                                     {currentEmotion === "tension" && "⚡"}
@@ -2268,12 +2371,17 @@ export default function ListenModeLuxury({
                                     {currentEmotion === "wisdom" && "💡"}
                                     {currentEmotion === "suspense" && "🎭"}
                                   </span>
-                                  <span className="text-sm font-bold text-white capitalize">{currentEmotion}</span>
-                                  <span className="text-xs text-purple-300">({emotionIntensity}% intensity)</span>
+                                  <span className="text-sm font-bold text-white capitalize">
+                                    {currentEmotion}
+                                  </span>
+                                  <span className="text-xs text-purple-300">
+                                    ({emotionIntensity}% intensity)
+                                  </span>
                                 </div>
                               </div>
-                              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 animate-pulse" 
-                                style={{ opacity: emotionIntensity / 100 }} 
+                              <div
+                                className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 animate-pulse"
+                                style={{ opacity: emotionIntensity / 100 }}
                               />
                             </div>
                           )}
@@ -2298,8 +2406,8 @@ export default function ListenModeLuxury({
                         <button
                           onClick={() => setShowAIChat(!showAIChat)}
                           className={`px-4 py-2 rounded-lg font-bold text-sm transition-all ${
-                            showAIChat 
-                              ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white" 
+                            showAIChat
+                              ? "bg-gradient-to-r from-blue-600 to-cyan-600 text-white"
                               : "bg-slate-700 text-slate-400 hover:bg-slate-600"
                           }`}
                         >
@@ -2317,7 +2425,8 @@ export default function ListenModeLuxury({
                             💡 Smart Bookmarks
                           </div>
                           <p className="text-xs text-emerald-300/70 mt-1">
-                            Click sentences to get AI insights • {smartBookmarks.size} saved
+                            Click sentences to get AI insights •{" "}
+                            {smartBookmarks.size} saved
                           </p>
                         </div>
                       </div>
@@ -2339,11 +2448,15 @@ export default function ListenModeLuxury({
                     <span className="text-2xl">🤖</span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">AI Study Buddy</h3>
-                    <p className="text-xs text-blue-300/70">Ask anything about the book</p>
+                    <h3 className="text-lg font-bold text-white">
+                      AI Study Buddy
+                    </h3>
+                    <p className="text-xs text-blue-300/70">
+                      Ask anything about the book
+                    </p>
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => setShowAIChat(false)}
                   className="text-slate-400 hover:text-white transition-colors"
                 >
@@ -2357,21 +2470,32 @@ export default function ListenModeLuxury({
               {aiChatMessages.length === 0 && (
                 <div className="text-center text-blue-300/50 mt-12">
                   <Sparkles className="w-12 h-12 mx-auto mb-4 text-blue-400/50" />
-                  <p className="text-sm">Ask me anything about what you're hearing!</p>
+                  <p className="text-sm">
+                    Ask me anything about what you're hearing!
+                  </p>
                   <div className="mt-4 space-y-2 text-xs">
-                    <p className="text-blue-400">"Explain that concept simply"</p>
+                    <p className="text-blue-400">
+                      "Explain that concept simply"
+                    </p>
                     <p className="text-blue-400">"Give me an example"</p>
                     <p className="text-blue-400">"How can I apply this?"</p>
                   </div>
                 </div>
               )}
               {aiChatMessages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] rounded-2xl p-3 ${
-                    msg.role === "user" 
-                      ? "bg-gradient-to-br from-blue-600 to-cyan-600 text-white" 
-                      : "bg-slate-800/50 text-slate-200 border border-blue-500/20"
-                  }`}>
+                <div
+                  key={i}
+                  className={`flex ${
+                    msg.role === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-2xl p-3 ${
+                      msg.role === "user"
+                        ? "bg-gradient-to-br from-blue-600 to-cyan-600 text-white"
+                        : "bg-slate-800/50 text-slate-200 border border-blue-500/20"
+                    }`}
+                  >
                     <p className="text-sm">{msg.content}</p>
                   </div>
                 </div>
@@ -2385,7 +2509,9 @@ export default function ListenModeLuxury({
                   type="text"
                   value={aiChatInput}
                   onChange={(e) => setAIChatInput(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && askAIStudyBuddy(aiChatInput)}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && askAIStudyBuddy(aiChatInput)
+                  }
                   placeholder="Ask a question..."
                   className="flex-1 bg-slate-800/50 border border-blue-500/30 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/60"
                 />
@@ -2561,7 +2687,7 @@ export default function ListenModeLuxury({
                       ? "Remove Highlight"
                       : "Highlight"}
                   </button>
-                  
+
                   {/* 💡 PANDORA'S BOX: Smart Bookmark with AI */}
                   <button
                     onClick={() => {
@@ -2574,23 +2700,29 @@ export default function ListenModeLuxury({
                       <Sparkles className="w-4 h-4 text-emerald-400" />
                       <span>💡 Smart Bookmark</span>
                       {smartBookmarks.has(showSentenceMenu) && (
-                        <span className="text-[10px] bg-emerald-500/30 px-1.5 py-0.5 rounded-full">✓</span>
+                        <span className="text-[10px] bg-emerald-500/30 px-1.5 py-0.5 rounded-full">
+                          ✓
+                        </span>
                       )}
                     </div>
                   </button>
-                  {smartBookmarks.has(showSentenceMenu) && smartBookmarks.get(showSentenceMenu)?.aiSummary && (
-                    <div className="px-4 py-3 bg-emerald-900/20 border-t border-emerald-500/20 text-xs space-y-1">
-                      <p className="text-emerald-200">
-                        <strong>Summary:</strong> {smartBookmarks.get(showSentenceMenu)?.aiSummary}
-                      </p>
-                      <p className="text-emerald-200">
-                        <strong>Insight:</strong> {smartBookmarks.get(showSentenceMenu)?.keyInsight}
-                      </p>
-                      <p className="text-emerald-200">
-                        <strong>Action:</strong> {smartBookmarks.get(showSentenceMenu)?.actionable}
-                      </p>
-                    </div>
-                  )}
+                  {smartBookmarks.has(showSentenceMenu) &&
+                    smartBookmarks.get(showSentenceMenu)?.aiSummary && (
+                      <div className="px-4 py-3 bg-emerald-900/20 border-t border-emerald-500/20 text-xs space-y-1">
+                        <p className="text-emerald-200">
+                          <strong>Summary:</strong>{" "}
+                          {smartBookmarks.get(showSentenceMenu)?.aiSummary}
+                        </p>
+                        <p className="text-emerald-200">
+                          <strong>Insight:</strong>{" "}
+                          {smartBookmarks.get(showSentenceMenu)?.keyInsight}
+                        </p>
+                        <p className="text-emerald-200">
+                          <strong>Action:</strong>{" "}
+                          {smartBookmarks.get(showSentenceMenu)?.actionable}
+                        </p>
+                      </div>
+                    )}
 
                   <button
                     onClick={() => {

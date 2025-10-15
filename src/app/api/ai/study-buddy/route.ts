@@ -7,7 +7,8 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   try {
-    const { question, context, currentSentence, chatHistory } = await req.json();
+    const { question, context, currentSentence, chatHistory } =
+      await req.json();
 
     if (!question) {
       return NextResponse.json(
@@ -66,7 +67,8 @@ ${context ? `Surrounding context: ${context}` : ""}`,
       max_tokens: 150,
     });
 
-    const answer = completion.choices[0]?.message?.content || 
+    const answer =
+      completion.choices[0]?.message?.content ||
       "I'm here to help! Could you rephrase that question?";
 
     return NextResponse.json({
@@ -74,13 +76,13 @@ ${context ? `Surrounding context: ${context}` : ""}`,
       answer,
       timestamp: Date.now(),
     });
-
   } catch (error) {
     console.error("AI Study Buddy Error:", error);
     return NextResponse.json(
-      { 
+      {
         error: "Failed to get AI response",
-        answer: "I'm having trouble understanding right now. Try rephrasing your question!",
+        answer:
+          "I'm having trouble understanding right now. Try rephrasing your question!",
       },
       { status: 500 }
     );
