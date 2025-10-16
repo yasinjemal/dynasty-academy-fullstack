@@ -18,6 +18,8 @@ interface VideoPlayerProps {
   onComplete?: () => void;
   lastPosition?: number; // Resume from last position
   autoPlay?: boolean;
+  courseId?: string;
+  lessonId?: string;
 }
 
 /**
@@ -43,6 +45,8 @@ export function VideoPlayer({
   onComplete,
   lastPosition = 0,
   autoPlay = false,
+  courseId,
+  lessonId,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -53,6 +57,46 @@ export function VideoPlayer({
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showControls, setShowControls] = useState(true);
+  const [hasCompletedThreshold, setHasCompletedThreshold] = useState(false);
+
+  // Auto-save progress every 5 seconds
+  useEffect(() => {
+    if (!courseId || !lessonId || !duration || duration === 0) return;
+
+    const interval = setInterval(async () => {
+      const progress = (currentTime / duration) * 100;
+      const watchTime = Math.floor(currentTime);
+
+      // Auto-complete at 95% watched
+      const shouldComplete = progress >= 95 && !hasCompletedThreshold;
+
+      try {
+        await fetch(
+          `/api/courses/${courseId}/lessons/${lessonId}/progress`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              watchTime,
+              lastPosition: Math.floor(currentTime),
+              progress,
+              completed: shouldComplete,
+            }),
+          }
+        );
+
+        if (shouldComplete) {
+          setHasCompletedThreshold(true);
+          onComplete?.();
+        }
+      } catch (error) {
+        console.error("Failed to save progress:", error);
+      }
+    }, 5000); // Save every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [currentTime, duration, courseId, lessonId, hasCompletedThreshold, onComplete]);
+
 
   // Extract video ID from URL
   const getVideoId = () => {

@@ -92,6 +92,15 @@ export default function AdvancedCoursePage({
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
     new Set()
   );
+  const [lessonProgress, setLessonProgress] = useState<{
+    lastPosition: number;
+    progress: number;
+    completed: boolean;
+  }>({
+    lastPosition: 0,
+    progress: 0,
+    completed: false,
+  });
 
   // Unwrap params
   useEffect(() => {
@@ -133,6 +142,39 @@ export default function AdvancedCoursePage({
 
     fetchCourse();
   }, [courseId]);
+
+  // Load lesson progress when lesson changes
+  useEffect(() => {
+    if (!courseId || !currentLesson?.id) return;
+
+    async function loadProgress() {
+      try {
+        const response = await fetch(
+          `/api/courses/${courseId}/lessons/${currentLesson!.id}/progress`
+        );
+        const data = await response.json();
+
+        if (data.exists && data.progress) {
+          setLessonProgress({
+            lastPosition: data.progress.lastPosition || 0,
+            progress: data.progress.progress || 0,
+            completed: data.progress.completed || false,
+          });
+        } else {
+          setLessonProgress({
+            lastPosition: 0,
+            progress: 0,
+            completed: false,
+          });
+        }
+      } catch (error) {
+        console.error("Error loading progress:", error);
+      }
+    }
+
+    loadProgress();
+  }, [courseId, currentLesson]);
+
 
   // Track lesson progress
   const trackProgress = async (
@@ -440,17 +482,15 @@ export default function AdvancedCoursePage({
                         : "custom"
                     }
                     onProgress={(currentTime, duration) => {
-                      // Track every 10 seconds
-                      if (Math.floor(currentTime) % 10 === 0) {
-                        trackProgress(currentLesson.id, false);
-                      }
+                      // Progress is auto-saved in VideoPlayer component
                     }}
                     onComplete={() => {
-                      trackProgress(currentLesson.id, true);
                       completeLesson();
                     }}
-                    lastPosition={0}
+                    lastPosition={lessonProgress.lastPosition}
                     autoPlay={false}
+                    courseId={courseId || undefined}
+                    lessonId={currentLesson.id}
                   />
                 )}
 

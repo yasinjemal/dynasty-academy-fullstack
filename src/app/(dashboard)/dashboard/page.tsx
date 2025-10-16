@@ -277,7 +277,7 @@ export default function DashboardPage() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
             <Link
-              href="/courses"
+              href="/my-courses"
               className="group relative bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/30 rounded-xl p-4 sm:p-5 md:p-6 hover:shadow-lg hover:shadow-indigo-200/50 dark:hover:shadow-indigo-900/50 transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02] border border-indigo-200/50 dark:border-indigo-700/50"
             >
               <div className="flex flex-col items-center text-center space-y-2 sm:space-y-3">
