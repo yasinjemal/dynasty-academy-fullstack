@@ -10,6 +10,8 @@ import { useLiveCoReading } from "@/hooks/useLiveCoReading";
 import LivePresenceIndicator from "./LivePresenceIndicator";
 import LiveChatWidget from "./LiveChatWidget";
 import LiveReactions from "./LiveReactions";
+import { useContextualIntelligence } from "@/hooks/useContextualIntelligence";
+import { IntelligenceInsightsPanel } from "@/components/intelligence/IntelligenceInsightsPanel";
 import {
   BookOpen,
   ChevronLeft,
@@ -265,6 +267,24 @@ export default function BookReaderLuxury({
   // ===========================================
   const contentRef = useRef<HTMLDivElement>(null);
   const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // ===========================================
+  // 🧠 CONTEXTUAL INTELLIGENCE ENGINE: AI Reading Intelligence for Read Mode
+  // ===========================================
+  const readingIntelligence = useContextualIntelligence(
+    slug,
+    currentPage,
+    isPremium // Only track for premium users
+  );
+
+  // Cleanup: End tracking when component unmounts
+  useEffect(() => {
+    return () => {
+      if (isPremium) {
+        readingIntelligence.endTracking(false);
+      }
+    };
+  }, [isPremium, readingIntelligence]);
 
   const canReadPage = isPurchased || currentPage <= freePages;
   const progressPercentage = (currentPage / totalPages) * 100;
@@ -752,18 +772,50 @@ export default function BookReaderLuxury({
   useEffect(() => {
     if (!parallaxEffect || !immersiveMode) return;
 
+    let lastScrollPosition = 0;
+    let scrollPauseTimeout: NodeJS.Timeout;
+
     const handleScroll = () => {
       const scrolled = window.pageYOffset;
+
+      // Parallax effect
       const background = document.getElementById("immersive-background");
       if (background) {
         const offset = scrolled * (parallaxIntensity / 100);
         background.style.transform = `translateY(${offset}px) scale(1.1)`;
       }
+
+      // 🧠 Intelligence: Track scroll behavior (read mode engagement)
+      if (isPremium) {
+        // Detect scroll direction
+        const scrollingDown = scrolled > lastScrollPosition;
+        lastScrollPosition = scrolled;
+
+        // Track position changes (similar to Listen Mode position tracking)
+        const scrollPercent =
+          (scrolled / (document.body.scrollHeight - window.innerHeight)) * 100;
+        readingIntelligence.onPositionChange(scrollPercent);
+
+        // Detect reading pauses (when user stops scrolling)
+        clearTimeout(scrollPauseTimeout);
+        scrollPauseTimeout = setTimeout(() => {
+          readingIntelligence.onPause(); // User stopped scrolling = reading pause
+        }, 3000); // 3 seconds of no scroll = pause
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [parallaxEffect, immersiveMode, parallaxIntensity]);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(scrollPauseTimeout);
+    };
+  }, [
+    parallaxEffect,
+    immersiveMode,
+    parallaxIntensity,
+    isPremium,
+    readingIntelligence,
+  ]);
 
   // ===========================================
   // TRACK READING TIME
@@ -2644,6 +2696,18 @@ export default function BookReaderLuxury({
                         }}
                         dangerouslySetInnerHTML={{ __html: pageContent }}
                       />
+
+                      {/* 🧠 INTELLIGENCE INSIGHTS PANEL: AI Reading Predictions for Read Mode */}
+                      {isPremium &&
+                        readingIntelligence.predictions &&
+                        !focusMode && (
+                          <div className="mt-12 mb-8">
+                            <IntelligenceInsightsPanel
+                              predictions={readingIntelligence.predictions}
+                              isLoading={!readingIntelligence.predictions}
+                            />
+                          </div>
+                        )}
 
                       {/* Reflection CTA */}
                       {!isTransitioning && pageContent && !focusMode && (

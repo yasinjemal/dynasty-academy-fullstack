@@ -28,6 +28,8 @@ import {
   triggerAchievement,
 } from "@/hooks/useAchievementToasts";
 import { useMobileGestures } from "@/hooks/useMobileGestures";
+import { useContextualIntelligence } from "@/hooks/useContextualIntelligence";
+import { IntelligenceInsightsPanel } from "@/components/intelligence/IntelligenceInsightsPanel";
 
 // Spotify Web Playback SDK types
 declare global {
@@ -235,6 +237,7 @@ export default function ListenModeLuxury({
   const lastUpdateTimeRef = useRef(0);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const sleepTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -249,6 +252,78 @@ export default function ListenModeLuxury({
     enabled: isPremiumUser,
   });
   const { showAchievementToast } = useAchievementToasts();
+
+  // 🧠 CONTEXTUAL INTELLIGENCE ENGINE: World's First AI Reading Intelligence
+  const intelligence = useContextualIntelligence(
+    bookSlug,
+    chapterNumber,
+    isPremiumUser // Only track for premium users
+  );
+
+  // Cleanup: End tracking when component unmounts
+  useEffect(() => {
+    return () => {
+      if (isPremiumUser) {
+        intelligence.endTracking(false); // false = not completed
+      }
+    };
+  }, [isPremiumUser, intelligence]);
+
+  // 🤖 AUTO-APPLY AI RECOMMENDATIONS: Smart suggestions based on predictions
+  useEffect(() => {
+    if (!isPremiumUser || !intelligence.predictions || !isPlaying) return;
+
+    const predictions = intelligence.predictions;
+
+    // Suggest speed change if significantly different from recommendation
+    if (
+      predictions.recommendedSpeed &&
+      Math.abs(playbackRate - predictions.recommendedSpeed) > 0.2
+    ) {
+      const speedDiff = predictions.recommendedSpeed - playbackRate;
+      const suggestion =
+        speedDiff > 0
+          ? `🧠 AI suggests speeding up to ${predictions.recommendedSpeed}x for this chapter`
+          : `🧠 AI suggests slowing down to ${predictions.recommendedSpeed}x for this chapter`;
+
+      showAchievementToast({
+        id: `ai-speed-${Date.now()}`,
+        key: "ai_speed_recommendation",
+        name: "AI Reading Coach",
+        description: suggestion,
+        icon: "🧠",
+        category: "intelligence",
+        rarity: "EPIC",
+        dynastyPoints: 0,
+      });
+    }
+
+    // Break reminder based on AI prediction
+    if (predictions.suggestedBreakInterval) {
+      const breakTimer = setTimeout(() => {
+        if (isPlaying) {
+          showAchievementToast({
+            id: `ai-break-${Date.now()}`,
+            key: "ai_break_recommendation",
+            name: "Take a Break",
+            description: `AI recommends a ${predictions.suggestedBreakInterval} minute break for optimal retention`,
+            icon: "☕",
+            category: "intelligence",
+            rarity: "RARE",
+            dynastyPoints: 0,
+          });
+        }
+      }, predictions.suggestedBreakInterval * 60 * 1000);
+
+      return () => clearTimeout(breakTimer);
+    }
+  }, [
+    intelligence.predictions,
+    isPremiumUser,
+    isPlaying,
+    playbackRate,
+    showAchievementToast,
+  ]);
 
   // 📱 Mobile gesture handlers
   useMobileGestures(containerRef, {
@@ -366,7 +441,7 @@ export default function ListenModeLuxury({
 
   // Playback speeds with luxury labels
   const speeds = [
-    { value: 0.75, label: "Meditative", icon: "🧘" },
+    { value: 0.95, label: "Meditative", icon: "🧘" },
     { value: 1.0, label: "Natural", icon: "✨" },
     { value: 1.25, label: "Focused", icon: "🎯" },
     { value: 1.5, label: "Power", icon: "⚡" },
@@ -393,7 +468,7 @@ export default function ListenModeLuxury({
         "https://assets.mixkit.co/music/preview/mixkit-night-ambient-947.mp3",
       gradient: "from-slate-950 via-purple-950 to-indigo-950",
       particleColor: "purple-400",
-      recommendedSpeed: 0.75,
+      recommendedSpeed: 0.9,
       visualizerStyle: "wave" as const,
     },
     "coffee-shop": {
@@ -413,7 +488,7 @@ export default function ListenModeLuxury({
         "https://assets.mixkit.co/music/preview/mixkit-ocean-waves-loop-1196.mp3",
       gradient: "from-cyan-950 via-blue-900 to-cyan-950",
       particleColor: "cyan-400",
-      recommendedSpeed: 0.75,
+      recommendedSpeed: 0.95,
       visualizerStyle: "wave" as const,
     },
     "fireplace-study": {
@@ -796,13 +871,17 @@ export default function ListenModeLuxury({
         analyserRef.current.fftSize = 64; // 32 frequency bands
         analyserRef.current.smoothingTimeConstant = 0.8; // Smooth animation
 
-        const source = audioContextRef.current.createMediaElementSource(
-          audioRef.current
-        );
-        source.connect(analyserRef.current);
-        analyserRef.current.connect(audioContextRef.current.destination);
+        // Only create source if not already connected
+        if (!audioSourceRef.current) {
+          const source = audioContextRef.current.createMediaElementSource(
+            audioRef.current
+          );
+          source.connect(analyserRef.current);
+          analyserRef.current.connect(audioContextRef.current.destination);
+          audioSourceRef.current = source;
 
-        console.log("[Visualizer] Web Audio API initialized");
+          console.log("[Visualizer] Web Audio API initialized");
+        }
       }
 
       // Animate visualizer
@@ -1115,6 +1194,11 @@ export default function ListenModeLuxury({
     setBackgroundGradient(atmosphere.gradient);
     setVisualizerStyle(atmosphere.visualizerStyle);
     setPlaybackRate(atmosphere.recommendedSpeed);
+
+    // Track atmosphere change with intelligence
+    if (isPremiumUser) {
+      intelligence.onAtmosphereChange();
+    }
 
     // Track event
     trackEvent("listening_atmosphere_applied", {
@@ -1537,6 +1621,14 @@ export default function ListenModeLuxury({
   const setup3DSpatialAudio = () => {
     if (!audioRef.current || !spatialAudioEnabled) return;
 
+    // NOTE: Disabled to prevent conflict with visualizer audio context
+    // The visualizer already uses Web Audio API and connects to the audio element
+    console.log(
+      "[3D Spatial Audio] Currently disabled - using visualizer audio context"
+    );
+    return;
+
+    /* DISABLED - CONFLICTS WITH VISUALIZER
     try {
       const audioContext = new (window.AudioContext ||
         (window as any).webkitAudioContext)();
@@ -1581,6 +1673,7 @@ export default function ListenModeLuxury({
     } catch (error) {
       console.error("[3D Spatial Audio] Setup failed:", error);
     }
+    */
   };
 
   // 🎮 PANDORA'S BOX #8: Learning Mode - Generate AI quiz from listening section
@@ -1926,7 +2019,9 @@ export default function ListenModeLuxury({
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error("API error:", errorData);
-        throw new Error("Failed to generate audio");
+        const errorMessage =
+          errorData.details || errorData.error || "Failed to generate audio";
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -1940,9 +2035,14 @@ export default function ListenModeLuxury({
       // The API returns the full data URL already
       setAudioUrl(data.audioUrl);
       setHasGenerated(true);
+      setIsCached(data.cached || false);
       console.log("Audio URL set successfully, cached:", data.cached);
     } catch (err) {
-      setError("Failed to generate audio. Please try again.");
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to generate audio. Please try again.";
+      setError(errorMessage);
       console.error("Audio generation error:", err);
     } finally {
       setIsLoading(false);
@@ -1958,8 +2058,17 @@ export default function ListenModeLuxury({
     try {
       if (isPlaying) {
         audioRef.current.pause();
+        // Track pause with intelligence
+        if (isPremiumUser) {
+          intelligence.onPause();
+        }
       } else {
         await audioRef.current.play();
+        // Start tracking when playback begins
+        if (isPremiumUser) {
+          intelligence.startTracking();
+          intelligence.onResume();
+        }
       }
     } catch (err) {
       console.error("Playback error:", err);
@@ -2334,7 +2443,7 @@ export default function ListenModeLuxury({
               <button
                 onClick={generateAudio}
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-purple-600 via-violet-600 to-purple-600 hover:from-purple-500 hover:via-violet-500 hover:to-purple-500 text-white font-bold py-6 px-8 rounded-2xl transition-all duration-300 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-102 disabled:opacity-50 disabled:cursor-not-allowed group"
+                className="w-full bg-gradient-to-r from-purple-600 via-violet-600 to-purple-600 hover:from-purple-500 hover:via-violet-500 hover:to-purple-500 text-white font-bold py-6 px-8 rounded-2xl transition-all duration-300 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-102 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-3">
@@ -2354,6 +2463,64 @@ export default function ListenModeLuxury({
               {error && (
                 <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-center">
                   {error}
+                </div>
+              )}
+
+              {/* Premium Instant Delivery Indicator (Cached) */}
+              {isCached && hasGenerated && !error && (
+                <div className="mt-4 p-4 bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 border border-amber-400/50 rounded-xl text-center backdrop-blur-sm animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-lg shadow-amber-500/20">
+                  <div className="flex items-center justify-center gap-2 text-amber-300 font-bold mb-2">
+                    <Zap className="w-6 h-6 text-amber-400 animate-pulse" />
+                    <span className="text-lg bg-gradient-to-r from-amber-200 to-yellow-200 bg-clip-text text-transparent">
+                      Premium Instant Access
+                    </span>
+                    <svg
+                      className="w-6 h-6 text-amber-400"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-amber-200/90 font-medium">
+                    ⚡{" "}
+                    <span className="font-bold text-amber-100">
+                      VIP Priority Delivery
+                    </span>{" "}
+                    • Pre-optimized for you
+                  </p>
+                  <p className="text-xs text-amber-300/70 mt-1">
+                    Your audio is ready instantly—no waiting! ✨
+                  </p>
+                </div>
+              )}
+
+              {/* Premium First-Generation Success */}
+              {!isCached && hasGenerated && !error && (
+                <div className="mt-4 p-4 bg-gradient-to-r from-purple-500/20 via-violet-500/20 to-purple-500/20 border border-purple-400/50 rounded-xl text-center backdrop-blur-sm animate-in fade-in slide-in-from-bottom-2 duration-500 shadow-lg shadow-purple-500/20">
+                  <div className="flex items-center justify-center gap-2 text-purple-300 font-bold mb-2">
+                    <Sparkles className="w-6 h-6 text-purple-400 animate-pulse" />
+                    <span className="text-lg bg-gradient-to-r from-purple-200 to-violet-200 bg-clip-text text-transparent">
+                      Masterfully Crafted Audio
+                    </span>
+                    <svg
+                      className="w-6 h-6 text-purple-400"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-purple-200/90 font-medium">
+                    🎙️{" "}
+                    <span className="font-bold text-purple-100">
+                      Studio-Quality Narration
+                    </span>{" "}
+                    • AI-powered perfection
+                  </p>
+                  <p className="text-xs text-purple-300/70 mt-1">
+                    Professionally optimized for your listening pleasure ✨
+                  </p>
                 </div>
               )}
             </div>
@@ -2474,6 +2641,16 @@ export default function ListenModeLuxury({
                   </div>
                 </div>
               </div>
+
+              {/* 🧠 INTELLIGENCE INSIGHTS PANEL: AI-Powered Reading Predictions */}
+              {isPremiumUser && intelligence.predictions && (
+                <div className="mb-8">
+                  <IntelligenceInsightsPanel
+                    predictions={intelligence.predictions}
+                    isLoading={!intelligence.predictions}
+                  />
+                </div>
+              )}
 
               {/* Main Controls */}
               <div className="space-y-6 mb-8">
@@ -2644,6 +2821,12 @@ export default function ListenModeLuxury({
                     onChange={(e) => {
                       const newSpeed = parseFloat(e.target.value);
                       setPlaybackRate(newSpeed);
+
+                      // Track speed change with intelligence
+                      if (isPremiumUser) {
+                        intelligence.onSpeedChange();
+                      }
+
                       trackEvent("speed_changed", {
                         fromSpeed: playbackRate,
                         toSpeed: newSpeed,

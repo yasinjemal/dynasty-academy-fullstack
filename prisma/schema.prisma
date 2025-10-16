@@ -33,76 +33,76 @@ model User {
   streakDays             Int                  @default(0)
   suspendedUntil         DateTime?
   username               String?              @unique
-  // Profile fields
   bannerImage            String?
-  location               String?
-  website                String?
-  xHandle                String?
-  instagram              String?
-  youtube                String?
-  // Reading stats
-  readingMinutesLifetime Int                  @default(0)
   booksCompleted         Int                  @default(0)
   currentBookId          String?
   currentPage            Int?
-  // Reputation
+  dmOpen                 Boolean              @default(true)
   followersCount         Int                  @default(0)
   followingCount         Int                  @default(0)
-  thanksReceived         Int                  @default(0)
-  reportsCount           Int                  @default(0)
-  // Preferences
-  profileTheme           String               @default("default")
+  instagram              String?
   isPrivate              Boolean              @default(false)
-  dmOpen                 Boolean              @default(true)
-  // Username history
+  location               String?
+  profileTheme           String               @default("default")
+  readingMinutesLifetime Int                  @default(0)
+  reportsCount           Int                  @default(0)
+  thanksReceived         Int                  @default(0)
   usernameChangedAt      DateTime?
-  accounts            Account[]
-  blogPosts           BlogPost[]
-  bookReflections     BookReflection[]     @relation("BookReflections")
-  bookmarks           Bookmark[]
-  books               Book[]
-  cartItems           CartItem[]           @relation("CartItems")
-  collectionItems     CollectionItem[]
-  collections         Collection[]         @relation("UserCollections")
-  comments            Comment[]
-  dynastyActivities   DynastyActivity[]    @relation("UserActivities")
-  feedItems           FeedItem[]
-  following           Follow[]             @relation("Follower")
-  followers           Follow[]             @relation("Following")
-  forumPostLikes      ForumPostLike[]      @relation("ForumPostLikes")
-  forumPosts          ForumPost[]          @relation("ForumPostAuthor")
-  forumTopicBookmarks ForumTopicBookmark[] @relation("ForumTopicBookmarks")
-  forumTopicLikes     ForumTopicLike[]     @relation("ForumTopicLikes")
-  forumTopics         ForumTopic[]         @relation("ForumTopicAuthor")
-  likes               Like[]
-  listeningAnalytics  ListeningAnalytics[] @relation("UserListeningAnalytics")
-  listeningProgress   ListeningProgress[]  @relation("UserListeningProgress")
-  listeningStreak     ListeningStreak?     @relation("UserListeningStreak")
-  notificationsSent   Notification[]       @relation("NotificationActors")
-  notifications       Notification[]       @relation("Recipient")
-  orders              Order[]
-  pageChats           PageChat[]           @relation("UserPageChat")
-  messageFlags        MessageFlag[]        @relation("UserMessageFlags")
-  moderationActions   ModerationLog[]      @relation("ModeratorActions")
-  postComments        PostComment[]        @relation("UserPostComments")
-  postLikes           PostLike[]           @relation("UserPostLikes")
-  commentLikes        CommentLike[]        @relation("UserCommentLikes")
-  savedPosts          SavedPost[]          @relation("UserSavedPosts")
-  posts               Post[]               @relation("UserPosts")
-  purchases           Purchase[]           @relation("UserPurchases")
-  readingPresence     ReadingPresence[]    @relation("UserReadingPresence")
-  reflectionComments  ReflectionComment[]  @relation("UserReflectionComments")
-  reflectionLikes     ReflectionLike[]     @relation("UserReflectionLikes")
-  reflections         Reflection[]         @relation("UserReflections")
-  reportsCreated      Report[]             @relation("UserReports")
-  reportsReviewed     Report[]             @relation("ReviewedReports")
-  reviews             Review[]
-  sentenceHighlights  SentenceHighlight[]  @relation("UserSentenceHighlights")
-  sessions            Session[]
-  subscriptions       Subscription[]       @relation("UserSubscriptions")
-  userAchievements    UserAchievement[]    @relation("UserAchievements")
-  progress            UserProgress[]
-  userQuests          UserQuest[]
+  website                String?
+  xHandle                String?
+  youtube                String?
+  accounts               Account[]
+  blogPosts              BlogPost[]
+  bookReflections        BookReflection[]     @relation("BookReflections")
+  bookmarks              Bookmark[]
+  books                  Book[]
+  cartItems              CartItem[]           @relation("CartItems")
+  collectionItems        CollectionItem[]
+  collections            Collection[]         @relation("UserCollections")
+  commentLikes           CommentLike[]        @relation("UserCommentLikes")
+  comments               Comment[]
+  course_enrollments     course_enrollments[]
+  course_notes           course_notes[]
+  course_reviews         course_reviews[]
+  dynastyActivities      DynastyActivity[]    @relation("UserActivities")
+  feedItems              FeedItem[]
+  following              Follow[]             @relation("Follower")
+  followers              Follow[]             @relation("Following")
+  forumPostLikes         ForumPostLike[]      @relation("ForumPostLikes")
+  forumPosts             ForumPost[]          @relation("ForumPostAuthor")
+  forumTopicBookmarks    ForumTopicBookmark[] @relation("ForumTopicBookmarks")
+  forumTopicLikes        ForumTopicLike[]     @relation("ForumTopicLikes")
+  forumTopics            ForumTopic[]         @relation("ForumTopicAuthor")
+  lesson_progress        lesson_progress[]
+  likes                  Like[]
+  listeningAnalytics     ListeningAnalytics[] @relation("UserListeningAnalytics")
+  listeningProgress      ListeningProgress[]  @relation("UserListeningProgress")
+  listeningStreak        ListeningStreak?     @relation("UserListeningStreak")
+  messageFlags           MessageFlag[]        @relation("UserMessageFlags")
+  moderationActions      ModerationLog[]      @relation("ModeratorActions")
+  notificationsSent      Notification[]       @relation("NotificationActors")
+  notifications          Notification[]       @relation("Recipient")
+  orders                 Order[]
+  pageChats              PageChat[]           @relation("UserPageChat")
+  postComments           PostComment[]        @relation("UserPostComments")
+  postLikes              PostLike[]           @relation("UserPostLikes")
+  posts                  Post[]               @relation("UserPosts")
+  purchases              Purchase[]           @relation("UserPurchases")
+  quiz_attempts          quiz_attempts[]
+  readingPresence        ReadingPresence[]    @relation("UserReadingPresence")
+  reflectionComments     ReflectionComment[]  @relation("UserReflectionComments")
+  reflectionLikes        ReflectionLike[]     @relation("UserReflectionLikes")
+  reflections            Reflection[]         @relation("UserReflections")
+  reportsCreated         Report[]             @relation("UserReports")
+  reportsReviewed        Report[]             @relation("ReviewedReports")
+  reviews                Review[]
+  savedPosts             SavedPost[]          @relation("UserSavedPosts")
+  sentenceHighlights     SentenceHighlight[]  @relation("UserSentenceHighlights")
+  sessions               Session[]
+  subscriptions          Subscription[]       @relation("UserSubscriptions")
+  userAchievements       UserAchievement[]    @relation("UserAchievements")
+  progress               UserProgress[]
+  userQuests             UserQuest[]
 
   @@index([email])
   @@index([role])
@@ -426,42 +426,27 @@ model AudioAsset {
   id            String   @id @default(cuid())
   bookId        String   @map("book_id")
   chapterNumber Int      @map("chapter_number")
-  
-  // 🔥 SMART CACHING FIELDS
-  contentHash   String   @unique @map("content_hash") // SHA-256 for deduplication
-  voiceId       String   @map("voice_id")
-  model         String   @default("eleven_multilingual_v2")
-  speakingRate  Float    @default(1.0) @map("speaking_rate")
-  format        String   @default("mp3_44100_128")
-  
-  // Audio file info
-  storageUrl    String   @map("storage_url") // Cloud storage or base64
-  durationSec   Float    @map("duration_sec")
-  wordCount     Int      @map("word_count")
-  
-  // Metadata & analytics
+  audioUrl      String?  @map("audio_url")
+  duration      String?
   metadata      Json?
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
-  
   book          Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@unique([bookId, chapterNumber])
   @@index([bookId])
-  @@index([contentHash])
   @@map("book_audio")
 }
 
-// 🧠 USAGE ANALYTICS FOR COST TRACKING
 model AudioUsageLog {
-  id              String   @id @default(cuid())
-  userId          String   @map("user_id")
-  bookId          String   @map("book_id")
-  type            String   // "cache_hit" | "cache_miss"
-  savedAmount     Float    @default(0) @map("saved_amount")
-  generationCost  Float    @default(0) @map("generation_cost")
-  timestamp       DateTime @default(now())
-  metadata        Json?
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  bookId         String   @map("book_id")
+  type           String
+  savedAmount    Float    @default(0) @map("saved_amount")
+  generationCost Float    @default(0) @map("generation_cost")
+  timestamp      DateTime @default(now())
+  metadata       Json?
 
   @@index([userId])
   @@index([bookId])
@@ -631,8 +616,8 @@ model Post {
   feedItems    FeedItem[]
   comments     PostComment[]
   likes        PostLike[]
-  saves        SavedPost[]
   author       User             @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
+  saves        SavedPost[]
 
   @@index([slug])
   @@index([authorId])
@@ -676,11 +661,11 @@ model PostComment {
   likeCount Int           @default(0)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+  likes     CommentLike[]
   author    User          @relation("UserPostComments", fields: [authorId], references: [id], onDelete: Cascade)
   parent    PostComment?  @relation("CommentReplies", fields: [parentId], references: [id])
   replies   PostComment[] @relation("CommentReplies")
   post      Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
-  likes     CommentLike[]
 
   @@index([postId])
   @@index([authorId])
@@ -806,10 +791,10 @@ model Collection {
   slug        String
   description String?
   isPublic    Boolean          @default(false)
-  itemCount   Int              @default(0)
-  coverImage  String?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+  coverImage  String?
+  itemCount   Int              @default(0)
   items       CollectionItem[]
   user        User             @relation("UserCollections", fields: [userId], references: [id], onDelete: Cascade)
 
@@ -939,17 +924,17 @@ model ListeningStreak {
 model Achievement {
   id               String            @id @default(dbgenerated("(gen_random_uuid())::text"))
   key              String            @unique
-  slug             String?           @unique
-  title            String?
   name             String
   description      String
   icon             String
-  tier             AchievementTier   @default(BRONZE)
   category         String
   requirement      Int
   dynastyPoints    Int               @default(0)
   rarity           String            @default("COMMON")
   createdAt        DateTime          @default(now())
+  slug             String?           @unique
+  tier             AchievementTier   @default(BRONZE)
+  title            String?
   userAchievements UserAchievement[]
 
   @@map("achievements")
@@ -959,9 +944,9 @@ model UserAchievement {
   id            String      @id @default(dbgenerated("(gen_random_uuid())::text"))
   userId        String
   achievementId String
-  awardedAt     DateTime    @default(now())
   unlockedAt    DateTime    @default(now())
   progress      Int         @default(0)
+  awardedAt     DateTime    @default(now())
   evidence      String?
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
   user          User        @relation("UserAchievements", fields: [userId], references: [id], onDelete: Cascade)
@@ -1063,66 +1048,527 @@ model CoReadingAnalytics {
 }
 
 model PageChat {
-  id                String        @id
-  bookId            String
-  bookSlug          String
-  page              Int
-  userId            String
-  message           String        @db.Text
-  edited            Boolean       @default(false)
-  editedAt          DateTime?
-  createdAt         DateTime      @default(now())
-  
-  // Moderation fields
-  flagged           Boolean       @default(false)
-  flagReason        String?
-  flaggedBy         String?
-  flaggedAt         DateTime?
-  moderatorDeleted  Boolean       @default(false)
-  deletedBy         String?
-  
-  book              Book          @relation("BookPageChat", fields: [bookId], references: [id], onDelete: Cascade)
-  user              User          @relation("UserPageChat", fields: [userId], references: [id], onDelete: Cascade)
-  flags             MessageFlag[]
-  
-  @@index([bookId, page, createdAt]) // Fast page history
-  @@index([userId, createdAt]) // User message history
-  @@index([flagged]) // Moderation queue
+  id               String        @id
+  bookId           String
+  bookSlug         String
+  page             Int
+  userId           String
+  message          String
+  edited           Boolean       @default(false)
+  editedAt         DateTime?
+  createdAt        DateTime      @default(now())
+  deletedBy        String?
+  flagReason       String?
+  flagged          Boolean       @default(false)
+  flaggedAt        DateTime?
+  flaggedBy        String?
+  moderatorDeleted Boolean       @default(false)
+  flags            MessageFlag[]
+  book             Book          @relation("BookPageChat", fields: [bookId], references: [id], onDelete: Cascade)
+  user             User          @relation("UserPageChat", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([bookId, page, createdAt])
+  @@index([userId, createdAt])
+  @@index([flagged])
   @@map("page_chats")
 }
 
-// Message Flag System (Moderation)
 model MessageFlag {
-  id          String    @id @default(cuid())
-  messageId   String
-  message     PageChat  @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  flaggedBy   String
-  user        User      @relation("UserMessageFlags", fields: [flaggedBy], references: [id], onDelete: Cascade)
-  reason      String    // spam, harassment, inappropriate, hate_speech, other
-  details     String?   @db.Text
-  resolved    Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  
-  @@unique([messageId, flaggedBy]) // One flag per user per message
-  @@index([resolved, createdAt]) // Moderation queue
+  id        String   @id @default(cuid())
+  messageId String
+  flaggedBy String
+  reason    String
+  details   String?
+  resolved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation("UserMessageFlags", fields: [flaggedBy], references: [id], onDelete: Cascade)
+  message   PageChat @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, flaggedBy])
+  @@index([resolved, createdAt])
   @@map("message_flags")
 }
 
-// Moderation Log (Audit Trail)
 model ModerationLog {
-  id          String    @id @default(cuid())
-  action      String    // timeout, ban, delete_message, resolve_flag
-  targetType  String    // message, user
+  id          String   @id @default(cuid())
+  action      String
+  targetType  String
   targetId    String
   moderatorId String
-  moderator   User      @relation("ModeratorActions", fields: [moderatorId], references: [id], onDelete: Cascade)
-  reason      String?   @db.Text
-  details     String?   @db.Text
-  createdAt   DateTime  @default(now())
-  
+  reason      String?
+  details     String?
+  createdAt   DateTime @default(now())
+  moderator   User     @relation("ModeratorActions", fields: [moderatorId], references: [id], onDelete: Cascade)
+
   @@index([moderatorId, createdAt])
   @@index([targetId, createdAt])
   @@map("moderation_logs")
+}
+
+model UsernameRedirect {
+  id        String   @id @default(cuid())
+  from      String   @unique
+  to        String
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([from])
+  @@index([to])
+  @@index([expiresAt])
+  @@map("username_redirects")
+}
+
+model UserDailyStats {
+  id             String   @id @default(cuid())
+  userId         String
+  date           DateTime @db.Date
+  views          Int      @default(0)
+  profileVisits  Int      @default(0)
+  postLikes      Int      @default(0)
+  comments       Int      @default(0)
+  readingMinutes Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("user_daily_stats")
+}
+
+model ProfileVisit {
+  id        String   @id @default(cuid())
+  profileId String
+  visitorId String?
+  isUnique  Boolean  @default(true)
+  userAgent String?
+  ipHash    String?
+  createdAt DateTime @default(now())
+
+  @@index([profileId, createdAt])
+  @@index([visitorId])
+  @@index([ipHash, profileId, createdAt])
+  @@map("profile_visits")
+}
+
+model DailyChallenge {
+  id          String                  @id @default(cuid())
+  key         String                  @unique
+  name        String
+  description String
+  type        String
+  target      Int
+  difficulty  String
+  xpReward    Int
+  coinReward  Int                     @default(0)
+  icon        String
+  isActive    Boolean                 @default(true)
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+  progress    UserChallengeProgress[]
+
+  @@index([isActive])
+  @@map("daily_challenges")
+}
+
+model UserChallengeProgress {
+  id          String         @id @default(cuid())
+  userId      String
+  challengeId String
+  date        DateTime       @db.Date
+  progress    Int            @default(0)
+  target      Int
+  completed   Boolean        @default(false)
+  claimedAt   DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  challenge   DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, challengeId, date])
+  @@index([userId, date])
+  @@index([challengeId])
+  @@map("user_challenge_progress")
+}
+
+model PowerUp {
+  id           String        @id @default(cuid())
+  key          String        @unique
+  name         String
+  description  String
+  type         String
+  multiplier   Float?
+  duration     Int
+  coinCost     Int
+  rarity       String
+  icon         String
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userPowerUps UserPowerUp[]
+
+  @@index([isActive])
+  @@map("power_ups")
+}
+
+model UserPowerUp {
+  id          String   @id @default(cuid())
+  userId      String
+  powerUpId   String
+  activatedAt DateTime @default(now())
+  expiresAt   DateTime
+  isActive    Boolean  @default(true)
+  powerUp     PowerUp  @relation(fields: [powerUpId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@index([expiresAt])
+  @@map("user_power_ups")
+}
+
+model UserCoins {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  balance   Int      @default(0)
+  earned    Int      @default(0)
+  spent     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("user_coins")
+}
+
+model ReadingBehavior {
+  id                   String   @id @default(cuid())
+  userId               String
+  bookId               String
+  chapterId            Int
+  timestamp            DateTime @default(now())
+  readingSpeed         Int
+  pauseCount           Int
+  pauseDuration        Int
+  rereadCount          Int
+  scrollbackCount      Int
+  playbackSpeedChanges Int      @default(0)
+  atmosphereChanges    Int      @default(0)
+  bookmarksCreated     Int      @default(0)
+  notesCreated         Int      @default(0)
+  timeOfDay            String
+  dayOfWeek            String
+  sessionDuration      Int
+  completed            Boolean
+  completionPercentage Int
+
+  @@index([userId])
+  @@index([bookId])
+  @@index([timestamp])
+  @@map("reading_behaviors")
+}
+
+model UserBehaviorPattern {
+  id                       String   @id @default(cuid())
+  userId                   String   @unique
+  peakFocusTimes           String[]
+  bestDaysToRead           String[]
+  averageSessionLength     Int
+  preferredSpeed           Float
+  pauseFrequency           String
+  rereadFrequency          String
+  highEngagementIndicators String[]
+  lowEngagementIndicators  String[]
+  likelyToCompleteBooks    Boolean
+  averageCompletionRate    Float
+  optimalChapterLength     Int
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@index([userId])
+  @@map("user_behavior_patterns")
+}
+
+model ContentComplexity {
+  id                     String   @id @default(cuid())
+  bookId                 String
+  chapterId              Int
+  avgSentenceLength      Float
+  vocabularyDensity      Float
+  readingLevel           Float
+  conceptDensity         String
+  technicalTermsCount    Int
+  abstractConceptsCount  Int
+  recommendedSpeed       Float
+  recommendedBreaks      Int
+  estimatedCognitiveLoad String
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@unique([bookId, chapterId])
+  @@index([bookId])
+  @@map("content_complexity")
+}
+
+model course_enrollments {
+  id                  String            @id
+  userId              String
+  courseId            String
+  status              String?           @default("active")
+  progress            Decimal?          @default(0) @db.Decimal(5, 2)
+  completedLessons    Int?              @default(0)
+  totalLessons        Int?              @default(0)
+  currentLessonId     String?
+  totalWatchTime      Int?              @default(0)
+  lastAccessedAt      DateTime?         @db.Timestamp(6)
+  completedAt         DateTime?         @db.Timestamp(6)
+  certificateIssued   Boolean?          @default(false)
+  certificateIssuedAt DateTime?         @db.Timestamp(6)
+  certificateUrl      String?
+  enrolledAt          DateTime          @default(now()) @db.Timestamp(6)
+  updatedAt           DateTime          @default(now()) @db.Timestamp(6)
+  courses             courses           @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_enrollments_course")
+  users               User              @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_enrollments_user")
+  lesson_progress     lesson_progress[]
+
+  @@unique([userId, courseId])
+  @@index([courseId], map: "idx_course_enrollments_course")
+  @@index([status], map: "idx_course_enrollments_status")
+  @@index([userId], map: "idx_course_enrollments_user")
+}
+
+model course_lessons {
+  id               String             @id
+  sectionId        String
+  courseId         String
+  title            String
+  slug             String
+  description      String?
+  order            Int
+  type             String
+  content          String?
+  videoUrl         String?
+  videoProvider    String?
+  videoDuration    Int?
+  videoThumbnail   String?
+  pdfUrl           String?
+  downloadUrl      String?
+  fileSize         Int?
+  isFree           Boolean?           @default(false)
+  isLocked         Boolean?           @default(false)
+  unlockAfter      String?
+  transcript       String?
+  hasTranscript    Boolean?           @default(false)
+  viewCount        Int?               @default(0)
+  completionCount  Int?               @default(0)
+  averageWatchTime Int?               @default(0)
+  createdAt        DateTime           @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime           @default(now()) @db.Timestamp(6)
+  courses          courses            @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_lessons_course")
+  course_sections  course_sections    @relation(fields: [sectionId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_lessons_section")
+  course_notes     course_notes[]
+  course_quizzes   course_quizzes[]
+  course_resources course_resources[]
+  lesson_progress  lesson_progress[]
+
+  @@unique([courseId, slug])
+  @@index([courseId], map: "idx_course_lessons_course")
+  @@index([sectionId], map: "idx_course_lessons_section")
+  @@index([type], map: "idx_course_lessons_type")
+}
+
+model course_notes {
+  id             String          @id
+  userId         String
+  courseId       String
+  lessonId       String?
+  content        String
+  timestamp      Int?
+  isPublic       Boolean?        @default(false)
+  createdAt      DateTime        @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime        @default(now()) @db.Timestamp(6)
+  courses        courses         @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_notes_course")
+  course_lessons course_lessons? @relation(fields: [lessonId], references: [id], onUpdate: NoAction, map: "fk_course_notes_lesson")
+  users          User            @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_notes_user")
+
+  @@index([courseId], map: "idx_course_notes_course")
+  @@index([userId], map: "idx_course_notes_user")
+}
+
+model course_quizzes {
+  id             String           @id
+  lessonId       String?
+  courseId       String
+  title          String
+  description    String?
+  passingScore   Int?             @default(70)
+  timeLimit      Int?
+  maxAttempts    Int?
+  showAnswers    Boolean?         @default(true)
+  order          Int?             @default(0)
+  createdAt      DateTime         @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime         @default(now()) @db.Timestamp(6)
+  courses        courses          @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_quizzes_course")
+  course_lessons course_lessons?  @relation(fields: [lessonId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_quizzes_lesson")
+  quiz_attempts  quiz_attempts[]
+  quiz_questions quiz_questions[]
+}
+
+model course_resources {
+  id             String          @id
+  courseId       String
+  lessonId       String?
+  title          String
+  type           String
+  url            String
+  fileSize       Int?
+  downloadCount  Int?            @default(0)
+  order          Int?            @default(0)
+  createdAt      DateTime        @default(now()) @db.Timestamp(6)
+  courses        courses         @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_resources_course")
+  course_lessons course_lessons? @relation(fields: [lessonId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_resources_lesson")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model course_reviews {
+  id        String   @id
+  userId    String
+  courseId  String
+  rating    Int
+  comment   String?
+  helpful   Int?     @default(0)
+  verified  Boolean? @default(false)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
+  courses   courses  @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_reviews_course")
+  users     User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_reviews_user")
+
+  @@unique([userId, courseId])
+  @@index([courseId], map: "idx_course_reviews_course")
+  @@index([userId], map: "idx_course_reviews_user")
+}
+
+model course_sections {
+  id             String           @id
+  courseId       String
+  title          String
+  description    String?
+  order          Int
+  isLocked       Boolean?         @default(false)
+  createdAt      DateTime         @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime         @default(now()) @db.Timestamp(6)
+  course_lessons course_lessons[]
+  courses        courses          @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_course_sections_course")
+
+  @@index([courseId], map: "idx_course_sections_course")
+  @@index([order], map: "idx_course_sections_order")
+}
+
+model courses {
+  id                  String               @id
+  title               String
+  slug                String               @unique
+  description         String?
+  shortDescription    String?
+  coverImage          String?
+  previewVideo        String?
+  level               String               @default("beginner")
+  category            String
+  tags                String[]
+  duration            Int?
+  lessonCount         Int?                 @default(0)
+  price               Decimal              @default(0) @db.Decimal(10, 2)
+  currency            String?              @default("USD")
+  isFree              Boolean?             @default(false)
+  discount            Int?                 @default(0)
+  status              String?              @default("draft")
+  featured            Boolean?             @default(false)
+  isPremium           Boolean?             @default(false)
+  authorId            String
+  instructorName      String?
+  instructorBio       String?
+  instructorImage     String?
+  enrollmentCount     Int?                 @default(0)
+  completionCount     Int?                 @default(0)
+  averageRating       Decimal?             @default(0) @db.Decimal(3, 2)
+  reviewCount         Int?                 @default(0)
+  viewCount           Int?                 @default(0)
+  metaTitle           String?
+  metaDescription     String?
+  ogImage             String?
+  certificateEnabled  Boolean?             @default(false)
+  certificateTemplate String?
+  createdAt           DateTime             @default(now()) @db.Timestamp(6)
+  updatedAt           DateTime             @default(now()) @db.Timestamp(6)
+  publishedAt         DateTime?            @db.Timestamp(6)
+  course_enrollments  course_enrollments[]
+  course_lessons      course_lessons[]
+  course_notes        course_notes[]
+  course_quizzes      course_quizzes[]
+  course_resources    course_resources[]
+  course_reviews      course_reviews[]
+  course_sections     course_sections[]
+  lesson_progress     lesson_progress[]
+
+  @@index([authorId], map: "idx_courses_author")
+  @@index([category], map: "idx_courses_category")
+  @@index([featured], map: "idx_courses_featured")
+  @@index([slug], map: "idx_courses_slug")
+  @@index([status], map: "idx_courses_status")
+}
+
+model lesson_progress {
+  id                 String             @id
+  userId             String
+  lessonId           String
+  courseId           String
+  enrollmentId       String
+  status             String?            @default("not_started")
+  progress           Decimal?           @default(0) @db.Decimal(5, 2)
+  watchTime          Int?               @default(0)
+  lastPosition       Int?               @default(0)
+  completed          Boolean?           @default(false)
+  completedAt        DateTime?          @db.Timestamp(6)
+  notes              String?
+  bookmarked         Boolean?           @default(false)
+  createdAt          DateTime           @default(now()) @db.Timestamp(6)
+  updatedAt          DateTime           @default(now()) @db.Timestamp(6)
+  lastAccessedAt     DateTime?          @db.Timestamp(6)
+  courses            courses            @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_lesson_progress_course")
+  course_enrollments course_enrollments @relation(fields: [enrollmentId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_lesson_progress_enrollment")
+  course_lessons     course_lessons     @relation(fields: [lessonId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_lesson_progress_lesson")
+  users              User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_lesson_progress_user")
+
+  @@unique([userId, lessonId])
+  @@index([enrollmentId], map: "idx_lesson_progress_enrollment")
+  @@index([lessonId], map: "idx_lesson_progress_lesson")
+  @@index([userId], map: "idx_lesson_progress_user")
+}
+
+model quiz_attempts {
+  id             String         @id
+  userId         String
+  quizId         String
+  score          Decimal?       @db.Decimal(5, 2)
+  passed         Boolean?       @default(false)
+  answers        Json?
+  timeSpent      Int?
+  startedAt      DateTime       @default(now()) @db.Timestamp(6)
+  completedAt    DateTime?      @db.Timestamp(6)
+  course_quizzes course_quizzes @relation(fields: [quizId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_quiz_attempts_quiz")
+  users          User           @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_quiz_attempts_user")
+
+  @@index([quizId], map: "idx_quiz_attempts_quiz")
+  @@index([userId], map: "idx_quiz_attempts_user")
+}
+
+model quiz_questions {
+  id             String         @id
+  quizId         String
+  question       String
+  type           String
+  options        Json?
+  correctAnswer  String?
+  explanation    String?
+  points         Int?           @default(1)
+  order          Int
+  createdAt      DateTime       @default(now()) @db.Timestamp(6)
+  course_quizzes course_quizzes @relation(fields: [quizId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_quiz_questions_quiz")
 }
 
 enum Role {
@@ -1194,137 +1640,4 @@ enum ReportStatus {
   REVIEWING
   RESOLVED
   DISMISSED
-}
-
-model UsernameRedirect {
-  id        String   @id @default(cuid())
-  from      String   @unique
-  to        String
-  userId    String
-  createdAt DateTime @default(now())
-  expiresAt DateTime
-
-  @@index([from])
-  @@index([to])
-  @@index([expiresAt])
-  @@map("username_redirects")
-}
-
-model UserDailyStats {
-  id             String   @id @default(cuid())
-  userId         String
-  date           DateTime @db.Date
-  views          Int      @default(0)
-  profileVisits  Int      @default(0)
-  postLikes      Int      @default(0)
-  comments       Int      @default(0)
-  readingMinutes Int      @default(0)
-  createdAt      DateTime @default(now())
-
-  @@unique([userId, date])
-  @@index([userId, date])
-  @@map("user_daily_stats")
-}
-
-// DOPAMINE SYSTEM MODELS - Sprint C
-
-model ProfileVisit {
-  id          String   @id @default(cuid())
-  profileId   String   // User being visited
-  visitorId   String?  // Visitor (null for anonymous)
-  isUnique    Boolean  @default(true) // First visit today
-  userAgent   String?
-  ipHash      String?  // Hashed IP for rate limiting
-  createdAt   DateTime @default(now())
-
-  @@index([profileId, createdAt])
-  @@index([visitorId])
-  @@index([ipHash, profileId, createdAt])
-  @@map("profile_visits")
-}
-
-model DailyChallenge {
-  id          String   @id @default(cuid())
-  key         String   @unique // "morning_reader", "speed_reader", etc.
-  name        String
-  description String
-  type        String   // "reading_time", "chapters", "streak"
-  target      Int      // Target value to complete
-  difficulty  String   // "easy", "medium", "hard", "insane"
-  xpReward    Int
-  coinReward  Int      @default(0)
-  icon        String
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  progress    UserChallengeProgress[]
-
-  @@index([isActive])
-  @@map("daily_challenges")
-}
-
-model UserChallengeProgress {
-  id          String         @id @default(cuid())
-  userId      String
-  challengeId String
-  date        DateTime       @db.Date // Reset daily
-  progress    Int            @default(0)
-  target      Int
-  completed   Boolean        @default(false)
-  claimedAt   DateTime?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  challenge   DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, challengeId, date])
-  @@index([userId, date])
-  @@index([challengeId])
-  @@map("user_challenge_progress")
-}
-
-model PowerUp {
-  id          String   @id @default(cuid())
-  key         String   @unique // "xp_boost_2x", "xp_boost_5x", "streak_saver"
-  name        String
-  description String
-  type        String   // "xp_multiplier", "streak_protection"
-  multiplier  Float?   // 2.0, 5.0, etc.
-  duration    Int      // Duration in hours
-  coinCost    Int
-  rarity      String   // "common", "rare", "legendary"
-  icon        String
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userPowerUps UserPowerUp[]
-
-  @@index([isActive])
-  @@map("power_ups")
-}
-
-model UserPowerUp {
-  id          String    @id @default(cuid())
-  userId      String
-  powerUpId   String
-  activatedAt DateTime  @default(now())
-  expiresAt   DateTime
-  isActive    Boolean   @default(true)
-  powerUp     PowerUp   @relation(fields: [powerUpId], references: [id], onDelete: Cascade)
-
-  @@index([userId, isActive])
-  @@index([expiresAt])
-  @@map("user_power_ups")
-}
-
-model UserCoins {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  balance   Int      @default(0)
-  earned    Int      @default(0)
-  spent     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-  @@map("user_coins")
 }

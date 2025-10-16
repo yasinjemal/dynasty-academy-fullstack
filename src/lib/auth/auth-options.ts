@@ -114,15 +114,22 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
 
-        // Fetch username from database
+        // Fetch username, bio, and premium status from database
         if (token.id) {
           const user = await prisma.user.findUnique({
             where: { id: token.id as string },
-            select: { username: true, bio: true },
+            select: {
+              username: true,
+              bio: true,
+              isPremium: true,
+              premiumUntil: true,
+            },
           });
           if (user) {
             session.user.username = user.username;
             session.user.bio = user.bio;
+            session.user.isPremium = user.isPremium || false;
+            session.user.premiumUntil = user.premiumUntil;
           }
         }
       }

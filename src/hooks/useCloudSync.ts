@@ -84,15 +84,22 @@ export function useCloudSync(options: UseCloudSyncOptions = { enabled: true }) {
         );
 
         if (!response.ok) {
-          if (response.status === 404) return null; // No saved progress
-          throw new Error("Failed to load progress");
+          if (response.status === 404) {
+            // No saved progress - this is normal for first time
+            return null;
+          }
+          console.warn(
+            "[Cloud Sync] Failed to load progress:",
+            response.status
+          );
+          return null; // Fail silently
         }
 
         const result = await response.json();
         return result.progress;
       } catch (error) {
-        console.error("[Cloud Sync] Load failed:", error);
-        onError?.(error as Error);
+        // Network errors or parsing errors - fail silently
+        console.debug("[Cloud Sync] Load failed:", error);
         return null;
       }
     },

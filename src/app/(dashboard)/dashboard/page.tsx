@@ -61,6 +61,15 @@ export default function DashboardPage() {
               </span>
             </Link>
             <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+              <Link href="/courses">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs sm:text-sm"
+                >
+                  🎓 Courses
+                </Button>
+              </Link>
               <Link href="/books">
                 <Button
                   variant="ghost"
@@ -267,6 +276,32 @@ export default function DashboardPage() {
             </h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+            <Link
+              href="/courses"
+              className="group relative bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/30 rounded-xl p-4 sm:p-5 md:p-6 hover:shadow-lg hover:shadow-indigo-200/50 dark:hover:shadow-indigo-900/50 transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02] border border-indigo-200/50 dark:border-indigo-700/50"
+            >
+              <div className="flex flex-col items-center text-center space-y-2 sm:space-y-3">
+                <div className="p-2 sm:p-3 bg-indigo-200/50 dark:bg-indigo-700/50 rounded-xl group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                  <svg
+                    className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-indigo-600 dark:text-indigo-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    />
+                  </svg>
+                </div>
+                <span className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">
+                  My Courses
+                </span>
+              </div>
+            </Link>
+
             <Link
               href="/books"
               className="group relative bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 rounded-xl p-4 sm:p-5 md:p-6 hover:shadow-lg hover:shadow-purple-200/50 dark:hover:shadow-purple-900/50 transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02] border border-purple-200/50 dark:border-purple-700/50"

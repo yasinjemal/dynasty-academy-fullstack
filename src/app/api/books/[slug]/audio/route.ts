@@ -27,6 +27,7 @@ export async function POST(
       );
     }
 
+    // CORRECT: Use prisma.book (not prisma.books)
     const book = await prisma.book.findFirst({ where: { slug } });
     if (!book) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
@@ -42,7 +43,7 @@ export async function POST(
       .update(cleanText + voiceId)
       .digest("hex");
 
-    // Check cache first (by bookId + chapterNumber)
+    // CORRECT: Check cache by bookId + chapterNumber + voiceId
     const existingAudio = await prisma.audioAsset.findFirst({
       where: {
         bookId: book.id,
@@ -50,21 +51,41 @@ export async function POST(
       },
     });
 
+    // Check if cached audio matches the requested voice
     if (existingAudio) {
-      const metadata = (existingAudio.metadata as { wordCount?: number }) || {};
-      console.log(
-        "✅ Cache hit! Saved $",
-        (((metadata.wordCount || 500) / 1000) * 0.18).toFixed(2)
-      );
-      return NextResponse.json({
-        success: true,
-        audioUrl: existingAudio.audioUrl,
-        duration: existingAudio.duration || "1:00",
-        cached: true,
-      });
+      const metadata =
+        (existingAudio.metadata as { wordCount?: number; voiceId?: string }) ||
+        {};
+      if (metadata.voiceId === voiceId) {
+        console.log(
+          "⚡ VIP Priority Delivery - Instant access (Saved $",
+          (((metadata.wordCount || 500) / 1000) * 0.18).toFixed(2) + ")"
+        );
+        return NextResponse.json({
+          success: true,
+          audioUrl: existingAudio.audioUrl,
+          duration: existingAudio.duration || "1:00",
+          cached: true,
+        });
+      } else {
+        console.log(
+          "🎨 Different voice selected, creating new premium audio..."
+        );
+      }
     }
 
-    console.log("🎙️ Generating new audio with ElevenLabs...");
+    console.log("🎙️ Crafting studio-quality audio with ElevenLabs...");
+    console.log("Voice ID:", voiceId);
+    console.log("Text length:", cleanText.length);
+
+    if (!ELEVENLABS_API_KEY) {
+      console.error("❌ ELEVENLABS_API_KEY not configured");
+      return NextResponse.json(
+        { error: "Audio service not configured" },
+        { status: 500 }
+      );
+    }
+
     const response = await fetch(
       `${ELEVENLABS_API_URL}/text-to-speech/${voiceId}`,
       {
@@ -84,8 +105,32 @@ export async function POST(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("ElevenLabs error:", errorText);
-      throw new Error(`ElevenLabs API error: ${response.status}`);
+      console.error("❌ ElevenLabs API error:", {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorText,
+        voiceId,
+      });
+
+      // Return a more helpful error message
+      let errorMessage = `ElevenLabs API error: ${response.status}`;
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage =
+          errorJson.detail?.message || errorJson.message || errorMessage;
+      } catch (e) {
+        // If we can't parse JSON, use the status text
+        errorMessage = response.statusText || errorMessage;
+      }
+
+      return NextResponse.json(
+        {
+          error: "Failed to generate audio",
+          details: errorMessage,
+          voiceId,
+        },
+        { status: response.status }
+      );
     }
 
     const audioBuffer = await response.arrayBuffer();
@@ -100,15 +145,32 @@ export async function POST(
       .toString()
       .padStart(2, "0")}`;
 
-    await prisma.audioAsset.create({
-      data: {
-        bookId: book.id,
-        chapterNumber: parseInt(chapterNumber),
-        voiceId,
+    // CORRECT: Upsert (update or create) using fields that EXIST in database
+    await prisma.audioAsset.upsert({
+      where: {
+        bookId_chapterNumber: {
+          bookId: book.id,
+          chapterNumber: parseInt(chapterNumber),
+        },
+      },
+      update: {
         audioUrl,
         duration,
         metadata: {
           contentHash,
+          voiceId,
+          wordCount,
+          generatedAt: new Date().toISOString(),
+        },
+      },
+      create: {
+        bookId: book.id,
+        chapterNumber: parseInt(chapterNumber),
+        audioUrl,
+        duration,
+        metadata: {
+          contentHash,
+          voiceId,
           wordCount,
           generatedAt: new Date().toISOString(),
         },
