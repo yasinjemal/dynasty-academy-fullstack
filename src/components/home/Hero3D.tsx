@@ -131,12 +131,15 @@ export default function Hero3D() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
               >
-                Transform your life through{" "}
-                <span className="text-orange-400 font-semibold">knowledge</span>
-                , build your{" "}
-                <span className="text-purple-400 font-semibold">legacy</span>,
-                and join a community of{" "}
-                <span className="text-blue-400 font-semibold">greatness</span>.
+                Access premium{" "}
+                <span className="text-orange-400 font-semibold">books</span>,{" "}
+                interactive{" "}
+                <span className="text-blue-400 font-semibold">courses</span>,{" "}
+                <span className="text-purple-400 font-semibold">AI tools</span>,{" "}
+                and a thriving{" "}
+                <span className="text-pink-400 font-semibold">community</span>.
+                <br />
+                Everything you need to build your legacy in one place.
               </motion.p>
 
               {/* CTA Buttons */}
@@ -192,9 +195,9 @@ export default function Hero3D() {
                 transition={{ delay: 0.8 }}
               >
                 {[
-                  { icon: Users, value: "10K+", label: "Members" },
-                  { icon: BookOpen, value: "500+", label: "Books" },
-                  { icon: TrendingUp, value: "99%", label: "Success Rate" },
+                  { icon: Users, value: "10K+", label: "Active Learners" },
+                  { icon: BookOpen, value: "500+", label: "Books & Courses" },
+                  { icon: Crown, value: "12+", label: "Premium Features" },
                 ].map((stat, i) => (
                   <motion.div
                     key={i}
