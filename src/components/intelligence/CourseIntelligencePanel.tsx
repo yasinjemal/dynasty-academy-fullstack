@@ -17,7 +17,40 @@ import {
   Lightbulb,
   Wind,
 } from "lucide-react";
-import type { CoursePrediction } from "@/lib/intelligence/core/types";
+
+// UI-specific prediction type (matches API response)
+interface UIPrediction {
+  recommendedSessionMinutes: number;
+  estimatedCompletionDate: string;
+  difficultyLevel: string;
+  confidenceScore: number;
+  circadianState: {
+    currentState: string;
+    recommendation: string;
+    energyLevel: number;
+  };
+  cognitiveLoad: {
+    currentLoad: string;
+    capacity: number;
+  };
+  momentum: {
+    currentStreak: number;
+    trend: "increasing" | "stable" | "declining";
+    completionProbability: number;
+  };
+  optimalAtmosphere: {
+    matchScore: number;
+    recommended: string;
+    reason: string;
+  };
+  nextLesson?: {
+    title: string;
+    estimatedMinutes: number;
+    difficulty: string;
+    readinessScore: number;
+  };
+  adaptiveSuggestions: string[];
+}
 
 interface CourseIntelligencePanelProps {
   courseId: string;
@@ -49,7 +82,7 @@ export function CourseIntelligencePanel({
   averageSessionMinutes = 30,
   preferredLearningStyle = "visual",
 }: CourseIntelligencePanelProps) {
-  const [prediction, setPrediction] = useState<CoursePrediction | null>(null);
+  const [prediction, setPrediction] = useState<UIPrediction | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -143,7 +176,8 @@ export function CourseIntelligencePanel({
 
   // Helper to get circadian icon
   const getCircadianIcon = () => {
-    switch (prediction.circadianState.currentState) {
+    const currentState = prediction?.circadianState?.currentState || "good";
+    switch (currentState) {
       case "peak":
         return <Sun className="w-5 h-5 text-amber-500" />;
       case "good":

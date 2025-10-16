@@ -15,9 +15,7 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const userId = session?.user?.id || null;
 
     const { id: courseId } = await params;
 
@@ -31,7 +29,7 @@ export async function GET(
         COALESCE(e."completedLessons", 0) as "completedLessons",
         c."lessonCount" as "totalLessons"
       FROM courses c
-      LEFT JOIN course_enrollments e ON e."courseId" = c.id AND e."userId" = ${session.user.id}
+      LEFT JOIN course_enrollments e ON e."courseId" = c.id AND e."userId" = ${userId}
       WHERE c.id = ${courseId}
       LIMIT 1
     `;
@@ -58,7 +56,7 @@ export async function GET(
         COALESCE(l."videoDuration" / 60, 10) as duration,
         COALESCE(lp.completed, false) as completed
       FROM course_lessons l
-      LEFT JOIN lesson_progress lp ON lp."lessonId" = l.id AND lp."userId" = ${session.user.id}
+      LEFT JOIN lesson_progress lp ON lp."lessonId" = l.id AND lp."userId" = ${userId}
       WHERE l."courseId" = ${courseId}
       ORDER BY l."order" ASC
     `;
@@ -73,6 +71,19 @@ export async function GET(
       ...course[0],
       sections: sectionsWithLessons,
     };
+
+    console.log("📊 API Response Debug:");
+    console.log("- totalLessons:", courseData.totalLessons);
+    console.log("- lessonCount:", courseData.lessonCount);
+    console.log("- completedLessons:", courseData.completedLessons);
+    console.log("- sections:", courseData.sections?.length);
+    console.log(
+      "- total lessons in sections:",
+      courseData.sections?.reduce(
+        (acc: number, s: any) => acc + (s.lessons?.length || 0),
+        0
+      )
+    );
 
     return NextResponse.json(courseData);
   } catch (error) {

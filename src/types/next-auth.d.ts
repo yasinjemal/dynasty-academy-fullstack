@@ -1,3 +1,6 @@
+// TypeScript declaration file for NextAuth
+// Extends NextAuth types with custom user properties
+
 import "next-auth";
 import "next-auth/jwt";
 
@@ -12,6 +15,8 @@ declare module "next-auth" {
       bio?: string | null;
       username?: string | null;
       createdAt?: Date;
+      isPremium?: boolean;
+      premiumUntil?: Date | null;
     };
   }
 
@@ -24,6 +29,8 @@ declare module "next-auth" {
     bio?: string | null;
     username?: string | null;
     createdAt?: Date;
+    isPremium?: boolean;
+    premiumUntil?: Date | null;
   }
 }
 

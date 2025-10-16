@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import NotificationBell from "@/components/shared/NotificationBell";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 import UserProfileDropdown from "@/components/shared/UserProfileDropdown";
+import InstructorQuickAccess from "@/components/shared/InstructorQuickAccess";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -613,6 +614,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Floating Instructor Quick Access */}
+      <InstructorQuickAccess />
     </div>
   );
 }

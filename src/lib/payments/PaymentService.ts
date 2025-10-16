@@ -24,6 +24,30 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 // PRICING PLANS
 // ============================================================================
 
+// Base features
+const premiumFeatures = {
+  coursesPerMonth: Infinity,
+  booksPerMonth: Infinity,
+  certificates: true,
+  aiInsights: "advanced",
+  support: "priority",
+  downloads: true,
+  analytics: true,
+  studyGroups: true,
+  careerPath: true,
+} as const;
+
+const professionalFeatures = {
+  ...premiumFeatures,
+  aiCoaching: true,
+  mentorship: true,
+  verifiedCertificates: true,
+  jobBoard: true,
+  resumeAI: true,
+  apiAccess: true,
+  teamDashboard: true,
+} as const;
+
 export const PRICING_PLANS = {
   FREE: {
     id: "free",
@@ -49,17 +73,7 @@ export const PRICING_PLANS = {
     interval: "month" as const,
     stripeMonthly: process.env.STRIPE_PREMIUM_MONTHLY!,
     stripeAnnual: process.env.STRIPE_PREMIUM_ANNUAL!,
-    features: {
-      coursesPerMonth: Infinity,
-      booksPerMonth: Infinity,
-      certificates: true,
-      aiInsights: "advanced",
-      support: "priority",
-      downloads: true,
-      analytics: true,
-      studyGroups: true,
-      careerPath: true,
-    },
+    features: premiumFeatures,
   },
 
   PROFESSIONAL: {
@@ -70,16 +84,7 @@ export const PRICING_PLANS = {
     interval: "month" as const,
     stripeMonthly: process.env.STRIPE_PRO_MONTHLY!,
     stripeAnnual: process.env.STRIPE_PRO_ANNUAL!,
-    features: {
-      ...PRICING_PLANS.PREMIUM.features,
-      aiCoaching: true,
-      mentorship: true,
-      verifiedCertificates: true,
-      jobBoard: true,
-      resumeAI: true,
-      apiAccess: true,
-      teamDashboard: true,
-    },
+    features: professionalFeatures,
   },
 
   ENTERPRISE: {
@@ -89,7 +94,7 @@ export const PRICING_PLANS = {
     interval: "month" as const,
     custom: true,
     features: {
-      ...PRICING_PLANS.PROFESSIONAL.features,
+      ...professionalFeatures,
       unlimitedUsers: true,
       customBranding: true,
       sso: true,

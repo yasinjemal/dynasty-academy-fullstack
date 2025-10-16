@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import InstructorQuickAccess from "@/components/shared/InstructorQuickAccess";
 import {
   BookOpen,
   Clock,
@@ -18,6 +19,8 @@ import {
   Video,
   FileText,
   CheckCircle2,
+  GraduationCap,
+  PlusCircle,
 } from "lucide-react";
 
 interface Course {
@@ -154,6 +157,38 @@ export default function CoursesPage() {
                 <span className="text-slate-300">AI-Powered Learning</span>
               </div>
             </div>
+
+            {/* Instructor Portal CTA */}
+            {session && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="mt-8 flex items-center justify-center gap-4"
+              >
+                <Link href="/instructor/courses">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="group flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white font-semibold shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all"
+                  >
+                    <GraduationCap className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                    Instructor Dashboard
+                  </motion.button>
+                </Link>
+
+                <Link href="/instructor/create-course">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="group flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl text-white font-semibold shadow-lg shadow-green-500/20 hover:shadow-green-500/40 transition-all"
+                  >
+                    <PlusCircle className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+                    Create Course
+                  </motion.button>
+                </Link>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </div>
@@ -364,6 +399,9 @@ export default function CoursesPage() {
           </div>
         )}
       </div>
+
+      {/* Floating Instructor Quick Access */}
+      <InstructorQuickAccess />
     </div>
   );
 }

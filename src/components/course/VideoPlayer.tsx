@@ -71,19 +71,16 @@ export function VideoPlayer({
       const shouldComplete = progress >= 95 && !hasCompletedThreshold;
 
       try {
-        await fetch(
-          `/api/courses/${courseId}/lessons/${lessonId}/progress`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              watchTime,
-              lastPosition: Math.floor(currentTime),
-              progress,
-              completed: shouldComplete,
-            }),
-          }
-        );
+        await fetch(`/api/courses/${courseId}/lessons/${lessonId}/progress`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            watchTime,
+            lastPosition: Math.floor(currentTime),
+            progress,
+            completed: shouldComplete,
+          }),
+        });
 
         if (shouldComplete) {
           setHasCompletedThreshold(true);
@@ -95,8 +92,14 @@ export function VideoPlayer({
     }, 5000); // Save every 5 seconds
 
     return () => clearInterval(interval);
-  }, [currentTime, duration, courseId, lessonId, hasCompletedThreshold, onComplete]);
-
+  }, [
+    currentTime,
+    duration,
+    courseId,
+    lessonId,
+    hasCompletedThreshold,
+    onComplete,
+  ]);
 
   // Extract video ID from URL
   const getVideoId = () => {

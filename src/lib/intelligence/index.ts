@@ -73,9 +73,3 @@ export const Intelligence = {
 
   // Add more feature shortcuts as needed
 };
-
-/**
- * Legacy export for backward compatibility
- * @deprecated Use Intelligence.books.predict() instead
- */
-export { AdvancedIntelligence } from "../simpleIntelligence";

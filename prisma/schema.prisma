@@ -57,6 +57,7 @@ model User {
   bookmarks              Bookmark[]
   books                  Book[]
   cartItems              CartItem[]           @relation("CartItems")
+  certificates           certificates[]
   collectionItems        CollectionItem[]
   collections            Collection[]         @relation("UserCollections")
   commentLikes           CommentLike[]        @relation("UserCommentLikes")
@@ -1496,6 +1497,7 @@ model courses {
   createdAt           DateTime             @default(now()) @db.Timestamp(6)
   updatedAt           DateTime             @default(now()) @db.Timestamp(6)
   publishedAt         DateTime?            @db.Timestamp(6)
+  certificates        certificates[]
   course_enrollments  course_enrollments[]
   course_lessons      course_lessons[]
   course_notes        course_notes[]
@@ -1569,6 +1571,23 @@ model quiz_questions {
   order          Int
   createdAt      DateTime       @default(now()) @db.Timestamp(6)
   course_quizzes course_quizzes @relation(fields: [quizId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_quiz_questions_quiz")
+}
+
+model certificates {
+  id               String   @id
+  userId           String
+  courseId         String
+  verificationCode String   @unique
+  issuedAt         DateTime @default(now()) @db.Timestamp(6)
+  pdfUrl           String?
+  createdAt        DateTime @default(now()) @db.Timestamp(6)
+  courses          courses  @relation(fields: [courseId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_certificates_course")
+  users            User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_certificates_user")
+
+  @@unique([userId, courseId])
+  @@index([courseId], map: "idx_certificates_course")
+  @@index([userId], map: "idx_certificates_user")
+  @@index([verificationCode], map: "idx_certificates_verification")
 }
 
 enum Role {
