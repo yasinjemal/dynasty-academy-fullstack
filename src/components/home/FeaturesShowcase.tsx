@@ -25,7 +25,8 @@ const features = [
   {
     icon: BookOpen,
     title: "Premium Books Library",
-    description: "500+ curated books with AI-powered reading modes, co-reading, and luxury listen experience",
+    description:
+      "500+ curated books with AI-powered reading modes, co-reading, and luxury listen experience",
     gradient: "from-orange-500 to-pink-600",
     color: "#f97316",
     badge: "Most Popular",
@@ -33,7 +34,8 @@ const features = [
   {
     icon: GraduationCap,
     title: "Interactive Courses",
-    description: "Professional courses with video lessons, quizzes, certificates, and progress tracking",
+    description:
+      "Professional courses with video lessons, quizzes, certificates, and progress tracking",
     gradient: "from-blue-500 to-cyan-600",
     color: "#3b82f6",
     badge: "New",
@@ -41,7 +43,8 @@ const features = [
   {
     icon: FileText,
     title: "PDF-to-Course AI",
-    description: "Upload any PDF and generate a complete 12-lesson course in 2 minutes with AI",
+    description:
+      "Upload any PDF and generate a complete 12-lesson course in 2 minutes with AI",
     gradient: "from-purple-500 to-pink-600",
     color: "#a855f7",
     badge: "Revolutionary",
@@ -49,28 +52,32 @@ const features = [
   {
     icon: MessageSquare,
     title: "Community Feed",
-    description: "Share insights, discuss books, post reflections, and connect with 10K+ learners",
+    description:
+      "Share insights, discuss books, post reflections, and connect with 10K+ learners",
     gradient: "from-green-500 to-emerald-600",
     color: "#22c55e",
   },
   {
     icon: Users,
     title: "Co-Reading Experience",
-    description: "Read together in real-time with live chat, reactions, and presence indicators",
+    description:
+      "Read together in real-time with live chat, reactions, and presence indicators",
     gradient: "from-pink-500 to-rose-600",
     color: "#ec4899",
   },
   {
     icon: Music,
     title: "AI Audio Intelligence",
-    description: "Professional text-to-speech with 8 neural voices, speed control, and ambient sounds",
+    description:
+      "Professional text-to-speech with 8 neural voices, speed control, and ambient sounds",
     gradient: "from-indigo-500 to-purple-600",
     color: "#6366f1",
   },
   {
     icon: Brain,
     title: "Dynasty Brain AI",
-    description: "AI tutor, personalized learning paths, skill assessments, and smart recommendations",
+    description:
+      "AI tutor, personalized learning paths, skill assessments, and smart recommendations",
     gradient: "from-violet-500 to-fuchsia-600",
     color: "#8b5cf6",
     badge: "AI-Powered",
@@ -78,35 +85,40 @@ const features = [
   {
     icon: Video,
     title: "Study Rooms",
-    description: "Live collaborative learning spaces with video, screen sharing, and group activities",
+    description:
+      "Live collaborative learning spaces with video, screen sharing, and group activities",
     gradient: "from-cyan-500 to-blue-600",
     color: "#06b6d4",
   },
   {
     icon: Zap,
     title: "Dynasty Points",
-    description: "Gamification system with XP, levels, achievements, daily streaks, and leaderboards",
+    description:
+      "Gamification system with XP, levels, achievements, daily streaks, and leaderboards",
     gradient: "from-yellow-500 to-orange-600",
     color: "#eab308",
   },
   {
     icon: Heart,
     title: "Social Learning",
-    description: "Follow users, like posts, comment on reflections, and build your learning network",
+    description:
+      "Follow users, like posts, comment on reflections, and build your learning network",
     gradient: "from-red-500 to-pink-600",
     color: "#ef4444",
   },
   {
     icon: Crown,
     title: "Career Dashboard",
-    description: "Track progress, view analytics, manage goals, and showcase achievements",
+    description:
+      "Track progress, view analytics, manage goals, and showcase achievements",
     gradient: "from-amber-500 to-orange-600",
     color: "#f59e0b",
   },
   {
     icon: Sparkles,
     title: "Premium Experience",
-    description: "Luxury UI with glass morphism, 3D effects, smooth animations, and dark mode",
+    description:
+      "Luxury UI with glass morphism, 3D effects, smooth animations, and dark mode",
     gradient: "from-slate-500 to-zinc-600",
     color: "#64748b",
   },
@@ -177,7 +189,8 @@ export default function FeaturesShowcase() {
           </h2>
 
           <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            Books, Courses, AI Tools, Community, and More - All in One Premium Platform
+            Books, Courses, AI Tools, Community, and More - All in One Premium
+            Platform
           </p>
         </motion.div>
 
@@ -300,7 +313,7 @@ export default function FeaturesShowcase() {
               transition={{ duration: 0.3 }}
             />
           </motion.a>
-          
+
           <p className="text-sm text-gray-500 mt-4">
             Join 10,000+ learners • No credit card required
           </p>

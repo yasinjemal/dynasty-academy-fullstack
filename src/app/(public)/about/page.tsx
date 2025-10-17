@@ -100,7 +100,7 @@ export default function AboutPage() {
           {/* What Makes Us Different */}
           <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-8 md:p-10 text-white">
             <h3 className="text-2xl md:text-3xl font-bold mb-6 text-center">What Makes Us Different ⚡</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="text-4xl mb-3">🧠</div>
                 <h4 className="font-bold text-lg mb-2">Ancient Wisdom Meets Modern Strategy</h4>
@@ -109,12 +109,150 @@ export default function AboutPage() {
               <div className="text-center">
                 <div className="text-4xl mb-3">🤖</div>
                 <h4 className="font-bold text-lg mb-2">AI-Powered Learning</h4>
-                <p className="text-white/90 text-sm">Personalized recommendations, writing & code copilots, and workflow automation.</p>
+                <p className="text-white/90 text-sm">PDF-to-Course AI, smart tutors, personalized paths, and voice intelligence.</p>
               </div>
               <div className="text-center">
                 <div className="text-4xl mb-3">📋</div>
                 <h4 className="font-bold text-lg mb-2">Action Over Theory</h4>
                 <p className="text-white/90 text-sm">Practical playbooks, checklists, dashboards, and templates you can use today.</p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl mb-3">🌍</div>
+                <h4 className="font-bold text-lg mb-2">Community-First Platform</h4>
+                <p className="text-white/90 text-sm">10K+ learners, co-reading, study rooms, and social learning features.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Platform Features Section - NEW */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
+            Complete Learning Ecosystem 🚀
+          </h2>
+          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
+            12+ premium features designed to accelerate your learning and building journey
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Books Library */}
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-orange-200/50 dark:border-orange-800/50 shadow-lg hover:-translate-y-2 transition-all">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-orange-500 to-pink-600 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">📚</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Premium Books Library</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">500+ curated books with AI reading modes, co-reading, and luxury listen experience</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Courses */}
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-blue-200/50 dark:border-blue-800/50 shadow-lg hover:-translate-y-2 transition-all">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">🎓</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Interactive Courses</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">Professional video lessons, quizzes, certificates, and real-time progress tracking</p>
+              </div>
+            </div>
+          </div>
+
+          {/* PDF-to-Course AI */}
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-purple-200/50 dark:border-purple-800/50 shadow-lg hover:-translate-y-2 transition-all">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">📄</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">PDF-to-Course AI</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">Upload any PDF and generate a 12-lesson course with quizzes in 2 minutes</p>
+                <span className="inline-block mt-2 px-2 py-1 text-[10px] font-bold rounded-full bg-purple-500 text-white">Revolutionary</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Community Feed */}
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-green-200/50 dark:border-green-800/50 shadow-lg hover:-translate-y-2 transition-all">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">💬</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Community Feed</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">Share insights, discuss books, and connect with 10,000+ ambitious learners</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Co-Reading */}
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-pink-200/50 dark:border-pink-800/50 shadow-lg hover:-translate-y-2 transition-all">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">👥</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Co-Reading Experience</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">Read together in real-time with live chat, reactions, and presence indicators</p>
+              </div>
+            </div>
+          </div>
+
+          {/* AI Audio */}
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-indigo-200/50 dark:border-indigo-800/50 shadow-lg hover:-translate-y-2 transition-all">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">🎵</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">AI Audio Intelligence</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">Professional text-to-speech with 8 neural voices and ambient sounds</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Dynasty Brain */}
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-violet-200/50 dark:border-violet-800/50 shadow-lg hover:-translate-y-2 transition-all">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">🧠</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Dynasty Brain AI</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">AI tutor, personalized learning paths, and smart recommendations</p>
+                <span className="inline-block mt-2 px-2 py-1 text-[10px] font-bold rounded-full bg-violet-500 text-white">AI-Powered</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Study Rooms */}
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-cyan-200/50 dark:border-cyan-800/50 shadow-lg hover:-translate-y-2 transition-all">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">📹</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Study Rooms</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">Live video collaboration with screen sharing and group activities</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Gamification */}
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-yellow-200/50 dark:border-yellow-800/50 shadow-lg hover:-translate-y-2 transition-all">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">⚡</span>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Dynasty Points</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">Gamification with XP, levels, achievements, and daily streaks</p>
               </div>
             </div>
           </div>
@@ -267,8 +405,8 @@ export default function AboutPage() {
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
             What You'll Learn 📚
           </h2>
-          <p className="text-lg text-gray-700 dark:text-gray-300">
-            Elite-level training across 8 core domains
+          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
+            Elite-level training across 8 core domains through books, courses, and interactive content
           </p>
         </div>
 
