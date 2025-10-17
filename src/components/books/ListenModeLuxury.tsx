@@ -884,6 +884,12 @@ export default function ListenModeLuxury({
         }
       }
 
+      // Cancel any existing animation frame before starting new one
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+
       // Animate visualizer
       const updateVisualizer = () => {
         if (analyserRef.current && isPlaying) {
@@ -892,8 +898,9 @@ export default function ListenModeLuxury({
           );
           analyserRef.current.getByteFrequencyData(dataArray);
           setAudioFrequencies(dataArray);
+          // Only continue animation if still playing
+          animationFrameRef.current = requestAnimationFrame(updateVisualizer);
         }
-        animationFrameRef.current = requestAnimationFrame(updateVisualizer);
       };
 
       if (isPlaying) {
@@ -903,6 +910,7 @@ export default function ListenModeLuxury({
       return () => {
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
+          animationFrameRef.current = null;
         }
       };
     } catch (err) {
@@ -2298,8 +2306,6 @@ export default function ListenModeLuxury({
             </div>
           </div>
         )}
-
-
 
         {/* Header */}
         <div className="text-center mb-12">
