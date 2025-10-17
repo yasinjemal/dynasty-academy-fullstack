@@ -2628,16 +2628,6 @@ export default function ListenModeLuxury({
                 </div>
               </div>
 
-              {/* 🧠 INTELLIGENCE INSIGHTS PANEL: AI-Powered Reading Predictions */}
-              {isPremiumUser && intelligence.predictions && (
-                <div className="mb-8">
-                  <IntelligenceInsightsPanel
-                    predictions={intelligence.predictions}
-                    isLoading={!intelligence.predictions}
-                  />
-                </div>
-              )}
-
               {/* Main Controls */}
               <div className="space-y-6 mb-8">
                 {/* Play/Pause Button with Pulse Effect - Mobile-friendly */}
