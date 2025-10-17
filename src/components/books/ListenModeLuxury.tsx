@@ -859,7 +859,13 @@ export default function ListenModeLuxury({
   }, [playbackRate]);
 
   // 🎨 NEW: Real Audio Visualizer with Web Audio API
+  // DISABLED: Causing infinite loop with requestAnimationFrame
   useEffect(() => {
+    // Visualizer temporarily disabled to prevent infinite loop
+    // TODO: Implement visualizer with canvas/WebGL instead of React state
+    return;
+    
+    /* COMMENTED OUT TO FIX INFINITE LOOP
     if (!audioRef.current || !audioUrl || typeof window === "undefined") return;
 
     try {
@@ -890,17 +896,20 @@ export default function ListenModeLuxury({
         animationFrameRef.current = null;
       }
 
-      // Animate visualizer
+      // Animate visualizer - use ref to avoid re-renders
       const updateVisualizer = () => {
-        if (analyserRef.current && isPlaying) {
-          const dataArray = new Uint8Array(
-            analyserRef.current.frequencyBinCount
-          );
-          analyserRef.current.getByteFrequencyData(dataArray);
-          setAudioFrequencies(dataArray);
-          // Only continue animation if still playing
-          animationFrameRef.current = requestAnimationFrame(updateVisualizer);
+        if (!analyserRef.current || !isPlaying) {
+          return;
         }
+        
+        const dataArray = new Uint8Array(
+          analyserRef.current.frequencyBinCount
+        );
+        analyserRef.current.getByteFrequencyData(dataArray);
+        setAudioFrequencies(dataArray);
+        
+        // Continue animation loop
+        animationFrameRef.current = requestAnimationFrame(updateVisualizer);
       };
 
       if (isPlaying) {
@@ -916,6 +925,7 @@ export default function ListenModeLuxury({
     } catch (err) {
       console.warn("[Visualizer] Web Audio API not supported:", err);
     }
+    */
   }, [audioUrl, isPlaying]);
 
   // � PHASE 2: Load progress from cloud on mount
