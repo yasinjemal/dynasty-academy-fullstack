@@ -1336,21 +1336,26 @@ export default function BookReaderLuxury({
 
       // 🏆💎 GAMIFICATION: Gain XP for reading pages!
       const xpGain = calculateXP("page");
-      setExperiencePoints((prev) => {
-        const newXP = prev + xpGain;
-        // Check if leveled up
-        if (newXP >= nextLevelXP) {
-          setDynastyLevel(dynastyLevel + 1);
-          setNextLevelXP(Math.floor(nextLevelXP * 1.5)); // Increase requirement by 50%
-          setCurrentAchievement(
-            `🎉 Level Up! You're now Level ${dynastyLevel + 1}!`
-          );
-          setShowAchievementToast(true);
-          setTimeout(() => setShowAchievementToast(false), 3000);
-          return newXP - nextLevelXP; // Overflow XP
-        }
-        return newXP;
-      });
+      
+      // Calculate new values
+      const potentialNewXP = experiencePoints + xpGain;
+      
+      if (potentialNewXP >= nextLevelXP) {
+        // Level up!
+        const newLevel = dynastyLevel + 1;
+        const overflow = potentialNewXP - nextLevelXP;
+        const newNextLevel = Math.floor(nextLevelXP * 1.5);
+        
+        setDynastyLevel(newLevel);
+        setNextLevelXP(newNextLevel);
+        setExperiencePoints(overflow);
+        setCurrentAchievement(`🎉 Level Up! You're now Level ${newLevel}!`);
+        setShowAchievementToast(true);
+        setTimeout(() => setShowAchievementToast(false), 3000);
+      } else {
+        // Just add XP
+        setExperiencePoints(potentialNewXP);
+      }
     }
   };
 
@@ -2434,14 +2439,16 @@ export default function BookReaderLuxury({
                         onClick={() => {
                           setImmersiveMode(true);
                           setBackgroundType("image");
-                          setBackgroundUrl("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80");
+                          setBackgroundUrl(
+                            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80"
+                          );
                           setBackgroundOpacity(0.15);
                           setBackgroundBlur(8);
                         }}
                         className="w-full px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
                       >
-                        <Sparkles className="w-5 h-5" />
-                        ✨ Try Demo - Beach Sunset
+                        <Sparkles className="w-5 h-5" />✨ Try Demo - Beach
+                        Sunset
                       </button>
                     )}
 
@@ -2546,7 +2553,7 @@ export default function BookReaderLuxury({
                           <h4 className="text-sm font-semibold opacity-70">
                             Quick Suggestions
                           </h4>
-                          
+
                           {/* Image Suggestions */}
                           {backgroundType === "image" && (
                             <div className="grid grid-cols-2 gap-2">
@@ -2589,7 +2596,7 @@ export default function BookReaderLuxury({
                               ))}
                             </div>
                           )}
-                          
+
                           {/* Video Suggestions */}
                           {backgroundType === "video" && (
                             <div className="space-y-2">
@@ -2629,7 +2636,7 @@ export default function BookReaderLuxury({
                               </p>
                             </div>
                           )}
-                          
+
                           {/* Gradient Suggestions */}
                           {backgroundType === "gradient" && (
                             <div className="grid grid-cols-2 gap-2">
