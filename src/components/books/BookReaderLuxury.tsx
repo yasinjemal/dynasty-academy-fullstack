@@ -2171,20 +2171,19 @@ export default function BookReaderLuxury({
                             ? '0 4px 16px rgba(168, 85, 247, 0.3)'
                             : 'none',
                         }}
-                        }`}
                       >
                         <div
-                          className={`${fontFamilies[font].class} text-lg font-bold mb-1`}
+                          className={`${fontFamilies[font].class} text-lg font-bold mb-1 text-white`}
                         >
                           Ag
                         </div>
-                        <div className="text-xs opacity-60">
+                        <div className="text-xs text-white/60">
                           {fontFamilies[font].name}
                         </div>
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-center opacity-50">
+                  <p className="text-xs text-center text-white/60 italic">
                     ✍️ Choose your perfect reading font
                   </p>
                 </div>
