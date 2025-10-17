@@ -61,7 +61,9 @@ export default function ParticleEffect({
     const initParticles = () => {
       particlesRef.current = [];
       for (let i = 0; i < particleCount; i++) {
-        particlesRef.current.push(createParticle(type, canvas.width, canvas.height));
+        particlesRef.current.push(
+          createParticle(type, canvas.width, canvas.height)
+        );
       }
     };
 
@@ -119,11 +121,7 @@ export default function ParticleEffect({
 }
 
 // Create a particle based on type
-function createParticle(
-  type: string,
-  width: number,
-  height: number
-): Particle {
+function createParticle(type: string, width: number, height: number): Particle {
   const baseParticle = {
     x: Math.random() * width,
     y: Math.random() * height,
@@ -211,19 +209,28 @@ function drawParticle(
     case "stars":
       // Pulsing star
       const starOpacity =
-        particle.opacity *
-        (0.5 + 0.5 * Math.sin(particle.pulsePhase || 0));
+        particle.opacity * (0.5 + 0.5 * Math.sin(particle.pulsePhase || 0));
       ctx.fillStyle = `rgba(255, 255, 255, ${starOpacity})`;
       drawStar(ctx, 0, 0, 5, particle.size, particle.size / 2);
       break;
 
     case "fireflies":
       // Glowing firefly
-      const glowOpacity =
-        0.3 + 0.7 * Math.sin(particle.pulsePhase || 0);
-      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, particle.size * 3);
+      const glowOpacity = 0.3 + 0.7 * Math.sin(particle.pulsePhase || 0);
+      const gradient = ctx.createRadialGradient(
+        0,
+        0,
+        0,
+        0,
+        0,
+        particle.size * 3
+      );
       gradient.addColorStop(0, particle.color || "rgba(255, 200, 0, 1)");
-      gradient.addColorStop(0.5, particle.color?.replace("1)", `${glowOpacity})`) || `rgba(255, 200, 0, ${glowOpacity})`);
+      gradient.addColorStop(
+        0.5,
+        particle.color?.replace("1)", `${glowOpacity})`) ||
+          `rgba(255, 200, 0, ${glowOpacity})`
+      );
       gradient.addColorStop(1, "rgba(255, 200, 0, 0)");
       ctx.fillStyle = gradient;
       ctx.beginPath();
@@ -250,14 +257,23 @@ function drawParticle(
 
     case "sakura":
       // Cherry blossom petal
-      ctx.fillStyle = particle.color || `rgba(255, 182, 193, ${particle.opacity})`;
+      ctx.fillStyle =
+        particle.color || `rgba(255, 182, 193, ${particle.opacity})`;
       ctx.beginPath();
       ctx.ellipse(0, 0, particle.size, particle.size * 0.6, 0, 0, Math.PI * 2);
       ctx.fill();
       // Add detail
       ctx.fillStyle = `rgba(255, 255, 255, ${particle.opacity * 0.3})`;
       ctx.beginPath();
-      ctx.ellipse(0, -particle.size * 0.2, particle.size * 0.3, particle.size * 0.2, 0, 0, Math.PI * 2);
+      ctx.ellipse(
+        0,
+        -particle.size * 0.2,
+        particle.size * 0.3,
+        particle.size * 0.2,
+        0,
+        0,
+        Math.PI * 2
+      );
       ctx.fill();
       break;
 
@@ -266,7 +282,9 @@ function drawParticle(
       const sparkleOpacity =
         particle.opacity *
         (0.4 + 0.6 * Math.abs(Math.sin(particle.pulsePhase || 0)));
-      ctx.fillStyle = particle.color?.replace("1)", `${sparkleOpacity})`) || `rgba(168, 85, 247, ${sparkleOpacity})`;
+      ctx.fillStyle =
+        particle.color?.replace("1)", `${sparkleOpacity})`) ||
+        `rgba(168, 85, 247, ${sparkleOpacity})`;
       ctx.beginPath();
       ctx.moveTo(0, -particle.size);
       ctx.lineTo(particle.size * 0.3, 0);

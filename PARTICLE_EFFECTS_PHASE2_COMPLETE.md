@@ -34,6 +34,7 @@ interface ParticleEffectProps {
 ```
 
 **Key Features:**
+
 - Canvas-based rendering (60fps target)
 - Efficient `requestAnimationFrame` loop
 - Individual particle physics (position, velocity, rotation, opacity)
@@ -46,7 +47,9 @@ interface ParticleEffectProps {
 
 ```typescript
 const [particlesEnabled, setParticlesEnabled] = useState(true);
-const [particleType, setParticleType] = useState<"stars" | "fireflies" | "snow" | "sakura" | "sparkles" | "none">("stars");
+const [particleType, setParticleType] = useState<
+  "stars" | "fireflies" | "snow" | "sakura" | "sparkles" | "none"
+>("stars");
 const [particleDensity, setParticleDensity] = useState(50); // 50% density default
 ```
 
@@ -56,23 +59,23 @@ const [particleDensity, setParticleDensity] = useState(50); // 50% density defau
 
 Particles automatically change based on reading theme:
 
-| Theme | Particle Type | Emotional Vibe |
-|-------|--------------|----------------|
-| ☀️ Light | ✨ Sparkles | Clean, energetic |
-| 📜 Sepia | ⛔ None | Classic, focused |
-| 🌙 Dark | ⭐ Stars | Calm, celestial |
-| ☕ Coffee | 🔥 Fireflies | Warm, cozy |
-| 🌊 Ocean | ✨ Sparkles | Fresh, flowing |
-| 🌲 Forest | 🔥 Fireflies | Natural, magical |
-| 🌅 Sunset | ✨ Sparkles | Vibrant, dynamic |
-| 🌌 Midnight | ⭐ Stars | Mysterious, deep |
-| 💜 Lavender | 🌸 Sakura | Soft, romantic |
-| 🍃 Mint | ✨ Sparkles | Fresh, light |
-| 🌹 Rose | 🌸 Sakura | Elegant, gentle |
-| 🪨 Slate | ⭐ Stars | Modern, calm |
-| 🟡 Amber | 🔥 Fireflies | Warm, nostalgic |
-| 💎 Sapphire | ⭐ Stars | Luxurious, serene |
-| 💚 Emerald | ✨ Sparkles | Rich, vibrant |
+| Theme       | Particle Type | Emotional Vibe    |
+| ----------- | ------------- | ----------------- |
+| ☀️ Light    | ✨ Sparkles   | Clean, energetic  |
+| 📜 Sepia    | ⛔ None       | Classic, focused  |
+| 🌙 Dark     | ⭐ Stars      | Calm, celestial   |
+| ☕ Coffee   | 🔥 Fireflies  | Warm, cozy        |
+| 🌊 Ocean    | ✨ Sparkles   | Fresh, flowing    |
+| 🌲 Forest   | 🔥 Fireflies  | Natural, magical  |
+| 🌅 Sunset   | ✨ Sparkles   | Vibrant, dynamic  |
+| 🌌 Midnight | ⭐ Stars      | Mysterious, deep  |
+| 💜 Lavender | 🌸 Sakura     | Soft, romantic    |
+| 🍃 Mint     | ✨ Sparkles   | Fresh, light      |
+| 🌹 Rose     | 🌸 Sakura     | Elegant, gentle   |
+| 🪨 Slate    | ⭐ Stars      | Modern, calm      |
+| 🟡 Amber    | 🔥 Fireflies  | Warm, nostalgic   |
+| 💎 Sapphire | ⭐ Stars      | Luxurious, serene |
+| 💚 Emerald  | ✨ Sparkles   | Rich, vibrant     |
 
 ---
 
@@ -81,10 +84,12 @@ Particles automatically change based on reading theme:
 ### Glassmorphism Control Card
 
 **Toggle Switch:**
+
 - ON/OFF button with purple glow when enabled
 - Instantly toggles entire particle system
 
 **Particle Type Grid:**
+
 - 6 glass buttons (3x2 grid)
 - Emoji icons + labels
 - Active state: Purple glow + border
@@ -92,6 +97,7 @@ Particles automatically change based on reading theme:
 - Active: Scale 95%
 
 **Density Slider:**
+
 - Range: 10% - 100%
 - Visual gradient fill (purple)
 - Real-time adjustment
@@ -106,22 +112,22 @@ Particles automatically change based on reading theme:
 ```typescript
 const animate = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
+
   particlesRef.current.forEach((particle) => {
     // Update physics
     particle.x += particle.speedX;
     particle.y += particle.speedY;
     particle.rotation += particle.rotationSpeed;
     particle.pulsePhase += 0.05;
-    
+
     // Screen wrapping
     if (particle.x < -50) particle.x = canvas.width + 50;
     if (particle.y > canvas.height + 50) particle.y = -50;
-    
+
     // Draw particle
     drawParticle(ctx, particle, type);
   });
-  
+
   animationFrameRef.current = requestAnimationFrame(animate);
 };
 ```
@@ -129,13 +135,15 @@ const animate = () => {
 ### Particle Physics Examples
 
 **Stars (Twinkling):**
+
 ```typescript
-opacity: baseOpacity * (0.5 + 0.5 * Math.sin(pulsePhase))
-speedX: (Math.random() - 0.5) * 0.2 // Gentle float
-speedY: (Math.random() - 0.5) * 0.2
+opacity: baseOpacity * (0.5 + 0.5 * Math.sin(pulsePhase));
+speedX: (Math.random() - 0.5) * 0.2; // Gentle float
+speedY: (Math.random() - 0.5) * 0.2;
 ```
 
 **Snow (Falling):**
+
 ```typescript
 speedY: Math.random() * 1 + 0.5 // Fall down
 rotation: Random initial + rotationSpeed
@@ -143,6 +151,7 @@ rotationSpeed: (Math.random() - 0.5) * 0.02
 ```
 
 **Fireflies (Glowing):**
+
 ```typescript
 // Radial gradient with pulse
 glowOpacity: 0.3 + 0.7 * Math.sin(pulsePhase)
@@ -165,12 +174,14 @@ gradient.addColorStop(1, transparent)
 ## 📊 Before vs After
 
 ### Before (Phase 1 Only)
+
 - ✅ Glassmorphism UI
 - ✅ Frosted glass settings panel
 - ❌ No atmospheric effects
 - ❌ Static background
 
 ### After (Phase 2 Complete)
+
 - ✅ Glassmorphism UI
 - ✅ Frosted glass settings panel
 - ✅ **6 magical particle types**
@@ -196,9 +207,11 @@ gradient.addColorStop(1, transparent)
 ## 🔬 Code Files Modified
 
 ### New Files
+
 - `src/components/books/ParticleEffect.tsx` (355 lines)
 
 ### Modified Files
+
 - `src/components/books/BookReaderLuxury.tsx`
   - Added import for ParticleEffect
   - Added 3 state variables (enabled, type, density)
@@ -210,20 +223,21 @@ gradient.addColorStop(1, transparent)
 
 ## 🎯 Success Metrics
 
-| Metric | Target | Achieved |
-|--------|--------|----------|
-| Particle Types | 5+ | ✅ 6 types |
-| Performance | 60fps | ✅ Smooth |
-| User Controls | Full control | ✅ Toggle + Type + Density |
-| Theme Integration | Auto-switch | ✅ 15 themes mapped |
-| Build Errors | 0 | ✅ No errors |
-| Emotional Impact | High | ✅ Magical atmosphere |
+| Metric            | Target       | Achieved                   |
+| ----------------- | ------------ | -------------------------- |
+| Particle Types    | 5+           | ✅ 6 types                 |
+| Performance       | 60fps        | ✅ Smooth                  |
+| User Controls     | Full control | ✅ Toggle + Type + Density |
+| Theme Integration | Auto-switch  | ✅ 15 themes mapped        |
+| Build Errors      | 0            | ✅ No errors               |
+| Emotional Impact  | High         | ✅ Magical atmosphere      |
 
 ---
 
 ## 🚀 What's Next?
 
 ### Phase 3: Butter-Smooth Animations (Next Up!)
+
 - [ ] Integrate Framer Motion
 - [ ] Spring physics for all interactions
 - [ ] Button micro-interactions (grow, glow, bounce)
@@ -238,19 +252,23 @@ gradient.addColorStop(1, transparent)
 ## 💡 Key Innovations
 
 ### 1. **Intelligent Particle Selection**
+
 Auto-matches particles to theme emotion (ocean = sparkles, coffee = fireflies)
 
 ### 2. **Canvas Efficiency**
+
 - No DOM manipulation per particle
 - Hardware-accelerated rendering
 - Minimal memory footprint
 
 ### 3. **Visual Harmony**
+
 - Blend modes integrate with backgrounds
 - Opacity ranges prevent distraction
 - Color palettes match theme aesthetics
 
 ### 4. **Zero Breaking Changes**
+
 - All previous features work perfectly
 - Listen Mode remains separate
 - Binaural beats, AI companion, level system intact
@@ -262,6 +280,7 @@ Auto-matches particles to theme emotion (ocean = sparkles, coffee = fireflies)
 > "Particles should enhance, not distract. They create atmosphere through subtlety—like candlelight in a luxury reading lounge."
 
 **Principles Applied:**
+
 - **Subtlety:** Low opacity (30-80%), gentle movement
 - **Context-Awareness:** Theme-based auto-selection
 - **User Control:** Full customization available
@@ -275,6 +294,7 @@ Auto-matches particles to theme emotion (ocean = sparkles, coffee = fireflies)
 **None!** ✅
 
 All testing passed:
+
 - ✅ No infinite loops (proper cleanup)
 - ✅ No memory leaks (refs cleaned up)
 - ✅ No build errors
@@ -286,6 +306,7 @@ All testing passed:
 ## 📸 Visual Examples
 
 ### Stars (Dark Theme)
+
 ```
 ⭐ Twinkling white dots
 • Pulsing opacity (30-80%)
@@ -294,6 +315,7 @@ All testing passed:
 ```
 
 ### Fireflies (Coffee Theme)
+
 ```
 🔥 Glowing amber orbs
 • Radial gradient glow
@@ -302,6 +324,7 @@ All testing passed:
 ```
 
 ### Sakura (Lavender Theme)
+
 ```
 🌸 Cherry blossom petals
 • Elliptical pink shapes
@@ -310,6 +333,7 @@ All testing passed:
 ```
 
 ### Sparkles (Ocean Theme)
+
 ```
 ✨ Purple-blue diamonds
 • Diamond/star hybrid shape
@@ -334,6 +358,7 @@ All testing passed:
 ### Phase 2 Complete! 🎉
 
 **What We Accomplished:**
+
 - Built production-ready particle system
 - Created 6 unique particle types with individual physics
 - Integrated theme-based intelligence

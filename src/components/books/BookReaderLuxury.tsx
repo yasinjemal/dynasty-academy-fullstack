@@ -13,6 +13,7 @@ import LiveReactions from "./LiveReactions";
 import { useContextualIntelligence } from "@/hooks/useContextualIntelligence";
 import { IntelligenceInsightsPanel } from "@/components/intelligence/IntelligenceInsightsPanel";
 import ParticleEffect from "./ParticleEffect";
+import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
 import {
   BookOpen,
   ChevronLeft,
@@ -1527,7 +1528,6 @@ export default function BookReaderLuxury({
         density={particleDensity}
         enabled={particlesEnabled}
       />
-
       {/* 🏆💎 ACHIEVEMENT TOAST NOTIFICATION (GAMIFICATION!) */}
       {showAchievementToast && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] animate-bounce">
@@ -1905,16 +1905,21 @@ export default function BookReaderLuxury({
                     <Sparkles className="w-4 h-4" />
                   </Button>
 
-                  {/* Settings - Icon Only */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  {/* Settings - Icon Only + ✨ Phase 3 Glow Animation */}
+                  <motion.button
                     onClick={() => setShowSettings(!showSettings)}
-                    className="p-2"
+                    whileHover={{
+                      scale: 1.1,
+                      rotate: 90,
+                      boxShadow: "0 0 20px rgba(168, 85, 247, 0.6)",
+                    }}
+                    whileTap={{ scale: 0.9, rotate: 180 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    className="p-2 rounded-lg bg-transparent hover:bg-purple-100 dark:hover:bg-purple-900/20"
                     title="Reading settings"
                   >
                     <Settings className="w-4 h-4" />
-                  </Button>
+                  </motion.button>
                 </div>
               </div>
 
@@ -1994,26 +1999,45 @@ export default function BookReaderLuxury({
         )}
 
         {/* ===========================================
-          SETTINGS PANEL (SLIDE-OUT) - 🎨 GLASSMORPHISM UI
+          SETTINGS PANEL (SLIDE-OUT) - 🎨 GLASSMORPHISM UI + ✨ PHASE 3 ANIMATIONS
           =========================================== */}
-        {showSettings && (
-          <div className="fixed inset-0 z-50 flex items-start justify-end">
-            {/* Backdrop - Enhanced Blur */}
-            <div
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
-              onClick={() => setShowSettings(false)}
-            />
-
-            {/* Settings Panel - Glassmorphism */}
-            <div
-              className="relative w-full max-w-md h-full overflow-y-auto shadow-2xl animate-slide-in-right"
-              style={{
-                background: "rgba(255, 255, 255, 0.1)",
-                backdropFilter: "blur(20px) saturate(180%)",
-                WebkitBackdropFilter: "blur(20px) saturate(180%)",
-                border: "1px solid rgba(255, 255, 255, 0.18)",
-              }}
+        <AnimatePresence>
+          {showSettings && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-start justify-end"
             >
+              {/* Backdrop - Enhanced Blur with Motion */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                onClick={() => setShowSettings(false)}
+              />
+
+              {/* Settings Panel - Glassmorphism with Spring Slide */}
+              <motion.div
+                initial={{ x: "100%", opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: "100%", opacity: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30,
+                  mass: 0.8,
+                }}
+                className="relative w-full max-w-md h-full overflow-y-auto shadow-2xl"
+                style={{
+                  background: "rgba(255, 255, 255, 0.1)",
+                  backdropFilter: "blur(20px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                  border: "1px solid rgba(255, 255, 255, 0.18)",
+                }}
+              >
               <div className="p-6 space-y-6">
                 {/* Header - Glass Card */}
                 <div
@@ -2279,11 +2303,27 @@ export default function BookReaderLuxury({
                       {/* Particle Type Selection */}
                       <div className="grid grid-cols-3 gap-2">
                         {[
-                          { type: "stars" as const, icon: "⭐", label: "Stars" },
-                          { type: "fireflies" as const, icon: "🔥", label: "Fireflies" },
+                          {
+                            type: "stars" as const,
+                            icon: "⭐",
+                            label: "Stars",
+                          },
+                          {
+                            type: "fireflies" as const,
+                            icon: "🔥",
+                            label: "Fireflies",
+                          },
                           { type: "snow" as const, icon: "❄️", label: "Snow" },
-                          { type: "sakura" as const, icon: "🌸", label: "Sakura" },
-                          { type: "sparkles" as const, icon: "✨", label: "Sparkles" },
+                          {
+                            type: "sakura" as const,
+                            icon: "🌸",
+                            label: "Sakura",
+                          },
+                          {
+                            type: "sparkles" as const,
+                            icon: "✨",
+                            label: "Sparkles",
+                          },
                           { type: "none" as const, icon: "⛔", label: "None" },
                         ].map(({ type, icon, label }) => (
                           <button
@@ -2328,7 +2368,9 @@ export default function BookReaderLuxury({
                           max="100"
                           step="10"
                           value={particleDensity}
-                          onChange={(e) => setParticleDensity(Number(e.target.value))}
+                          onChange={(e) =>
+                            setParticleDensity(Number(e.target.value))
+                          }
                           className="w-full h-2 rounded-full appearance-none cursor-pointer"
                           style={{
                             background: `linear-gradient(to right, rgba(168, 85, 247, 0.6) 0%, rgba(168, 85, 247, 0.6) ${particleDensity}%, rgba(255, 255, 255, 0.1) ${particleDensity}%, rgba(255, 255, 255, 0.1) 100%)`,
@@ -3415,9 +3457,10 @@ export default function BookReaderLuxury({
                   Reset to Defaults
                 </button>
               </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ===========================================
           READING STATS MODAL
@@ -3665,22 +3708,37 @@ export default function BookReaderLuxury({
                     />
                   ) : (
                     <>
-                      {/* Reading Content - LUXURY PAGE TRANSITIONS! */}
-                      <article
-                        ref={contentRef}
-                        className={`
-                        prose prose-lg max-w-none leading-relaxed 
-                        transition-all duration-500
-                        ${
-                          // 🎨 LUXURY PAGE TURN ANIMATIONS!
-                          pageTransition === "fade" && isTransitioning
-                            ? "opacity-0"
-                            : pageTransition === "slide" && isTransitioning
-                            ? "opacity-0 translate-x-8"
-                            : pageTransition === "flip" && isTransitioning
-                            ? "opacity-0 scale-95 rotate-3"
-                            : "opacity-100 translate-x-0 scale-100 rotate-0"
-                        }
+                      {/* Reading Content - ✨ PHASE 3: BUTTER-SMOOTH PAGE TRANSITIONS! */}
+                      <AnimatePresence mode="wait">
+                        <motion.article
+                          key={currentPage}
+                          ref={contentRef}
+                          initial={{
+                            opacity: 0,
+                            x: pageTransition === "slide" ? 100 : 0,
+                            scale: pageTransition === "flip" ? 0.95 : 1,
+                            rotateY: pageTransition === "flip" ? 20 : 0,
+                          }}
+                          animate={{
+                            opacity: 1,
+                            x: 0,
+                            scale: 1,
+                            rotateY: 0,
+                          }}
+                          exit={{
+                            opacity: 0,
+                            x: pageTransition === "slide" ? -100 : 0,
+                            scale: pageTransition === "flip" ? 0.95 : 1,
+                            rotateY: pageTransition === "flip" ? -20 : 0,
+                          }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 260,
+                            damping: 20,
+                            mass: 0.8,
+                          }}
+                          className={`
+                        prose prose-lg max-w-none leading-relaxed
                         ${fontFamilies[fontFamily].class}
                         ${
                           focusMode
@@ -3689,15 +3747,16 @@ export default function BookReaderLuxury({
                         }
                         ${columnMode === 2 ? "columns-2 gap-8" : ""}
                       `}
-                        style={{
-                          fontSize: `${fontSize}px`,
-                          lineHeight: lineHeight,
-                          ...(useCustomTextColor && customTextColor
-                            ? { color: customTextColor }
-                            : {}),
-                        }}
-                        dangerouslySetInnerHTML={{ __html: pageContent }}
-                      />
+                          style={{
+                            fontSize: `${fontSize}px`,
+                            lineHeight: lineHeight,
+                            ...(useCustomTextColor && customTextColor
+                              ? { color: customTextColor }
+                              : {}),
+                          }}
+                          dangerouslySetInnerHTML={{ __html: pageContent }}
+                        />
+                      </AnimatePresence>
 
                       {/* Reflection CTA */}
                       {!isTransitioning && pageContent && !focusMode && (
@@ -3783,27 +3842,32 @@ export default function BookReaderLuxury({
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex items-center justify-between h-16">
-                {/* Previous Button - Glass */}
-                <Button
-                  variant="ghost"
+                {/* Previous Button - Glass + ✨ Phase 3 Spring Animation */}
+                <motion.button
                   onClick={prevPage}
                   disabled={currentPage === 1}
-                  className="disabled:opacity-30 px-4 py-2 rounded-xl hover:scale-105 active:scale-95 transition-all text-white"
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)" }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  className="disabled:opacity-30 px-4 py-2 rounded-xl text-white flex items-center gap-2"
                   style={{
                     background: "rgba(255, 255, 255, 0.1)",
                     backdropFilter: "blur(10px)",
                     border: "1px solid rgba(255, 255, 255, 0.2)",
                   }}
                 >
-                  <ChevronLeft className="w-5 h-5 mr-2" />
+                  <ChevronLeft className="w-5 h-5" />
                   Previous
-                </Button>
+                </motion.button>
 
-                {/* Page Navigation - Glass Controls */}
+                {/* Page Navigation - Glass Controls + ✨ Phase 3 Micro-Interactions */}
                 <div className="flex items-center gap-4">
-                  <button
+                  <motion.button
                     onClick={() => goToPage(Math.max(1, currentPage - 10))}
-                    className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
+                    whileHover={{ scale: 1.15, rotate: -15 }}
+                    whileTap={{ scale: 0.9, rotate: -30 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    className="p-2 rounded-xl"
                     style={{
                       background: "rgba(255, 255, 255, 0.1)",
                       backdropFilter: "blur(10px)",
@@ -3812,7 +3876,7 @@ export default function BookReaderLuxury({
                     title="Jump back 10 pages"
                   >
                     <Rewind className="w-4 h-4 text-white" />
-                  </button>
+                  </motion.button>
 
                   <div
                     className="flex items-center gap-3 px-4 py-2 rounded-xl"
@@ -3839,11 +3903,14 @@ export default function BookReaderLuxury({
                     </span>
                   </div>
 
-                  <button
+                  <motion.button
                     onClick={() =>
                       goToPage(Math.min(totalPages, currentPage + 10))
                     }
-                    className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
+                    whileHover={{ scale: 1.15, rotate: 15 }}
+                    whileTap={{ scale: 0.9, rotate: 30 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    className="p-2 rounded-xl"
                     style={{
                       background: "rgba(255, 255, 255, 0.1)",
                       backdropFilter: "blur(10px)",
@@ -3852,15 +3919,17 @@ export default function BookReaderLuxury({
                     title="Jump forward 10 pages"
                   >
                     <FastForward className="w-4 h-4 text-white" />
-                  </button>
+                  </motion.button>
                 </div>
 
-                {/* Next Button - Glass */}
-                <Button
-                  variant="ghost"
+                {/* Next Button - Glass + ✨ Phase 3 Spring Animation */}
+                <motion.button
                   onClick={nextPage}
                   disabled={currentPage === totalPages}
-                  className="disabled:opacity-30 px-4 py-2 rounded-xl hover:scale-105 active:scale-95 transition-all text-white"
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)" }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  className="disabled:opacity-30 px-4 py-2 rounded-xl text-white flex items-center gap-2"
                   style={{
                     background: "rgba(255, 255, 255, 0.1)",
                     backdropFilter: "blur(10px)",
@@ -3868,8 +3937,8 @@ export default function BookReaderLuxury({
                   }}
                 >
                   Next
-                  <ChevronRight className="w-5 h-5 ml-2" />
-                </Button>
+                  <ChevronRight className="w-5 h-5" />
+                </motion.button>
               </div>
             </div>
           </footer>
