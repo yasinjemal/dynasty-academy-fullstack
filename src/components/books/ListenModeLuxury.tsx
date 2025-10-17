@@ -468,7 +468,7 @@ export default function ListenModeLuxury({
         "https://assets.mixkit.co/music/preview/mixkit-night-ambient-947.mp3",
       gradient: "from-slate-950 via-purple-950 to-indigo-950",
       particleColor: "purple-400",
-      recommendedSpeed: 0.9,
+      recommendedSpeed: 1.0,
       visualizerStyle: "wave" as const,
     },
     "coffee-shop": {
@@ -488,7 +488,7 @@ export default function ListenModeLuxury({
         "https://assets.mixkit.co/music/preview/mixkit-ocean-waves-loop-1196.mp3",
       gradient: "from-cyan-950 via-blue-900 to-cyan-950",
       particleColor: "cyan-400",
-      recommendedSpeed: 0.95,
+      recommendedSpeed: 1.0,
       visualizerStyle: "wave" as const,
     },
     "fireplace-study": {
@@ -2299,21 +2299,7 @@ export default function ListenModeLuxury({
           </div>
         )}
 
-        {/* 📱 PHASE 2: Mobile Gesture Hints (first 5 seconds) */}
-        {isPremiumUser && (
-          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
-            <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-2xl px-6 py-3 text-center shadow-2xl animate-in fade-in duration-1000">
-              <p className="text-xs text-gray-400 mb-1">
-                Mobile Gestures Active
-              </p>
-              <div className="flex items-center gap-4 text-xs text-gray-300">
-                <span>↔️ Swipe: Skip 15s</span>
-                <span>👆👆 Double-tap: Sentence</span>
-                <span>🤏 Pinch: Font size</span>
-              </div>
-            </div>
-          </div>
-        )}
+
 
         {/* Header */}
         <div className="text-center mb-12">

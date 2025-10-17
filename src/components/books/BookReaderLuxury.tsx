@@ -1336,16 +1336,16 @@ export default function BookReaderLuxury({
 
       // 🏆💎 GAMIFICATION: Gain XP for reading pages!
       const xpGain = calculateXP("page");
-      
+
       // Calculate new values
       const potentialNewXP = experiencePoints + xpGain;
-      
+
       if (potentialNewXP >= nextLevelXP) {
         // Level up!
         const newLevel = dynastyLevel + 1;
         const overflow = potentialNewXP - nextLevelXP;
         const newNextLevel = Math.floor(nextLevelXP * 1.5);
-        
+
         setDynastyLevel(newLevel);
         setNextLevelXP(newNextLevel);
         setExperiencePoints(overflow);
@@ -3475,62 +3475,6 @@ export default function BookReaderLuxury({
                         }}
                         dangerouslySetInnerHTML={{ __html: pageContent }}
                       />
-
-                      {/* 🧠 INTELLIGENCE INSIGHTS PANEL: Floating Toggle Icon + Popup */}
-                      {isPremium &&
-                        readingIntelligence.predictions &&
-                        !focusMode && (
-                          <>
-                            {/* Floating AI Insights Icon */}
-                            <button
-                              onClick={() =>
-                                setShowIntelligenceInsights(
-                                  !showIntelligenceInsights
-                                )
-                              }
-                              className="fixed bottom-32 right-8 w-14 h-14 bg-gradient-to-br from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-full shadow-2xl flex items-center justify-center z-40 transition-all hover:scale-110 group"
-                              title="AI Intelligence Insights"
-                            >
-                              <span className="text-2xl">🧠</span>
-                              {!showIntelligenceInsights && (
-                                <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
-                              )}
-                            </button>
-
-                            {/* Popup Panel */}
-                            {showIntelligenceInsights && (
-                              <div className="fixed bottom-32 right-24 w-96 z-50 animate-in slide-in-from-right">
-                                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border-2 border-purple-500/30">
-                                  {/* Close button */}
-                                  <div className="flex items-center justify-between p-4 border-b border-purple-500/20">
-                                    <h3 className="font-bold text-lg flex items-center gap-2">
-                                      <span>🧠</span>
-                                      <span>AI Insights</span>
-                                    </h3>
-                                    <button
-                                      onClick={() =>
-                                        setShowIntelligenceInsights(false)
-                                      }
-                                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                  <div className="max-h-[500px] overflow-y-auto">
-                                    <IntelligenceInsightsPanel
-                                      predictions={
-                                        readingIntelligence.predictions
-                                      }
-                                      isLoading={
-                                        !readingIntelligence.predictions
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </>
-                        )}
 
                       {/* Reflection CTA */}
                       {!isTransitioning && pageContent && !focusMode && (
