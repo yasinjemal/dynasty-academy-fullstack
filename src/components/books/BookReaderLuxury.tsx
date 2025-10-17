@@ -1494,7 +1494,7 @@ export default function BookReaderLuxury({
   const handleTextSelection = () => {
     const selection = window.getSelection();
     const text = selection?.toString().trim();
-    
+
     if (text && text.length > 10 && text.length < 500) {
       setSelectedQuoteText(text);
       setShowQuoteModal(true);
