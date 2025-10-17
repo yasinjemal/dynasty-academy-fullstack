@@ -864,7 +864,7 @@ export default function ListenModeLuxury({
     // Visualizer temporarily disabled to prevent infinite loop
     // TODO: Implement visualizer with canvas/WebGL instead of React state
     return;
-    
+
     /* COMMENTED OUT TO FIX INFINITE LOOP
     if (!audioRef.current || !audioUrl || typeof window === "undefined") return;
 

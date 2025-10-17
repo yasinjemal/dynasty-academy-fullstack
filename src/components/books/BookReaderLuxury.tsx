@@ -12,6 +12,7 @@ import LiveChatWidget from "./LiveChatWidget";
 import LiveReactions from "./LiveReactions";
 import { useContextualIntelligence } from "@/hooks/useContextualIntelligence";
 import { IntelligenceInsightsPanel } from "@/components/intelligence/IntelligenceInsightsPanel";
+import ParticleEffect from "./ParticleEffect";
 import {
   BookOpen,
   ChevronLeft,
@@ -190,6 +191,13 @@ export default function BookReaderLuxury({
   const [currentTimeOfDay, setCurrentTimeOfDay] = useState<
     "dawn" | "day" | "dusk" | "night"
   >("day");
+
+  // ✨🌟 PARTICLE EFFECTS - MAGICAL ATMOSPHERE (PHASE 2)
+  const [particlesEnabled, setParticlesEnabled] = useState(true);
+  const [particleType, setParticleType] = useState<
+    "stars" | "fireflies" | "snow" | "sakura" | "sparkles" | "none"
+  >("stars");
+  const [particleDensity, setParticleDensity] = useState(50); // 0-100
 
   // ===========================================
   // 🔥💎 INSANE LUXURY FEATURES - NEVER SEEN BEFORE! 🔥💎
@@ -558,6 +566,37 @@ export default function BookReaderLuxury({
   };
 
   const currentTheme = themes[theme];
+
+  // ===========================================
+  // ✨ AUTO-SELECT PARTICLES BASED ON THEME - Phase 2 Magic!
+  // ===========================================
+  useEffect(() => {
+    if (!particlesEnabled) return;
+
+    const themeParticleMap: Record<
+      string,
+      "stars" | "fireflies" | "snow" | "sakura" | "sparkles" | "none"
+    > = {
+      light: "sparkles",
+      sepia: "none",
+      dark: "stars",
+      coffee: "fireflies",
+      ocean: "sparkles",
+      forest: "fireflies",
+      sunset: "sparkles",
+      midnight: "stars",
+      lavender: "sakura",
+      mint: "sparkles",
+      rose: "sakura",
+      slate: "stars",
+      amber: "fireflies",
+      sapphire: "stars",
+      emerald: "sparkles",
+    };
+
+    const newParticleType = themeParticleMap[theme] || "stars";
+    setParticleType(newParticleType);
+  }, [theme, particlesEnabled]);
 
   // ===========================================
   // FONT FAMILY OPTIONS - 7 BEAUTIFUL FONTS!
@@ -1482,6 +1521,13 @@ export default function BookReaderLuxury({
     <div
       className={`min-h-screen flex flex-col ${currentTheme.bg} ${currentTheme.text} transition-colors duration-500 relative`}
     >
+      {/* ✨ PARTICLE EFFECTS - Phase 2 Luxury UI */}
+      <ParticleEffect
+        type={particleType}
+        density={particleDensity}
+        enabled={particlesEnabled}
+      />
+
       {/* 🏆💎 ACHIEVEMENT TOAST NOTIFICATION (GAMIFICATION!) */}
       {showAchievementToast && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] animate-bounce">
@@ -1962,20 +2008,21 @@ export default function BookReaderLuxury({
             <div
               className="relative w-full max-w-md h-full overflow-y-auto shadow-2xl animate-slide-in-right"
               style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                border: '1px solid rgba(255, 255, 255, 0.18)',
+                background: "rgba(255, 255, 255, 0.1)",
+                backdropFilter: "blur(20px) saturate(180%)",
+                WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                border: "1px solid rgba(255, 255, 255, 0.18)",
               }}
             >
               <div className="p-6 space-y-6">
                 {/* Header - Glass Card */}
-                <div className="flex items-center justify-between p-4 rounded-2xl"
+                <div
+                  className="flex items-center justify-between p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.15)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                    background: "rgba(255, 255, 255, 0.15)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
                   }}
                 >
                   <h2 className="text-2xl font-bold flex items-center gap-2 text-white drop-shadow-lg">
@@ -1986,9 +2033,9 @@ export default function BookReaderLuxury({
                     onClick={() => setShowSettings(false)}
                     className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all duration-200"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      background: "rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
                     }}
                   >
                     <X className="w-5 h-5 text-white" />
@@ -1996,11 +2043,12 @@ export default function BookReaderLuxury({
                 </div>
 
                 {/* Theme Selection - Glass Cards */}
-                <div className="space-y-4 p-4 rounded-2xl"
+                <div
+                  className="space-y-4 p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    background: "rgba(255, 255, 255, 0.08)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
                   }}
                 >
                   <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2 text-white">
@@ -2014,16 +2062,19 @@ export default function BookReaderLuxury({
                         onClick={() => setTheme(themeKey as any)}
                         className="group relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all hover:scale-110 active:scale-95"
                         style={{
-                          background: theme === themeKey 
-                            ? 'rgba(168, 85, 247, 0.2)' 
-                            : 'rgba(255, 255, 255, 0.05)',
-                          backdropFilter: 'blur(5px)',
-                          border: theme === themeKey
-                            ? '2px solid rgba(168, 85, 247, 0.5)'
-                            : '1px solid rgba(255, 255, 255, 0.1)',
-                          boxShadow: theme === themeKey
-                            ? '0 8px 32px rgba(168, 85, 247, 0.3)'
-                            : '0 4px 16px rgba(0, 0, 0, 0.1)',
+                          background:
+                            theme === themeKey
+                              ? "rgba(168, 85, 247, 0.2)"
+                              : "rgba(255, 255, 255, 0.05)",
+                          backdropFilter: "blur(5px)",
+                          border:
+                            theme === themeKey
+                              ? "2px solid rgba(168, 85, 247, 0.5)"
+                              : "1px solid rgba(255, 255, 255, 0.1)",
+                          boxShadow:
+                            theme === themeKey
+                              ? "0 8px 32px rgba(168, 85, 247, 0.3)"
+                              : "0 4px 16px rgba(0, 0, 0, 0.1)",
                         }}
                         title={themeData.description}
                       >
@@ -2051,27 +2102,30 @@ export default function BookReaderLuxury({
                 </div>
 
                 {/* Font Size - Glass Card */}
-                <div className="space-y-3 p-4 rounded-2xl"
+                <div
+                  className="space-y-3 p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    background: "rgba(255, 255, 255, 0.08)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
                   }}
                 >
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
                       Font Size
                     </h3>
-                    <span className="text-sm font-bold text-white">{fontSize}px</span>
+                    <span className="text-sm font-bold text-white">
+                      {fontSize}px
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setFontSize(Math.max(12, fontSize - 2))}
                       className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.1)',
-                        backdropFilter: 'blur(5px)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        background: "rgba(255, 255, 255, 0.1)",
+                        backdropFilter: "blur(5px)",
+                        border: "1px solid rgba(255, 255, 255, 0.2)",
                       }}
                     >
                       <MinusCircle className="w-5 h-5 text-white" />
@@ -2085,16 +2139,17 @@ export default function BookReaderLuxury({
                       onChange={(e) => setFontSize(parseInt(e.target.value))}
                       className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer"
                       style={{
-                        background: 'linear-gradient(to right, rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5))',
+                        background:
+                          "linear-gradient(to right, rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5))",
                       }}
                     />
                     <button
                       onClick={() => setFontSize(Math.min(32, fontSize + 2))}
                       className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.1)',
-                        backdropFilter: 'blur(5px)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        background: "rgba(255, 255, 255, 0.1)",
+                        backdropFilter: "blur(5px)",
+                        border: "1px solid rgba(255, 255, 255, 0.2)",
                       }}
                     >
                       <PlusCircle className="w-5 h-5 text-white" />
@@ -2103,11 +2158,12 @@ export default function BookReaderLuxury({
                 </div>
 
                 {/* Line Height - Glass Card */}
-                <div className="space-y-3 p-4 rounded-2xl"
+                <div
+                  className="space-y-3 p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    background: "rgba(255, 255, 255, 0.08)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
                   }}
                 >
                   <div className="flex items-center justify-between">
@@ -2127,17 +2183,19 @@ export default function BookReaderLuxury({
                     onChange={(e) => setLineHeight(parseFloat(e.target.value))}
                     className="w-full h-2 rounded-full appearance-none cursor-pointer"
                     style={{
-                      background: 'linear-gradient(to right, rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5))',
+                      background:
+                        "linear-gradient(to right, rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5))",
                     }}
                   />
                 </div>
 
                 {/* Font Family - Glass Cards */}
-                <div className="space-y-3 p-4 rounded-2xl"
+                <div
+                  className="space-y-3 p-4 rounded-2xl"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    background: "rgba(255, 255, 255, 0.08)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
                   }}
                 >
                   <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
@@ -2160,16 +2218,19 @@ export default function BookReaderLuxury({
                         onClick={() => setFontFamily(font)}
                         className="px-3 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95"
                         style={{
-                          background: fontFamily === font
-                            ? 'rgba(168, 85, 247, 0.3)'
-                            : 'rgba(255, 255, 255, 0.05)',
-                          backdropFilter: 'blur(5px)',
-                          border: fontFamily === font
-                            ? '2px solid rgba(168, 85, 247, 0.5)'
-                            : '1px solid rgba(255, 255, 255, 0.1)',
-                          boxShadow: fontFamily === font
-                            ? '0 4px 16px rgba(168, 85, 247, 0.3)'
-                            : 'none',
+                          background:
+                            fontFamily === font
+                              ? "rgba(168, 85, 247, 0.3)"
+                              : "rgba(255, 255, 255, 0.05)",
+                          backdropFilter: "blur(5px)",
+                          border:
+                            fontFamily === font
+                              ? "2px solid rgba(168, 85, 247, 0.5)"
+                              : "1px solid rgba(255, 255, 255, 0.1)",
+                          boxShadow:
+                            fontFamily === font
+                              ? "0 4px 16px rgba(168, 85, 247, 0.3)"
+                              : "none",
                         }}
                       >
                         <div
@@ -2185,6 +2246,100 @@ export default function BookReaderLuxury({
                   </div>
                   <p className="text-xs text-center text-white/60 italic">
                     ✍️ Choose your perfect reading font
+                  </p>
+                </div>
+
+                {/* ✨ PARTICLE EFFECTS CONTROLS - Phase 2 Luxury UI */}
+                <div
+                  className="space-y-3 p-4 rounded-xl"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.08)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
+                      ✨ Particle Effects
+                    </h3>
+                    <button
+                      onClick={() => setParticlesEnabled(!particlesEnabled)}
+                      className={`px-3 py-1 rounded-lg text-xs transition-all ${
+                        particlesEnabled
+                          ? "bg-purple-500/30 text-white"
+                          : "bg-white/10 text-white/50"
+                      }`}
+                    >
+                      {particlesEnabled ? "ON" : "OFF"}
+                    </button>
+                  </div>
+
+                  {particlesEnabled && (
+                    <>
+                      {/* Particle Type Selection */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { type: "stars" as const, icon: "⭐", label: "Stars" },
+                          { type: "fireflies" as const, icon: "🔥", label: "Fireflies" },
+                          { type: "snow" as const, icon: "❄️", label: "Snow" },
+                          { type: "sakura" as const, icon: "🌸", label: "Sakura" },
+                          { type: "sparkles" as const, icon: "✨", label: "Sparkles" },
+                          { type: "none" as const, icon: "⛔", label: "None" },
+                        ].map(({ type, icon, label }) => (
+                          <button
+                            key={type}
+                            onClick={() => setParticleType(type)}
+                            className="px-2 py-2 rounded-xl transition-all hover:scale-105 active:scale-95"
+                            style={{
+                              background:
+                                particleType === type
+                                  ? "rgba(168, 85, 247, 0.3)"
+                                  : "rgba(255, 255, 255, 0.05)",
+                              backdropFilter: "blur(5px)",
+                              border:
+                                particleType === type
+                                  ? "2px solid rgba(168, 85, 247, 0.5)"
+                                  : "1px solid rgba(255, 255, 255, 0.1)",
+                              boxShadow:
+                                particleType === type
+                                  ? "0 4px 16px rgba(168, 85, 247, 0.3)"
+                                  : "none",
+                            }}
+                          >
+                            <div className="text-2xl mb-1">{icon}</div>
+                            <div className="text-xs text-white/80">{label}</div>
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Particle Density Slider */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <label className="text-xs text-white/70">
+                            Density
+                          </label>
+                          <span className="text-xs text-purple-300">
+                            {particleDensity}%
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="10"
+                          max="100"
+                          step="10"
+                          value={particleDensity}
+                          onChange={(e) => setParticleDensity(Number(e.target.value))}
+                          className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                          style={{
+                            background: `linear-gradient(to right, rgba(168, 85, 247, 0.6) 0%, rgba(168, 85, 247, 0.6) ${particleDensity}%, rgba(255, 255, 255, 0.1) ${particleDensity}%, rgba(255, 255, 255, 0.1) 100%)`,
+                          }}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <p className="text-xs text-center text-white/60 italic">
+                    ✨ Add magical atmosphere to your reading
                   </p>
                 </div>
 
@@ -3620,10 +3775,10 @@ export default function BookReaderLuxury({
           <footer
             className="sticky bottom-0 z-50"
             style={{
-              background: 'rgba(255, 255, 255, 0.1)',
-              backdropFilter: 'blur(20px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-              borderTop: '1px solid rgba(255, 255, 255, 0.18)',
+              background: "rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(20px) saturate(180%)",
+              WebkitBackdropFilter: "blur(20px) saturate(180%)",
+              borderTop: "1px solid rgba(255, 255, 255, 0.18)",
             }}
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -3635,9 +3790,9 @@ export default function BookReaderLuxury({
                   disabled={currentPage === 1}
                   className="disabled:opacity-30 px-4 py-2 rounded-xl hover:scale-105 active:scale-95 transition-all text-white"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    background: "rgba(255, 255, 255, 0.1)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
                   }}
                 >
                   <ChevronLeft className="w-5 h-5 mr-2" />
@@ -3650,20 +3805,21 @@ export default function BookReaderLuxury({
                     onClick={() => goToPage(Math.max(1, currentPage - 10))}
                     className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      background: "rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
                     }}
                     title="Jump back 10 pages"
                   >
                     <Rewind className="w-4 h-4 text-white" />
                   </button>
 
-                  <div className="flex items-center gap-3 px-4 py-2 rounded-xl"
+                  <div
+                    className="flex items-center gap-3 px-4 py-2 rounded-xl"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.15)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      background: "rgba(255, 255, 255, 0.15)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
                     }}
                   >
                     <span className="text-sm text-white/80">Page:</span>
@@ -3675,10 +3831,12 @@ export default function BookReaderLuxury({
                       onChange={(e) => goToPage(parseInt(e.target.value) || 1)}
                       className="w-20 px-3 py-2 rounded-lg text-center font-medium text-white bg-white/10 border border-white/20"
                       style={{
-                        backdropFilter: 'blur(5px)',
+                        backdropFilter: "blur(5px)",
                       }}
                     />
-                    <span className="text-sm text-white/80">of {totalPages}</span>
+                    <span className="text-sm text-white/80">
+                      of {totalPages}
+                    </span>
                   </div>
 
                   <button
@@ -3687,9 +3845,9 @@ export default function BookReaderLuxury({
                     }
                     className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
                     style={{
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      background: "rgba(255, 255, 255, 0.1)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
                     }}
                     title="Jump forward 10 pages"
                   >
@@ -3704,9 +3862,9 @@ export default function BookReaderLuxury({
                   disabled={currentPage === totalPages}
                   className="disabled:opacity-30 px-4 py-2 rounded-xl hover:scale-105 active:scale-95 transition-all text-white"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    background: "rgba(255, 255, 255, 0.1)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
                   }}
                 >
                   Next
