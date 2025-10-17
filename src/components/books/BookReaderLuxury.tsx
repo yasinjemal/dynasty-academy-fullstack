@@ -13,7 +13,13 @@ import LiveReactions from "./LiveReactions";
 import { useContextualIntelligence } from "@/hooks/useContextualIntelligence";
 import { IntelligenceInsightsPanel } from "@/components/intelligence/IntelligenceInsightsPanel";
 import ParticleEffect from "./ParticleEffect";
-import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
+import QuoteShareModal from "./QuoteShareModal";
+import {
+  motion,
+  AnimatePresence,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import {
   BookOpen,
   ChevronLeft,
@@ -192,6 +198,10 @@ export default function BookReaderLuxury({
   const [currentTimeOfDay, setCurrentTimeOfDay] = useState<
     "dawn" | "day" | "dusk" | "night"
   >("day");
+
+  // ✨📤 PHASE 4: QUOTE SHARING SYSTEM
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [selectedQuoteText, setSelectedQuoteText] = useState("");
 
   // ✨🌟 PARTICLE EFFECTS - MAGICAL ATMOSPHERE (PHASE 2)
   const [particlesEnabled, setParticlesEnabled] = useState(true);
@@ -1479,6 +1489,19 @@ export default function BookReaderLuxury({
   };
 
   // ===========================================
+  // ✨ PHASE 4: QUOTE SHARING - TEXT SELECTION HANDLER
+  // ===========================================
+  const handleTextSelection = () => {
+    const selection = window.getSelection();
+    const text = selection?.toString().trim();
+    
+    if (text && text.length > 10 && text.length < 500) {
+      setSelectedQuoteText(text);
+      setShowQuoteModal(true);
+    }
+  };
+
+  // ===========================================
   // KEYBOARD SHORTCUTS
   // ===========================================
   useEffect(() => {
@@ -1905,6 +1928,21 @@ export default function BookReaderLuxury({
                     <Sparkles className="w-4 h-4" />
                   </Button>
 
+                  {/* ✨ PHASE 4: Quote Share Button */}
+                  <motion.button
+                    onClick={handleTextSelection}
+                    whileHover={{
+                      scale: 1.1,
+                      boxShadow: "0 0 20px rgba(236, 72, 153, 0.6)",
+                    }}
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    className="p-2 rounded-lg bg-transparent hover:bg-pink-100 dark:hover:bg-pink-900/20"
+                    title="Share a quote - Select text first"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </motion.button>
+
                   {/* Settings - Icon Only + ✨ Phase 3 Glow Animation */}
                   <motion.button
                     onClick={() => setShowSettings(!showSettings)}
@@ -2038,857 +2076,837 @@ export default function BookReaderLuxury({
                   border: "1px solid rgba(255, 255, 255, 0.18)",
                 }}
               >
-              <div className="p-6 space-y-6">
-                {/* Header - Glass Card */}
-                <div
-                  className="flex items-center justify-between p-4 rounded-2xl"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.15)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
-                    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
-                  }}
-                >
-                  <h2 className="text-2xl font-bold flex items-center gap-2 text-white drop-shadow-lg">
-                    <Palette className="w-6 h-6 text-purple-400" />
-                    Reading Settings
-                  </h2>
-                  <button
-                    onClick={() => setShowSettings(false)}
-                    className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all duration-200"
+                <div className="p-6 space-y-6">
+                  {/* Header - Glass Card */}
+                  <div
+                    className="flex items-center justify-between p-4 rounded-2xl"
                     style={{
-                      background: "rgba(255, 255, 255, 0.1)",
+                      background: "rgba(255, 255, 255, 0.15)",
                       backdropFilter: "blur(10px)",
                       border: "1px solid rgba(255, 255, 255, 0.2)",
+                      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
                     }}
                   >
-                    <X className="w-5 h-5 text-white" />
-                  </button>
-                </div>
-
-                {/* Theme Selection - Glass Cards */}
-                <div
-                  className="space-y-4 p-4 rounded-2xl"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.08)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                  }}
-                >
-                  <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2 text-white">
-                    <Palette className="w-5 h-5 text-purple-400" />
-                    Reading Theme
-                  </h3>
-                  <div className="grid grid-cols-5 gap-3">
-                    {Object.entries(themes).map(([themeKey, themeData]) => (
-                      <button
-                        key={themeKey}
-                        onClick={() => setTheme(themeKey as any)}
-                        className="group relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all hover:scale-110 active:scale-95"
-                        style={{
-                          background:
-                            theme === themeKey
-                              ? "rgba(168, 85, 247, 0.2)"
-                              : "rgba(255, 255, 255, 0.05)",
-                          backdropFilter: "blur(5px)",
-                          border:
-                            theme === themeKey
-                              ? "2px solid rgba(168, 85, 247, 0.5)"
-                              : "1px solid rgba(255, 255, 255, 0.1)",
-                          boxShadow:
-                            theme === themeKey
-                              ? "0 8px 32px rgba(168, 85, 247, 0.3)"
-                              : "0 4px 16px rgba(0, 0, 0, 0.1)",
-                        }}
-                        title={themeData.description}
-                      >
-                        <div
-                          className={`w-full aspect-square rounded-lg ${themeData.bg} border-2 ${themeData.border} shadow-inner relative overflow-hidden`}
-                        >
-                          <div
-                            className={`absolute inset-0 bg-gradient-to-br ${themeData.accent} opacity-20`}
-                          />
-                          {theme === themeKey && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <Check className="w-6 h-6 text-white drop-shadow-lg" />
-                            </div>
-                          )}
-                        </div>
-                        <span className="text-xs font-semibold text-center text-white">
-                          {themeData.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-xs text-center text-white/60 italic">
-                    ✨ Choose your perfect reading atmosphere
-                  </p>
-                </div>
-
-                {/* Font Size - Glass Card */}
-                <div
-                  className="space-y-3 p-4 rounded-2xl"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.08)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
-                      Font Size
-                    </h3>
-                    <span className="text-sm font-bold text-white">
-                      {fontSize}px
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
+                    <h2 className="text-2xl font-bold flex items-center gap-2 text-white drop-shadow-lg">
+                      <Palette className="w-6 h-6 text-purple-400" />
+                      Reading Settings
+                    </h2>
                     <button
-                      onClick={() => setFontSize(Math.max(12, fontSize - 2))}
-                      className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
+                      onClick={() => setShowSettings(false)}
+                      className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all duration-200"
                       style={{
                         background: "rgba(255, 255, 255, 0.1)",
-                        backdropFilter: "blur(5px)",
+                        backdropFilter: "blur(10px)",
                         border: "1px solid rgba(255, 255, 255, 0.2)",
                       }}
                     >
-                      <MinusCircle className="w-5 h-5 text-white" />
+                      <X className="w-5 h-5 text-white" />
                     </button>
+                  </div>
+
+                  {/* Theme Selection - Glass Cards */}
+                  <div
+                    className="space-y-4 p-4 rounded-2xl"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.08)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                    }}
+                  >
+                    <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2 text-white">
+                      <Palette className="w-5 h-5 text-purple-400" />
+                      Reading Theme
+                    </h3>
+                    <div className="grid grid-cols-5 gap-3">
+                      {Object.entries(themes).map(([themeKey, themeData]) => (
+                        <button
+                          key={themeKey}
+                          onClick={() => setTheme(themeKey as any)}
+                          className="group relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all hover:scale-110 active:scale-95"
+                          style={{
+                            background:
+                              theme === themeKey
+                                ? "rgba(168, 85, 247, 0.2)"
+                                : "rgba(255, 255, 255, 0.05)",
+                            backdropFilter: "blur(5px)",
+                            border:
+                              theme === themeKey
+                                ? "2px solid rgba(168, 85, 247, 0.5)"
+                                : "1px solid rgba(255, 255, 255, 0.1)",
+                            boxShadow:
+                              theme === themeKey
+                                ? "0 8px 32px rgba(168, 85, 247, 0.3)"
+                                : "0 4px 16px rgba(0, 0, 0, 0.1)",
+                          }}
+                          title={themeData.description}
+                        >
+                          <div
+                            className={`w-full aspect-square rounded-lg ${themeData.bg} border-2 ${themeData.border} shadow-inner relative overflow-hidden`}
+                          >
+                            <div
+                              className={`absolute inset-0 bg-gradient-to-br ${themeData.accent} opacity-20`}
+                            />
+                            {theme === themeKey && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Check className="w-6 h-6 text-white drop-shadow-lg" />
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-xs font-semibold text-center text-white">
+                            {themeData.name}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-center text-white/60 italic">
+                      ✨ Choose your perfect reading atmosphere
+                    </p>
+                  </div>
+
+                  {/* Font Size - Glass Card */}
+                  <div
+                    className="space-y-3 p-4 rounded-2xl"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.08)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
+                        Font Size
+                      </h3>
+                      <span className="text-sm font-bold text-white">
+                        {fontSize}px
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setFontSize(Math.max(12, fontSize - 2))}
+                        className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
+                        style={{
+                          background: "rgba(255, 255, 255, 0.1)",
+                          backdropFilter: "blur(5px)",
+                          border: "1px solid rgba(255, 255, 255, 0.2)",
+                        }}
+                      >
+                        <MinusCircle className="w-5 h-5 text-white" />
+                      </button>
+                      <input
+                        type="range"
+                        min="12"
+                        max="32"
+                        step="2"
+                        value={fontSize}
+                        onChange={(e) => setFontSize(parseInt(e.target.value))}
+                        className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer"
+                        style={{
+                          background:
+                            "linear-gradient(to right, rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5))",
+                        }}
+                      />
+                      <button
+                        onClick={() => setFontSize(Math.min(32, fontSize + 2))}
+                        className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
+                        style={{
+                          background: "rgba(255, 255, 255, 0.1)",
+                          backdropFilter: "blur(5px)",
+                          border: "1px solid rgba(255, 255, 255, 0.2)",
+                        }}
+                      >
+                        <PlusCircle className="w-5 h-5 text-white" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Line Height - Glass Card */}
+                  <div
+                    className="space-y-3 p-4 rounded-2xl"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.08)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
+                        Line Height
+                      </h3>
+                      <span className="text-sm font-bold text-white">
+                        {lineHeight.toFixed(1)}
+                      </span>
+                    </div>
                     <input
                       type="range"
-                      min="12"
-                      max="32"
-                      step="2"
-                      value={fontSize}
-                      onChange={(e) => setFontSize(parseInt(e.target.value))}
-                      className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer"
+                      min="1.4"
+                      max="2.5"
+                      step="0.1"
+                      value={lineHeight}
+                      onChange={(e) =>
+                        setLineHeight(parseFloat(e.target.value))
+                      }
+                      className="w-full h-2 rounded-full appearance-none cursor-pointer"
                       style={{
                         background:
                           "linear-gradient(to right, rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5))",
                       }}
                     />
-                    <button
-                      onClick={() => setFontSize(Math.min(32, fontSize + 2))}
-                      className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
-                      style={{
-                        background: "rgba(255, 255, 255, 0.1)",
-                        backdropFilter: "blur(5px)",
-                        border: "1px solid rgba(255, 255, 255, 0.2)",
-                      }}
-                    >
-                      <PlusCircle className="w-5 h-5 text-white" />
-                    </button>
                   </div>
-                </div>
 
-                {/* Line Height - Glass Card */}
-                <div
-                  className="space-y-3 p-4 rounded-2xl"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.08)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
-                      Line Height
-                    </h3>
-                    <span className="text-sm font-bold text-white">
-                      {lineHeight.toFixed(1)}
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min="1.4"
-                    max="2.5"
-                    step="0.1"
-                    value={lineHeight}
-                    onChange={(e) => setLineHeight(parseFloat(e.target.value))}
-                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                  {/* Font Family - Glass Cards */}
+                  <div
+                    className="space-y-3 p-4 rounded-2xl"
                     style={{
-                      background:
-                        "linear-gradient(to right, rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5))",
+                      background: "rgba(255, 255, 255, 0.08)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
                     }}
-                  />
-                </div>
-
-                {/* Font Family - Glass Cards */}
-                <div
-                  className="space-y-3 p-4 rounded-2xl"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.08)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                  }}
-                >
-                  <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
-                    Font Family
-                  </h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(
-                      [
-                        "serif",
-                        "sans",
-                        "mono",
-                        "dyslexic",
-                        "typewriter",
-                        "elegant",
-                        "modern",
-                      ] as const
-                    ).map((font) => (
-                      <button
-                        key={font}
-                        onClick={() => setFontFamily(font)}
-                        className="px-3 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95"
-                        style={{
-                          background:
-                            fontFamily === font
-                              ? "rgba(168, 85, 247, 0.3)"
-                              : "rgba(255, 255, 255, 0.05)",
-                          backdropFilter: "blur(5px)",
-                          border:
-                            fontFamily === font
-                              ? "2px solid rgba(168, 85, 247, 0.5)"
-                              : "1px solid rgba(255, 255, 255, 0.1)",
-                          boxShadow:
-                            fontFamily === font
-                              ? "0 4px 16px rgba(168, 85, 247, 0.3)"
-                              : "none",
-                        }}
-                      >
-                        <div
-                          className={`${fontFamilies[font].class} text-lg font-bold mb-1 text-white`}
-                        >
-                          Ag
-                        </div>
-                        <div className="text-xs text-white/60">
-                          {fontFamilies[font].name}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-xs text-center text-white/60 italic">
-                    ✍️ Choose your perfect reading font
-                  </p>
-                </div>
-
-                {/* ✨ PARTICLE EFFECTS CONTROLS - Phase 2 Luxury UI */}
-                <div
-                  className="space-y-3 p-4 rounded-xl"
-                  style={{
-                    background: "rgba(255, 255, 255, 0.08)",
-                    backdropFilter: "blur(10px)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                  }}
-                >
-                  <div className="flex items-center justify-between">
+                  >
                     <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
-                      ✨ Particle Effects
+                      Font Family
                     </h3>
-                    <button
-                      onClick={() => setParticlesEnabled(!particlesEnabled)}
-                      className={`px-3 py-1 rounded-lg text-xs transition-all ${
-                        particlesEnabled
-                          ? "bg-purple-500/30 text-white"
-                          : "bg-white/10 text-white/50"
-                      }`}
-                    >
-                      {particlesEnabled ? "ON" : "OFF"}
-                    </button>
-                  </div>
-
-                  {particlesEnabled && (
-                    <>
-                      {/* Particle Type Selection */}
-                      <div className="grid grid-cols-3 gap-2">
-                        {[
-                          {
-                            type: "stars" as const,
-                            icon: "⭐",
-                            label: "Stars",
-                          },
-                          {
-                            type: "fireflies" as const,
-                            icon: "🔥",
-                            label: "Fireflies",
-                          },
-                          { type: "snow" as const, icon: "❄️", label: "Snow" },
-                          {
-                            type: "sakura" as const,
-                            icon: "🌸",
-                            label: "Sakura",
-                          },
-                          {
-                            type: "sparkles" as const,
-                            icon: "✨",
-                            label: "Sparkles",
-                          },
-                          { type: "none" as const, icon: "⛔", label: "None" },
-                        ].map(({ type, icon, label }) => (
-                          <button
-                            key={type}
-                            onClick={() => setParticleType(type)}
-                            className="px-2 py-2 rounded-xl transition-all hover:scale-105 active:scale-95"
-                            style={{
-                              background:
-                                particleType === type
-                                  ? "rgba(168, 85, 247, 0.3)"
-                                  : "rgba(255, 255, 255, 0.05)",
-                              backdropFilter: "blur(5px)",
-                              border:
-                                particleType === type
-                                  ? "2px solid rgba(168, 85, 247, 0.5)"
-                                  : "1px solid rgba(255, 255, 255, 0.1)",
-                              boxShadow:
-                                particleType === type
-                                  ? "0 4px 16px rgba(168, 85, 247, 0.3)"
-                                  : "none",
-                            }}
-                          >
-                            <div className="text-2xl mb-1">{icon}</div>
-                            <div className="text-xs text-white/80">{label}</div>
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* Particle Density Slider */}
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <label className="text-xs text-white/70">
-                            Density
-                          </label>
-                          <span className="text-xs text-purple-300">
-                            {particleDensity}%
-                          </span>
-                        </div>
-                        <input
-                          type="range"
-                          min="10"
-                          max="100"
-                          step="10"
-                          value={particleDensity}
-                          onChange={(e) =>
-                            setParticleDensity(Number(e.target.value))
-                          }
-                          className="w-full h-2 rounded-full appearance-none cursor-pointer"
-                          style={{
-                            background: `linear-gradient(to right, rgba(168, 85, 247, 0.6) 0%, rgba(168, 85, 247, 0.6) ${particleDensity}%, rgba(255, 255, 255, 0.1) ${particleDensity}%, rgba(255, 255, 255, 0.1) 100%)`,
-                          }}
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  <p className="text-xs text-center text-white/60 italic">
-                    ✨ Add magical atmosphere to your reading
-                  </p>
-                </div>
-
-                {/* Layout Width */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
-                    Layout Width
-                  </h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(["narrow", "standard", "wide"] as const).map(
-                      (layoutType) => (
+                    <div className="grid grid-cols-3 gap-2">
+                      {(
+                        [
+                          "serif",
+                          "sans",
+                          "mono",
+                          "dyslexic",
+                          "typewriter",
+                          "elegant",
+                          "modern",
+                        ] as const
+                      ).map((font) => (
                         <button
-                          key={layoutType}
-                          onClick={() => setLayout(layoutType)}
-                          className={`px-4 py-3 rounded-xl border-2 capitalize transition-all ${
-                            layout === layoutType
-                              ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
-                              : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
-                          }`}
+                          key={font}
+                          onClick={() => setFontFamily(font)}
+                          className="px-3 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95"
+                          style={{
+                            background:
+                              fontFamily === font
+                                ? "rgba(168, 85, 247, 0.3)"
+                                : "rgba(255, 255, 255, 0.05)",
+                            backdropFilter: "blur(5px)",
+                            border:
+                              fontFamily === font
+                                ? "2px solid rgba(168, 85, 247, 0.5)"
+                                : "1px solid rgba(255, 255, 255, 0.1)",
+                            boxShadow:
+                              fontFamily === font
+                                ? "0 4px 16px rgba(168, 85, 247, 0.3)"
+                                : "none",
+                          }}
                         >
-                          {layoutType}
+                          <div
+                            className={`${fontFamilies[font].class} text-lg font-bold mb-1 text-white`}
+                          >
+                            Ag
+                          </div>
+                          <div className="text-xs text-white/60">
+                            {fontFamilies[font].name}
+                          </div>
                         </button>
-                      )
-                    )}
+                      ))}
+                    </div>
+                    <p className="text-xs text-center text-white/60 italic">
+                      ✍️ Choose your perfect reading font
+                    </p>
                   </div>
-                </div>
 
-                {/* Column Mode */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
-                    Columns
-                  </h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    {([1, 2] as const).map((cols) => (
+                  {/* ✨ PARTICLE EFFECTS CONTROLS - Phase 2 Luxury UI */}
+                  <div
+                    className="space-y-3 p-4 rounded-xl"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.08)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
+                        ✨ Particle Effects
+                      </h3>
                       <button
-                        key={cols}
-                        onClick={() => setColumnMode(cols)}
-                        className={`px-4 py-3 rounded-xl border-2 transition-all ${
-                          columnMode === cols
-                            ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
-                            : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
+                        onClick={() => setParticlesEnabled(!particlesEnabled)}
+                        className={`px-3 py-1 rounded-lg text-xs transition-all ${
+                          particlesEnabled
+                            ? "bg-purple-500/30 text-white"
+                            : "bg-white/10 text-white/50"
                         }`}
                       >
-                        {cols} Column{cols > 1 ? "s" : ""}
+                        {particlesEnabled ? "ON" : "OFF"}
                       </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Auto-Scroll Speed */}
-                {autoScroll && (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
-                        Scroll Speed
-                      </h3>
-                      <span className="text-sm font-bold">{scrollSpeed}</span>
                     </div>
-                    <input
-                      type="range"
-                      min="10"
-                      max="100"
-                      step="10"
-                      value={scrollSpeed}
-                      onChange={(e) => setScrollSpeed(parseInt(e.target.value))}
-                      className="w-full"
-                    />
-                  </div>
-                )}
 
-                {/* 🎨 NEW! Page Transition Effect */}
-                <div className="space-y-4 pt-6 border-t border-white/10">
-                  <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                    <Sparkles className="w-5 h-5" />
-                    Luxury Effects
-                  </h3>
+                    {particlesEnabled && (
+                      <>
+                        {/* Particle Type Selection */}
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            {
+                              type: "stars" as const,
+                              icon: "⭐",
+                              label: "Stars",
+                            },
+                            {
+                              type: "fireflies" as const,
+                              icon: "🔥",
+                              label: "Fireflies",
+                            },
+                            {
+                              type: "snow" as const,
+                              icon: "❄️",
+                              label: "Snow",
+                            },
+                            {
+                              type: "sakura" as const,
+                              icon: "🌸",
+                              label: "Sakura",
+                            },
+                            {
+                              type: "sparkles" as const,
+                              icon: "✨",
+                              label: "Sparkles",
+                            },
+                            {
+                              type: "none" as const,
+                              icon: "⛔",
+                              label: "None",
+                            },
+                          ].map(({ type, icon, label }) => (
+                            <button
+                              key={type}
+                              onClick={() => setParticleType(type)}
+                              className="px-2 py-2 rounded-xl transition-all hover:scale-105 active:scale-95"
+                              style={{
+                                background:
+                                  particleType === type
+                                    ? "rgba(168, 85, 247, 0.3)"
+                                    : "rgba(255, 255, 255, 0.05)",
+                                backdropFilter: "blur(5px)",
+                                border:
+                                  particleType === type
+                                    ? "2px solid rgba(168, 85, 247, 0.5)"
+                                    : "1px solid rgba(255, 255, 255, 0.1)",
+                                boxShadow:
+                                  particleType === type
+                                    ? "0 4px 16px rgba(168, 85, 247, 0.3)"
+                                    : "none",
+                              }}
+                            >
+                              <div className="text-2xl mb-1">{icon}</div>
+                              <div className="text-xs text-white/80">
+                                {label}
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Particle Density Slider */}
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                            <label className="text-xs text-white/70">
+                              Density
+                            </label>
+                            <span className="text-xs text-purple-300">
+                              {particleDensity}%
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="10"
+                            max="100"
+                            step="10"
+                            value={particleDensity}
+                            onChange={(e) =>
+                              setParticleDensity(Number(e.target.value))
+                            }
+                            className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                            style={{
+                              background: `linear-gradient(to right, rgba(168, 85, 247, 0.6) 0%, rgba(168, 85, 247, 0.6) ${particleDensity}%, rgba(255, 255, 255, 0.1) ${particleDensity}%, rgba(255, 255, 255, 0.1) 100%)`,
+                            }}
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    <p className="text-xs text-center text-white/60 italic">
+                      ✨ Add magical atmosphere to your reading
+                    </p>
+                  </div>
+
+                  {/* Layout Width */}
                   <div className="space-y-3">
-                    <h4 className="text-sm font-semibold opacity-60">
-                      Page Turn Animation
-                    </h4>
-                    <div className="grid grid-cols-4 gap-2">
-                      {(["fade", "slide", "flip", "none"] as const).map(
-                        (transition) => (
+                    <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
+                      Layout Width
+                    </h3>
+                    <div className="grid grid-cols-3 gap-2">
+                      {(["narrow", "standard", "wide"] as const).map(
+                        (layoutType) => (
                           <button
-                            key={transition}
-                            onClick={() => setPageTransition(transition)}
-                            className={`px-3 py-2 rounded-xl border-2 capitalize transition-all text-xs ${
-                              pageTransition === transition
-                                ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg"
-                                : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary} hover:border-purple-300`
+                            key={layoutType}
+                            onClick={() => setLayout(layoutType)}
+                            className={`px-4 py-3 rounded-xl border-2 capitalize transition-all ${
+                              layout === layoutType
+                                ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                                : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
                             }`}
                           >
-                            {transition}
+                            {layoutType}
                           </button>
                         )
                       )}
                     </div>
                   </div>
 
-                  {/* Accent Color Selector */}
+                  {/* Column Mode */}
                   <div className="space-y-3">
-                    <h4 className="text-sm font-semibold opacity-60">
-                      Accent Color
-                    </h4>
-                    <div className="grid grid-cols-5 gap-2">
-                      {(
-                        [
-                          { name: "purple", color: "bg-purple-500" },
-                          { name: "blue", color: "bg-blue-500" },
-                          { name: "pink", color: "bg-pink-500" },
-                          { name: "orange", color: "bg-orange-500" },
-                          { name: "green", color: "bg-green-500" },
-                        ] as const
-                      ).map((accent) => (
+                    <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
+                      Columns
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([1, 2] as const).map((cols) => (
                         <button
-                          key={accent.name}
-                          onClick={() => setAccentColor(accent.name)}
-                          className={`relative w-full aspect-square rounded-xl border-2 transition-all hover:scale-110 ${
-                            accentColor === accent.name
-                              ? "border-purple-500 shadow-lg scale-105"
-                              : "border-gray-300 dark:border-gray-600"
+                          key={cols}
+                          onClick={() => setColumnMode(cols)}
+                          className={`px-4 py-3 rounded-xl border-2 transition-all ${
+                            columnMode === cols
+                              ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                              : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
                           }`}
                         >
-                          <div
-                            className={`absolute inset-0 rounded-lg ${accent.color}`}
-                          />
-                          {accentColor === accent.name && (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <Check className="w-4 h-4 text-white drop-shadow-lg" />
-                            </div>
-                          )}
+                          {cols} Column{cols > 1 ? "s" : ""}
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  {/* Live Reading Speed Toggle */}
-                  <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
-                    <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-orange-500" />
-                      <span className="text-sm font-semibold">
-                        Show Reading Speed
-                      </span>
-                    </div>
-                    <button
-                      onClick={() =>
-                        setShowReadingSpeedLive(!showReadingSpeedLive)
-                      }
-                      className={`relative w-12 h-6 rounded-full transition-colors ${
-                        showReadingSpeedLive
-                          ? "bg-purple-500"
-                          : "bg-gray-300 dark:bg-gray-600"
-                      }`}
-                    >
-                      <div
-                        className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                          showReadingSpeedLive
-                            ? "translate-x-7"
-                            : "translate-x-1"
-                        }`}
+                  {/* Auto-Scroll Speed */}
+                  {autoScroll && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
+                          Scroll Speed
+                        </h3>
+                        <span className="text-sm font-bold">{scrollSpeed}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="10"
+                        max="100"
+                        step="10"
+                        value={scrollSpeed}
+                        onChange={(e) =>
+                          setScrollSpeed(parseInt(e.target.value))
+                        }
+                        className="w-full"
                       />
-                    </button>
-                  </div>
-
-                  {/* 🎨 CUSTOM TEXT COLOR MIXER - ULTIMATE PERSONALIZATION! */}
-                  <div className="space-y-3 p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-700">
-                    <h4 className="text-sm font-bold flex items-center gap-2">
-                      <Palette className="w-4 h-4" />
-                      Custom Text Color
-                    </h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={customTextColor || "#000000"}
-                          onChange={(e) => setCustomTextColor(e.target.value)}
-                          className="w-12 h-12 rounded-xl cursor-pointer border-2 border-purple-300"
-                        />
-                        <div className="flex-1">
-                          <input
-                            type="text"
-                            value={customTextColor}
-                            onChange={(e) => setCustomTextColor(e.target.value)}
-                            placeholder="#000000"
-                            className="w-full px-3 py-2 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none text-sm font-mono"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-black/20 rounded-lg">
-                        <span className="text-xs font-semibold">
-                          Use Custom Color
-                        </span>
-                        <button
-                          onClick={() =>
-                            setUseCustomTextColor(!useCustomTextColor)
-                          }
-                          className={`relative w-10 h-5 rounded-full transition-colors ${
-                            useCustomTextColor
-                              ? "bg-purple-500"
-                              : "bg-gray-300 dark:bg-gray-600"
-                          }`}
-                        >
-                          <div
-                            className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
-                              useCustomTextColor
-                                ? "translate-x-5"
-                                : "translate-x-0.5"
-                            }`}
-                          />
-                        </button>
-                      </div>
-                      {useCustomTextColor && customTextColor && (
-                        <div className="p-3 rounded-lg border-2 border-purple-300 bg-white dark:bg-gray-800">
-                          <p
-                            style={{ color: customTextColor }}
-                            className="text-sm font-semibold"
-                          >
-                            Preview: This is how your text will look! 📖
-                          </p>
-                        </div>
-                      )}
                     </div>
-                    <p className="text-xs text-center opacity-60">
-                      🎨 Mix your perfect reading color
-                    </p>
-                  </div>
+                  )}
 
-                  {/* 🎭🌟 ATMOSPHERE PRESETS - ONE-CLICK MOOD TRANSFORMATION! */}
-                  <div className="space-y-4 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 dark:from-purple-900/30 dark:via-pink-900/30 dark:to-orange-900/30 rounded-xl border-2 border-purple-300 dark:border-purple-700 shadow-xl">
+                  {/* 🎨 NEW! Page Transition Effect */}
+                  <div className="space-y-4 pt-6 border-t border-white/10">
                     <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-purple-500" />
-                      🎭 Atmosphere Presets
+                      <Sparkles className="w-5 h-5" />
+                      Luxury Effects
                     </h3>
-                    <p className="text-xs opacity-70 text-center">
-                      ✨ Transform your reading experience in one click
-                    </p>
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold opacity-60">
+                        Page Turn Animation
+                      </h4>
+                      <div className="grid grid-cols-4 gap-2">
+                        {(["fade", "slide", "flip", "none"] as const).map(
+                          (transition) => (
+                            <button
+                              key={transition}
+                              onClick={() => setPageTransition(transition)}
+                              className={`px-3 py-2 rounded-xl border-2 capitalize transition-all text-xs ${
+                                pageTransition === transition
+                                  ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg"
+                                  : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary} hover:border-purple-300`
+                              }`}
+                            >
+                              {transition}
+                            </button>
+                          )
+                        )}
+                      </div>
+                    </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      {Object.entries(atmospherePresets).map(
-                        ([key, preset]) => (
+                    {/* Accent Color Selector */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold opacity-60">
+                        Accent Color
+                      </h4>
+                      <div className="grid grid-cols-5 gap-2">
+                        {(
+                          [
+                            { name: "purple", color: "bg-purple-500" },
+                            { name: "blue", color: "bg-blue-500" },
+                            { name: "pink", color: "bg-pink-500" },
+                            { name: "orange", color: "bg-orange-500" },
+                            { name: "green", color: "bg-green-500" },
+                          ] as const
+                        ).map((accent) => (
                           <button
-                            key={key}
-                            onClick={() => applyAtmospherePreset(key)}
-                            className={`p-4 rounded-xl border-2 transition-all hover:scale-105 hover:shadow-lg ${
-                              atmospherePreset === key
-                                ? "border-purple-500 bg-purple-100 dark:bg-purple-900/40 shadow-lg ring-2 ring-purple-300"
-                                : "border-purple-200 dark:border-purple-700 bg-white/50 dark:bg-black/20 hover:border-purple-400"
+                            key={accent.name}
+                            onClick={() => setAccentColor(accent.name)}
+                            className={`relative w-full aspect-square rounded-xl border-2 transition-all hover:scale-110 ${
+                              accentColor === accent.name
+                                ? "border-purple-500 shadow-lg scale-105"
+                                : "border-gray-300 dark:border-gray-600"
                             }`}
                           >
-                            <div className="text-3xl mb-2 filter drop-shadow">
-                              {preset.name.split(" ")[0]}
-                            </div>
-                            <div className="font-bold text-sm">
-                              {preset.name.split(" ").slice(1).join(" ")}
-                            </div>
-                            <div className="text-xs opacity-60 mt-1 line-clamp-2">
-                              {preset.description}
-                            </div>
-                            {atmospherePreset === key && (
-                              <div className="mt-2 flex items-center justify-center gap-1 text-xs text-purple-600 dark:text-purple-400 font-semibold">
-                                <Check className="w-3 h-3" />
-                                Active
+                            <div
+                              className={`absolute inset-0 rounded-lg ${accent.color}`}
+                            />
+                            {accentColor === accent.name && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Check className="w-4 h-4 text-white drop-shadow-lg" />
                               </div>
                             )}
                           </button>
-                        )
-                      )}
+                        ))}
+                      </div>
                     </div>
 
-                    {atmospherePreset && (
-                      <button
-                        onClick={() => {
-                          setAtmospherePreset(null);
-                          setImmersiveMode(false);
-                        }}
-                        className="w-full py-2 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all text-sm font-semibold"
-                      >
-                        Clear Preset
-                      </button>
-                    )}
-                  </div>
-
-                  {/* 🌟 IMMERSIVE BACKGROUND CONTROLS - CINEMA-QUALITY READING! */}
-                  <div className="space-y-4 p-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-xl border-2 border-indigo-300 dark:border-indigo-700 shadow-xl">
-                    <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-indigo-500" />
-                      🌟 Immersive Backgrounds
-                    </h3>
-                    <p className="text-xs opacity-70 text-center">
-                      🎬 Create your perfect reading atmosphere
-                    </p>
-
-                    {/* Immersive Mode Toggle */}
-                    <div className="flex items-center justify-between p-3 bg-white/60 dark:bg-black/30 rounded-xl border border-indigo-200 dark:border-indigo-700">
+                    {/* Live Reading Speed Toggle */}
+                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl">
                       <div className="flex items-center gap-2">
-                        <Eye className="w-4 h-4 text-indigo-500" />
-                        <span className="text-sm font-bold">
-                          Immersive Mode
+                        <Zap className="w-4 h-4 text-orange-500" />
+                        <span className="text-sm font-semibold">
+                          Show Reading Speed
                         </span>
                       </div>
                       <button
-                        onClick={() => setImmersiveMode(!immersiveMode)}
-                        className={`relative w-14 h-7 rounded-full transition-all ${
-                          immersiveMode
-                            ? "bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg"
+                        onClick={() =>
+                          setShowReadingSpeedLive(!showReadingSpeedLive)
+                        }
+                        className={`relative w-12 h-6 rounded-full transition-colors ${
+                          showReadingSpeedLive
+                            ? "bg-purple-500"
                             : "bg-gray-300 dark:bg-gray-600"
                         }`}
                       >
                         <div
-                          className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform shadow-md ${
-                            immersiveMode ? "translate-x-8" : "translate-x-1"
+                          className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                            showReadingSpeedLive
+                              ? "translate-x-7"
+                              : "translate-x-1"
                           }`}
                         />
                       </button>
                     </div>
 
-                    {/* 🔥 QUICK DEMO BUTTON - One-Click Magic! */}
-                    {!immersiveMode && (
-                      <button
-                        onClick={() => {
-                          setImmersiveMode(true);
-                          setBackgroundType("image");
-                          setBackgroundUrl(
-                            "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80"
-                          );
-                          setBackgroundOpacity(0.15);
-                          setBackgroundBlur(8);
-                        }}
-                        className="w-full px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
-                      >
-                        <Sparkles className="w-5 h-5" />✨ Try Demo - Beach
-                        Sunset
-                      </button>
-                    )}
-
-                    {immersiveMode && (
-                      <>
-                        {/* Background Type Selector */}
-                        <div className="space-y-2">
-                          <h4 className="text-sm font-semibold opacity-70">
-                            Background Type
-                          </h4>
-                          <div className="grid grid-cols-3 gap-2">
-                            {(["image", "video", "gradient"] as const).map(
-                              (type) => (
-                                <button
-                                  key={type}
-                                  onClick={() => setBackgroundType(type)}
-                                  className={`px-3 py-2 rounded-lg border-2 capitalize transition-all text-xs font-semibold ${
-                                    backgroundType === type
-                                      ? "border-indigo-500 bg-indigo-100 dark:bg-indigo-900/40 shadow-md"
-                                      : "border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-300"
-                                  }`}
-                                >
-                                  {type}
-                                </button>
-                              )
-                            )}
+                    {/* 🎨 CUSTOM TEXT COLOR MIXER - ULTIMATE PERSONALIZATION! */}
+                    <div className="space-y-3 p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-700">
+                      <h4 className="text-sm font-bold flex items-center gap-2">
+                        <Palette className="w-4 h-4" />
+                        Custom Text Color
+                      </h4>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={customTextColor || "#000000"}
+                            onChange={(e) => setCustomTextColor(e.target.value)}
+                            className="w-12 h-12 rounded-xl cursor-pointer border-2 border-purple-300"
+                          />
+                          <div className="flex-1">
+                            <input
+                              type="text"
+                              value={customTextColor}
+                              onChange={(e) =>
+                                setCustomTextColor(e.target.value)
+                              }
+                              placeholder="#000000"
+                              className="w-full px-3 py-2 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:outline-none text-sm font-mono"
+                            />
                           </div>
                         </div>
-
-                        {/* Background URL Input */}
-                        <div className="space-y-2">
-                          <h4 className="text-sm font-semibold opacity-70">
-                            Background URL
-                          </h4>
-                          <input
-                            type="text"
-                            value={backgroundUrl}
-                            onChange={(e) => setBackgroundUrl(e.target.value)}
-                            placeholder={
-                              backgroundType === "gradient"
-                                ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-                                : "https://images.unsplash.com/..."
+                        <div className="flex items-center justify-between p-2 bg-white/50 dark:bg-black/20 rounded-lg">
+                          <span className="text-xs font-semibold">
+                            Use Custom Color
+                          </span>
+                          <button
+                            onClick={() =>
+                              setUseCustomTextColor(!useCustomTextColor)
                             }
-                            className="w-full px-3 py-2 rounded-lg border-2 border-indigo-300 focus:border-indigo-500 focus:outline-none text-sm"
-                          />
-                          <p className="text-xs opacity-60">
-                            💡 Tip: Use Unsplash for stunning images!
-                          </p>
+                            className={`relative w-10 h-5 rounded-full transition-colors ${
+                              useCustomTextColor
+                                ? "bg-purple-500"
+                                : "bg-gray-300 dark:bg-gray-600"
+                            }`}
+                          >
+                            <div
+                              className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+                                useCustomTextColor
+                                  ? "translate-x-5"
+                                  : "translate-x-0.5"
+                              }`}
+                            />
+                          </button>
                         </div>
+                        {useCustomTextColor && customTextColor && (
+                          <div className="p-3 rounded-lg border-2 border-purple-300 bg-white dark:bg-gray-800">
+                            <p
+                              style={{ color: customTextColor }}
+                              className="text-sm font-semibold"
+                            >
+                              Preview: This is how your text will look! 📖
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-center opacity-60">
+                        🎨 Mix your perfect reading color
+                      </p>
+                    </div>
 
-                        {/* Background Opacity Slider */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
+                    {/* 🎭🌟 ATMOSPHERE PRESETS - ONE-CLICK MOOD TRANSFORMATION! */}
+                    <div className="space-y-4 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 dark:from-purple-900/30 dark:via-pink-900/30 dark:to-orange-900/30 rounded-xl border-2 border-purple-300 dark:border-purple-700 shadow-xl">
+                      <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-purple-500" />
+                        🎭 Atmosphere Presets
+                      </h3>
+                      <p className="text-xs opacity-70 text-center">
+                        ✨ Transform your reading experience in one click
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        {Object.entries(atmospherePresets).map(
+                          ([key, preset]) => (
+                            <button
+                              key={key}
+                              onClick={() => applyAtmospherePreset(key)}
+                              className={`p-4 rounded-xl border-2 transition-all hover:scale-105 hover:shadow-lg ${
+                                atmospherePreset === key
+                                  ? "border-purple-500 bg-purple-100 dark:bg-purple-900/40 shadow-lg ring-2 ring-purple-300"
+                                  : "border-purple-200 dark:border-purple-700 bg-white/50 dark:bg-black/20 hover:border-purple-400"
+                              }`}
+                            >
+                              <div className="text-3xl mb-2 filter drop-shadow">
+                                {preset.name.split(" ")[0]}
+                              </div>
+                              <div className="font-bold text-sm">
+                                {preset.name.split(" ").slice(1).join(" ")}
+                              </div>
+                              <div className="text-xs opacity-60 mt-1 line-clamp-2">
+                                {preset.description}
+                              </div>
+                              {atmospherePreset === key && (
+                                <div className="mt-2 flex items-center justify-center gap-1 text-xs text-purple-600 dark:text-purple-400 font-semibold">
+                                  <Check className="w-3 h-3" />
+                                  Active
+                                </div>
+                              )}
+                            </button>
+                          )
+                        )}
+                      </div>
+
+                      {atmospherePreset && (
+                        <button
+                          onClick={() => {
+                            setAtmospherePreset(null);
+                            setImmersiveMode(false);
+                          }}
+                          className="w-full py-2 px-4 rounded-lg border-2 border-gray-300 dark:border-gray-600 hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all text-sm font-semibold"
+                        >
+                          Clear Preset
+                        </button>
+                      )}
+                    </div>
+
+                    {/* 🌟 IMMERSIVE BACKGROUND CONTROLS - CINEMA-QUALITY READING! */}
+                    <div className="space-y-4 p-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-900/30 dark:via-purple-900/30 dark:to-pink-900/30 rounded-xl border-2 border-indigo-300 dark:border-indigo-700 shadow-xl">
+                      <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                        <Sparkles className="w-5 h-5 text-indigo-500" />
+                        🌟 Immersive Backgrounds
+                      </h3>
+                      <p className="text-xs opacity-70 text-center">
+                        🎬 Create your perfect reading atmosphere
+                      </p>
+
+                      {/* Immersive Mode Toggle */}
+                      <div className="flex items-center justify-between p-3 bg-white/60 dark:bg-black/30 rounded-xl border border-indigo-200 dark:border-indigo-700">
+                        <div className="flex items-center gap-2">
+                          <Eye className="w-4 h-4 text-indigo-500" />
+                          <span className="text-sm font-bold">
+                            Immersive Mode
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setImmersiveMode(!immersiveMode)}
+                          className={`relative w-14 h-7 rounded-full transition-all ${
+                            immersiveMode
+                              ? "bg-gradient-to-r from-purple-500 to-pink-500 shadow-lg"
+                              : "bg-gray-300 dark:bg-gray-600"
+                          }`}
+                        >
+                          <div
+                            className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform shadow-md ${
+                              immersiveMode ? "translate-x-8" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </div>
+
+                      {/* 🔥 QUICK DEMO BUTTON - One-Click Magic! */}
+                      {!immersiveMode && (
+                        <button
+                          onClick={() => {
+                            setImmersiveMode(true);
+                            setBackgroundType("image");
+                            setBackgroundUrl(
+                              "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80"
+                            );
+                            setBackgroundOpacity(0.15);
+                            setBackgroundBlur(8);
+                          }}
+                          className="w-full px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
+                        >
+                          <Sparkles className="w-5 h-5" />✨ Try Demo - Beach
+                          Sunset
+                        </button>
+                      )}
+
+                      {immersiveMode && (
+                        <>
+                          {/* Background Type Selector */}
+                          <div className="space-y-2">
                             <h4 className="text-sm font-semibold opacity-70">
-                              Opacity
+                              Background Type
                             </h4>
-                            <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
-                              {Math.round(backgroundOpacity * 100)}%
-                            </span>
-                          </div>
-                          <input
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.01"
-                            value={backgroundOpacity}
-                            onChange={(e) =>
-                              setBackgroundOpacity(parseFloat(e.target.value))
-                            }
-                            className="w-full h-2 bg-gradient-to-r from-transparent to-indigo-500 rounded-lg appearance-none cursor-pointer"
-                            style={{
-                              background: `linear-gradient(to right, transparent 0%, rgba(99, 102, 241, ${backgroundOpacity}) 100%)`,
-                            }}
-                          />
-                        </div>
-
-                        {/* Background Blur Slider */}
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-semibold opacity-70">
-                              Blur Amount
-                            </h4>
-                            <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
-                              {backgroundBlur}px
-                            </span>
-                          </div>
-                          <input
-                            type="range"
-                            min="0"
-                            max="20"
-                            step="1"
-                            value={backgroundBlur}
-                            onChange={(e) =>
-                              setBackgroundBlur(parseInt(e.target.value))
-                            }
-                            className="w-full h-2 bg-gradient-to-r from-indigo-200 to-indigo-500 rounded-lg appearance-none cursor-pointer"
-                          />
-                        </div>
-
-                        {/* Quick Background Suggestions */}
-                        <div className="space-y-2">
-                          <h4 className="text-sm font-semibold opacity-70">
-                            Quick Suggestions
-                          </h4>
-
-                          {/* Image Suggestions */}
-                          {backgroundType === "image" && (
-                            <div className="grid grid-cols-2 gap-2">
-                              {[
-                                {
-                                  name: "🏖️ Beach",
-                                  url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80",
-                                },
-                                {
-                                  name: "🏔️ Mountains",
-                                  url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80",
-                                },
-                                {
-                                  name: "🌲 Forest",
-                                  url: "https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&q=80",
-                                },
-                                {
-                                  name: "🌃 City",
-                                  url: "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1920&q=80",
-                                },
-                                {
-                                  name: "🌌 Space",
-                                  url: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80",
-                                },
-                                {
-                                  name: "🌊 Ocean",
-                                  url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&q=80",
-                                },
-                              ].map((suggestion) => (
-                                <button
-                                  key={suggestion.name}
-                                  onClick={() => {
-                                    setBackgroundUrl(suggestion.url);
-                                    setBackgroundType("image");
-                                  }}
-                                  className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
-                                >
-                                  {suggestion.name}
-                                </button>
-                              ))}
+                            <div className="grid grid-cols-3 gap-2">
+                              {(["image", "video", "gradient"] as const).map(
+                                (type) => (
+                                  <button
+                                    key={type}
+                                    onClick={() => setBackgroundType(type)}
+                                    className={`px-3 py-2 rounded-lg border-2 capitalize transition-all text-xs font-semibold ${
+                                      backgroundType === type
+                                        ? "border-indigo-500 bg-indigo-100 dark:bg-indigo-900/40 shadow-md"
+                                        : "border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-300"
+                                    }`}
+                                  >
+                                    {type}
+                                  </button>
+                                )
+                              )}
                             </div>
-                          )}
+                          </div>
 
-                          {/* Video Suggestions */}
-                          {backgroundType === "video" && (
-                            <div className="space-y-2">
+                          {/* Background URL Input */}
+                          <div className="space-y-2">
+                            <h4 className="text-sm font-semibold opacity-70">
+                              Background URL
+                            </h4>
+                            <input
+                              type="text"
+                              value={backgroundUrl}
+                              onChange={(e) => setBackgroundUrl(e.target.value)}
+                              placeholder={
+                                backgroundType === "gradient"
+                                  ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                                  : "https://images.unsplash.com/..."
+                              }
+                              className="w-full px-3 py-2 rounded-lg border-2 border-indigo-300 focus:border-indigo-500 focus:outline-none text-sm"
+                            />
+                            <p className="text-xs opacity-60">
+                              💡 Tip: Use Unsplash for stunning images!
+                            </p>
+                          </div>
+
+                          {/* Background Opacity Slider */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-sm font-semibold opacity-70">
+                                Opacity
+                              </h4>
+                              <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
+                                {Math.round(backgroundOpacity * 100)}%
+                              </span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max="1"
+                              step="0.01"
+                              value={backgroundOpacity}
+                              onChange={(e) =>
+                                setBackgroundOpacity(parseFloat(e.target.value))
+                              }
+                              className="w-full h-2 bg-gradient-to-r from-transparent to-indigo-500 rounded-lg appearance-none cursor-pointer"
+                              style={{
+                                background: `linear-gradient(to right, transparent 0%, rgba(99, 102, 241, ${backgroundOpacity}) 100%)`,
+                              }}
+                            />
+                          </div>
+
+                          {/* Background Blur Slider */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-sm font-semibold opacity-70">
+                                Blur Amount
+                              </h4>
+                              <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
+                                {backgroundBlur}px
+                              </span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max="20"
+                              step="1"
+                              value={backgroundBlur}
+                              onChange={(e) =>
+                                setBackgroundBlur(parseInt(e.target.value))
+                              }
+                              className="w-full h-2 bg-gradient-to-r from-indigo-200 to-indigo-500 rounded-lg appearance-none cursor-pointer"
+                            />
+                          </div>
+
+                          {/* Quick Background Suggestions */}
+                          <div className="space-y-2">
+                            <h4 className="text-sm font-semibold opacity-70">
+                              Quick Suggestions
+                            </h4>
+
+                            {/* Image Suggestions */}
+                            {backgroundType === "image" && (
                               <div className="grid grid-cols-2 gap-2">
                                 {[
                                   {
-                                    name: "🌊 Ocean Waves",
-                                    url: "https://cdn.coverr.co/videos/coverr-ocean-waves-5048/1080p.mp4",
+                                    name: "🏖️ Beach",
+                                    url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80",
                                   },
                                   {
-                                    name: "☁️ Clouds",
-                                    url: "https://cdn.coverr.co/videos/coverr-clouds-time-lapse-6323/1080p.mp4",
+                                    name: "🏔️ Mountains",
+                                    url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80",
                                   },
                                   {
-                                    name: "🔥 Fireplace",
-                                    url: "https://cdn.coverr.co/videos/coverr-fireplace-5669/1080p.mp4",
+                                    name: "🌲 Forest",
+                                    url: "https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&q=80",
                                   },
                                   {
-                                    name: "🌧️ Rain",
-                                    url: "https://cdn.coverr.co/videos/coverr-rain-on-leaves-5093/1080p.mp4",
+                                    name: "🌃 City",
+                                    url: "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1920&q=80",
+                                  },
+                                  {
+                                    name: "🌌 Space",
+                                    url: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80",
+                                  },
+                                  {
+                                    name: "🌊 Ocean",
+                                    url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&q=80",
                                   },
                                 ].map((suggestion) => (
                                   <button
                                     key={suggestion.name}
                                     onClick={() => {
                                       setBackgroundUrl(suggestion.url);
-                                      setBackgroundType("video");
+                                      setBackgroundType("image");
                                     }}
                                     className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
                                   >
@@ -2896,156 +2914,134 @@ export default function BookReaderLuxury({
                                   </button>
                                 ))}
                               </div>
-                              <p className="text-xs opacity-60 text-center">
-                                🎬 Videos loop automatically & are muted
-                              </p>
-                            </div>
-                          )}
+                            )}
 
-                          {/* Gradient Suggestions */}
-                          {backgroundType === "gradient" && (
-                            <div className="grid grid-cols-2 gap-2">
-                              {[
-                                {
-                                  name: "🌅 Sunset",
-                                  url: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                },
-                                {
-                                  name: "🌊 Ocean",
-                                  url: "linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%)",
-                                },
-                                {
-                                  name: "🔥 Fire",
-                                  url: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-                                },
-                                {
-                                  name: "🌲 Forest",
-                                  url: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-                                },
-                              ].map((suggestion) => (
-                                <button
-                                  key={suggestion.name}
-                                  onClick={() => {
-                                    setBackgroundUrl(suggestion.url);
-                                    setBackgroundType("gradient");
-                                  }}
-                                  className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
-                                >
-                                  {suggestion.name}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Preview */}
-                        {backgroundUrl && (
-                          <div className="p-3 rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-white/50 dark:bg-black/30">
-                            <p className="text-xs font-semibold mb-2 opacity-70">
-                              Preview
-                            </p>
-                            <div className="relative h-24 rounded-lg overflow-hidden">
-                              <div
-                                className="absolute inset-0 bg-cover bg-center"
-                                style={{
-                                  ...(backgroundType === "image"
-                                    ? {
-                                        backgroundImage: `url(${backgroundUrl})`,
-                                      }
-                                    : { background: backgroundUrl }),
-                                  filter: `blur(${backgroundBlur}px)`,
-                                  opacity: backgroundOpacity,
-                                }}
-                              />
-                              <div className="relative z-10 flex items-center justify-center h-full">
-                                <p className="text-sm font-bold drop-shadow-lg">
-                                  Your Reading Text
+                            {/* Video Suggestions */}
+                            {backgroundType === "video" && (
+                              <div className="space-y-2">
+                                <div className="grid grid-cols-2 gap-2">
+                                  {[
+                                    {
+                                      name: "🌊 Ocean Waves",
+                                      url: "https://cdn.coverr.co/videos/coverr-ocean-waves-5048/1080p.mp4",
+                                    },
+                                    {
+                                      name: "☁️ Clouds",
+                                      url: "https://cdn.coverr.co/videos/coverr-clouds-time-lapse-6323/1080p.mp4",
+                                    },
+                                    {
+                                      name: "🔥 Fireplace",
+                                      url: "https://cdn.coverr.co/videos/coverr-fireplace-5669/1080p.mp4",
+                                    },
+                                    {
+                                      name: "🌧️ Rain",
+                                      url: "https://cdn.coverr.co/videos/coverr-rain-on-leaves-5093/1080p.mp4",
+                                    },
+                                  ].map((suggestion) => (
+                                    <button
+                                      key={suggestion.name}
+                                      onClick={() => {
+                                        setBackgroundUrl(suggestion.url);
+                                        setBackgroundType("video");
+                                      }}
+                                      className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
+                                    >
+                                      {suggestion.name}
+                                    </button>
+                                  ))}
+                                </div>
+                                <p className="text-xs opacity-60 text-center">
+                                  🎬 Videos loop automatically & are muted
                                 </p>
                               </div>
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )}
+                            )}
 
-                    {/* 🔥🎵 AUDIO ATMOSPHERE CONTROLS (REVOLUTIONARY!) */}
-                    <div className="space-y-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">🎵</span>
-                          <span className="text-sm font-bold">
-                            Audio Atmosphere
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => setAudioAtmosphere(!audioAtmosphere)}
-                          className={`relative w-12 h-6 rounded-full transition-all ${
-                            audioAtmosphere
-                              ? "bg-gradient-to-r from-purple-500 to-pink-500"
-                              : "bg-gray-300 dark:bg-gray-600"
-                          }`}
-                        >
-                          <div
-                            className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                              audioAtmosphere
-                                ? "translate-x-7"
-                                : "translate-x-1"
-                            }`}
-                          />
-                        </button>
-                      </div>
-
-                      {audioAtmosphere && (
-                        <>
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h4 className="text-xs font-semibold opacity-70">
-                                Audio Volume
-                              </h4>
-                              <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
-                                {Math.round(audioVolume * 100)}%
-                              </span>
-                            </div>
-                            <input
-                              type="range"
-                              min="0"
-                              max="1"
-                              step="0.01"
-                              value={audioVolume}
-                              onChange={(e) =>
-                                setAudioVolume(parseFloat(e.target.value))
-                              }
-                              className="w-full h-2 bg-gradient-to-r from-purple-300 to-pink-500 rounded-lg appearance-none cursor-pointer"
-                            />
+                            {/* Gradient Suggestions */}
+                            {backgroundType === "gradient" && (
+                              <div className="grid grid-cols-2 gap-2">
+                                {[
+                                  {
+                                    name: "🌅 Sunset",
+                                    url: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                  },
+                                  {
+                                    name: "🌊 Ocean",
+                                    url: "linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%)",
+                                  },
+                                  {
+                                    name: "🔥 Fire",
+                                    url: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                                  },
+                                  {
+                                    name: "🌲 Forest",
+                                    url: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+                                  },
+                                ].map((suggestion) => (
+                                  <button
+                                    key={suggestion.name}
+                                    onClick={() => {
+                                      setBackgroundUrl(suggestion.url);
+                                      setBackgroundType("gradient");
+                                    }}
+                                    className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
+                                  >
+                                    {suggestion.name}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                           </div>
-                          <p className="text-xs opacity-60 text-center">
-                            🎧 Ambient sounds sync with your atmosphere
-                          </p>
+
+                          {/* Preview */}
+                          {backgroundUrl && (
+                            <div className="p-3 rounded-lg border-2 border-indigo-300 dark:border-indigo-700 bg-white/50 dark:bg-black/30">
+                              <p className="text-xs font-semibold mb-2 opacity-70">
+                                Preview
+                              </p>
+                              <div className="relative h-24 rounded-lg overflow-hidden">
+                                <div
+                                  className="absolute inset-0 bg-cover bg-center"
+                                  style={{
+                                    ...(backgroundType === "image"
+                                      ? {
+                                          backgroundImage: `url(${backgroundUrl})`,
+                                        }
+                                      : { background: backgroundUrl }),
+                                    filter: `blur(${backgroundBlur}px)`,
+                                    opacity: backgroundOpacity,
+                                  }}
+                                />
+                                <div className="relative z-10 flex items-center justify-center h-full">
+                                  <p className="text-sm font-bold drop-shadow-lg">
+                                    Your Reading Text
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
                         </>
                       )}
-                    </div>
 
-                    {/* 🌊✨ PARALLAX EFFECT CONTROLS (DEPTH MAGIC!) */}
-                    {immersiveMode && (
-                      <div className="space-y-3 p-3 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
+                      {/* 🔥🎵 AUDIO ATMOSPHERE CONTROLS (REVOLUTIONARY!) */}
+                      <div className="space-y-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="text-xl">🌊</span>
+                            <span className="text-xl">🎵</span>
                             <span className="text-sm font-bold">
-                              Parallax Effect
+                              Audio Atmosphere
                             </span>
                           </div>
                           <button
-                            onClick={() => setParallaxEffect(!parallaxEffect)}
+                            onClick={() => setAudioAtmosphere(!audioAtmosphere)}
                             className={`relative w-12 h-6 rounded-full transition-all ${
-                              parallaxEffect
-                                ? "bg-gradient-to-r from-blue-500 to-cyan-500"
+                              audioAtmosphere
+                                ? "bg-gradient-to-r from-purple-500 to-pink-500"
                                 : "bg-gray-300 dark:bg-gray-600"
                             }`}
                           >
                             <div
                               className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                                parallaxEffect
+                                audioAtmosphere
                                   ? "translate-x-7"
                                   : "translate-x-1"
                               }`}
@@ -3053,412 +3049,478 @@ export default function BookReaderLuxury({
                           </button>
                         </div>
 
-                        {parallaxEffect && (
+                        {audioAtmosphere && (
                           <>
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
                                 <h4 className="text-xs font-semibold opacity-70">
-                                  Intensity
+                                  Audio Volume
                                 </h4>
                                 <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
-                                  {parallaxIntensity}%
+                                  {Math.round(audioVolume * 100)}%
                                 </span>
                               </div>
                               <input
                                 type="range"
                                 min="0"
-                                max="20"
-                                step="1"
-                                value={parallaxIntensity}
+                                max="1"
+                                step="0.01"
+                                value={audioVolume}
                                 onChange={(e) =>
-                                  setParallaxIntensity(parseInt(e.target.value))
+                                  setAudioVolume(parseFloat(e.target.value))
                                 }
-                                className="w-full h-2 bg-gradient-to-r from-blue-300 to-cyan-500 rounded-lg appearance-none cursor-pointer"
+                                className="w-full h-2 bg-gradient-to-r from-purple-300 to-pink-500 rounded-lg appearance-none cursor-pointer"
                               />
                             </div>
                             <p className="text-xs opacity-60 text-center">
-                              ✨ Subtle background movement as you scroll
+                              🎧 Ambient sounds sync with your atmosphere
                             </p>
                           </>
                         )}
                       </div>
-                    )}
 
-                    {/* ⏰🌅 TIME-BASED AUTO-SWITCHING (AI-POWERED!) */}
-                    <div className="space-y-3 p-3 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-xl border border-orange-200 dark:border-orange-700">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">⏰</span>
-                          <span className="text-sm font-bold">
-                            Smart Time Switching
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => setAutoTimeSwitch(!autoTimeSwitch)}
-                          className={`relative w-12 h-6 rounded-full transition-all ${
-                            autoTimeSwitch
-                              ? "bg-gradient-to-r from-orange-500 to-yellow-500"
-                              : "bg-gray-300 dark:bg-gray-600"
-                          }`}
-                        >
-                          <div
-                            className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                              autoTimeSwitch ? "translate-x-7" : "translate-x-1"
-                            }`}
-                          />
-                        </button>
-                      </div>
-
-                      {autoTimeSwitch && (
-                        <div className="space-y-2">
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div
-                              className={`p-2 rounded-lg ${
-                                currentTimeOfDay === "dawn"
-                                  ? "bg-orange-200 dark:bg-orange-900/40 font-bold"
-                                  : "bg-white/50 dark:bg-black/20"
-                              }`}
-                            >
-                              🌅 Dawn (5-8am)
-                            </div>
-                            <div
-                              className={`p-2 rounded-lg ${
-                                currentTimeOfDay === "day"
-                                  ? "bg-blue-200 dark:bg-blue-900/40 font-bold"
-                                  : "bg-white/50 dark:bg-black/20"
-                              }`}
-                            >
-                              ☀️ Day (8am-5pm)
-                            </div>
-                            <div
-                              className={`p-2 rounded-lg ${
-                                currentTimeOfDay === "dusk"
-                                  ? "bg-purple-200 dark:bg-purple-900/40 font-bold"
-                                  : "bg-white/50 dark:bg-black/20"
-                              }`}
-                            >
-                              🌆 Dusk (5-8pm)
-                            </div>
-                            <div
-                              className={`p-2 rounded-lg ${
-                                currentTimeOfDay === "night"
-                                  ? "bg-indigo-200 dark:bg-indigo-900/40 font-bold"
-                                  : "bg-white/50 dark:bg-black/20"
-                              }`}
-                            >
-                              🌙 Night (8pm-5am)
-                            </div>
-                          </div>
-                          <p className="text-xs opacity-60 text-center">
-                            🤖 AI automatically switches atmosphere based on
-                            time
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <p className="text-xs text-center opacity-60 pt-2 border-t border-indigo-200 dark:border-indigo-700">
-                      🎬 Cinema-quality reading experience
-                    </p>
-                  </div>
-                </div>
-
-                {/* 🔥💎 INSANE LUXURY FEATURES - NEVER SEEN BEFORE! 🔥💎 */}
-                <div className="space-y-4">
-                  {/* 🧠 BINAURAL BEATS - BRAIN WAVE OPTIMIZATION */}
-                  <div className="space-y-4 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 dark:from-purple-900/30 dark:via-pink-900/30 dark:to-orange-900/30 rounded-xl border-2 border-purple-300 dark:border-purple-700 shadow-xl">
-                    <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                      <Zap className="w-5 h-5 text-purple-500" />
-                      🧠 Binaural Beats
-                    </h3>
-                    <p className="text-xs opacity-70 text-center">
-                      🔬 Scientifically-proven brain wave frequencies for
-                      enhanced focus
-                    </p>
-
-                    {/* Binaural Beats Toggle */}
-                    <div className="space-y-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">🧠</span>
-                          <span className="text-sm font-bold">
-                            Brain Wave Audio
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => setBinauralBeats(!binauralBeats)}
-                          className={`relative w-12 h-6 rounded-full transition-all ${
-                            binauralBeats
-                              ? "bg-gradient-to-r from-purple-500 to-pink-500"
-                              : "bg-gray-300 dark:bg-gray-600"
-                          }`}
-                        >
-                          <div
-                            className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                              binauralBeats ? "translate-x-7" : "translate-x-1"
-                            }`}
-                          />
-                        </button>
-                      </div>
-
-                      {binauralBeats && (
-                        <>
-                          {/* Brain Wave Type Selector */}
-                          <div className="space-y-2">
-                            <h4 className="text-sm font-semibold opacity-70">
-                              Select Brain Wave Type
-                            </h4>
-                            <div className="grid grid-cols-2 gap-2">
-                              {(
-                                Object.keys(binauralBeatsLibrary) as Array<
-                                  keyof typeof binauralBeatsLibrary
-                                >
-                              ).map((wave) => (
-                                <button
-                                  key={wave}
-                                  onClick={() => setBrainWaveType(wave)}
-                                  className={`p-3 rounded-lg border-2 transition-all text-xs ${
-                                    brainWaveType === wave
-                                      ? `border-purple-500 bg-gradient-to-r ${binauralBeatsLibrary[wave].color}/20`
-                                      : "border-gray-300 dark:border-gray-600 hover:border-purple-400"
-                                  }`}
-                                >
-                                  <div className="font-bold mb-1">
-                                    {binauralBeatsLibrary[wave].name}
-                                  </div>
-                                  <div className="text-xs opacity-70">
-                                    {binauralBeatsLibrary[wave].benefits}
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Volume Control */}
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h4 className="text-xs font-semibold opacity-70">
-                                Binaural Volume
-                              </h4>
-                              <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
-                                {Math.round(binauralVolume * 100)}%
+                      {/* 🌊✨ PARALLAX EFFECT CONTROLS (DEPTH MAGIC!) */}
+                      {immersiveMode && (
+                        <div className="space-y-3 p-3 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl">🌊</span>
+                              <span className="text-sm font-bold">
+                                Parallax Effect
                               </span>
                             </div>
-                            <input
-                              type="range"
-                              min="0"
-                              max="1"
-                              step="0.01"
-                              value={binauralVolume}
-                              onChange={(e) =>
-                                setBinauralVolume(parseFloat(e.target.value))
-                              }
-                              className="w-full h-2 bg-gradient-to-r from-purple-300 to-pink-500 rounded-lg appearance-none cursor-pointer"
-                            />
+                            <button
+                              onClick={() => setParallaxEffect(!parallaxEffect)}
+                              className={`relative w-12 h-6 rounded-full transition-all ${
+                                parallaxEffect
+                                  ? "bg-gradient-to-r from-blue-500 to-cyan-500"
+                                  : "bg-gray-300 dark:bg-gray-600"
+                              }`}
+                            >
+                              <div
+                                className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                                  parallaxEffect
+                                    ? "translate-x-7"
+                                    : "translate-x-1"
+                                }`}
+                              />
+                            </button>
                           </div>
-                          <p className="text-xs opacity-60 text-center">
-                            🎧 Use headphones for full binaural effect!
-                          </p>
-                        </>
+
+                          {parallaxEffect && (
+                            <>
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="text-xs font-semibold opacity-70">
+                                    Intensity
+                                  </h4>
+                                  <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
+                                    {parallaxIntensity}%
+                                  </span>
+                                </div>
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="20"
+                                  step="1"
+                                  value={parallaxIntensity}
+                                  onChange={(e) =>
+                                    setParallaxIntensity(
+                                      parseInt(e.target.value)
+                                    )
+                                  }
+                                  className="w-full h-2 bg-gradient-to-r from-blue-300 to-cyan-500 rounded-lg appearance-none cursor-pointer"
+                                />
+                              </div>
+                              <p className="text-xs opacity-60 text-center">
+                                ✨ Subtle background movement as you scroll
+                              </p>
+                            </>
+                          )}
+                        </div>
                       )}
-                    </div>
-                  </div>
 
-                  {/* 🤖 AI READING COMPANION */}
-                  <div className="space-y-4 p-4 bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 dark:from-cyan-900/30 dark:via-blue-900/30 dark:to-indigo-900/30 rounded-xl border-2 border-cyan-300 dark:border-cyan-700 shadow-xl">
-                    <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                      <MessageCircle className="w-5 h-5 text-cyan-500" />
-                      🤖 AI Reading Companion
-                    </h3>
-                    <p className="text-xs opacity-70 text-center">
-                      💬 ChatGPT trained on this book - Ask anything!
-                    </p>
-
-                    <button
-                      onClick={() => setAICompanionOpen(!aiCompanionOpen)}
-                      className="w-full px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2"
-                    >
-                      <MessageCircle className="w-5 h-5" />
-                      {aiCompanionOpen ? "Close AI Chat" : "Open AI Companion"}
-                    </button>
-
-                    <div className="text-xs opacity-70 space-y-1">
-                      <p>✨ Ask questions about the book</p>
-                      <p>💡 Get explanations of complex concepts</p>
-                      <p>🎓 Generate study materials</p>
-                      <p>🗣️ Discuss and debate ideas</p>
-                    </div>
-                  </div>
-
-                  {/* 🏆 GAMIFICATION STATS */}
-                  <div className="space-y-4 p-4 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 dark:from-yellow-900/30 dark:via-orange-900/30 dark:to-red-900/30 rounded-xl border-2 border-yellow-300 dark:border-yellow-700 shadow-xl">
-                    <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                      <Trophy className="w-5 h-5 text-yellow-500" />
-                      🏆 Dynasty Level System
-                    </h3>
-
-                    <div className="space-y-3">
-                      {/* Current Rank */}
-                      <div className="text-center p-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl">
-                        <div className="text-3xl mb-2">
-                          {getRankInfo(dynastyLevel).icon}
+                      {/* ⏰🌅 TIME-BASED AUTO-SWITCHING (AI-POWERED!) */}
+                      <div className="space-y-3 p-3 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-xl border border-orange-200 dark:border-orange-700">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">⏰</span>
+                            <span className="text-sm font-bold">
+                              Smart Time Switching
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => setAutoTimeSwitch(!autoTimeSwitch)}
+                            className={`relative w-12 h-6 rounded-full transition-all ${
+                              autoTimeSwitch
+                                ? "bg-gradient-to-r from-orange-500 to-yellow-500"
+                                : "bg-gray-300 dark:bg-gray-600"
+                            }`}
+                          >
+                            <div
+                              className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                                autoTimeSwitch
+                                  ? "translate-x-7"
+                                  : "translate-x-1"
+                              }`}
+                            />
+                          </button>
                         </div>
-                        <div
-                          className={`text-lg font-bold ${
-                            getRankInfo(dynastyLevel).color
-                          }`}
-                        >
-                          Level {dynastyLevel}
-                        </div>
-                        <div className="text-sm font-semibold text-white">
-                          {getRankInfo(dynastyLevel).rank}
-                        </div>
+
+                        {autoTimeSwitch && (
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div
+                                className={`p-2 rounded-lg ${
+                                  currentTimeOfDay === "dawn"
+                                    ? "bg-orange-200 dark:bg-orange-900/40 font-bold"
+                                    : "bg-white/50 dark:bg-black/20"
+                                }`}
+                              >
+                                🌅 Dawn (5-8am)
+                              </div>
+                              <div
+                                className={`p-2 rounded-lg ${
+                                  currentTimeOfDay === "day"
+                                    ? "bg-blue-200 dark:bg-blue-900/40 font-bold"
+                                    : "bg-white/50 dark:bg-black/20"
+                                }`}
+                              >
+                                ☀️ Day (8am-5pm)
+                              </div>
+                              <div
+                                className={`p-2 rounded-lg ${
+                                  currentTimeOfDay === "dusk"
+                                    ? "bg-purple-200 dark:bg-purple-900/40 font-bold"
+                                    : "bg-white/50 dark:bg-black/20"
+                                }`}
+                              >
+                                🌆 Dusk (5-8pm)
+                              </div>
+                              <div
+                                className={`p-2 rounded-lg ${
+                                  currentTimeOfDay === "night"
+                                    ? "bg-indigo-200 dark:bg-indigo-900/40 font-bold"
+                                    : "bg-white/50 dark:bg-black/20"
+                                }`}
+                              >
+                                🌙 Night (8pm-5am)
+                              </div>
+                            </div>
+                            <p className="text-xs opacity-60 text-center">
+                              🤖 AI automatically switches atmosphere based on
+                              time
+                            </p>
+                          </div>
+                        )}
                       </div>
 
-                      {/* XP Progress Bar */}
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs">
-                          <span>XP: {experiencePoints}</span>
-                          <span>Next: {nextLevelXP}</span>
-                        </div>
-                        <div className="w-full h-3 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-500"
-                            style={{
-                              width: `${
-                                (experiencePoints / nextLevelXP) * 100
-                              }%`,
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Quick XP Info */}
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="p-2 bg-white dark:bg-black/20 rounded">
-                          📄 Page: +10 XP
-                        </div>
-                        <div className="p-2 bg-white dark:bg-black/20 rounded">
-                          📖 Chapter: +100 XP
-                        </div>
-                        <div className="p-2 bg-white dark:bg-black/20 rounded">
-                          📚 Book: +1000 XP
-                        </div>
-                        <div className="p-2 bg-white dark:bg-black/20 rounded">
-                          🔥 Streak: +50 XP
-                        </div>
-                      </div>
-
-                      <p className="text-xs text-center opacity-70">
-                        🎮 Level up by reading! Unlock achievements, badges, and
-                        exclusive content
+                      <p className="text-xs text-center opacity-60 pt-2 border-t border-indigo-200 dark:border-indigo-700">
+                        🎬 Cinema-quality reading experience
                       </p>
                     </div>
                   </div>
 
-                  {/* 🎨 AI THEME GENERATOR */}
-                  <div className="space-y-4 p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-pink-900/30 dark:via-purple-900/30 dark:to-indigo-900/30 rounded-xl border-2 border-pink-300 dark:border-pink-700 shadow-xl">
-                    <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                      <Palette className="w-5 h-5 text-pink-500" />
-                      🎨 AI Theme Generator
-                    </h3>
-                    <p className="text-xs opacity-70 text-center">
-                      🌈 Type ANY mood - AI creates matching theme instantly
-                    </p>
+                  {/* 🔥💎 INSANE LUXURY FEATURES - NEVER SEEN BEFORE! 🔥💎 */}
+                  <div className="space-y-4">
+                    {/* 🧠 BINAURAL BEATS - BRAIN WAVE OPTIMIZATION */}
+                    <div className="space-y-4 p-4 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 dark:from-purple-900/30 dark:via-pink-900/30 dark:to-orange-900/30 rounded-xl border-2 border-purple-300 dark:border-purple-700 shadow-xl">
+                      <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-purple-500" />
+                        🧠 Binaural Beats
+                      </h3>
+                      <p className="text-xs opacity-70 text-center">
+                        🔬 Scientifically-proven brain wave frequencies for
+                        enhanced focus
+                      </p>
 
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={themeMood}
-                        onChange={(e) => setThemeMood(e.target.value)}
-                        placeholder="Try: cyberpunk, sunset beach, space..."
-                        className="w-full px-3 py-2 rounded-lg border-2 border-pink-300 dark:border-pink-700 bg-white dark:bg-black/20 text-sm"
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter" && themeMood) {
-                            setGeneratedColors(generateAITheme(themeMood));
-                            setAIGeneratedTheme(true);
-                          }
-                        }}
-                      />
+                      {/* Binaural Beats Toggle */}
+                      <div className="space-y-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-700">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xl">🧠</span>
+                            <span className="text-sm font-bold">
+                              Brain Wave Audio
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => setBinauralBeats(!binauralBeats)}
+                            className={`relative w-12 h-6 rounded-full transition-all ${
+                              binauralBeats
+                                ? "bg-gradient-to-r from-purple-500 to-pink-500"
+                                : "bg-gray-300 dark:bg-gray-600"
+                            }`}
+                          >
+                            <div
+                              className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                                binauralBeats
+                                  ? "translate-x-7"
+                                  : "translate-x-1"
+                              }`}
+                            />
+                          </button>
+                        </div>
+
+                        {binauralBeats && (
+                          <>
+                            {/* Brain Wave Type Selector */}
+                            <div className="space-y-2">
+                              <h4 className="text-sm font-semibold opacity-70">
+                                Select Brain Wave Type
+                              </h4>
+                              <div className="grid grid-cols-2 gap-2">
+                                {(
+                                  Object.keys(binauralBeatsLibrary) as Array<
+                                    keyof typeof binauralBeatsLibrary
+                                  >
+                                ).map((wave) => (
+                                  <button
+                                    key={wave}
+                                    onClick={() => setBrainWaveType(wave)}
+                                    className={`p-3 rounded-lg border-2 transition-all text-xs ${
+                                      brainWaveType === wave
+                                        ? `border-purple-500 bg-gradient-to-r ${binauralBeatsLibrary[wave].color}/20`
+                                        : "border-gray-300 dark:border-gray-600 hover:border-purple-400"
+                                    }`}
+                                  >
+                                    <div className="font-bold mb-1">
+                                      {binauralBeatsLibrary[wave].name}
+                                    </div>
+                                    <div className="text-xs opacity-70">
+                                      {binauralBeatsLibrary[wave].benefits}
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Volume Control */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <h4 className="text-xs font-semibold opacity-70">
+                                  Binaural Volume
+                                </h4>
+                                <span className="text-xs font-mono bg-white dark:bg-black/40 px-2 py-1 rounded">
+                                  {Math.round(binauralVolume * 100)}%
+                                </span>
+                              </div>
+                              <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={binauralVolume}
+                                onChange={(e) =>
+                                  setBinauralVolume(parseFloat(e.target.value))
+                                }
+                                className="w-full h-2 bg-gradient-to-r from-purple-300 to-pink-500 rounded-lg appearance-none cursor-pointer"
+                              />
+                            </div>
+                            <p className="text-xs opacity-60 text-center">
+                              🎧 Use headphones for full binaural effect!
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 🤖 AI READING COMPANION */}
+                    <div className="space-y-4 p-4 bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 dark:from-cyan-900/30 dark:via-blue-900/30 dark:to-indigo-900/30 rounded-xl border-2 border-cyan-300 dark:border-cyan-700 shadow-xl">
+                      <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                        <MessageCircle className="w-5 h-5 text-cyan-500" />
+                        🤖 AI Reading Companion
+                      </h3>
+                      <p className="text-xs opacity-70 text-center">
+                        💬 ChatGPT trained on this book - Ask anything!
+                      </p>
+
                       <button
-                        onClick={() => {
-                          if (themeMood) {
-                            setGeneratedColors(generateAITheme(themeMood));
-                            setAIGeneratedTheme(true);
-                          }
-                        }}
-                        disabled={!themeMood}
-                        className="w-full px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-lg font-bold transition-all disabled:opacity-50"
+                        onClick={() => setAICompanionOpen(!aiCompanionOpen)}
+                        className="w-full px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2"
                       >
-                        ✨ Generate Theme
+                        <MessageCircle className="w-5 h-5" />
+                        {aiCompanionOpen
+                          ? "Close AI Chat"
+                          : "Open AI Companion"}
                       </button>
+
+                      <div className="text-xs opacity-70 space-y-1">
+                        <p>✨ Ask questions about the book</p>
+                        <p>💡 Get explanations of complex concepts</p>
+                        <p>🎓 Generate study materials</p>
+                        <p>🗣️ Discuss and debate ideas</p>
+                      </div>
                     </div>
 
-                    {/* Quick Mood Suggestions */}
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        "cyberpunk",
-                        "sunset beach",
-                        "medieval castle",
-                        "space odyssey",
-                        "enchanted forest",
-                        "arctic ice",
-                      ].map((mood) => (
-                        <button
-                          key={mood}
-                          onClick={() => {
-                            setThemeMood(mood);
-                            setGeneratedColors(generateAITheme(mood));
-                            setAIGeneratedTheme(true);
-                          }}
-                          className="px-2 py-1 text-xs bg-white dark:bg-black/20 hover:bg-pink-100 dark:hover:bg-pink-900/20 rounded capitalize transition-all"
-                        >
-                          {mood}
-                        </button>
-                      ))}
-                    </div>
+                    {/* 🏆 GAMIFICATION STATS */}
+                    <div className="space-y-4 p-4 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 dark:from-yellow-900/30 dark:via-orange-900/30 dark:to-red-900/30 rounded-xl border-2 border-yellow-300 dark:border-yellow-700 shadow-xl">
+                      <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                        <Trophy className="w-5 h-5 text-yellow-500" />
+                        🏆 Dynasty Level System
+                      </h3>
 
-                    {generatedColors && aiGeneratedTheme && (
-                      <div
-                        className="p-3 rounded-lg"
-                        style={{
-                          background: `linear-gradient(to right, ${generatedColors.bg})`,
-                        }}
-                      >
-                        <p
-                          className="text-center font-bold"
-                          style={{ color: generatedColors.text }}
-                        >
-                          ✨ Theme Preview ✨
+                      <div className="space-y-3">
+                        {/* Current Rank */}
+                        <div className="text-center p-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl">
+                          <div className="text-3xl mb-2">
+                            {getRankInfo(dynastyLevel).icon}
+                          </div>
+                          <div
+                            className={`text-lg font-bold ${
+                              getRankInfo(dynastyLevel).color
+                            }`}
+                          >
+                            Level {dynastyLevel}
+                          </div>
+                          <div className="text-sm font-semibold text-white">
+                            {getRankInfo(dynastyLevel).rank}
+                          </div>
+                        </div>
+
+                        {/* XP Progress Bar */}
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-xs">
+                            <span>XP: {experiencePoints}</span>
+                            <span>Next: {nextLevelXP}</span>
+                          </div>
+                          <div className="w-full h-3 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-500"
+                              style={{
+                                width: `${
+                                  (experiencePoints / nextLevelXP) * 100
+                                }%`,
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Quick XP Info */}
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="p-2 bg-white dark:bg-black/20 rounded">
+                            📄 Page: +10 XP
+                          </div>
+                          <div className="p-2 bg-white dark:bg-black/20 rounded">
+                            📖 Chapter: +100 XP
+                          </div>
+                          <div className="p-2 bg-white dark:bg-black/20 rounded">
+                            📚 Book: +1000 XP
+                          </div>
+                          <div className="p-2 bg-white dark:bg-black/20 rounded">
+                            🔥 Streak: +50 XP
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-center opacity-70">
+                          🎮 Level up by reading! Unlock achievements, badges,
+                          and exclusive content
                         </p>
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </div>
 
-                {/* Reset Button */}
-                <button
-                  onClick={() => {
-                    setFontSize(18);
-                    setLineHeight(1.8);
-                    setFontFamily("serif");
-                    setTheme("light");
-                    setPageTransition("fade");
-                    setAccentColor("purple");
-                    setShowReadingSpeedLive(true);
-                    setCustomTextColor("");
-                    setUseCustomTextColor(false);
-                    setLayout("standard");
-                    setColumnMode(1);
-                  }}
-                  className={`w-full px-4 py-3 ${currentTheme.secondary} rounded-xl hover:scale-105 transition-transform flex items-center justify-center gap-2`}
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  Reset to Defaults
-                </button>
-              </div>
+                    {/* 🎨 AI THEME GENERATOR */}
+                    <div className="space-y-4 p-4 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 dark:from-pink-900/30 dark:via-purple-900/30 dark:to-indigo-900/30 rounded-xl border-2 border-pink-300 dark:border-pink-700 shadow-xl">
+                      <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+                        <Palette className="w-5 h-5 text-pink-500" />
+                        🎨 AI Theme Generator
+                      </h3>
+                      <p className="text-xs opacity-70 text-center">
+                        🌈 Type ANY mood - AI creates matching theme instantly
+                      </p>
+
+                      <div className="space-y-2">
+                        <input
+                          type="text"
+                          value={themeMood}
+                          onChange={(e) => setThemeMood(e.target.value)}
+                          placeholder="Try: cyberpunk, sunset beach, space..."
+                          className="w-full px-3 py-2 rounded-lg border-2 border-pink-300 dark:border-pink-700 bg-white dark:bg-black/20 text-sm"
+                          onKeyPress={(e) => {
+                            if (e.key === "Enter" && themeMood) {
+                              setGeneratedColors(generateAITheme(themeMood));
+                              setAIGeneratedTheme(true);
+                            }
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            if (themeMood) {
+                              setGeneratedColors(generateAITheme(themeMood));
+                              setAIGeneratedTheme(true);
+                            }
+                          }}
+                          disabled={!themeMood}
+                          className="w-full px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-lg font-bold transition-all disabled:opacity-50"
+                        >
+                          ✨ Generate Theme
+                        </button>
+                      </div>
+
+                      {/* Quick Mood Suggestions */}
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          "cyberpunk",
+                          "sunset beach",
+                          "medieval castle",
+                          "space odyssey",
+                          "enchanted forest",
+                          "arctic ice",
+                        ].map((mood) => (
+                          <button
+                            key={mood}
+                            onClick={() => {
+                              setThemeMood(mood);
+                              setGeneratedColors(generateAITheme(mood));
+                              setAIGeneratedTheme(true);
+                            }}
+                            className="px-2 py-1 text-xs bg-white dark:bg-black/20 hover:bg-pink-100 dark:hover:bg-pink-900/20 rounded capitalize transition-all"
+                          >
+                            {mood}
+                          </button>
+                        ))}
+                      </div>
+
+                      {generatedColors && aiGeneratedTheme && (
+                        <div
+                          className="p-3 rounded-lg"
+                          style={{
+                            background: `linear-gradient(to right, ${generatedColors.bg})`,
+                          }}
+                        >
+                          <p
+                            className="text-center font-bold"
+                            style={{ color: generatedColors.text }}
+                          >
+                            ✨ Theme Preview ✨
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Reset Button */}
+                  <button
+                    onClick={() => {
+                      setFontSize(18);
+                      setLineHeight(1.8);
+                      setFontFamily("serif");
+                      setTheme("light");
+                      setPageTransition("fade");
+                      setAccentColor("purple");
+                      setShowReadingSpeedLive(true);
+                      setCustomTextColor("");
+                      setUseCustomTextColor(false);
+                      setLayout("standard");
+                      setColumnMode(1);
+                    }}
+                    className={`w-full px-4 py-3 ${currentTheme.secondary} rounded-xl hover:scale-105 transition-transform flex items-center justify-center gap-2`}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Reset to Defaults
+                  </button>
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
           )}
         </AnimatePresence>
 
@@ -3828,6 +3890,21 @@ export default function BookReaderLuxury({
         />
 
         {/* ===========================================
+          ✨ PHASE 4: QUOTE SHARE MODAL
+          =========================================== */}
+        {showQuoteModal && selectedQuoteText && (
+          <QuoteShareModal
+            selectedText={selectedQuoteText}
+            bookTitle={bookTitle}
+            authorName="Dynasty Academy"
+            onClose={() => {
+              setShowQuoteModal(false);
+              setSelectedQuoteText("");
+            }}
+          />
+        )}
+
+        {/* ===========================================
           FOOTER NAVIGATION - 🎨 GLASSMORPHISM
           =========================================== */}
         {!zenMode && (
@@ -3846,7 +3923,10 @@ export default function BookReaderLuxury({
                 <motion.button
                   onClick={prevPage}
                   disabled={currentPage === 1}
-                  whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)" }}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)",
+                  }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   className="disabled:opacity-30 px-4 py-2 rounded-xl text-white flex items-center gap-2"
@@ -3926,7 +4006,10 @@ export default function BookReaderLuxury({
                 <motion.button
                   onClick={nextPage}
                   disabled={currentPage === totalPages}
-                  whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)" }}
+                  whileHover={{
+                    scale: 1.05,
+                    boxShadow: "0 0 20px rgba(168, 85, 247, 0.4)",
+                  }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   className="disabled:opacity-30 px-4 py-2 rounded-xl text-white flex items-center gap-2"
