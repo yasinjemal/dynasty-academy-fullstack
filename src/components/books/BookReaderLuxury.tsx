@@ -284,7 +284,8 @@ export default function BookReaderLuxury({
   const [autoModeSwitch, setAutoModeSwitch] = useState(false);
 
   // 🧠 AI INTELLIGENCE INSIGHTS TOGGLE
-  const [showIntelligenceInsights, setShowIntelligenceInsights] = useState(false);
+  const [showIntelligenceInsights, setShowIntelligenceInsights] =
+    useState(false);
 
   // ===========================================
   // ADVANCED READING FEATURES
@@ -2427,6 +2428,23 @@ export default function BookReaderLuxury({
                       </button>
                     </div>
 
+                    {/* 🔥 QUICK DEMO BUTTON - One-Click Magic! */}
+                    {!immersiveMode && (
+                      <button
+                        onClick={() => {
+                          setImmersiveMode(true);
+                          setBackgroundType("image");
+                          setBackgroundUrl("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80");
+                          setBackgroundOpacity(0.15);
+                          setBackgroundBlur(8);
+                        }}
+                        className="w-full px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
+                      >
+                        <Sparkles className="w-5 h-5" />
+                        ✨ Try Demo - Beach Sunset
+                      </button>
+                    )}
+
                     {immersiveMode && (
                       <>
                         {/* Background Type Selector */}
@@ -2528,37 +2546,124 @@ export default function BookReaderLuxury({
                           <h4 className="text-sm font-semibold opacity-70">
                             Quick Suggestions
                           </h4>
-                          <div className="grid grid-cols-2 gap-2">
-                            {[
-                              {
-                                name: "Beach",
-                                url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-                              },
-                              {
-                                name: "Mountains",
-                                url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4",
-                              },
-                              {
-                                name: "Forest",
-                                url: "https://images.unsplash.com/photo-1511497584788-876760111969",
-                              },
-                              {
-                                name: "City",
-                                url: "https://images.unsplash.com/photo-1514565131-fce0801e5785",
-                              },
-                            ].map((suggestion) => (
-                              <button
-                                key={suggestion.name}
-                                onClick={() => {
-                                  setBackgroundUrl(suggestion.url);
-                                  setBackgroundType("image");
-                                }}
-                                className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
-                              >
-                                {suggestion.name}
-                              </button>
-                            ))}
-                          </div>
+                          
+                          {/* Image Suggestions */}
+                          {backgroundType === "image" && (
+                            <div className="grid grid-cols-2 gap-2">
+                              {[
+                                {
+                                  name: "🏖️ Beach",
+                                  url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80",
+                                },
+                                {
+                                  name: "🏔️ Mountains",
+                                  url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80",
+                                },
+                                {
+                                  name: "🌲 Forest",
+                                  url: "https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&q=80",
+                                },
+                                {
+                                  name: "🌃 City",
+                                  url: "https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1920&q=80",
+                                },
+                                {
+                                  name: "🌌 Space",
+                                  url: "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80",
+                                },
+                                {
+                                  name: "🌊 Ocean",
+                                  url: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&q=80",
+                                },
+                              ].map((suggestion) => (
+                                <button
+                                  key={suggestion.name}
+                                  onClick={() => {
+                                    setBackgroundUrl(suggestion.url);
+                                    setBackgroundType("image");
+                                  }}
+                                  className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
+                                >
+                                  {suggestion.name}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                          
+                          {/* Video Suggestions */}
+                          {backgroundType === "video" && (
+                            <div className="space-y-2">
+                              <div className="grid grid-cols-2 gap-2">
+                                {[
+                                  {
+                                    name: "🌊 Ocean Waves",
+                                    url: "https://cdn.coverr.co/videos/coverr-ocean-waves-5048/1080p.mp4",
+                                  },
+                                  {
+                                    name: "☁️ Clouds",
+                                    url: "https://cdn.coverr.co/videos/coverr-clouds-time-lapse-6323/1080p.mp4",
+                                  },
+                                  {
+                                    name: "🔥 Fireplace",
+                                    url: "https://cdn.coverr.co/videos/coverr-fireplace-5669/1080p.mp4",
+                                  },
+                                  {
+                                    name: "🌧️ Rain",
+                                    url: "https://cdn.coverr.co/videos/coverr-rain-on-leaves-5093/1080p.mp4",
+                                  },
+                                ].map((suggestion) => (
+                                  <button
+                                    key={suggestion.name}
+                                    onClick={() => {
+                                      setBackgroundUrl(suggestion.url);
+                                      setBackgroundType("video");
+                                    }}
+                                    className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
+                                  >
+                                    {suggestion.name}
+                                  </button>
+                                ))}
+                              </div>
+                              <p className="text-xs opacity-60 text-center">
+                                🎬 Videos loop automatically & are muted
+                              </p>
+                            </div>
+                          )}
+                          
+                          {/* Gradient Suggestions */}
+                          {backgroundType === "gradient" && (
+                            <div className="grid grid-cols-2 gap-2">
+                              {[
+                                {
+                                  name: "🌅 Sunset",
+                                  url: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                },
+                                {
+                                  name: "🌊 Ocean",
+                                  url: "linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%)",
+                                },
+                                {
+                                  name: "🔥 Fire",
+                                  url: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                                },
+                                {
+                                  name: "🌲 Forest",
+                                  url: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+                                },
+                              ].map((suggestion) => (
+                                <button
+                                  key={suggestion.name}
+                                  onClick={() => {
+                                    setBackgroundUrl(suggestion.url);
+                                    setBackgroundType("gradient");
+                                  }}
+                                  className="px-3 py-2 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all text-xs font-semibold"
+                                >
+                                  {suggestion.name}
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
 
                         {/* Preview */}
@@ -3371,7 +3476,11 @@ export default function BookReaderLuxury({
                           <>
                             {/* Floating AI Insights Icon */}
                             <button
-                              onClick={() => setShowIntelligenceInsights(!showIntelligenceInsights)}
+                              onClick={() =>
+                                setShowIntelligenceInsights(
+                                  !showIntelligenceInsights
+                                )
+                              }
                               className="fixed bottom-32 right-8 w-14 h-14 bg-gradient-to-br from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-full shadow-2xl flex items-center justify-center z-40 transition-all hover:scale-110 group"
                               title="AI Intelligence Insights"
                             >
@@ -3392,7 +3501,9 @@ export default function BookReaderLuxury({
                                       <span>AI Insights</span>
                                     </h3>
                                     <button
-                                      onClick={() => setShowIntelligenceInsights(false)}
+                                      onClick={() =>
+                                        setShowIntelligenceInsights(false)
+                                      }
                                       className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
                                     >
                                       <X className="w-4 h-4" />
@@ -3400,8 +3511,12 @@ export default function BookReaderLuxury({
                                   </div>
                                   <div className="max-h-[500px] overflow-y-auto">
                                     <IntelligenceInsightsPanel
-                                      predictions={readingIntelligence.predictions}
-                                      isLoading={!readingIntelligence.predictions}
+                                      predictions={
+                                        readingIntelligence.predictions
+                                      }
+                                      isLoading={
+                                        !readingIntelligence.predictions
+                                      }
                                     />
                                   </div>
                                 </div>
