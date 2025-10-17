@@ -19,12 +19,15 @@ export async function POST(request: NextRequest) {
     const { bookTitle, bookId, currentPage, question, context } = body;
 
     if (!question) {
-      return NextResponse.json({ error: "Question is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Question is required" },
+        { status: 400 }
+      );
     }
 
     // 🔥 In production, replace with actual OpenAI API call
     // For now, return demo response
-    
+
     // TODO: Connect to OpenAI GPT-4 API
     // const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
     //   method: 'POST',
@@ -37,8 +40,8 @@ export async function POST(request: NextRequest) {
     //     messages: [
     //       {
     //         role: 'system',
-    //         content: `You are an AI reading companion for the book "${bookTitle}". 
-    //                   Help readers understand concepts, answer questions, and provide insights. 
+    //         content: `You are an AI reading companion for the book "${bookTitle}".
+    //                   Help readers understand concepts, answer questions, and provide insights.
     //                   Current page: ${currentPage}. Context: ${context}`
     //       },
     //       {
@@ -50,21 +53,38 @@ export async function POST(request: NextRequest) {
     //     temperature: 0.7,
     //   }),
     // });
-    
+
     // Demo response for now
     const demoResponses = [
-      `Great question about "${bookTitle}"! Based on what you've read so far, here's my analysis:\n\nThe concept you're asking about connects to the broader theme of the book. Let me break it down:\n\n1. **Key Point**: This relates to the main argument in Chapter ${Math.floor(currentPage / 10)}.\n\n2. **Context**: The author is building on earlier ideas to show...\n\n3. **Practical Application**: You can apply this by...\n\nWould you like me to elaborate on any specific part?`,
-      
-      `Excellent question! Let me help you understand this better.\n\n**Short Answer**: ${question.includes('why') ? 'The reason is...' : question.includes('what') ? 'It means...' : question.includes('how') ? 'The process is...' : 'Here\'s what you need to know...'}\n\n**Detailed Explanation**:\nThis section of "${bookTitle}" is particularly important because it demonstrates the core principle the author is trying to convey.\n\n**Key Takeaway**: Remember this concept—it will be referenced later in the book!\n\n**Study Tip**: Try creating a mind map of how this connects to previous chapters.`,
-      
-      `That's a thought-provoking question about "${bookTitle}"! Let's explore it together:\n\n🎯 **Direct Answer**: ${question.length > 50 ? 'This is a complex topic that requires careful consideration...' : 'Here\'s what the author means...'}\n\n💡 **Why This Matters**: Understanding this concept will help you grasp the bigger picture of the book's message.\n\n📚 **Related Concepts**: This connects to:\n- The introduction's main thesis\n- Chapter ${Math.floor(currentPage / 10)}'s arguments\n- The upcoming conclusion\n\n🎓 **Quiz Yourself**: Can you explain this concept in your own words now?`,
+      `Great question about "${bookTitle}"! Based on what you've read so far, here's my analysis:\n\nThe concept you're asking about connects to the broader theme of the book. Let me break it down:\n\n1. **Key Point**: This relates to the main argument in Chapter ${Math.floor(
+        currentPage / 10
+      )}.\n\n2. **Context**: The author is building on earlier ideas to show...\n\n3. **Practical Application**: You can apply this by...\n\nWould you like me to elaborate on any specific part?`,
+
+      `Excellent question! Let me help you understand this better.\n\n**Short Answer**: ${
+        question.includes("why")
+          ? "The reason is..."
+          : question.includes("what")
+          ? "It means..."
+          : question.includes("how")
+          ? "The process is..."
+          : "Here's what you need to know..."
+      }\n\n**Detailed Explanation**:\nThis section of "${bookTitle}" is particularly important because it demonstrates the core principle the author is trying to convey.\n\n**Key Takeaway**: Remember this concept—it will be referenced later in the book!\n\n**Study Tip**: Try creating a mind map of how this connects to previous chapters.`,
+
+      `That's a thought-provoking question about "${bookTitle}"! Let's explore it together:\n\n🎯 **Direct Answer**: ${
+        question.length > 50
+          ? "This is a complex topic that requires careful consideration..."
+          : "Here's what the author means..."
+      }\n\n💡 **Why This Matters**: Understanding this concept will help you grasp the bigger picture of the book's message.\n\n📚 **Related Concepts**: This connects to:\n- The introduction's main thesis\n- Chapter ${Math.floor(
+        currentPage / 10
+      )}'s arguments\n- The upcoming conclusion\n\n🎓 **Quiz Yourself**: Can you explain this concept in your own words now?`,
     ];
-    
-    const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
-    
+
+    const randomResponse =
+      demoResponses[Math.floor(Math.random() * demoResponses.length)];
+
     // Simulate AI thinking delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     return NextResponse.json({
       success: true,
       response: randomResponse,
@@ -72,7 +92,6 @@ export async function POST(request: NextRequest) {
       currentPage,
       timestamp: Date.now(),
     });
-
   } catch (error) {
     console.error("[AI Reading Companion API] Error:", error);
     return NextResponse.json(
@@ -106,9 +125,9 @@ export async function GET(request: NextRequest) {
 
     // TODO: Generate actual study materials using AI
     // For now, return demo data
-    
+
     let materialData;
-    
+
     switch (materialType) {
       case "quiz":
         materialData = {
@@ -131,24 +150,38 @@ export async function GET(request: NextRequest) {
           ],
         };
         break;
-        
+
       case "flashcards":
         materialData = {
           cards: [
-            { front: "Key Concept #1", back: "Explanation of the first important concept" },
-            { front: "Key Concept #2", back: "Explanation of the second important concept" },
-            { front: "Key Concept #3", back: "Explanation of the third important concept" },
-            { front: "Main Takeaway", back: "The primary lesson from this chapter" },
+            {
+              front: "Key Concept #1",
+              back: "Explanation of the first important concept",
+            },
+            {
+              front: "Key Concept #2",
+              back: "Explanation of the second important concept",
+            },
+            {
+              front: "Key Concept #3",
+              back: "Explanation of the third important concept",
+            },
+            {
+              front: "Main Takeaway",
+              back: "The primary lesson from this chapter",
+            },
           ],
         };
         break;
-        
+
       case "summary":
         materialData = {
-          summary: `**Chapter ${chapter || "1"} Summary**\n\nThis chapter explores the fundamental concepts that form the foundation of the book's main argument.\n\n**Key Points:**\n- Point 1: Important concept explained\n- Point 2: Critical idea discussed\n- Point 3: Practical application shown\n\n**Main Takeaway:** The chapter demonstrates how these principles work together to create a comprehensive understanding of the topic.`,
+          summary: `**Chapter ${
+            chapter || "1"
+          } Summary**\n\nThis chapter explores the fundamental concepts that form the foundation of the book's main argument.\n\n**Key Points:**\n- Point 1: Important concept explained\n- Point 2: Critical idea discussed\n- Point 3: Practical application shown\n\n**Main Takeaway:** The chapter demonstrates how these principles work together to create a comprehensive understanding of the topic.`,
         };
         break;
-        
+
       case "mindmap":
         materialData = {
           nodes: [
@@ -161,9 +194,12 @@ export async function GET(request: NextRequest) {
           ],
         };
         break;
-        
+
       default:
-        return NextResponse.json({ error: "Invalid material type" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Invalid material type" },
+          { status: 400 }
+        );
     }
 
     return NextResponse.json({
@@ -174,7 +210,6 @@ export async function GET(request: NextRequest) {
       chapter: chapter || "1",
       generatedAt: Date.now(),
     });
-
   } catch (error) {
     console.error("[Study Materials API] Error:", error);
     return NextResponse.json(

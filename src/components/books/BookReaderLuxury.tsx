@@ -194,68 +194,97 @@ export default function BookReaderLuxury({
   // ===========================================
   // 🔥💎 INSANE LUXURY FEATURES - NEVER SEEN BEFORE! 🔥💎
   // ===========================================
-  
+
   // 🧠 BINAURAL BEATS - Brain Wave Optimization
   const [binauralBeats, setBinauralBeats] = useState(false);
-  const [brainWaveType, setBrainWaveType] = useState<"alpha" | "beta" | "theta" | "gamma">("alpha");
+  const [brainWaveType, setBrainWaveType] = useState<
+    "alpha" | "beta" | "theta" | "gamma"
+  >("alpha");
   const [binauralVolume, setBinauralVolume] = useState(0.2);
-  
+
   // 🎭 VOICE-SYNCED TEXT ANIMATION - Karaoke Reading
   const [voiceSync, setVoiceSync] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [highlightedText, setHighlightedText] = useState<string>("");
-  
+
   // 🤖 AI READING COMPANION - ChatGPT for Every Book
   const [aiCompanionOpen, setAICompanionOpen] = useState(false);
-  const [aiMessages, setAIMessages] = useState<Array<{role: "user" | "assistant", content: string}>>([]);
+  const [aiMessages, setAIMessages] = useState<
+    Array<{ role: "user" | "assistant"; content: string }>
+  >([]);
   const [aiInputText, setAIInputText] = useState("");
   const [aiLoading, setAILoading] = useState(false);
-  
+
   // 🎨 DYNAMIC CHAPTER ILLUSTRATIONS - AI Generated Art
-  const [chapterIllustrations, setChapterIllustrations] = useState<Map<number, string>>(new Map());
+  const [chapterIllustrations, setChapterIllustrations] = useState<
+    Record<number, string>
+  >({});
   const [showChapterArt, setShowChapterArt] = useState(true);
-  const [illustrationStyle, setIllustrationStyle] = useState<"watercolor" | "oil-painting" | "sketch" | "3d" | "anime">("watercolor");
-  
+  const [illustrationStyle, setIllustrationStyle] = useState<
+    "watercolor" | "oil-painting" | "sketch" | "3d" | "anime"
+  >("watercolor");
+
   // 🎵 SMART SOUNDTRACK - AI Music Generation
   const [smartSoundtrack, setSmartSoundtrack] = useState(false);
   const [currentMoodMusic, setCurrentMoodMusic] = useState<string>("");
-  const [musicMood, setMusicMood] = useState<"calm" | "intense" | "mysterious" | "joyful" | "melancholic">("calm");
-  
+  const [musicMood, setMusicMood] = useState<
+    "calm" | "intense" | "mysterious" | "joyful" | "melancholic"
+  >("calm");
+
   // 👁️ EYE-TRACKING OPTIMIZATION (Future: WebGazer.js)
   const [eyeTracking, setEyeTracking] = useState(false);
   const [optimalWordSpacing, setOptimalWordSpacing] = useState(0);
-  const [readingHeatmap, setReadingHeatmap] = useState<Array<{x: number, y: number}>>([]);
-  
+  const [readingHeatmap, setReadingHeatmap] = useState<
+    Array<{ x: number; y: number }>
+  >([]);
+
   // 🏆 ADVANCED GAMIFICATION
   const [dynastyLevel, setDynastyLevel] = useState(1);
   const [prestigeRank, setPrestigeRank] = useState(0);
   const [experiencePoints, setExperiencePoints] = useState(0);
   const [nextLevelXP, setNextLevelXP] = useState(1000);
-  const [readerClass, setReaderClass] = useState<"warrior" | "mage" | "scholar" | "ninja">("scholar");
-  
+  const [readerClass, setReaderClass] = useState<
+    "warrior" | "mage" | "scholar" | "ninja"
+  >("scholar");
+
   // 🎯 PREDICTIVE PAGE LOADING - AI learns your reading patterns
   const [predictiveLoading, setPredictiveLoading] = useState(true);
-  const [preloadedPages, setPreloadedPages] = useState<Map<number, string>>(new Map());
-  const [readingPattern, setReadingPattern] = useState<"linear" | "skip-ahead" | "random">("linear");
-  
+  const [preloadedPages, setPreloadedPages] = useState<Record<number, string>>(
+    {}
+  );
+  const [readingPattern, setReadingPattern] = useState<
+    "linear" | "skip-ahead" | "random"
+  >("linear");
+
   // 🌈 INFINITE COLOR THEMES - AI Generated
   const [aiGeneratedTheme, setAIGeneratedTheme] = useState(false);
   const [themeMood, setThemeMood] = useState("");
-  const [generatedColors, setGeneratedColors] = useState<{bg: string, text: string, accent: string} | null>(null);
-  
+  const [generatedColors, setGeneratedColors] = useState<{
+    bg: string;
+    text: string;
+    accent: string;
+  } | null>(null);
+
   // 📊 KNOWLEDGE GRAPH - Connected Learning
   const [knowledgeGraph, setKnowledgeGraph] = useState(false);
-  const [conceptNodes, setConceptNodes] = useState<Array<{id: string, label: string, connections: string[]}>>([]);
-  
+  const [conceptNodes, setConceptNodes] = useState<
+    Array<{ id: string; label: string; connections: string[] }>
+  >([]);
+
   // 🎬 CINEMATIC MODE - Movie-like reading
   const [cinematicMode, setCinematicMode] = useState(false);
   const [sceneTransitions, setSceneTransitions] = useState(true);
   const [characterVoices, setCharacterVoices] = useState(true);
-  
+
   // 🧘 EMOTION DETECTION (Future: TensorFlow.js)
   const [emotionDetection, setEmotionDetection] = useState(false);
-  const [currentEmotion, setCurrentEmotion] = useState<"neutral" | "stressed" | "bored" | "excited" | "tired">("neutral");
+  const [currentEmotion, setCurrentEmotion] = useState<
+    "neutral" | "stressed" | "bored" | "excited" | "tired"
+  >("neutral");
   const [autoModeSwitch, setAutoModeSwitch] = useState(false);
+
+  // 🧠 AI INTELLIGENCE INSIGHTS TOGGLE
+  const [showIntelligenceInsights, setShowIntelligenceInsights] = useState(false);
 
   // ===========================================
   // ADVANCED READING FEATURES
@@ -693,28 +722,32 @@ export default function BookReaderLuxury({
       name: "🧘 Alpha Waves (8-12Hz)",
       description: "Relaxed focus & creative thinking",
       benefits: "Perfect for reading & light learning",
-      audioUrl: "https://cdn.pixabay.com/download/audio/2022/05/13/audio_1808fbf07a.mp3", // Relaxing ambient
+      audioUrl:
+        "https://cdn.pixabay.com/download/audio/2022/05/13/audio_1808fbf07a.mp3", // Relaxing ambient
       color: "from-green-500 to-emerald-500",
     },
     beta: {
-      name: "⚡ Beta Waves (12-30Hz)", 
+      name: "⚡ Beta Waves (12-30Hz)",
       description: "Active concentration & alertness",
       benefits: "Best for complex material & deep study",
-      audioUrl: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c6c4c85e07.mp3", // Focus sounds
+      audioUrl:
+        "https://cdn.pixabay.com/download/audio/2022/03/10/audio_c6c4c85e07.mp3", // Focus sounds
       color: "from-blue-500 to-cyan-500",
     },
     theta: {
       name: "🌊 Theta Waves (4-8Hz)",
       description: "Deep relaxation & creativity",
       benefits: "Ideal for meditation & imagination",
-      audioUrl: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3", // Deep meditation
+      audioUrl:
+        "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3", // Deep meditation
       color: "from-purple-500 to-violet-500",
     },
     gamma: {
       name: "🚀 Gamma Waves (30-100Hz)",
       description: "Peak performance & high processing",
       benefits: "Maximum cognitive power & memory",
-      audioUrl: "https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3", // High energy
+      audioUrl:
+        "https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3", // High energy
       color: "from-orange-500 to-red-500",
     },
   };
@@ -724,35 +757,79 @@ export default function BookReaderLuxury({
   // ===========================================
   const generateAITheme = (mood: string) => {
     // AI-powered color generation based on mood
-    const moodThemes: {[key: string]: {bg: string, text: string, accent: string}} = {
-      "cyberpunk": {bg: "from-black via-purple-900 to-pink-900", text: "#00ffff", accent: "#ff00ff"},
-      "sunset beach": {bg: "from-orange-400 via-pink-400 to-purple-500", text: "#fff", accent: "#fbbf24"},
-      "medieval castle": {bg: "from-stone-700 via-stone-600 to-stone-800", text: "#e5e7eb", accent: "#d97706"},
-      "space odyssey": {bg: "from-indigo-950 via-purple-950 to-black", text: "#e0e7ff", accent: "#818cf8"},
-      "enchanted forest": {bg: "from-green-900 via-emerald-800 to-teal-900", text: "#d1fae5", accent: "#34d399"},
-      "arctic ice": {bg: "from-cyan-100 via-blue-100 to-indigo-100", text: "#0c4a6e", accent: "#06b6d4"},
-      "molten lava": {bg: "from-red-900 via-orange-600 to-yellow-600", text: "#fff", accent: "#fbbf24"},
-      "deep ocean": {bg: "from-blue-950 via-cyan-950 to-teal-950", text: "#cffafe", accent: "#22d3ee"},
+    const moodThemes: {
+      [key: string]: { bg: string; text: string; accent: string };
+    } = {
+      cyberpunk: {
+        bg: "from-black via-purple-900 to-pink-900",
+        text: "#00ffff",
+        accent: "#ff00ff",
+      },
+      "sunset beach": {
+        bg: "from-orange-400 via-pink-400 to-purple-500",
+        text: "#fff",
+        accent: "#fbbf24",
+      },
+      "medieval castle": {
+        bg: "from-stone-700 via-stone-600 to-stone-800",
+        text: "#e5e7eb",
+        accent: "#d97706",
+      },
+      "space odyssey": {
+        bg: "from-indigo-950 via-purple-950 to-black",
+        text: "#e0e7ff",
+        accent: "#818cf8",
+      },
+      "enchanted forest": {
+        bg: "from-green-900 via-emerald-800 to-teal-900",
+        text: "#d1fae5",
+        accent: "#34d399",
+      },
+      "arctic ice": {
+        bg: "from-cyan-100 via-blue-100 to-indigo-100",
+        text: "#0c4a6e",
+        accent: "#06b6d4",
+      },
+      "molten lava": {
+        bg: "from-red-900 via-orange-600 to-yellow-600",
+        text: "#fff",
+        accent: "#fbbf24",
+      },
+      "deep ocean": {
+        bg: "from-blue-950 via-cyan-950 to-teal-950",
+        text: "#cffafe",
+        accent: "#22d3ee",
+      },
     };
-    
-    return moodThemes[mood.toLowerCase()] || {
-      bg: "from-purple-900 to-indigo-900", 
-      text: "#e0e7ff", 
-      accent: "#a78bfa"
-    };
+
+    return (
+      moodThemes[mood.toLowerCase()] || {
+        bg: "from-purple-900 to-indigo-900",
+        text: "#e0e7ff",
+        accent: "#a78bfa",
+      }
+    );
   };
 
   // ===========================================
   // 🏆💎 GAMIFICATION SYSTEM - RPG LEVEL UP!
   // ===========================================
   const getRankInfo = (level: number) => {
-    if (level <= 10) return { rank: "Bronze Reader", icon: "🥉", color: "text-orange-700" };
-    if (level <= 25) return { rank: "Silver Scholar", icon: "🥈", color: "text-gray-400" };
-    if (level <= 50) return { rank: "Gold Genius", icon: "🥇", color: "text-yellow-500" };
-    if (level <= 75) return { rank: "Platinum Philosopher", icon: "💎", color: "text-cyan-400" };
+    if (level <= 10)
+      return { rank: "Bronze Reader", icon: "🥉", color: "text-orange-700" };
+    if (level <= 25)
+      return { rank: "Silver Scholar", icon: "🥈", color: "text-gray-400" };
+    if (level <= 50)
+      return { rank: "Gold Genius", icon: "🥇", color: "text-yellow-500" };
+    if (level <= 75)
+      return {
+        rank: "Platinum Philosopher",
+        icon: "💎",
+        color: "text-cyan-400",
+      };
     return { rank: "Diamond Dynasty", icon: "👑", color: "text-purple-500" };
   };
-  
+
   const calculateXP = (action: "page" | "chapter" | "book" | "streak") => {
     const xpValues = {
       page: 10,
@@ -1255,16 +1332,18 @@ export default function BookReaderLuxury({
     if (currentPage < totalPages) {
       setCurrentPage((prev) => prev + 1);
       localStorage.setItem(`bookmark-${bookId}`, (currentPage + 1).toString());
-      
+
       // 🏆💎 GAMIFICATION: Gain XP for reading pages!
       const xpGain = calculateXP("page");
-      setExperiencePoints(prev => {
+      setExperiencePoints((prev) => {
         const newXP = prev + xpGain;
         // Check if leveled up
         if (newXP >= nextLevelXP) {
           setDynastyLevel(dynastyLevel + 1);
           setNextLevelXP(Math.floor(nextLevelXP * 1.5)); // Increase requirement by 50%
-          setCurrentAchievement(`🎉 Level Up! You're now Level ${dynastyLevel + 1}!`);
+          setCurrentAchievement(
+            `🎉 Level Up! You're now Level ${dynastyLevel + 1}!`
+          );
           setShowAchievementToast(true);
           setTimeout(() => setShowAchievementToast(false), 3000);
           return newXP - nextLevelXP; // Overflow XP
@@ -1404,13 +1483,14 @@ export default function BookReaderLuxury({
             <Trophy className="w-8 h-8 animate-spin" />
             <div>
               <div className="font-bold text-lg">{currentAchievement}</div>
-              <div className="text-xs opacity-90">Keep reading to level up!</div>
+              <div className="text-xs opacity-90">
+                Keep reading to level up!
+              </div>
             </div>
             <Sparkles className="w-6 h-6" />
           </div>
         </div>
       )}
-      
       {/* ===========================================
           🌟 IMMERSIVE BACKGROUND REVOLUTION 🌟
           Cinema-Quality Reading Atmosphere
@@ -1472,7 +1552,6 @@ export default function BookReaderLuxury({
           }}
         />
       )}
-      
       {/* 🧠💎 BINAURAL BEATS - BRAIN WAVE OPTIMIZATION (INSANE!) */}
       {binauralBeats && binauralBeatsLibrary[brainWaveType] && (
         <audio
@@ -1485,7 +1564,6 @@ export default function BookReaderLuxury({
           }}
         />
       )}
-      
       {/* 🤖💎 AI READING COMPANION SIDEBAR (WORLD'S FIRST!) */}
       {aiCompanionOpen && (
         <div className="fixed right-0 top-0 h-full w-96 bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-950 dark:to-blue-950 border-l-2 border-cyan-300 dark:border-cyan-700 z-50 shadow-2xl flex flex-col">
@@ -1555,19 +1633,25 @@ export default function BookReaderLuxury({
                 value={aiInputText}
                 onChange={(e) => setAIInputText(e.target.value)}
                 onKeyPress={(e) => {
-                  if (e.key === 'Enter' && aiInputText.trim() && !aiLoading) {
+                  if (e.key === "Enter" && aiInputText.trim() && !aiLoading) {
                     // Send message to AI
                     const userMsg = aiInputText.trim();
-                    setAIMessages([...aiMessages, { role: "user", content: userMsg }]);
+                    setAIMessages([
+                      ...aiMessages,
+                      { role: "user", content: userMsg },
+                    ]);
                     setAIInputText("");
                     setAILoading(true);
-                    
+
                     // Simulate AI response (replace with actual API call)
                     setTimeout(() => {
-                      setAIMessages(prev => [...prev, {
-                        role: "assistant",
-                        content: `Great question about "${bookTitle}"! Based on what you've read so far, here's my analysis...\n\n(This is a demo response. Connect to OpenAI API for real answers!)`
-                      }]);
+                      setAIMessages((prev) => [
+                        ...prev,
+                        {
+                          role: "assistant",
+                          content: `Great question about "${bookTitle}"! Based on what you've read so far, here's my analysis...\n\n(This is a demo response. Connect to OpenAI API for real answers!)`,
+                        },
+                      ]);
                       setAILoading(false);
                     }, 2000);
                   }
@@ -1579,15 +1663,21 @@ export default function BookReaderLuxury({
                 onClick={() => {
                   if (aiInputText.trim() && !aiLoading) {
                     const userMsg = aiInputText.trim();
-                    setAIMessages([...aiMessages, { role: "user", content: userMsg }]);
+                    setAIMessages([
+                      ...aiMessages,
+                      { role: "user", content: userMsg },
+                    ]);
                     setAIInputText("");
                     setAILoading(true);
-                    
+
                     setTimeout(() => {
-                      setAIMessages(prev => [...prev, {
-                        role: "assistant",
-                        content: `Great question! Here's what I think about "${userMsg}"...\n\n(Demo mode - Connect OpenAI API!)`
-                      }]);
+                      setAIMessages((prev) => [
+                        ...prev,
+                        {
+                          role: "assistant",
+                          content: `Great question! Here's what I think about "${userMsg}"...\n\n(Demo mode - Connect OpenAI API!)`,
+                        },
+                      ]);
                       setAILoading(false);
                     }, 2000);
                   }
@@ -1601,7 +1691,6 @@ export default function BookReaderLuxury({
           </div>
         </div>
       )}
-      
       {/* All content now sits above immersive background */}
       <div className="relative z-10">
         {/* ===========================================
@@ -2706,7 +2795,8 @@ export default function BookReaderLuxury({
                       🧠 Binaural Beats
                     </h3>
                     <p className="text-xs opacity-70 text-center">
-                      🔬 Scientifically-proven brain wave frequencies for enhanced focus
+                      🔬 Scientifically-proven brain wave frequencies for
+                      enhanced focus
                     </p>
 
                     {/* Binaural Beats Toggle */}
@@ -2728,9 +2818,7 @@ export default function BookReaderLuxury({
                         >
                           <div
                             className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                              binauralBeats
-                                ? "translate-x-7"
-                                : "translate-x-1"
+                              binauralBeats ? "translate-x-7" : "translate-x-1"
                             }`}
                           />
                         </button>
@@ -2744,26 +2832,28 @@ export default function BookReaderLuxury({
                               Select Brain Wave Type
                             </h4>
                             <div className="grid grid-cols-2 gap-2">
-                              {(Object.keys(binauralBeatsLibrary) as Array<keyof typeof binauralBeatsLibrary>).map(
-                                (wave) => (
-                                  <button
-                                    key={wave}
-                                    onClick={() => setBrainWaveType(wave)}
-                                    className={`p-3 rounded-lg border-2 transition-all text-xs ${
-                                      brainWaveType === wave
-                                        ? `border-purple-500 bg-gradient-to-r ${binauralBeatsLibrary[wave].color}/20`
-                                        : "border-gray-300 dark:border-gray-600 hover:border-purple-400"
-                                    }`}
-                                  >
-                                    <div className="font-bold mb-1">
-                                      {binauralBeatsLibrary[wave].name}
-                                    </div>
-                                    <div className="text-xs opacity-70">
-                                      {binauralBeatsLibrary[wave].benefits}
-                                    </div>
-                                  </button>
-                                )
-                              )}
+                              {(
+                                Object.keys(binauralBeatsLibrary) as Array<
+                                  keyof typeof binauralBeatsLibrary
+                                >
+                              ).map((wave) => (
+                                <button
+                                  key={wave}
+                                  onClick={() => setBrainWaveType(wave)}
+                                  className={`p-3 rounded-lg border-2 transition-all text-xs ${
+                                    brainWaveType === wave
+                                      ? `border-purple-500 bg-gradient-to-r ${binauralBeatsLibrary[wave].color}/20`
+                                      : "border-gray-300 dark:border-gray-600 hover:border-purple-400"
+                                  }`}
+                                >
+                                  <div className="font-bold mb-1">
+                                    {binauralBeatsLibrary[wave].name}
+                                  </div>
+                                  <div className="text-xs opacity-70">
+                                    {binauralBeatsLibrary[wave].benefits}
+                                  </div>
+                                </button>
+                              ))}
                             </div>
                           </div>
 
@@ -2829,12 +2919,18 @@ export default function BookReaderLuxury({
                       <Trophy className="w-5 h-5 text-yellow-500" />
                       🏆 Dynasty Level System
                     </h3>
-                    
+
                     <div className="space-y-3">
                       {/* Current Rank */}
                       <div className="text-center p-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl">
-                        <div className="text-3xl mb-2">{getRankInfo(dynastyLevel).icon}</div>
-                        <div className={`text-lg font-bold ${getRankInfo(dynastyLevel).color}`}>
+                        <div className="text-3xl mb-2">
+                          {getRankInfo(dynastyLevel).icon}
+                        </div>
+                        <div
+                          className={`text-lg font-bold ${
+                            getRankInfo(dynastyLevel).color
+                          }`}
+                        >
                           Level {dynastyLevel}
                         </div>
                         <div className="text-sm font-semibold text-white">
@@ -2849,9 +2945,13 @@ export default function BookReaderLuxury({
                           <span>Next: {nextLevelXP}</span>
                         </div>
                         <div className="w-full h-3 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
-                          <div 
+                          <div
                             className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-500"
-                            style={{width: `${(experiencePoints / nextLevelXP) * 100}%`}}
+                            style={{
+                              width: `${
+                                (experiencePoints / nextLevelXP) * 100
+                              }%`,
+                            }}
                           />
                         </div>
                       </div>
@@ -2873,7 +2973,8 @@ export default function BookReaderLuxury({
                       </div>
 
                       <p className="text-xs text-center opacity-70">
-                        🎮 Level up by reading! Unlock achievements, badges, and exclusive content
+                        🎮 Level up by reading! Unlock achievements, badges, and
+                        exclusive content
                       </p>
                     </div>
                   </div>
@@ -2896,7 +2997,7 @@ export default function BookReaderLuxury({
                         placeholder="Try: cyberpunk, sunset beach, space..."
                         className="w-full px-3 py-2 rounded-lg border-2 border-pink-300 dark:border-pink-700 bg-white dark:bg-black/20 text-sm"
                         onKeyPress={(e) => {
-                          if (e.key === 'Enter' && themeMood) {
+                          if (e.key === "Enter" && themeMood) {
                             setGeneratedColors(generateAITheme(themeMood));
                             setAIGeneratedTheme(true);
                           }
@@ -2918,7 +3019,14 @@ export default function BookReaderLuxury({
 
                     {/* Quick Mood Suggestions */}
                     <div className="grid grid-cols-2 gap-2">
-                      {["cyberpunk", "sunset beach", "medieval castle", "space odyssey", "enchanted forest", "arctic ice"].map((mood) => (
+                      {[
+                        "cyberpunk",
+                        "sunset beach",
+                        "medieval castle",
+                        "space odyssey",
+                        "enchanted forest",
+                        "arctic ice",
+                      ].map((mood) => (
                         <button
                           key={mood}
                           onClick={() => {
@@ -2934,8 +3042,16 @@ export default function BookReaderLuxury({
                     </div>
 
                     {generatedColors && aiGeneratedTheme && (
-                      <div className="p-3 rounded-lg" style={{background: `linear-gradient(to right, ${generatedColors.bg})`}}>
-                        <p className="text-center font-bold" style={{color: generatedColors.text}}>
+                      <div
+                        className="p-3 rounded-lg"
+                        style={{
+                          background: `linear-gradient(to right, ${generatedColors.bg})`,
+                        }}
+                      >
+                        <p
+                          className="text-center font-bold"
+                          style={{ color: generatedColors.text }}
+                        >
                           ✨ Theme Preview ✨
                         </p>
                       </div>
@@ -3248,16 +3364,50 @@ export default function BookReaderLuxury({
                         dangerouslySetInnerHTML={{ __html: pageContent }}
                       />
 
-                      {/* 🧠 INTELLIGENCE INSIGHTS PANEL: AI Reading Predictions for Read Mode */}
+                      {/* 🧠 INTELLIGENCE INSIGHTS PANEL: Floating Toggle Icon + Popup */}
                       {isPremium &&
                         readingIntelligence.predictions &&
                         !focusMode && (
-                          <div className="mt-12 mb-8">
-                            <IntelligenceInsightsPanel
-                              predictions={readingIntelligence.predictions}
-                              isLoading={!readingIntelligence.predictions}
-                            />
-                          </div>
+                          <>
+                            {/* Floating AI Insights Icon */}
+                            <button
+                              onClick={() => setShowIntelligenceInsights(!showIntelligenceInsights)}
+                              className="fixed bottom-32 right-8 w-14 h-14 bg-gradient-to-br from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-full shadow-2xl flex items-center justify-center z-40 transition-all hover:scale-110 group"
+                              title="AI Intelligence Insights"
+                            >
+                              <span className="text-2xl">🧠</span>
+                              {!showIntelligenceInsights && (
+                                <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                              )}
+                            </button>
+
+                            {/* Popup Panel */}
+                            {showIntelligenceInsights && (
+                              <div className="fixed bottom-32 right-24 w-96 z-50 animate-in slide-in-from-right">
+                                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border-2 border-purple-500/30">
+                                  {/* Close button */}
+                                  <div className="flex items-center justify-between p-4 border-b border-purple-500/20">
+                                    <h3 className="font-bold text-lg flex items-center gap-2">
+                                      <span>🧠</span>
+                                      <span>AI Insights</span>
+                                    </h3>
+                                    <button
+                                      onClick={() => setShowIntelligenceInsights(false)}
+                                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                  <div className="max-h-[500px] overflow-y-auto">
+                                    <IntelligenceInsightsPanel
+                                      predictions={readingIntelligence.predictions}
+                                      isLoading={!readingIntelligence.predictions}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </>
                         )}
 
                       {/* Reflection CTA */}
@@ -3425,45 +3575,6 @@ export default function BookReaderLuxury({
             >
               <ChevronRight className="w-6 h-6 mx-auto" />
             </button>
-          </div>
-        )}
-
-        {/* ===========================================
-          KEYBOARD SHORTCUTS HINT
-          =========================================== */}
-        {!zenMode && (
-          <div className="fixed bottom-24 right-8 opacity-30 hover:opacity-100 transition-opacity">
-            <div
-              className={`${currentTheme.card} rounded-2xl p-4 text-xs space-y-2 border ${currentTheme.border}`}
-            >
-              <div className="flex items-center gap-2">
-                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                  ←
-                </kbd>
-                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                  →
-                </kbd>
-                <span>Navigate</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                  Ctrl
-                </kbd>
-                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                  F
-                </kbd>
-                <span>Focus Mode</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                  Ctrl
-                </kbd>
-                <kbd className="px-2 py-1 bg-gray-700 text-gray-100 rounded">
-                  B
-                </kbd>
-                <span>Bookmark</span>
-              </div>
-            </div>
           </div>
         )}
 
