@@ -1948,39 +1948,63 @@ export default function BookReaderLuxury({
         )}
 
         {/* ===========================================
-          SETTINGS PANEL (SLIDE-OUT)
+          SETTINGS PANEL (SLIDE-OUT) - 🎨 GLASSMORPHISM UI
           =========================================== */}
         {showSettings && (
           <div className="fixed inset-0 z-50 flex items-start justify-end">
-            {/* Backdrop */}
+            {/* Backdrop - Enhanced Blur */}
             <div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
               onClick={() => setShowSettings(false)}
             />
 
-            {/* Settings Panel */}
+            {/* Settings Panel - Glassmorphism */}
             <div
-              className={`relative ${currentTheme.bg} w-full max-w-md h-full overflow-y-auto shadow-2xl animate-slide-in-right`}
+              className="relative w-full max-w-md h-full overflow-y-auto shadow-2xl animate-slide-in-right"
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.18)',
+              }}
             >
               <div className="p-6 space-y-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold flex items-center gap-2">
-                    <Palette className="w-6 h-6 text-purple-500" />
+                {/* Header - Glass Card */}
+                <div className="flex items-center justify-between p-4 rounded-2xl"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <h2 className="text-2xl font-bold flex items-center gap-2 text-white drop-shadow-lg">
+                    <Palette className="w-6 h-6 text-purple-400" />
                     Reading Settings
                   </h2>
                   <button
                     onClick={() => setShowSettings(false)}
-                    className={`p-2 ${currentTheme.secondary} rounded-lg hover:scale-105 transition-transform`}
+                    className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all duration-200"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                    }}
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5 text-white" />
                   </button>
                 </div>
 
-                {/* Theme Selection - 10 LUXURY THEMES! */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-                    <Palette className="w-5 h-5" />
+                {/* Theme Selection - Glass Cards */}
+                <div className="space-y-4 p-4 rounded-2xl"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                  }}
+                >
+                  <h3 className="text-lg font-bold uppercase tracking-wide flex items-center gap-2 text-white">
+                    <Palette className="w-5 h-5 text-purple-400" />
                     Reading Theme
                   </h3>
                   <div className="grid grid-cols-5 gap-3">
@@ -1988,11 +2012,19 @@ export default function BookReaderLuxury({
                       <button
                         key={themeKey}
                         onClick={() => setTheme(themeKey as any)}
-                        className={`group relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all hover:scale-105 ${
-                          theme === themeKey
-                            ? "border-purple-500 shadow-lg shadow-purple-500/30 bg-purple-50 dark:bg-purple-900/20"
-                            : "border-gray-300 dark:border-gray-600 hover:border-purple-300"
-                        }`}
+                        className="group relative flex flex-col items-center gap-2 p-3 rounded-xl transition-all hover:scale-110 active:scale-95"
+                        style={{
+                          background: theme === themeKey 
+                            ? 'rgba(168, 85, 247, 0.2)' 
+                            : 'rgba(255, 255, 255, 0.05)',
+                          backdropFilter: 'blur(5px)',
+                          border: theme === themeKey
+                            ? '2px solid rgba(168, 85, 247, 0.5)'
+                            : '1px solid rgba(255, 255, 255, 0.1)',
+                          boxShadow: theme === themeKey
+                            ? '0 8px 32px rgba(168, 85, 247, 0.3)'
+                            : '0 4px 16px rgba(0, 0, 0, 0.1)',
+                        }}
                         title={themeData.description}
                       >
                         <div
@@ -2003,41 +2035,46 @@ export default function BookReaderLuxury({
                           />
                           {theme === themeKey && (
                             <div className="absolute inset-0 flex items-center justify-center">
-                              <Check className="w-6 h-6 text-purple-600 dark:text-purple-400 drop-shadow-lg" />
+                              <Check className="w-6 h-6 text-white drop-shadow-lg" />
                             </div>
                           )}
                         </div>
-                        <span
-                          className={`text-xs font-semibold text-center ${
-                            theme === themeKey
-                              ? "text-purple-600 dark:text-purple-400"
-                              : "opacity-70"
-                          }`}
-                        >
+                        <span className="text-xs font-semibold text-center text-white">
                           {themeData.name}
                         </span>
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-center opacity-60 italic">
+                  <p className="text-xs text-center text-white/60 italic">
                     ✨ Choose your perfect reading atmosphere
                   </p>
                 </div>
 
-                {/* Font Size */}
-                <div className="space-y-3">
+                {/* Font Size - Glass Card */}
+                <div className="space-y-3 p-4 rounded-2xl"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                  }}
+                >
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
                       Font Size
                     </h3>
-                    <span className="text-sm font-bold">{fontSize}px</span>
+                    <span className="text-sm font-bold text-white">{fontSize}px</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => setFontSize(Math.max(12, fontSize - 2))}
-                      className={`p-2 ${currentTheme.secondary} rounded-lg hover:scale-105 transition-transform`}
+                      className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(5px)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                      }}
                     >
-                      <MinusCircle className="w-5 h-5" />
+                      <MinusCircle className="w-5 h-5 text-white" />
                     </button>
                     <input
                       type="range"
@@ -2046,24 +2083,38 @@ export default function BookReaderLuxury({
                       step="2"
                       value={fontSize}
                       onChange={(e) => setFontSize(parseInt(e.target.value))}
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer"
+                      style={{
+                        background: 'linear-gradient(to right, rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5))',
+                      }}
                     />
                     <button
                       onClick={() => setFontSize(Math.min(32, fontSize + 2))}
-                      className={`p-2 ${currentTheme.secondary} rounded-lg hover:scale-105 transition-transform`}
+                      className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        backdropFilter: 'blur(5px)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                      }}
                     >
-                      <PlusCircle className="w-5 h-5" />
+                      <PlusCircle className="w-5 h-5 text-white" />
                     </button>
                   </div>
                 </div>
 
-                {/* Line Height */}
-                <div className="space-y-3">
+                {/* Line Height - Glass Card */}
+                <div className="space-y-3 p-4 rounded-2xl"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                  }}
+                >
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
+                    <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
                       Line Height
                     </h3>
-                    <span className="text-sm font-bold">
+                    <span className="text-sm font-bold text-white">
                       {lineHeight.toFixed(1)}
                     </span>
                   </div>
@@ -2074,13 +2125,22 @@ export default function BookReaderLuxury({
                     step="0.1"
                     value={lineHeight}
                     onChange={(e) => setLineHeight(parseFloat(e.target.value))}
-                    className="w-full"
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: 'linear-gradient(to right, rgba(168, 85, 247, 0.5), rgba(59, 130, 246, 0.5))',
+                    }}
                   />
                 </div>
 
-                {/* Font Family */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-semibold uppercase tracking-wide opacity-60">
+                {/* Font Family - Glass Cards */}
+                <div className="space-y-3 p-4 rounded-2xl"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                  }}
+                >
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
                     Font Family
                   </h3>
                   <div className="grid grid-cols-3 gap-2">
@@ -2098,10 +2158,19 @@ export default function BookReaderLuxury({
                       <button
                         key={font}
                         onClick={() => setFontFamily(font)}
-                        className={`px-3 py-2.5 rounded-xl border-2 transition-all hover:scale-105 ${
-                          fontFamily === font
-                            ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg shadow-purple-500/20"
-                            : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary}`
+                        className="px-3 py-2.5 rounded-xl transition-all hover:scale-105 active:scale-95"
+                        style={{
+                          background: fontFamily === font
+                            ? 'rgba(168, 85, 247, 0.3)'
+                            : 'rgba(255, 255, 255, 0.05)',
+                          backdropFilter: 'blur(5px)',
+                          border: fontFamily === font
+                            ? '2px solid rgba(168, 85, 247, 0.5)'
+                            : '1px solid rgba(255, 255, 255, 0.1)',
+                          boxShadow: fontFamily === font
+                            ? '0 4px 16px rgba(168, 85, 247, 0.3)'
+                            : 'none',
+                        }}
                         }`}
                       >
                         <div
@@ -3546,65 +3615,100 @@ export default function BookReaderLuxury({
         />
 
         {/* ===========================================
-          FOOTER NAVIGATION
+          FOOTER NAVIGATION - 🎨 GLASSMORPHISM
           =========================================== */}
         {!zenMode && (
           <footer
-            className={`${currentTheme.secondary} border-t ${currentTheme.border} sticky bottom-0 z-50 backdrop-blur-xl bg-opacity-90`}
+            className="sticky bottom-0 z-50"
+            style={{
+              background: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.18)',
+            }}
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex items-center justify-between h-16">
-                {/* Previous Button */}
+                {/* Previous Button - Glass */}
                 <Button
                   variant="ghost"
                   onClick={prevPage}
                   disabled={currentPage === 1}
-                  className="disabled:opacity-30"
+                  className="disabled:opacity-30 px-4 py-2 rounded-xl hover:scale-105 active:scale-95 transition-all text-white"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                  }}
                 >
                   <ChevronLeft className="w-5 h-5 mr-2" />
                   Previous
                 </Button>
 
-                {/* Page Navigation */}
+                {/* Page Navigation - Glass Controls */}
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => goToPage(Math.max(1, currentPage - 10))}
-                    className={`${currentTheme.secondary} p-2 rounded-lg hover:scale-105 transition-transform`}
+                    className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                    }}
                     title="Jump back 10 pages"
                   >
-                    <Rewind className="w-4 h-4" />
+                    <Rewind className="w-4 h-4 text-white" />
                   </button>
 
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm opacity-60">Page:</span>
+                  <div className="flex items-center gap-3 px-4 py-2 rounded-xl"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.15)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                    }}
+                  >
+                    <span className="text-sm text-white/80">Page:</span>
                     <input
                       type="number"
                       min="1"
                       max={totalPages}
                       value={currentPage}
                       onChange={(e) => goToPage(parseInt(e.target.value) || 1)}
-                      className={`w-20 px-3 py-2 border ${currentTheme.border} rounded-lg ${currentTheme.bg} text-center font-medium`}
+                      className="w-20 px-3 py-2 rounded-lg text-center font-medium text-white bg-white/10 border border-white/20"
+                      style={{
+                        backdropFilter: 'blur(5px)',
+                      }}
                     />
-                    <span className="text-sm opacity-60">of {totalPages}</span>
+                    <span className="text-sm text-white/80">of {totalPages}</span>
                   </div>
 
                   <button
                     onClick={() =>
                       goToPage(Math.min(totalPages, currentPage + 10))
                     }
-                    className={`${currentTheme.secondary} p-2 rounded-lg hover:scale-105 transition-transform`}
+                    className="p-2 rounded-xl hover:scale-110 active:scale-95 transition-all"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      backdropFilter: 'blur(10px)',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                    }}
                     title="Jump forward 10 pages"
                   >
-                    <FastForward className="w-4 h-4" />
+                    <FastForward className="w-4 h-4 text-white" />
                   </button>
                 </div>
 
-                {/* Next Button */}
+                {/* Next Button - Glass */}
                 <Button
                   variant="ghost"
                   onClick={nextPage}
                   disabled={currentPage === totalPages}
-                  className="disabled:opacity-30"
+                  className="disabled:opacity-30 px-4 py-2 rounded-xl hover:scale-105 active:scale-95 transition-all text-white"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                  }}
                 >
                   Next
                   <ChevronRight className="w-5 h-5 ml-2" />
