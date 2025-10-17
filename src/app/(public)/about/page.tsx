@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function AboutPage() {
   return (
@@ -7,17 +7,33 @@ export default function AboutPage() {
       <nav className="sticky top-0 z-50 border-b border-purple-200/50 dark:border-purple-900/50 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 md:h-20">
-            <Link href="/" className="flex items-center space-x-2 md:space-x-3 group">
+            <Link
+              href="/"
+              className="flex items-center space-x-2 md:space-x-3 group"
+            >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform shadow-lg">
-                <span className="text-white font-bold text-lg md:text-xl">DB</span>
+                <span className="text-white font-bold text-lg md:text-xl">
+                  DB
+                </span>
               </div>
               <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 Dynasty Built Academy
               </span>
             </Link>
             <div className="flex items-center gap-2 md:gap-4">
-              <Link href="/login"><Button variant="ghost" size="sm">Sign In</Button></Link>
-              <Link href="/register"><Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">Get Started</Button></Link>
+              <Link href="/login">
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                >
+                  Get Started
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -38,16 +54,26 @@ export default function AboutPage() {
               </span>
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-8 leading-relaxed">
-              Dynasty Built Academy turns underdogs into builders. We blend elite strategy, practical playbooks, and AI-powered learning to help creators, founders, and students build wealth, work, and wisdom—step by step.
+              Dynasty Built Academy turns underdogs into builders. We blend
+              elite strategy, practical playbooks, and AI-powered learning to
+              help creators, founders, and students build wealth, work, and
+              wisdom—step by step.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/register">
-                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-lg rounded-xl shadow-xl hover:shadow-purple-500/25">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-lg rounded-xl shadow-xl hover:shadow-purple-500/25"
+                >
                   Start Building 🚀
                 </Button>
               </Link>
               <Link href="/books">
-                <Button size="lg" variant="outline" className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 px-8 py-6 text-lg rounded-xl">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 px-8 py-6 text-lg rounded-xl"
+                >
                   Browse Library �
                 </Button>
               </Link>
@@ -64,7 +90,11 @@ export default function AboutPage() {
               Who We Are 🎯
             </h2>
             <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed">
-              Dynasty Built Academy is a social-first learning platform for ambitious underdogs. We publish elite-level manuals, run practical courses, and provide a marketplace for digital products. Our approach is simple: short lessons, real tools, measurable outcomes.
+              Dynasty Built Academy is a social-first learning platform for
+              ambitious underdogs. We publish elite-level manuals, run practical
+              courses, and provide a marketplace for digital products. Our
+              approach is simple: short lessons, real tools, measurable
+              outcomes.
             </p>
           </div>
 
@@ -72,54 +102,105 @@ export default function AboutPage() {
             {/* Vision */}
             <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 rounded-2xl p-8 border border-purple-200 dark:border-purple-700/50">
               <div className="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Our Vision</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                Our Vision
+              </h3>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                A world where first-generation builders can access elite knowledge, modern tools, and community—so they can create assets, not just income, and pass on a legacy with dignity.
+                A world where first-generation builders can access elite
+                knowledge, modern tools, and community—so they can create
+                assets, not just income, and pass on a legacy with dignity.
               </p>
             </div>
 
             {/* Mission */}
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-2xl p-8 border border-blue-200 dark:border-blue-700/50">
               <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <svg
+                  className="w-8 h-8 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Our Mission</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                Our Mission
+              </h3>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                Deliver practical, AI-assisted education and tools—books, courses, and playbooks—paired with a community and marketplace that convert learning into assets, income, and impact.
+                Deliver practical, AI-assisted education and tools—books,
+                courses, and playbooks—paired with a community and marketplace
+                that convert learning into assets, income, and impact.
               </p>
             </div>
           </div>
 
           {/* What Makes Us Different */}
           <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-8 md:p-10 text-white">
-            <h3 className="text-2xl md:text-3xl font-bold mb-6 text-center">What Makes Us Different ⚡</h3>
+            <h3 className="text-2xl md:text-3xl font-bold mb-6 text-center">
+              What Makes Us Different ⚡
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="text-4xl mb-3">🧠</div>
-                <h4 className="font-bold text-lg mb-2">Ancient Wisdom Meets Modern Strategy</h4>
-                <p className="text-white/90 text-sm">Qur'anic principles, African proverbs, behavioral psychology, and product thinking—all in one.</p>
+                <h4 className="font-bold text-lg mb-2">
+                  Ancient Wisdom Meets Modern Strategy
+                </h4>
+                <p className="text-white/90 text-sm">
+                  Qur'anic principles, African proverbs, behavioral psychology,
+                  and product thinking—all in one.
+                </p>
               </div>
               <div className="text-center">
                 <div className="text-4xl mb-3">🤖</div>
                 <h4 className="font-bold text-lg mb-2">AI-Powered Learning</h4>
-                <p className="text-white/90 text-sm">PDF-to-Course AI, smart tutors, personalized paths, and voice intelligence.</p>
+                <p className="text-white/90 text-sm">
+                  PDF-to-Course AI, smart tutors, personalized paths, and voice
+                  intelligence.
+                </p>
               </div>
               <div className="text-center">
                 <div className="text-4xl mb-3">📋</div>
                 <h4 className="font-bold text-lg mb-2">Action Over Theory</h4>
-                <p className="text-white/90 text-sm">Practical playbooks, checklists, dashboards, and templates you can use today.</p>
+                <p className="text-white/90 text-sm">
+                  Practical playbooks, checklists, dashboards, and templates you
+                  can use today.
+                </p>
               </div>
               <div className="text-center">
                 <div className="text-4xl mb-3">🌍</div>
-                <h4 className="font-bold text-lg mb-2">Community-First Platform</h4>
-                <p className="text-white/90 text-sm">10K+ learners, co-reading, study rooms, and social learning features.</p>
+                <h4 className="font-bold text-lg mb-2">
+                  Community-First Platform
+                </h4>
+                <p className="text-white/90 text-sm">
+                  10K+ learners, co-reading, study rooms, and social learning
+                  features.
+                </p>
               </div>
             </div>
           </div>
@@ -133,7 +214,8 @@ export default function AboutPage() {
             Complete Learning Ecosystem 🚀
           </h2>
           <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
-            12+ premium features designed to accelerate your learning and building journey
+            12+ premium features designed to accelerate your learning and
+            building journey
           </p>
         </div>
 
@@ -145,8 +227,13 @@ export default function AboutPage() {
                 <span className="text-2xl">📚</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Premium Books Library</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">500+ curated books with AI reading modes, co-reading, and luxury listen experience</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Premium Books Library
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  500+ curated books with AI reading modes, co-reading, and
+                  luxury listen experience
+                </p>
               </div>
             </div>
           </div>
@@ -158,8 +245,13 @@ export default function AboutPage() {
                 <span className="text-2xl">🎓</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Interactive Courses</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Professional video lessons, quizzes, certificates, and real-time progress tracking</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Interactive Courses
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Professional video lessons, quizzes, certificates, and
+                  real-time progress tracking
+                </p>
               </div>
             </div>
           </div>
@@ -171,9 +263,16 @@ export default function AboutPage() {
                 <span className="text-2xl">📄</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">PDF-to-Course AI</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Upload any PDF and generate a 12-lesson course with quizzes in 2 minutes</p>
-                <span className="inline-block mt-2 px-2 py-1 text-[10px] font-bold rounded-full bg-purple-500 text-white">Revolutionary</span>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  PDF-to-Course AI
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Upload any PDF and generate a 12-lesson course with quizzes in
+                  2 minutes
+                </p>
+                <span className="inline-block mt-2 px-2 py-1 text-[10px] font-bold rounded-full bg-purple-500 text-white">
+                  Revolutionary
+                </span>
               </div>
             </div>
           </div>
@@ -185,8 +284,13 @@ export default function AboutPage() {
                 <span className="text-2xl">💬</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Community Feed</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Share insights, discuss books, and connect with 10,000+ ambitious learners</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Community Feed
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Share insights, discuss books, and connect with 10,000+
+                  ambitious learners
+                </p>
               </div>
             </div>
           </div>
@@ -198,8 +302,13 @@ export default function AboutPage() {
                 <span className="text-2xl">👥</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Co-Reading Experience</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Read together in real-time with live chat, reactions, and presence indicators</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Co-Reading Experience
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Read together in real-time with live chat, reactions, and
+                  presence indicators
+                </p>
               </div>
             </div>
           </div>
@@ -211,8 +320,13 @@ export default function AboutPage() {
                 <span className="text-2xl">🎵</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">AI Audio Intelligence</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Professional text-to-speech with 8 neural voices and ambient sounds</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  AI Audio Intelligence
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Professional text-to-speech with 8 neural voices and ambient
+                  sounds
+                </p>
               </div>
             </div>
           </div>
@@ -224,9 +338,16 @@ export default function AboutPage() {
                 <span className="text-2xl">🧠</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Dynasty Brain AI</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">AI tutor, personalized learning paths, and smart recommendations</p>
-                <span className="inline-block mt-2 px-2 py-1 text-[10px] font-bold rounded-full bg-violet-500 text-white">AI-Powered</span>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Dynasty Brain AI
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  AI tutor, personalized learning paths, and smart
+                  recommendations
+                </p>
+                <span className="inline-block mt-2 px-2 py-1 text-[10px] font-bold rounded-full bg-violet-500 text-white">
+                  AI-Powered
+                </span>
               </div>
             </div>
           </div>
@@ -238,8 +359,13 @@ export default function AboutPage() {
                 <span className="text-2xl">📹</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Study Rooms</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Live video collaboration with screen sharing and group activities</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Study Rooms
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Live video collaboration with screen sharing and group
+                  activities
+                </p>
               </div>
             </div>
           </div>
@@ -251,8 +377,12 @@ export default function AboutPage() {
                 <span className="text-2xl">⚡</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Dynasty Points</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Gamification with XP, levels, achievements, and daily streaks</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Dynasty Points
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Gamification with XP, levels, achievements, and daily streaks
+                </p>
               </div>
             </div>
           </div>
@@ -272,24 +402,40 @@ export default function AboutPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
           <div className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl p-6 md:p-8 text-center shadow-xl transform hover:scale-105 transition-transform">
-            <p className="text-4xl md:text-5xl font-bold text-white mb-2">10K+</p>
-            <p className="text-white/90 text-sm md:text-base">Registered Users</p>
+            <p className="text-4xl md:text-5xl font-bold text-white mb-2">
+              10K+
+            </p>
+            <p className="text-white/90 text-sm md:text-base">
+              Registered Users
+            </p>
           </div>
           <div className="bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-6 md:p-8 text-center shadow-xl transform hover:scale-105 transition-transform">
-            <p className="text-4xl md:text-5xl font-bold text-white mb-2">R1M</p>
+            <p className="text-4xl md:text-5xl font-bold text-white mb-2">
+              R1M
+            </p>
             <p className="text-white/90 text-sm md:text-base">GMV Target</p>
           </div>
           <div className="bg-gradient-to-br from-green-500 to-emerald-700 rounded-2xl p-6 md:p-8 text-center shadow-xl transform hover:scale-105 transition-transform">
-            <p className="text-4xl md:text-5xl font-bold text-white mb-2">5K+</p>
-            <p className="text-white/90 text-sm md:text-base">Certificates Issued</p>
+            <p className="text-4xl md:text-5xl font-bold text-white mb-2">
+              5K+
+            </p>
+            <p className="text-white/90 text-sm md:text-base">
+              Certificates Issued
+            </p>
           </div>
           <div className="bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl p-6 md:p-8 text-center shadow-xl transform hover:scale-105 transition-transform">
-            <p className="text-4xl md:text-5xl font-bold text-white mb-2">10M+</p>
+            <p className="text-4xl md:text-5xl font-bold text-white mb-2">
+              10M+
+            </p>
             <p className="text-white/90 text-sm md:text-base">Video Views</p>
           </div>
           <div className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl p-6 md:p-8 text-center shadow-xl transform hover:scale-105 transition-transform">
-            <p className="text-4xl md:text-5xl font-bold text-white mb-2">25K+</p>
-            <p className="text-white/90 text-sm md:text-base">Email Subscribers</p>
+            <p className="text-4xl md:text-5xl font-bold text-white mb-2">
+              25K+
+            </p>
+            <p className="text-white/90 text-sm md:text-base">
+              Email Subscribers
+            </p>
           </div>
         </div>
       </div>
@@ -301,7 +447,8 @@ export default function AboutPage() {
             Our 7 Core Values 💎
           </h2>
           <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
-            These principles guide every decision, every lesson, and every interaction at Dynasty Built Academy.
+            These principles guide every decision, every lesson, and every
+            interaction at Dynasty Built Academy.
           </p>
         </div>
 
@@ -313,8 +460,12 @@ export default function AboutPage() {
                 <span className="text-2xl">💯</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Truth over hype</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">No fluff, only what works. Real strategies, honest metrics.</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Truth over hype
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  No fluff, only what works. Real strategies, honest metrics.
+                </p>
               </div>
             </div>
           </div>
@@ -326,8 +477,12 @@ export default function AboutPage() {
                 <span className="text-2xl">🔨</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Builders first</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Action beats theory. Ship, iterate, improve.</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Builders first
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Action beats theory. Ship, iterate, improve.
+                </p>
               </div>
             </div>
           </div>
@@ -339,8 +494,12 @@ export default function AboutPage() {
                 <span className="text-2xl">🌙</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Honor & barakah</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Halal wealth, ethical wins, blessed outcomes.</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Honor & barakah
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Halal wealth, ethical wins, blessed outcomes.
+                </p>
               </div>
             </div>
           </div>
@@ -352,8 +511,12 @@ export default function AboutPage() {
                 <span className="text-2xl">✨</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Craftsmanship</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Elegant design, clear writing, robust code.</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Craftsmanship
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Elegant design, clear writing, robust code.
+                </p>
               </div>
             </div>
           </div>
@@ -365,8 +528,12 @@ export default function AboutPage() {
                 <span className="text-2xl">🏰</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Ownership</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Build assets you control. Your work, your equity.</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Ownership
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Build assets you control. Your work, your equity.
+                </p>
               </div>
             </div>
           </div>
@@ -378,8 +545,12 @@ export default function AboutPage() {
                 <span className="text-2xl">🤝</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Service</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Lift your family and community. Success shared is multiplied.</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Service
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Lift your family and community. Success shared is multiplied.
+                </p>
               </div>
             </div>
           </div>
@@ -391,8 +562,12 @@ export default function AboutPage() {
                 <span className="text-2xl">🔄</span>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Relentless iteration</h3>
-                <p className="text-gray-700 dark:text-gray-300 text-sm">Improve daily. 1% better compounds into excellence.</p>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                  Relentless iteration
+                </h3>
+                <p className="text-gray-700 dark:text-gray-300 text-sm">
+                  Improve daily. 1% better compounds into excellence.
+                </p>
               </div>
             </div>
           </div>
@@ -406,25 +581,65 @@ export default function AboutPage() {
             What You'll Learn 📚
           </h2>
           <p className="text-lg text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
-            Elite-level training across 8 core domains through books, courses, and interactive content
+            Elite-level training across 8 core domains through books, courses,
+            and interactive content
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { title: 'Wealth & Work (Halal)', icon: '💰', desc: 'Money systems, asset building, side hustles, pricing' },
-            { title: 'Mindset & Discipline', icon: '🧠', desc: 'Habits, focus, anti-distraction, grit' },
-            { title: 'AI & Automation', icon: '🤖', desc: 'Writing, visuals, no-code apps, agents' },
-            { title: 'Brand & Storytelling', icon: '📖', desc: 'Positioning, identity, content engine' },
-            { title: 'Sales & Growth', icon: '📈', desc: 'Offers, funnels, launches, retention' },
-            { title: 'Operations & Systems', icon: '⚙️', desc: 'SOPs, dashboards, time blocking' },
-            { title: 'Community & Leadership', icon: '👥', desc: 'Audience building, partnerships' },
-            { title: 'Spiritual Intelligence', icon: '🌙', desc: 'Barakah, intentions, ethics' },
+            {
+              title: "Wealth & Work (Halal)",
+              icon: "💰",
+              desc: "Money systems, asset building, side hustles, pricing",
+            },
+            {
+              title: "Mindset & Discipline",
+              icon: "🧠",
+              desc: "Habits, focus, anti-distraction, grit",
+            },
+            {
+              title: "AI & Automation",
+              icon: "🤖",
+              desc: "Writing, visuals, no-code apps, agents",
+            },
+            {
+              title: "Brand & Storytelling",
+              icon: "📖",
+              desc: "Positioning, identity, content engine",
+            },
+            {
+              title: "Sales & Growth",
+              icon: "📈",
+              desc: "Offers, funnels, launches, retention",
+            },
+            {
+              title: "Operations & Systems",
+              icon: "⚙️",
+              desc: "SOPs, dashboards, time blocking",
+            },
+            {
+              title: "Community & Leadership",
+              icon: "👥",
+              desc: "Audience building, partnerships",
+            },
+            {
+              title: "Spiritual Intelligence",
+              icon: "🌙",
+              desc: "Barakah, intentions, ethics",
+            },
           ].map((category, idx) => (
-            <div key={idx} className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-lg hover:-translate-y-2 hover:border-purple-400 dark:hover:border-purple-600 transition-all">
+            <div
+              key={idx}
+              className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-lg hover:-translate-y-2 hover:border-purple-400 dark:hover:border-purple-600 transition-all"
+            >
               <div className="text-4xl mb-4">{category.icon}</div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{category.title}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{category.desc}</p>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                {category.title}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {category.desc}
+              </p>
             </div>
           ))}
         </div>
@@ -440,18 +655,35 @@ export default function AboutPage() {
               </div>
             </div>
             <div className="md:col-span-2 text-white">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Meet Yasin Ali</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Meet Yasin Ali
+              </h2>
               <p className="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
-                Founder of Dynasty Built Academy. I build practical, halal wealth systems for first-generation builders. Books, playbooks, AI workflows. From underdog to dynasty.
+                Founder of Dynasty Built Academy. I build practical, halal
+                wealth systems for first-generation builders. Books, playbooks,
+                AI workflows. From underdog to dynasty.
               </p>
               <p className="text-white/80 mb-6 leading-relaxed">
-                Yasin Ali is a creator, entrepreneur, and systems thinker from South Africa. He writes high-leverage manuals for first-generation builders—blending Qur'anic principles, psychology, and modern business strategy. His goal: help underdogs build assets, not just income, and pass on a dignified legacy.
+                Yasin Ali is a creator, entrepreneur, and systems thinker from
+                South Africa. He writes high-leverage manuals for
+                first-generation builders—blending Qur'anic principles,
+                psychology, and modern business strategy. His goal: help
+                underdogs build assets, not just income, and pass on a dignified
+                legacy.
               </p>
               <div className="flex flex-wrap gap-3">
-                <span className="px-4 py-2 bg-white/20 backdrop-blur-xl rounded-lg text-sm font-medium">🇿🇦 South Africa</span>
-                <span className="px-4 py-2 bg-white/20 backdrop-blur-xl rounded-lg text-sm font-medium">📚 Author</span>
-                <span className="px-4 py-2 bg-white/20 backdrop-blur-xl rounded-lg text-sm font-medium">💻 Systems Builder</span>
-                <span className="px-4 py-2 bg-white/20 backdrop-blur-xl rounded-lg text-sm font-medium">🤖 AI Enthusiast</span>
+                <span className="px-4 py-2 bg-white/20 backdrop-blur-xl rounded-lg text-sm font-medium">
+                  🇿🇦 South Africa
+                </span>
+                <span className="px-4 py-2 bg-white/20 backdrop-blur-xl rounded-lg text-sm font-medium">
+                  📚 Author
+                </span>
+                <span className="px-4 py-2 bg-white/20 backdrop-blur-xl rounded-lg text-sm font-medium">
+                  💻 Systems Builder
+                </span>
+                <span className="px-4 py-2 bg-white/20 backdrop-blur-xl rounded-lg text-sm font-medium">
+                  🤖 AI Enthusiast
+                </span>
               </div>
             </div>
           </div>
@@ -467,16 +699,24 @@ export default function AboutPage() {
             </span>
           </h2>
           <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join thousands of first-generation builders who are turning knowledge into assets, income into equity, and dreams into legacy.
+            Join thousands of first-generation builders who are turning
+            knowledge into assets, income into equity, and dreams into legacy.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/register">
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-lg rounded-xl shadow-xl font-semibold">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-6 text-lg rounded-xl shadow-xl font-semibold"
+              >
                 Start Your Dynasty
               </Button>
             </Link>
             <Link href="/books">
-              <Button size="lg" variant="outline" className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 px-8 py-6 text-lg rounded-xl font-semibold">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 px-8 py-6 text-lg rounded-xl font-semibold"
+              >
                 Explore Playbooks
               </Button>
             </Link>
@@ -497,17 +737,38 @@ export default function AboutPage() {
               </span>
             </div>
             <div className="flex gap-6 text-sm text-gray-600 dark:text-gray-400">
-              <Link href="/about" className="hover:text-purple-600 transition-colors">About</Link>
-              <Link href="/contact" className="hover:text-purple-600 transition-colors">Contact</Link>
-              <Link href="/blog" className="hover:text-purple-600 transition-colors">Blog</Link>
-              <Link href="/books" className="hover:text-purple-600 transition-colors">Books</Link>
+              <Link
+                href="/about"
+                className="hover:text-purple-600 transition-colors"
+              >
+                About
+              </Link>
+              <Link
+                href="/contact"
+                className="hover:text-purple-600 transition-colors"
+              >
+                Contact
+              </Link>
+              <Link
+                href="/blog"
+                className="hover:text-purple-600 transition-colors"
+              >
+                Blog
+              </Link>
+              <Link
+                href="/books"
+                className="hover:text-purple-600 transition-colors"
+              >
+                Books
+              </Link>
             </div>
           </div>
           <div className="text-center text-sm text-gray-500 dark:text-gray-500 mt-6">
-            © {new Date().getFullYear()} Dynasty Built Academy. All rights reserved. • From Underdog to Dynasty
+            © {new Date().getFullYear()} Dynasty Built Academy. All rights
+            reserved. • From Underdog to Dynasty
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }
