@@ -763,8 +763,8 @@ export default function QuoteShareModal({
                     <div className="space-y-2 p-4 bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 rounded-xl border-2 border-pink-300 dark:border-pink-600">
                       <div className="flex items-center justify-between">
                         <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                          <Wand2 className="w-4 h-4" />
-                          ✨ Animations (Coming to Video Export!)
+                          <Wand2 className="w-4 h-4" />✨ Animations (Coming to
+                          Video Export!)
                         </label>
                         <motion.button
                           onClick={() => setEnableAnimation(!enableAnimation)}
@@ -781,23 +781,23 @@ export default function QuoteShareModal({
                       </div>
                       {enableAnimation && (
                         <div className="grid grid-cols-4 gap-2 mt-2">
-                          {(["fade", "slide", "particles", "glow"] as const).map(
-                            (anim) => (
-                              <motion.button
-                                key={anim}
-                                onClick={() => setAnimationStyle(anim)}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className={`px-2 py-1 rounded-lg text-xs font-medium capitalize ${
-                                  animationStyle === anim
-                                    ? "bg-pink-500 text-white"
-                                    : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                                }`}
-                              >
-                                {anim}
-                              </motion.button>
-                            )
-                          )}
+                          {(
+                            ["fade", "slide", "particles", "glow"] as const
+                          ).map((anim) => (
+                            <motion.button
+                              key={anim}
+                              onClick={() => setAnimationStyle(anim)}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className={`px-2 py-1 rounded-lg text-xs font-medium capitalize ${
+                                animationStyle === anim
+                                  ? "bg-pink-500 text-white"
+                                  : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                              }`}
+                            >
+                              {anim}
+                            </motion.button>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -806,8 +806,7 @@ export default function QuoteShareModal({
                     <div className="space-y-2 p-4 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-xl border-2 border-yellow-300 dark:border-yellow-600">
                       <div className="flex items-center justify-between">
                         <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                          <Sparkles className="w-4 h-4" />
-                          ✨ Decorative Stickers
+                          <Sparkles className="w-4 h-4" />✨ Decorative Stickers
                         </label>
                         <motion.button
                           onClick={() => setShowStickers(!showStickers)}
@@ -835,7 +834,9 @@ export default function QuoteShareModal({
                                     <motion.button
                                       key={sticker}
                                       onClick={() => {
-                                        if (selectedStickers.includes(sticker)) {
+                                        if (
+                                          selectedStickers.includes(sticker)
+                                        ) {
                                           setSelectedStickers(
                                             selectedStickers.filter(
                                               (s) => s !== sticker
@@ -1066,7 +1067,8 @@ export default function QuoteShareModal({
                                 ...position,
                                 transform: "translate(-50%, -50%)",
                                 opacity: 0.9,
-                                filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+                                filter:
+                                  "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
                               }}
                             >
                               {sticker}
@@ -1164,7 +1166,8 @@ export default function QuoteShareModal({
                 <Wand2 className="w-6 h-6 text-purple-500 flex-shrink-0 mt-0.5" />
                 <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                   <div className="font-bold text-lg text-purple-600 dark:text-purple-400 mb-3">
-                    🚀 THE ULTIMATE Content Creation Studio! (Phase 4 ULTRA ULTRA)
+                    🚀 THE ULTIMATE Content Creation Studio! (Phase 4 ULTRA
+                    ULTRA)
                   </div>
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2">
@@ -1191,40 +1194,44 @@ export default function QuoteShareModal({
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500">✨</span>
                       <span>
-                        <strong>Professional Effects:</strong> Blur (0-20px), shadows (0-50px), 4
-                        border styles - Hollywood quality!
+                        <strong>Professional Effects:</strong> Blur (0-20px),
+                        shadows (0-50px), 4 border styles - Hollywood quality!
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-pink-500">🎬</span>
                       <span>
-                        <strong>ANIMATIONS:</strong> 4 animation styles (Fade, Slide, Particles, Glow) - Coming to video export! 🎥
+                        <strong>ANIMATIONS:</strong> 4 animation styles (Fade,
+                        Slide, Particles, Glow) - Coming to video export! 🎥
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-orange-500">✨</span>
                       <span>
-                        <strong>32 STICKERS:</strong> Decorative emojis, hearts, nature, symbols - Make it YOURS! 🎨
+                        <strong>32 STICKERS:</strong> Decorative emojis, hearts,
+                        nature, symbols - Make it YOURS! 🎨
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500">📱</span>
                       <span>
-                        <strong>5 Export Formats:</strong> Instagram (Square & Story), Twitter,
-                        LinkedIn, Custom - optimized for EVERY platform!
+                        <strong>5 Export Formats:</strong> Instagram (Square &
+                        Story), Twitter, LinkedIn, Custom - optimized for EVERY
+                        platform!
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500">🚀</span>
                       <span>
-                        <strong>Ultra-HD Export:</strong> 3x resolution
-                        (up to 3240×3240px) for crystal-clear quality!
+                        <strong>Ultra-HD Export:</strong> 3x resolution (up to
+                        3240×3240px) for crystal-clear quality!
                       </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500">💎</span>
                       <span>
-                        <strong>Pro Tip:</strong> Use stickers + custom bg + animations for VIRAL quotes! #DynastyAcademy #
+                        <strong>Pro Tip:</strong> Use stickers + custom bg +
+                        animations for VIRAL quotes! #DynastyAcademy #
                         {bookTitle.replace(/\s+/g, "")}
                       </span>
                     </li>
@@ -1232,13 +1239,23 @@ export default function QuoteShareModal({
                   <div className="mt-4 p-3 bg-gradient-to-r from-pink-100 to-orange-100 dark:from-pink-900/30 dark:to-orange-900/30 rounded-lg border-2 border-pink-300 dark:border-pink-600">
                     <p className="font-bold text-pink-600 dark:text-pink-400 flex items-center gap-2">
                       <Sparkles className="w-5 h-5" />
-                      🎯 Phase 4 ULTRA ULTRA = The MOST POWERFUL quote creator EVER BUILT!
+                      🎯 Phase 4 ULTRA ULTRA = The MOST POWERFUL quote creator
+                      EVER BUILT!
                     </p>
                     <p className="text-xs mt-2 text-gray-700 dark:text-gray-300">
-                      <strong>20 templates</strong> + <strong>32 stickers</strong> + <strong>custom backgrounds</strong> + <strong>animations</strong> + <strong>full typography</strong> + <strong>professional effects</strong> = <strong className="text-pink-600 dark:text-pink-400">INFINITE POSSIBILITIES! 🚀✨</strong>
+                      <strong>20 templates</strong> +{" "}
+                      <strong>32 stickers</strong> +{" "}
+                      <strong>custom backgrounds</strong> +{" "}
+                      <strong>animations</strong> +{" "}
+                      <strong>full typography</strong> +{" "}
+                      <strong>professional effects</strong> ={" "}
+                      <strong className="text-pink-600 dark:text-pink-400">
+                        INFINITE POSSIBILITIES! 🚀✨
+                      </strong>
                     </p>
                     <p className="text-xs mt-2 font-semibold text-purple-600 dark:text-purple-400">
-                      Every shared quote = FREE marketing! Your readers → Content creators → Their followers → YOUR readers! 📈💎
+                      Every shared quote = FREE marketing! Your readers →
+                      Content creators → Their followers → YOUR readers! 📈💎
                     </p>
                   </div>
                 </div>
