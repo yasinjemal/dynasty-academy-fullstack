@@ -45,7 +45,58 @@ type TemplateStyle =
   | "rainbow"
   | "moonlight"
   | "fireice"
-  | "holographic";
+  | "holographic"
+  // NEW INSANE TEMPLATES - 50 MORE!
+  | "aurora"
+  | "galaxy"
+  | "diamond"
+  | "velvet"
+  | "champagne"
+  | "sapphire"
+  | "emerald"
+  | "ruby"
+  | "platinum"
+  | "obsidian"
+  | "cosmic"
+  | "ethereal"
+  | "neonpink"
+  | "midnight"
+  | "rose"
+  | "thunder"
+  | "lava"
+  | "arctic"
+  | "tropical"
+  | "desert"
+  | "electric"
+  | "poison"
+  | "crystal"
+  | "nebula"
+  | "prism"
+  | "vaporwave"
+  | "synthwave"
+  | "retrowave"
+  | "darkmode"
+  | "pastel"
+  | "cotton"
+  | "metallica"
+  | "unicorn"
+  | "phoenix"
+  | "dragon"
+  | "lotus"
+  | "zen"
+  | "matrix"
+  | "blade"
+  | "ghost"
+  | "royal"
+  | "imperial"
+  | "divine"
+  | "celestial"
+  | "quantum"
+  | "noire"
+  | "crimson"
+  | "azure"
+  | "jade"
+  | "amber";
 
 type ExportFormat = "square" | "story" | "twitter" | "linkedin" | "custom";
 
@@ -249,6 +300,457 @@ const templates: Record<
     border: "#ffffff",
     font: "font-sans",
   },
+  // 🔥 NEW INSANE LUXURY TEMPLATES 🔥
+  aurora: {
+    name: "🌌 Aurora Borealis",
+    icon: "🌌",
+    bg: "linear-gradient(135deg, #a8edea 0%, #fed6e3 25%, #d299c2 50%, #667eea 75%, #764ba2 100%)",
+    text: "#ffffff",
+    accent: "#ffd6e8",
+    border: "#a8edea",
+    font: "font-serif",
+  },
+  galaxy: {
+    name: "🌠 Deep Galaxy",
+    icon: "🌠",
+    bg: "linear-gradient(135deg, #000428 0%, #004e92 50%, #000428 100%)",
+    text: "#ffffff",
+    accent: "#00d4ff",
+    border: "#ff00ff",
+    font: "font-bold",
+  },
+  diamond: {
+    name: "💎 Diamond Luxury",
+    icon: "💎",
+    bg: "linear-gradient(135deg, #e0e0e0 0%, #ffffff 25%, #f5f5f5 50%, #ffffff 75%, #e8e8e8 100%)",
+    text: "#1a1a1a",
+    accent: "#00bcd4",
+    border: "#00bcd4",
+    font: "font-serif",
+  },
+  velvet: {
+    name: "🎭 Velvet Night",
+    icon: "🎭",
+    bg: "linear-gradient(135deg, #2c003e 0%, #512b58 50%, #2c003e 100%)",
+    text: "#ffd700",
+    accent: "#ff6b9d",
+    border: "#ffd700",
+    font: "font-serif italic",
+  },
+  champagne: {
+    name: "🥂 Champagne",
+    icon: "🥂",
+    bg: "linear-gradient(135deg, #f7f0e3 0%, #f3d9b0 50%, #d4af37 100%)",
+    text: "#5f4b32",
+    accent: "#d4af37",
+    border: "#c9a961",
+    font: "font-serif",
+  },
+  sapphire: {
+    name: "💠 Sapphire Dream",
+    icon: "💠",
+    bg: "linear-gradient(135deg, #0f2027 0%, #0575e6 50%, #021b79 100%)",
+    text: "#ffffff",
+    accent: "#4dd0e1",
+    border: "#00bcd4",
+    font: "font-bold",
+  },
+  emerald: {
+    name: "💚 Emerald Forest",
+    icon: "💚",
+    bg: "linear-gradient(135deg, #134e4a 0%, #059669 50%, #10b981 100%)",
+    text: "#ffffff",
+    accent: "#6ee7b7",
+    border: "#34d399",
+    font: "font-serif",
+  },
+  ruby: {
+    name: "❤️ Ruby Fire",
+    icon: "❤️",
+    bg: "linear-gradient(135deg, #7f1d1d 0%, #dc2626 50%, #991b1b 100%)",
+    text: "#ffffff",
+    accent: "#fecaca",
+    border: "#f87171",
+    font: "font-bold",
+  },
+  platinum: {
+    name: "⚪ Platinum Elite",
+    icon: "⚪",
+    bg: "linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 25%, #ffffff 50%, #e8e8e8 75%, #c0c0c0 100%)",
+    text: "#1f2937",
+    accent: "#6366f1",
+    border: "#4f46e5",
+    font: "font-sans",
+  },
+  obsidian: {
+    name: "⚫ Obsidian Dark",
+    icon: "⚫",
+    bg: "linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%)",
+    text: "#ffffff",
+    accent: "#ff0080",
+    border: "#ff0080",
+    font: "font-bold",
+  },
+  cosmic: {
+    name: "🪐 Cosmic Energy",
+    icon: "🪐",
+    bg: "linear-gradient(135deg, #4a00e0 0%, #8e2de2 25%, #ff00ff 50%, #8e2de2 75%, #4a00e0 100%)",
+    text: "#ffffff",
+    accent: "#00ffff",
+    border: "#ff00ff",
+    font: "font-bold",
+  },
+  ethereal: {
+    name: "👻 Ethereal Mist",
+    icon: "👻",
+    bg: "linear-gradient(135deg, #fdfbfb 0%, #ebedee 50%, #d7e1ec 100%)",
+    text: "#4b5563",
+    accent: "#8b5cf6",
+    border: "#a78bfa",
+    font: "font-serif",
+  },
+  neonpink: {
+    name: "💗 Neon Pink",
+    icon: "💗",
+    bg: "linear-gradient(135deg, #ff0080 0%, #ff0099 50%, #ff00cc 100%)",
+    text: "#ffffff",
+    accent: "#ffff00",
+    border: "#00ffff",
+    font: "font-bold",
+  },
+  midnight: {
+    name: "🌃 Midnight Blue",
+    icon: "🌃",
+    bg: "linear-gradient(135deg, #191970 0%, #000080 50%, #00008b 100%)",
+    text: "#ffffff",
+    accent: "#ffd700",
+    border: "#87ceeb",
+    font: "font-serif",
+  },
+  rose: {
+    name: "🌹 Rose Garden",
+    icon: "🌹",
+    bg: "linear-gradient(135deg, #fff1f2 0%, #fecdd3 50%, #fb7185 100%)",
+    text: "#881337",
+    accent: "#be123c",
+    border: "#fb7185",
+    font: "font-serif italic",
+  },
+  thunder: {
+    name: "⚡ Thunder Storm",
+    icon: "⚡",
+    bg: "linear-gradient(135deg, #232526 0%, #414345 50%, #232526 100%)",
+    text: "#ffff00",
+    accent: "#00ffff",
+    border: "#ffff00",
+    font: "font-bold",
+  },
+  lava: {
+    name: "🌋 Lava Flow",
+    icon: "🌋",
+    bg: "linear-gradient(135deg, #ff4500 0%, #ff6347 25%, #ff7f50 50%, #ff8c00 75%, #ffa500 100%)",
+    text: "#ffffff",
+    accent: "#ffff00",
+    border: "#ffffff",
+    font: "font-bold",
+  },
+  arctic: {
+    name: "❄️ Arctic Ice",
+    icon: "❄️",
+    bg: "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%)",
+    text: "#0c4a6e",
+    accent: "#0284c7",
+    border: "#0ea5e9",
+    font: "font-sans",
+  },
+  tropical: {
+    name: "🏝️ Tropical Paradise",
+    icon: "🏝️",
+    bg: "linear-gradient(135deg, #06b6d4 0%, #14b8a6 33%, #10b981 66%, #84cc16 100%)",
+    text: "#ffffff",
+    accent: "#fef3c7",
+    border: "#fde68a",
+    font: "font-sans",
+  },
+  desert: {
+    name: "🏜️ Desert Sand",
+    icon: "🏜️",
+    bg: "linear-gradient(135deg, #f59e0b 0%, #fbbf24 33%, #fcd34d 66%, #fde68a 100%)",
+    text: "#78350f",
+    accent: "#92400e",
+    border: "#b45309",
+    font: "font-serif",
+  },
+  electric: {
+    name: "⚡ Electric Blue",
+    icon: "⚡",
+    bg: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #0891b2 100%)",
+    text: "#ffffff",
+    accent: "#fde047",
+    border: "#facc15",
+    font: "font-bold",
+  },
+  poison: {
+    name: "☠️ Poison Green",
+    icon: "☠️",
+    bg: "linear-gradient(135deg, #14532d 0%, #15803d 50%, #16a34a 100%)",
+    text: "#bbf7d0",
+    accent: "#86efac",
+    border: "#4ade80",
+    font: "font-bold",
+  },
+  crystal: {
+    name: "💠 Crystal Clear",
+    icon: "💠",
+    bg: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 33%, #bae6fd 66%, #7dd3fc 100%)",
+    text: "#0c4a6e",
+    accent: "#0284c7",
+    border: "#0ea5e9",
+    font: "font-sans",
+  },
+  nebula: {
+    name: "🌌 Space Nebula",
+    icon: "🌌",
+    bg: "linear-gradient(135deg, #1e3a8a 0%, #7c3aed 33%, #c026d3 66%, #db2777 100%)",
+    text: "#ffffff",
+    accent: "#fde047",
+    border: "#fbbf24",
+    font: "font-bold",
+  },
+  prism: {
+    name: "🔮 Prism Light",
+    icon: "🔮",
+    bg: "linear-gradient(135deg, #fef3c7 0%, #fde68a 14%, #fcd34d 28%, #fbbf24 42%, #f59e0b 57%, #d97706 71%, #b45309 85%, #92400e 100%)",
+    text: "#1c1917",
+    accent: "#78350f",
+    border: "#92400e",
+    font: "font-serif",
+  },
+  vaporwave: {
+    name: "🌸 Vaporwave",
+    icon: "🌸",
+    bg: "linear-gradient(135deg, #ff6ad5 0%, #c774e8 25%, #ad8cff 50%, #8795e8 75%, #94d0ff 100%)",
+    text: "#ffffff",
+    accent: "#ffff00",
+    border: "#00ffff",
+    font: "font-bold",
+  },
+  synthwave: {
+    name: "🎹 Synthwave",
+    icon: "🎹",
+    bg: "linear-gradient(135deg, #2e1065 0%, #7c3aed 33%, #ec4899 66%, #fbbf24 100%)",
+    text: "#ffffff",
+    accent: "#fde047",
+    border: "#facc15",
+    font: "font-bold",
+  },
+  retrowave: {
+    name: "📼 Retrowave",
+    icon: "📼",
+    bg: "linear-gradient(135deg, #f43f5e 0%, #f97316 33%, #fbbf24 66%, #a3e635 100%)",
+    text: "#ffffff",
+    accent: "#fef3c7",
+    border: "#fde68a",
+    font: "font-bold",
+  },
+  darkmode: {
+    name: "🌑 Dark Mode",
+    icon: "🌑",
+    bg: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
+    text: "#e2e8f0",
+    accent: "#38bdf8",
+    border: "#0ea5e9",
+    font: "font-sans",
+  },
+  pastel: {
+    name: "🎀 Pastel Dream",
+    icon: "🎀",
+    bg: "linear-gradient(135deg, #fce7f3 0%, #fbcfe8 25%, #f9a8d4 50%, #f472b6 75%, #ec4899 100%)",
+    text: "#831843",
+    accent: "#be185d",
+    border: "#ec4899",
+    font: "font-serif",
+  },
+  cotton: {
+    name: "☁️ Cotton Candy",
+    icon: "☁️",
+    bg: "linear-gradient(135deg, #e0f2fe 0%, #fce7f3 33%, #fbcfe8 66%, #f9a8d4 100%)",
+    text: "#831843",
+    accent: "#be185d",
+    border: "#ec4899",
+    font: "font-sans",
+  },
+  metallica: {
+    name: "🤘 Metallic",
+    icon: "🤘",
+    bg: "linear-gradient(135deg, #525252 0%, #737373 25%, #a3a3a3 50%, #d4d4d4 75%, #e5e5e5 100%)",
+    text: "#171717",
+    accent: "#0a0a0a",
+    border: "#404040",
+    font: "font-bold",
+  },
+  unicorn: {
+    name: "🦄 Unicorn Magic",
+    icon: "🦄",
+    bg: "linear-gradient(135deg, #fef3c7 0%, #fde68a 16%, #fcd34d 33%, #f9a8d4 50%, #f472b6 66%, #c084fc 83%, #a78bfa 100%)",
+    text: "#ffffff",
+    accent: "#fef3c7",
+    border: "#fbbf24",
+    font: "font-bold",
+  },
+  phoenix: {
+    name: "🔥 Phoenix Rising",
+    icon: "🔥",
+    bg: "linear-gradient(135deg, #7c2d12 0%, #c2410c 25%, #ea580c 50%, #fb923c 75%, #fdba74 100%)",
+    text: "#ffffff",
+    accent: "#fef3c7",
+    border: "#fcd34d",
+    font: "font-bold",
+  },
+  dragon: {
+    name: "🐉 Dragon Scale",
+    icon: "🐉",
+    bg: "linear-gradient(135deg, #14532d 0%, #166534 25%, #15803d 50%, #16a34a 75%, #22c55e 100%)",
+    text: "#ffffff",
+    accent: "#86efac",
+    border: "#4ade80",
+    font: "font-bold",
+  },
+  lotus: {
+    name: "🪷 Lotus Blossom",
+    icon: "🪷",
+    bg: "linear-gradient(135deg, #fdf2f8 0%, #fce7f3 33%, #fbcfe8 66%, #f9a8d4 100%)",
+    text: "#831843",
+    accent: "#be185d",
+    border: "#ec4899",
+    font: "font-serif italic",
+  },
+  zen: {
+    name: "🧘 Zen Garden",
+    icon: "🧘",
+    bg: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 33%, #a7f3d0 66%, #6ee7b7 100%)",
+    text: "#064e3b",
+    accent: "#047857",
+    border: "#059669",
+    font: "font-serif",
+  },
+  matrix: {
+    name: "💚 Matrix Code",
+    icon: "💚",
+    bg: "linear-gradient(135deg, #000000 0%, #001100 50%, #002200 100%)",
+    text: "#00ff00",
+    accent: "#00ff00",
+    border: "#00ff00",
+    font: "font-mono",
+  },
+  blade: {
+    name: "⚔️ Blade Runner",
+    icon: "⚔️",
+    bg: "linear-gradient(135deg, #1a0505 0%, #330a0a 33%, #4d0f0f 66%, #661414 100%)",
+    text: "#ff6b6b",
+    accent: "#ffd93d",
+    border: "#ff6b6b",
+    font: "font-bold",
+  },
+  ghost: {
+    name: "👻 Ghost White",
+    icon: "👻",
+    bg: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)",
+    text: "#0f172a",
+    accent: "#6366f1",
+    border: "#818cf8",
+    font: "font-sans",
+  },
+  royal: {
+    name: "👑 Royal Purple",
+    icon: "👑",
+    bg: "linear-gradient(135deg, #4c1d95 0%, #5b21b6 33%, #6d28d9 66%, #7c3aed 100%)",
+    text: "#ffffff",
+    accent: "#fbbf24",
+    border: "#f59e0b",
+    font: "font-serif",
+  },
+  imperial: {
+    name: "🏛️ Imperial Gold",
+    icon: "🏛️",
+    bg: "linear-gradient(135deg, #713f12 0%, #854d0e 33%, #a16207 66%, #ca8a04 100%)",
+    text: "#ffffff",
+    accent: "#fef3c7",
+    border: "#fde68a",
+    font: "font-serif",
+  },
+  divine: {
+    name: "✨ Divine Light",
+    icon: "✨",
+    bg: "linear-gradient(135deg, #fef9c3 0%, #fef08a 25%, #fde047 50%, #facc15 75%, #eab308 100%)",
+    text: "#713f12",
+    accent: "#854d0e",
+    border: "#a16207",
+    font: "font-serif",
+  },
+  celestial: {
+    name: "⭐ Celestial",
+    icon: "⭐",
+    bg: "linear-gradient(135deg, #1e1b4b 0%, #312e81 25%, #4c1d95 50%, #6d28d9 75%, #a78bfa 100%)",
+    text: "#ffffff",
+    accent: "#fef3c7",
+    border: "#fbbf24",
+    font: "font-serif",
+  },
+  quantum: {
+    name: "⚛️ Quantum",
+    icon: "⚛️",
+    bg: "linear-gradient(135deg, #0c4a6e 0%, #075985 25%, #0369a1 50%, #0284c7 75%, #0ea5e9 100%)",
+    text: "#ffffff",
+    accent: "#fef3c7",
+    border: "#fbbf24",
+    font: "font-bold",
+  },
+  noire: {
+    name: "🕶️ Film Noire",
+    icon: "🕶️",
+    bg: "linear-gradient(135deg, #171717 0%, #262626 50%, #171717 100%)",
+    text: "#fafafa",
+    accent: "#ef4444",
+    border: "#dc2626",
+    font: "font-serif italic",
+  },
+  crimson: {
+    name: "🔴 Crimson Tide",
+    icon: "🔴",
+    bg: "linear-gradient(135deg, #450a0a 0%, #7f1d1d 33%, #991b1b 66%, #b91c1c 100%)",
+    text: "#ffffff",
+    accent: "#fecaca",
+    border: "#f87171",
+    font: "font-bold",
+  },
+  azure: {
+    name: "🔵 Azure Sky",
+    icon: "🔵",
+    bg: "linear-gradient(135deg, #082f49 0%, #0c4a6e 33%, #075985 66%, #0369a1 100%)",
+    text: "#ffffff",
+    accent: "#bae6fd",
+    border: "#7dd3fc",
+    font: "font-sans",
+  },
+  jade: {
+    name: "🟢 Jade Emperor",
+    icon: "🟢",
+    bg: "linear-gradient(135deg, #064e3b 0%, #065f46 33%, #047857 66%, #059669 100%)",
+    text: "#ffffff",
+    accent: "#a7f3d0",
+    border: "#6ee7b7",
+    font: "font-serif",
+  },
+  amber: {
+    name: "🟠 Amber Glow",
+    icon: "🟠",
+    bg: "linear-gradient(135deg, #78350f 0%, #92400e 33%, #b45309 66%, #d97706 100%)",
+    text: "#ffffff",
+    accent: "#fef3c7",
+    border: "#fde68a",
+    font: "font-serif",
+  },
 };
 
 const exportFormats: Record<
@@ -336,19 +838,21 @@ export default function QuoteShareModal({
     }
   };
 
-  // Generate and download image
+  // Generate and download image at FULL 3x HD resolution
   const handleDownload = async () => {
     setIsGenerating(true);
     const cardElement = document.getElementById("quote-card");
     if (!cardElement) return;
 
     try {
+      // 🔥 FULL 3x HD EXPORT - No size constraints!
       const canvas = await html2canvas(cardElement, {
         backgroundColor: null,
-        scale: 3, // Ultra-high quality
+        scale: 3, // 3x resolution multiplier
         logging: false,
-        width: currentFormat.width,
-        height: currentFormat.height,
+        useCORS: true,
+        allowTaint: true,
+        // Remove width/height to let scale do its magic at full resolution
       });
 
       const link = document.createElement("a");
@@ -356,7 +860,7 @@ export default function QuoteShareModal({
         0,
         20
       )}-${Date.now()}.png`;
-      link.href = canvas.toDataURL("image/png");
+      link.href = canvas.toDataURL("image/png", 1.0); // Maximum quality
       link.click();
     } catch (error) {
       console.error("Error generating image:", error);
@@ -486,7 +990,7 @@ export default function QuoteShareModal({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Choose a Style (20 PREMIUM Templates!) 🎨✨
+                  Choose a Style (70 PREMIUM Templates!) 🎨✨
                 </h3>
                 <motion.button
                   onClick={() => setShowCustomization(!showCustomization)}
