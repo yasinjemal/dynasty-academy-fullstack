@@ -39,7 +39,13 @@ type TemplateStyle =
 
 type ExportFormat = "square" | "story" | "twitter" | "linkedin" | "custom";
 
-type FontFamily = "serif" | "sans" | "mono" | "script" | "display" | "handwritten";
+type FontFamily =
+  | "serif"
+  | "sans"
+  | "mono"
+  | "script"
+  | "display"
+  | "handwritten";
 
 const templates: Record<
   TemplateStyle,
@@ -145,8 +151,16 @@ const templates: Record<
   },
 };
 
-const exportFormats: Record<ExportFormat, { name: string; width: number; height: number; icon: string }> = {
-  square: { name: "📱 Instagram Square", width: 1080, height: 1080, icon: "📱" },
+const exportFormats: Record<
+  ExportFormat,
+  { name: string; width: number; height: number; icon: string }
+> = {
+  square: {
+    name: "📱 Instagram Square",
+    width: 1080,
+    height: 1080,
+    icon: "📱",
+  },
   story: { name: "📲 Instagram Story", width: 1080, height: 1920, icon: "📲" },
   twitter: { name: "🐦 Twitter Card", width: 1200, height: 675, icon: "🐦" },
   linkedin: { name: "💼 LinkedIn Post", width: 1200, height: 627, icon: "💼" },
@@ -168,23 +182,28 @@ export default function QuoteShareModal({
   authorName,
   onClose,
 }: QuoteCardProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateStyle>("minimalist");
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<TemplateStyle>("minimalist");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  
+
   // New customization states
   const [customBg, setCustomBg] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState(24);
   const [fontFamily, setFontFamily] = useState<FontFamily>("serif");
   const [textColor, setTextColor] = useState<string>("");
-  const [textAlign, setTextAlign] = useState<"left" | "center" | "right">("center");
+  const [textAlign, setTextAlign] = useState<"left" | "center" | "right">(
+    "center"
+  );
   const [blurIntensity, setBlurIntensity] = useState(0);
   const [shadowIntensity, setShadowIntensity] = useState(20);
-  const [borderStyle, setBorderStyle] = useState<"none" | "solid" | "double" | "gradient">("none");
+  const [borderStyle, setBorderStyle] = useState<
+    "none" | "solid" | "double" | "gradient"
+  >("none");
   const [exportFormat, setExportFormat] = useState<ExportFormat>("square");
   const [showCustomization, setShowCustomization] = useState(false);
   const [showFormatSelector, setShowFormatSelector] = useState(false);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentTemplate = templates[selectedTemplate];
@@ -219,7 +238,10 @@ export default function QuoteShareModal({
       });
 
       const link = document.createElement("a");
-      link.download = `dynasty-quote-${bookTitle.slice(0, 20)}-${Date.now()}.png`;
+      link.download = `dynasty-quote-${bookTitle.slice(
+        0,
+        20
+      )}-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch (error) {
@@ -454,21 +476,23 @@ export default function QuoteShareModal({
                         Font Family
                       </label>
                       <div className="grid grid-cols-3 gap-2">
-                        {(Object.keys(fontFamilies) as FontFamily[]).map((font) => (
-                          <motion.button
-                            key={font}
-                            onClick={() => setFontFamily(font)}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                              fontFamily === font
-                                ? "bg-purple-500 text-white"
-                                : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-                            }`}
-                          >
-                            {fontFamilies[font].name}
-                          </motion.button>
-                        ))}
+                        {(Object.keys(fontFamilies) as FontFamily[]).map(
+                          (font) => (
+                            <motion.button
+                              key={font}
+                              onClick={() => setFontFamily(font)}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                fontFamily === font
+                                  ? "bg-purple-500 text-white"
+                                  : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+                              }`}
+                            >
+                              {fontFamilies[font].name}
+                            </motion.button>
+                          )
+                        )}
                       </div>
                     </div>
 
@@ -540,7 +564,9 @@ export default function QuoteShareModal({
                           min="0"
                           max="20"
                           value={blurIntensity}
-                          onChange={(e) => setBlurIntensity(Number(e.target.value))}
+                          onChange={(e) =>
+                            setBlurIntensity(Number(e.target.value))
+                          }
                           className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
                         />
                       </div>
@@ -555,7 +581,9 @@ export default function QuoteShareModal({
                           min="0"
                           max="50"
                           value={shadowIntensity}
-                          onChange={(e) => setShadowIntensity(Number(e.target.value))}
+                          onChange={(e) =>
+                            setShadowIntensity(Number(e.target.value))
+                          }
                           className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
                         />
                       </div>
@@ -567,21 +595,23 @@ export default function QuoteShareModal({
                         Border Style
                       </label>
                       <div className="grid grid-cols-4 gap-2">
-                        {(["none", "solid", "double", "gradient"] as const).map((border) => (
-                          <motion.button
-                            key={border}
-                            onClick={() => setBorderStyle(border)}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
-                              borderStyle === border
-                                ? "bg-purple-500 text-white"
-                                : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-                            }`}
-                          >
-                            {border}
-                          </motion.button>
-                        ))}
+                        {(["none", "solid", "double", "gradient"] as const).map(
+                          (border) => (
+                            <motion.button
+                              key={border}
+                              onClick={() => setBorderStyle(border)}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
+                                borderStyle === border
+                                  ? "bg-purple-500 text-white"
+                                  : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+                              }`}
+                            >
+                              {border}
+                            </motion.button>
+                          )
+                        )}
                       </div>
                     </div>
 
@@ -592,21 +622,23 @@ export default function QuoteShareModal({
                         Export Format: {currentFormat.name}
                       </label>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {(Object.keys(exportFormats) as ExportFormat[]).map((format) => (
-                          <motion.button
-                            key={format}
-                            onClick={() => setExportFormat(format)}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                              exportFormat === format
-                                ? "bg-purple-500 text-white"
-                                : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-                            }`}
-                          >
-                            {exportFormats[format].name}
-                          </motion.button>
-                        ))}
+                        {(Object.keys(exportFormats) as ExportFormat[]).map(
+                          (format) => (
+                            <motion.button
+                              key={format}
+                              onClick={() => setExportFormat(format)}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                                exportFormat === format
+                                  ? "bg-purple-500 text-white"
+                                  : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+                              }`}
+                            >
+                              {exportFormats[format].name}
+                            </motion.button>
+                          )
+                        )}
                       </div>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
                         {currentFormat.width} × {currentFormat.height}px
@@ -622,19 +654,29 @@ export default function QuoteShareModal({
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Preview
               </h3>
-              <div className="flex justify-center p-8 bg-gray-50 dark:bg-gray-800 rounded-2xl">
+              <div className="flex justify-center p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl">
                 <div
                   id="quote-card"
                   className={`relative rounded-3xl shadow-2xl overflow-hidden ${fontFamilies[fontFamily].className}`}
                   style={{
-                    background: customBg ? `url(${customBg}) center/cover` : currentTemplate.bg,
-                    width: `${currentFormat.width}px`,
-                    height: `${currentFormat.height}px`,
+                    width: `${Math.min(currentFormat.width, 500)}px`,
+                    height: `${Math.min(currentFormat.height, 500)}px`,
                     maxWidth: "100%",
                     aspectRatio: `${currentFormat.width} / ${currentFormat.height}`,
-                    filter: blurIntensity > 0 ? `blur(${blurIntensity}px)` : "none",
                   }}
                 >
+                  {/* Background Layer with Blur */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: customBg
+                        ? `url(${customBg}) center/cover`
+                        : currentTemplate.bg,
+                      filter:
+                        blurIntensity > 0 ? `blur(${blurIntensity}px)` : "none",
+                    }}
+                  />
+
                   {/* Background Overlay for Custom Images */}
                   {customBg && (
                     <div
@@ -663,7 +705,10 @@ export default function QuoteShareModal({
                             ? `linear-gradient(white, white), ${currentTemplate.bg}`
                             : "none",
                         backgroundOrigin: "border-box",
-                        backgroundClip: borderStyle === "gradient" ? "padding-box, border-box" : "border-box",
+                        backgroundClip:
+                          borderStyle === "gradient"
+                            ? "padding-box, border-box"
+                            : "border-box",
                       }}
                     />
                   )}
@@ -673,7 +718,12 @@ export default function QuoteShareModal({
                     className="relative h-full flex flex-col items-center justify-center px-8 md:px-12 py-12"
                     style={{
                       textAlign: textAlign,
-                      textShadow: shadowIntensity > 0 ? `0 ${shadowIntensity}px ${shadowIntensity * 2}px rgba(0,0,0,0.3)` : "none",
+                      textShadow:
+                        shadowIntensity > 0
+                          ? `0 ${shadowIntensity}px ${
+                              shadowIntensity * 2
+                            }px rgba(0,0,0,0.3)`
+                          : "none",
                     }}
                   >
                     {/* Opening Quote */}
@@ -732,7 +782,10 @@ export default function QuoteShareModal({
                       </div>
 
                       {/* Dynasty Watermark */}
-                      <div className="mt-4 pt-4 border-t" style={{ borderColor: currentTemplate.border }}>
+                      <div
+                        className="mt-4 pt-4 border-t"
+                        style={{ borderColor: currentTemplate.border }}
+                      >
                         <div
                           className="font-semibold flex items-center justify-center gap-2"
                           style={{
@@ -819,39 +872,62 @@ export default function QuoteShareModal({
                   <ul className="space-y-2">
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500">✨</span>
-                      <span><strong>10 Luxury Templates:</strong> From Minimalist to Neon Cyber - every aesthetic covered!</span>
+                      <span>
+                        <strong>10 Luxury Templates:</strong> From Minimalist to
+                        Neon Cyber - every aesthetic covered!
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500">🖼️</span>
-                      <span><strong>Custom Backgrounds:</strong> Upload YOUR images for ultimate personalization!</span>
+                      <span>
+                        <strong>Custom Backgrounds:</strong> Upload YOUR images
+                        for ultimate personalization!
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500">🎭</span>
-                      <span><strong>Full Typography Control:</strong> 6 fonts, custom colors, sizes 16-48px!</span>
+                      <span>
+                        <strong>Full Typography Control:</strong> 6 fonts,
+                        custom colors, sizes 16-48px!
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500">✨</span>
-                      <span><strong>Professional Effects:</strong> Blur, shadows, 4 border styles - Hollywood quality!</span>
+                      <span>
+                        <strong>Professional Effects:</strong> Blur, shadows, 4
+                        border styles - Hollywood quality!
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500">📱</span>
-                      <span><strong>5 Export Formats:</strong> Instagram, Twitter, LinkedIn - optimized for every platform!</span>
+                      <span>
+                        <strong>5 Export Formats:</strong> Instagram, Twitter,
+                        LinkedIn - optimized for every platform!
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500">🚀</span>
-                      <span><strong>Ultra-HD Export:</strong> 3x resolution (3240×3240px) for crystal-clear quality!</span>
+                      <span>
+                        <strong>Ultra-HD Export:</strong> 3x resolution
+                        (3240×3240px) for crystal-clear quality!
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="text-purple-500">💎</span>
-                      <span><strong>Pro Tip:</strong> Use #DynastyAcademy #{bookTitle.replace(/\s+/g, "")} to go VIRAL!</span>
+                      <span>
+                        <strong>Pro Tip:</strong> Use #DynastyAcademy #
+                        {bookTitle.replace(/\s+/g, "")} to go VIRAL!
+                      </span>
                     </li>
                   </ul>
                   <div className="mt-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-600">
                     <p className="font-semibold text-purple-600 dark:text-purple-400">
-                      🎯 Every shared quote = FREE marketing for Dynasty Academy!
+                      🎯 Every shared quote = FREE marketing for Dynasty
+                      Academy!
                     </p>
                     <p className="text-xs mt-1">
-                      Your readers become content creators. Their followers become YOUR readers. Exponential growth! 📈🚀
+                      Your readers become content creators. Their followers
+                      become YOUR readers. Exponential growth! 📈🚀
                     </p>
                   </div>
                 </div>
