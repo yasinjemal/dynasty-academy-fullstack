@@ -1584,23 +1584,27 @@ export default function BookReaderLuxury({
       className={`min-h-screen flex flex-col ${currentTheme.bg} ${currentTheme.text} transition-colors duration-500 relative`}
     >
       {/* 🎥✨ PHASE 5: AMBIENT BACKGROUND VIDEOS */}
-      {videoEnabled && selectedVideo !== "none" && (
+      {videoEnabled && (
         <>
-          <VideoBackground
-            opacity={videoOpacity}
-            blur={videoBlur}
-            isPlaying={videoPlaying}
-            isMuted={videoMuted}
-            selectedVideo={selectedVideo}
-            customVideo={customVideo}
-            onOpacityChange={setVideoOpacity}
-            onBlurChange={setVideoBlur}
-            onPlayToggle={() => setVideoPlaying(!videoPlaying)}
-            onMuteToggle={() => setVideoMuted(!videoMuted)}
-            onVideoSelect={setSelectedVideo}
-            onCustomVideoUpload={setCustomVideo}
-            onRemoveCustomVideo={() => setCustomVideo(null)}
-          />
+          {/* Only show video background if a video is selected */}
+          {selectedVideo !== "none" && (
+            <VideoBackground
+              opacity={videoOpacity}
+              blur={videoBlur}
+              isPlaying={videoPlaying}
+              isMuted={videoMuted}
+              selectedVideo={selectedVideo}
+              customVideo={customVideo}
+              onOpacityChange={setVideoOpacity}
+              onBlurChange={setVideoBlur}
+              onPlayToggle={() => setVideoPlaying(!videoPlaying)}
+              onMuteToggle={() => setVideoMuted(!videoMuted)}
+              onVideoSelect={setSelectedVideo}
+              onCustomVideoUpload={setCustomVideo}
+              onRemoveCustomVideo={() => setCustomVideo(null)}
+            />
+          )}
+          {/* Always show controls when video is enabled */}
           <VideoControls
             opacity={videoOpacity}
             blur={videoBlur}
