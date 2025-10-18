@@ -14,6 +14,8 @@ import { useContextualIntelligence } from "@/hooks/useContextualIntelligence";
 import { IntelligenceInsightsPanel } from "@/components/intelligence/IntelligenceInsightsPanel";
 import ParticleEffect from "./ParticleEffect";
 import QuoteShareModal from "./QuoteShareModal";
+import VideoBackground from "./VideoBackground";
+import VideoControls from "./VideoControls";
 import {
   motion,
   AnimatePresence,
@@ -209,6 +211,15 @@ export default function BookReaderLuxury({
     "stars" | "fireflies" | "snow" | "sakura" | "sparkles" | "none"
   >("stars");
   const [particleDensity, setParticleDensity] = useState(50); // 0-100
+
+  // 🎥✨ PHASE 5: AMBIENT BACKGROUND VIDEOS - CINEMATIC IMMERSION
+  const [videoEnabled, setVideoEnabled] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<string>("none");
+  const [customVideo, setCustomVideo] = useState<string | null>(null);
+  const [videoOpacity, setVideoOpacity] = useState(30); // 0-100
+  const [videoBlur, setVideoBlur] = useState(0); // 0-20
+  const [videoPlaying, setVideoPlaying] = useState(true);
+  const [videoMuted, setVideoMuted] = useState(true);
 
   // ===========================================
   // 🔥💎 INSANE LUXURY FEATURES - NEVER SEEN BEFORE! 🔥💎
@@ -1545,6 +1556,42 @@ export default function BookReaderLuxury({
     <div
       className={`min-h-screen flex flex-col ${currentTheme.bg} ${currentTheme.text} transition-colors duration-500 relative`}
     >
+      {/* 🎥✨ PHASE 5: AMBIENT BACKGROUND VIDEOS */}
+      {videoEnabled && selectedVideo !== "none" && (
+        <>
+          <VideoBackground
+            opacity={videoOpacity}
+            blur={videoBlur}
+            isPlaying={videoPlaying}
+            isMuted={videoMuted}
+            selectedVideo={selectedVideo}
+            customVideo={customVideo}
+            onOpacityChange={setVideoOpacity}
+            onBlurChange={setVideoBlur}
+            onPlayToggle={() => setVideoPlaying(!videoPlaying)}
+            onMuteToggle={() => setVideoMuted(!videoMuted)}
+            onVideoSelect={setSelectedVideo}
+            onCustomVideoUpload={setCustomVideo}
+            onRemoveCustomVideo={() => setCustomVideo(null)}
+          />
+          <VideoControls
+            opacity={videoOpacity}
+            blur={videoBlur}
+            isPlaying={videoPlaying}
+            isMuted={videoMuted}
+            selectedVideo={selectedVideo}
+            customVideo={customVideo}
+            onOpacityChange={setVideoOpacity}
+            onBlurChange={setVideoBlur}
+            onPlayToggle={() => setVideoPlaying(!videoPlaying)}
+            onMuteToggle={() => setVideoMuted(!videoMuted)}
+            onVideoSelect={setSelectedVideo}
+            onCustomVideoUpload={setCustomVideo}
+            onRemoveCustomVideo={() => setCustomVideo(null)}
+          />
+        </>
+      )}
+
       {/* ✨ PARTICLE EFFECTS - Phase 2 Luxury UI */}
       <ParticleEffect
         type={particleType}
