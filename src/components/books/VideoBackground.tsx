@@ -2,15 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Upload,
-  X,
-  Video,
-} from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Upload, X, Video } from "lucide-react";
 
 interface VideoBackgroundProps {
   opacity: number;
@@ -119,7 +111,8 @@ export default function VideoBackground({
   const [isLoading, setIsLoading] = useState(false);
 
   // Get current video URL
-  const currentVideoUrl = customVideo || ambientVideos[selectedVideo as VideoKey]?.url || "";
+  const currentVideoUrl =
+    customVideo || ambientVideos[selectedVideo as VideoKey]?.url || "";
 
   // Handle play/pause
   useEffect(() => {

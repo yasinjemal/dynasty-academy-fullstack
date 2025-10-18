@@ -919,6 +919,14 @@ export default function BookReaderLuxury({
           if (prefs.theme) setTheme(prefs.theme);
           if (prefs.layout) setLayout(prefs.layout);
           if (prefs.columnMode) setColumnMode(prefs.columnMode);
+          // Phase 5: Load video preferences
+          if (prefs.videoEnabled !== undefined)
+            setVideoEnabled(prefs.videoEnabled);
+          if (prefs.selectedVideo) setSelectedVideo(prefs.selectedVideo);
+          if (prefs.videoOpacity !== undefined)
+            setVideoOpacity(prefs.videoOpacity);
+          if (prefs.videoBlur !== undefined) setVideoBlur(prefs.videoBlur);
+          if (prefs.videoMuted !== undefined) setVideoMuted(prefs.videoMuted);
         } catch (e) {
           localStorage.removeItem(`reader-prefs-${bookId}`);
         }
@@ -1001,12 +1009,31 @@ export default function BookReaderLuxury({
         theme,
         layout,
         columnMode,
+        // Phase 5: Video preferences
+        videoEnabled,
+        selectedVideo,
+        videoOpacity,
+        videoBlur,
+        videoMuted,
       };
       localStorage.setItem(`reader-prefs-${bookId}`, JSON.stringify(prefs));
     } catch (err) {
       console.error("Error saving preferences:", err);
     }
-  }, [fontSize, lineHeight, fontFamily, theme, layout, columnMode, bookId]);
+  }, [
+    fontSize,
+    lineHeight,
+    fontFamily,
+    theme,
+    layout,
+    columnMode,
+    bookId,
+    videoEnabled,
+    selectedVideo,
+    videoOpacity,
+    videoBlur,
+    videoMuted,
+  ]);
 
   // ===========================================
   // ⏰🌅 TIME-BASED AUTO-SWITCHING (AI-POWERED MAGIC!)
@@ -1591,7 +1618,6 @@ export default function BookReaderLuxury({
           />
         </>
       )}
-
       {/* ✨ PARTICLE EFFECTS - Phase 2 Luxury UI */}
       <ParticleEffect
         type={particleType}
@@ -2479,6 +2505,51 @@ export default function BookReaderLuxury({
 
                     <p className="text-xs text-center text-white/60 italic">
                       ✨ Add magical atmosphere to your reading
+                    </p>
+                  </div>
+
+                  {/* 🎥 AMBIENT VIDEO BACKGROUND CONTROLS - Phase 5 Luxury UI */}
+                  <div
+                    className="space-y-3 p-4 rounded-xl"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.08)",
+                      backdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold uppercase tracking-wide text-white/80">
+                        🎥 Ambient Videos
+                      </h3>
+                      <button
+                        onClick={() => setVideoEnabled(!videoEnabled)}
+                        className={`px-3 py-1 rounded-lg text-xs transition-all ${
+                          videoEnabled
+                            ? "bg-blue-500/30 text-white"
+                            : "bg-white/10 text-white/50"
+                        }`}
+                      >
+                        {videoEnabled ? "ON" : "OFF"}
+                      </button>
+                    </div>
+
+                    {videoEnabled && (
+                      <div className="space-y-2">
+                        <p className="text-xs text-white/70">
+                          🎬 Click the <strong>Video</strong> button at the
+                          bottom-left to:
+                        </p>
+                        <ul className="text-xs text-white/60 space-y-1 pl-4">
+                          <li>• Select from 10 cinematic backgrounds</li>
+                          <li>• Adjust opacity & blur for perfect ambiance</li>
+                          <li>• Upload your own custom videos</li>
+                          <li>• Control playback & audio</li>
+                        </ul>
+                      </div>
+                    )}
+
+                    <p className="text-xs text-center text-white/60 italic">
+                      🎥 Cinematic reading experience
                     </p>
                   </div>
 
