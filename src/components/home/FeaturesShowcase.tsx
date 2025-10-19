@@ -266,15 +266,17 @@ export default function FeaturesShowcase() {
                   <motion.div
                     key={i}
                     className="absolute w-1 h-1 rounded-full"
-                    style={{ backgroundColor: feature.color }}
-                    initial={{
-                      x: Math.random() * 100 - 50,
-                      y: Math.random() * 100 - 50,
+                    style={{
                       opacity: 0,
+                      backgroundColor: feature.color,
+                    }}
+                    initial={{
+                      x: 0,
+                      y: 0,
                     }}
                     whileHover={{
-                      x: Math.random() * 200 - 100,
-                      y: Math.random() * 200 - 100,
+                      x: [(i - 1) * 30, (i - 1) * 50],
+                      y: [(i - 1) * 20, (i - 1) * 40],
                       opacity: [0, 1, 0],
                       scale: [0, 1, 0],
                     }}

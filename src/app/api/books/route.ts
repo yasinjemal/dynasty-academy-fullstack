@@ -1,55 +1,69 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db/prisma'
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
 
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '12')
-    const search = searchParams.get('search') || ''
-    const category = searchParams.get('category') || ''
-    const sort = searchParams.get('sortBy') || 'newest'
+    const { searchParams } = new URL(req.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "12");
+    const search = searchParams.get("search") || "";
+    const category = searchParams.get("category") || "";
+    const sort = searchParams.get("sortBy") || "newest";
+    const bookType = searchParams.get("bookType") || ""; // 'premium', 'free', 'all'
+    const source = searchParams.get("source") || ""; // Filter by source
 
-    const skip = (page - 1) * limit
+    const skip = (page - 1) * limit;
 
     // Build where clause
     const where: any = {
       publishedAt: { not: null },
-    }
+    };
 
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { category: { contains: search, mode: 'insensitive' } },
-      ]
+        { title: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+        { category: { contains: search, mode: "insensitive" } },
+      ];
     }
 
-    if (category && category !== 'All Categories') {
-      where.category = { contains: category, mode: 'insensitive' }
+    if (category && category !== "All Categories" && category !== "All") {
+      where.category = { contains: category, mode: "insensitive" };
     }
 
-    // Determine sort order
-    let orderBy: any = { createdAt: 'desc' }
-    
+    // 🚀 NEW: Filter by book type
+    if (bookType && bookType !== "all") {
+      where.bookType = bookType;
+    }
+
+    // 🚀 NEW: Filter by source
+    if (source && source !== "all") {
+      where.source = source;
+    }
+
+    // 🚀 PRIORITY SORTING: Featured books always first!
+    let orderBy: any[] = [
+      { featured: "desc" }, // Featured books first
+    ];
+
     switch (sort) {
-      case 'oldest':
-        orderBy = { createdAt: 'asc' }
-        break
-      case 'price-low':
-        orderBy = { price: 'asc' }
-        break
-      case 'price-high':
-        orderBy = { price: 'desc' }
-        break
-      case 'rating':
-        orderBy = { rating: 'desc' }
-        break
-      case 'popular':
-        orderBy = { viewCount: 'desc' }
-        break
+      case "oldest":
+        orderBy.push({ createdAt: "asc" });
+        break;
+      case "price-low":
+        orderBy.push({ price: "asc" });
+        break;
+      case "price-high":
+        orderBy.push({ price: "desc" });
+        break;
+      case "rating":
+        orderBy.push({ rating: "desc" });
+        break;
+      case "popular":
+        orderBy.push({ viewCount: "desc" });
+        break;
       default: // newest
-        orderBy = { createdAt: 'desc' }
+        orderBy.push({ createdAt: "desc" });
     }
 
     // Get books with pagination
@@ -72,6 +86,10 @@ export async function GET(req: NextRequest) {
           reviewCount: true,
           featured: true,
           createdAt: true,
+          bookType: true, // 🚀 NEW
+          source: true, // 🚀 NEW
+          language: true, // 🚀 NEW
+          publisher: true, // 🚀 NEW
           author: {
             select: {
               id: true,
@@ -82,9 +100,9 @@ export async function GET(req: NextRequest) {
         },
       }),
       prisma.book.count({ where }),
-    ])
+    ]);
 
-    const totalPages = Math.ceil(totalCount / limit)
+    const totalPages = Math.ceil(totalCount / limit);
 
     return NextResponse.json({
       books,
@@ -95,12 +113,12 @@ export async function GET(req: NextRequest) {
         totalPages,
         hasMore: page < totalPages,
       },
-    })
+    });
   } catch (error: any) {
-    console.error('Books API error:', error)
+    console.error("Books API error:", error);
     return NextResponse.json(
-      { message: 'Failed to fetch books' },
+      { message: "Failed to fetch books" },
       { status: 500 }
-    )
+    );
   }
 }

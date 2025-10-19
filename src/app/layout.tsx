@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import { ToasterWrapper } from "@/components/ui/toaster-wrapper";
+import HeyDynastyUltimate from "@/components/voice/HeyDynastyUltimate";
 // import OnboardingCheck from "@/components/profile/OnboardingCheck";
 
 const inter = Inter({
@@ -43,6 +44,7 @@ export default function RootLayout({
       <body className={`${inter.variable} antialiased`}>
         <ToasterWrapper />
         <Providers>{children}</Providers>
+        <HeyDynastyUltimate />
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import FuturisticButton from "@/components/ui/FuturisticButton";
 import Navigation from "@/components/shared/Navigation";
 import AddToCartButton from "@/components/books/AddToCartButton";
 import {
@@ -37,6 +38,8 @@ interface Book {
   rating: number;
   reviewCount: number;
   category: string;
+  bookType?: string; // 🚀 NEW
+  source?: string; // 🚀 NEW
 }
 
 export default function BooksPage() {
@@ -46,10 +49,11 @@ export default function BooksPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const [bookType, setBookType] = useState("all"); // 🚀 NEW: Filter by book type
 
   useEffect(() => {
     fetchBooks();
-  }, [selectedCategory, sortBy]);
+  }, [selectedCategory, sortBy, bookType]); // 🚀 NEW: Also refetch on bookType change
 
   const fetchBooks = async () => {
     try {
@@ -58,6 +62,7 @@ export default function BooksPage() {
       params.set("limit", "50");
       if (selectedCategory !== "All") params.set("category", selectedCategory);
       if (sortBy) params.set("sortBy", sortBy);
+      if (bookType !== "all") params.set("bookType", bookType); // 🚀 NEW
 
       const res = await fetch(`/api/books?${params.toString()}`);
       const data = await res.json();
@@ -209,7 +214,18 @@ export default function BooksPage() {
               ))}
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* 🚀 NEW: Book Type Filter */}
+              <select
+                value={bookType}
+                onChange={(e) => setBookType(e.target.value)}
+                className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-purple-500/50"
+              >
+                <option value="all">All Books</option>
+                <option value="premium">👑 Premium Only</option>
+                <option value="free">📖 Free Only</option>
+              </select>
+
               <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1">
                 <button
                   onClick={() => setViewMode("grid")}
@@ -272,6 +288,7 @@ export default function BooksPage() {
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedCategory("All");
+                  setBookType("all"); // 🚀 NEW
                 }}
               >
                 Clear Filters
@@ -377,6 +394,12 @@ function BookCard({
                 {book.featured && (
                   <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full p-1.5 shadow-lg">
                     <Crown className="w-3 h-3 text-white" />
+                  </div>
+                )}
+                {/* 🚀 NEW: Book Type Badge for List View */}
+                {book.bookType === "free" && !book.featured && (
+                  <div className="absolute top-2 left-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full px-2 py-1 text-[10px] font-bold text-white shadow-lg">
+                    FREE
                   </div>
                 )}
               </div>
@@ -493,6 +516,14 @@ function BookCard({
               </div>
             )}
 
+            {/* 🚀 NEW: Book Type Badge */}
+            {book.bookType === "free" && !book.featured && (
+              <div className="absolute top-3 left-3 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-xs font-bold text-white shadow-lg flex items-center gap-1">
+                <BookOpen className="w-3 h-3" />
+                FREE
+              </div>
+            )}
+
             {book.salePrice && (
               <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                 {Math.round(((book.price - book.salePrice) / book.price) * 100)}
@@ -548,9 +579,13 @@ function BookCard({
 
             <div className="flex gap-2">
               <Link href={`/books/${book.slug}`} className="flex-1">
-                <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
+                <FuturisticButton
+                  variant="primary"
+                  size="md"
+                  className="w-full"
+                >
                   Details
-                </Button>
+                </FuturisticButton>
               </Link>
               <AddToCartButton bookId={book.id} bookTitle={book.title} />
             </div>

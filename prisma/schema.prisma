@@ -178,6 +178,15 @@ model Book {
   reviewCount        Int                  @default(0)
   metaTitle          String?
   metaDescription    String?
+  // 🚀 NEW: Book Import System Fields
+  bookType           String               @default("premium") // premium, free, public
+  source             String               @default("manual") // manual, gutenberg, openlibrary, google
+  externalId         String?              // External API ID for deduplication
+  externalData       Json?                // Store original API data
+  language           String               @default("en")
+  isbn               String?
+  publisher          String?
+  publicationYear    Int?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   audioAssets        AudioAsset[]
@@ -202,7 +211,26 @@ model Book {
   @@index([category])
   @@index([featured])
   @@index([publishedAt])
+  @@index([bookType])
+  @@index([source])
+  @@index([externalId])
   @@map("books")
+}
+
+// 📚 Book Content Storage for Imported Books
+model BookContent {
+  id          String   @id @default(cuid())
+  bookId      String
+  pageNumber  Int      // Page number in the book
+  content     String   @db.Text // Actual text content of the page
+  wordCount   Int      @default(0) // Words on this page
+  charCount   Int      @default(0) // Characters on this page
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([bookId, pageNumber]) // One content entry per page per book
+  @@index([bookId])
+  @@map("book_contents")
 }
 
 model BlogPost {

@@ -1,52 +1,59 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ShoppingCart } from "lucide-react";
+import FuturisticButton from "@/components/ui/FuturisticButton";
 
 interface AddToCartButtonProps {
-  bookId: string
-  bookTitle: string
+  bookId: string;
+  bookTitle: string;
 }
 
-export default function AddToCartButton({ bookId, bookTitle }: AddToCartButtonProps) {
-  const router = useRouter()
-  const [isAdding, setIsAdding] = useState(false)
+export default function AddToCartButton({
+  bookId,
+  bookTitle,
+}: AddToCartButtonProps) {
+  const router = useRouter();
+  const [isAdding, setIsAdding] = useState(false);
 
   const handleAddToCart = async () => {
-    setIsAdding(true)
+    setIsAdding(true);
     try {
-      const res = await fetch('/api/cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bookId, quantity: 1 }),
-      })
+      });
 
       if (!res.ok) {
-        const data = await res.json()
+        const data = await res.json();
         if (res.status === 401) {
-          router.push('/login')
-          return
+          router.push("/login");
+          return;
         }
-        throw new Error(data.message || 'Failed to add to cart')
+        throw new Error(data.message || "Failed to add to cart");
       }
 
-      alert(`"${bookTitle}" added to cart successfully!`)
-      router.refresh()
+      alert(`"${bookTitle}" added to cart successfully!`);
+      router.refresh();
     } catch (error: any) {
-      alert(error.message || 'Failed to add to cart')
+      alert(error.message || "Failed to add to cart");
     } finally {
-      setIsAdding(false)
+      setIsAdding(false);
     }
-  }
+  };
 
   return (
-    <Button 
-      className="flex-1" 
+    <FuturisticButton
+      variant="secondary"
+      size="md"
+      className="flex-1"
       onClick={handleAddToCart}
       disabled={isAdding}
+      icon={<ShoppingCart className="w-4 h-4" />}
     >
-      {isAdding ? 'Adding...' : 'Add to Cart'}
-    </Button>
-  )
+      {isAdding ? "Adding..." : "Add to Cart"}
+    </FuturisticButton>
+  );
 }

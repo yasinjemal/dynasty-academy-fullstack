@@ -393,6 +393,13 @@ export default function AdminBooksPage() {
             <Sparkles className="mr-2 h-4 w-4" />
             🚀 Intelligent Upload
           </Button>
+          <Button
+            onClick={() => (window.location.href = "/admin/books/import")}
+            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            📚 Import Library
+          </Button>
         </div>
       </div>
 

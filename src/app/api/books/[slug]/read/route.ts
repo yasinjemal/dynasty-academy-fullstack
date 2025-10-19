@@ -26,9 +26,8 @@ export async function GET(
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    // Check if user has purchased the book
-    // For now, disable purchase checking (free preview only)
-    const isPurchased = false;
+    // Check if user has purchased the book or if it's a free book
+    const isPurchased = book.bookType === "free" || false; // Free books are accessible to all
 
     // Check if page is within free preview or user has purchased
     const canAccess = page <= (book.previewPages || 0) || isPurchased;
@@ -43,7 +42,75 @@ export async function GET(
       );
     }
 
-    // Load book content
+    // 🚀 TRY NEW SYSTEM FIRST (BookContent table for imported books)
+    if (book.source !== "manual") {
+      try {
+        // Fetch from BookContent table
+        const pageContent = await prisma.bookContent.findUnique({
+          where: {
+            bookId_pageNumber: {
+              bookId: book.id,
+              pageNumber: page,
+            },
+          },
+        });
+
+        if (pageContent) {
+          // Get total pages for this book
+          const totalPagesResult = await prisma.bookContent.findFirst({
+            where: { bookId: book.id },
+            orderBy: { pageNumber: "desc" },
+            select: { pageNumber: true },
+          });
+
+          const totalPages =
+            totalPagesResult?.pageNumber || book.totalPages || 1;
+
+          // Track reading progress if user is logged in
+          if (session?.user?.id) {
+            try {
+              await prisma.userProgress.upsert({
+                where: {
+                  userId_bookId: {
+                    userId: session.user.id,
+                    bookId: book.id,
+                  },
+                },
+                update: {
+                  lastPage: page,
+                  progress: Math.round((page / totalPages) * 100),
+                  completed: page >= totalPages,
+                },
+                create: {
+                  userId: session.user.id,
+                  bookId: book.id,
+                  lastPage: page,
+                  progress: Math.round((page / totalPages) * 100),
+                  completed: page >= totalPages,
+                },
+              });
+            } catch (error) {
+              console.error("Error tracking reading progress:", error);
+            }
+          }
+
+          return NextResponse.json({
+            content: pageContent.content,
+            currentPage: page,
+            totalPages,
+            isPurchased: !!isPurchased,
+            previewPages: book.previewPages || 0,
+            wordCount: pageContent.wordCount,
+            source: book.source,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching from BookContent:", error);
+        // Fall through to file-based system
+      }
+    }
+
+    // 📁 FALLBACK TO OLD SYSTEM (file-based for manual books)
     const contentFile = join(
       process.cwd(),
       "data",

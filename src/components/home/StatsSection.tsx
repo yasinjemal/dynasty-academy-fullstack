@@ -243,8 +243,8 @@ export default function StatsSection() {
                     key={i}
                     className="absolute w-1 h-1 rounded-full bg-white/50"
                     style={{
-                      left: `${Math.random() * 100}%`,
-                      top: `${Math.random() * 100}%`,
+                      left: `${i * 20 + 10}%`,
+                      top: `${i * 15 + 20}%`,
                     }}
                     animate={{
                       y: [-10, -30, -10],
