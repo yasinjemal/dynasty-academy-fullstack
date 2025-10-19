@@ -16,6 +16,7 @@ import ParticleEffect from "./ParticleEffect";
 import QuoteShareModal from "./QuoteShareModal";
 import VideoBackground from "./VideoBackground";
 import VideoControls from "./VideoControls";
+import { ContentFormatter } from "@/lib/bookContent/contentFormatter";
 import {
   motion,
   AnimatePresence,
@@ -1205,7 +1206,19 @@ export default function BookReaderLuxury({
       if (!res.ok) throw new Error("Failed to load page");
 
       const data = await res.json();
-      setPageContent(data.content);
+
+      // 🎨 FORMAT CONTENT WITH ADVANCED FORMATTER
+      // Automatically detects and formats:
+      // - Chapter titles (CHAPTER I, Chapter 1, etc.)
+      // - Section headings (ALL CAPS)
+      // - Numbered lists (1., 2., 3.)
+      // - Bullet points (*, -, •)
+      // - Block quotes (> or indented)
+      // - Author attributions (— Author Name)
+      // - Emphasis (*italic*, **bold**)
+      // - Paragraphs with proper spacing
+      const formatted = ContentFormatter.format(data.content);
+      setPageContent(formatted.html);
       setShowPaywall(false);
 
       // Calculate reading time

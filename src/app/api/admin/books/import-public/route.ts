@@ -8,8 +8,26 @@ import {
   ImportedBook,
 } from "@/lib/bookImporters";
 import { BookContentFetcher, BookPaginator } from "@/lib/bookContent";
+import { completeBookImportWorkflow } from "@/lib/seo/pipeline";
 
 // 🚀 BULK BOOK IMPORT API - Import thousands of books from public sources!
+
+/**
+ * @CopilotWorkOrder
+ * Integrate full text import pipeline with AI-SEO system
+ *
+ * 1️⃣ After book content is fetched & paginated,
+ *     call runSeoPipelinesForBook(book.id)
+ * 2️⃣ Wait until all BookContent pages are stored,
+ *     then revalidate /books/[slug] and /sitemap.xml
+ * 3️⃣ Save:
+ *     - totalPages → book.totalPages
+ *     - seoTitle, seoDescription, seoOgImage, seoSchemaJson
+ * 4️⃣ Log console summary:
+ *     ✅ Imported: {title}
+ *     📄 {totalPages} pages stored
+ *     🔮 SEO optimized + indexed
+ */
 
 export async function POST(req: NextRequest) {
   try {
@@ -48,6 +66,17 @@ export async function POST(req: NextRequest) {
     console.log(
       `Filters: category=${category}, search=${search}, limit=${limit}`
     );
+
+    // Warn about full-text availability
+    if (source === "openlibrary") {
+      console.warn(`⚠️  IMPORTANT: Open Library provides metadata only.`);
+      console.warn(`   Most books will NOT have readable content.`);
+      console.warn(`   Use Project Gutenberg for books with full text.`);
+    } else if (source === "google") {
+      console.warn(`⚠️  IMPORTANT: Google Books provides metadata only.`);
+      console.warn(`   No books will have readable content via API.`);
+      console.warn(`   Use Project Gutenberg for books with full text.`);
+    }
 
     // Search for books
     const importedBooks = await importer.search({
@@ -202,6 +231,21 @@ export async function POST(req: NextRequest) {
             console.log(
               `✅ Stored ${paginationResult.totalPages} pages for: ${book.title}`
             );
+
+            // 🔮 RUN SEO PIPELINE + REVALIDATION
+            try {
+              await completeBookImportWorkflow(
+                createdBook.id,
+                createdBook.slug,
+                paginationResult.totalPages
+              );
+            } catch (seoError: any) {
+              console.warn(
+                `⚠️ SEO pipeline failed for ${book.title}:`,
+                seoError.message
+              );
+              // Continue even if SEO fails - book is still imported
+            }
           } else {
             console.warn(
               `⚠️ No content available for: ${book.title} (${fetchResult.error})`

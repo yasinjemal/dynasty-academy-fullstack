@@ -8,39 +8,122 @@ export class OpenLibraryImporter extends BookImporter {
   source = "openlibrary";
   private baseUrl = "https://openlibrary.org";
 
+  /**
+   * Convert category name to Open Library subject slug
+   * "Self Improvement" → "self_improvement"
+   */
+  private subjectSlug(name: string): string {
+    return name.trim().toLowerCase().replace(/\s+/g, "_");
+  }
+
   async search(options: ImportOptions = {}): Promise<ImportedBook[]> {
     try {
-      const params = new URLSearchParams();
+      const limit = options.limit || 50;
+      const headers = {
+        "User-Agent": "DynastyAcademy/1.0 (+https://dynasty-academy.com)",
+        Accept: "application/json",
+      };
 
-      if (options.search) {
-        params.append("q", options.search);
-      } else if (options.category) {
-        params.append("subject", options.category.toLowerCase());
-      } else {
-        params.append(
-          "q",
-          "subject:business OR subject:self-help OR subject:philosophy"
+      const urls: string[] = [];
+      let docs: any[] = [];
+      let urlTried = "";
+
+      // STRATEGY 1: Try SUBJECTS API first if category is set
+      // This is the most reliable way to get books by category
+      if (options.category) {
+        const slug = this.subjectSlug(options.category);
+        const subjectUrl = `${this.baseUrl}/subjects/${encodeURIComponent(
+          slug
+        )}.json?limit=${limit}&details=true`;
+        urls.push(subjectUrl);
+
+        console.log(`🔍 Open Library SUBJECTS API: ${subjectUrl}`);
+        const response = await fetch(subjectUrl, { headers });
+
+        if (response.ok) {
+          const data = await response.json();
+          docs = data.works || [];
+          urlTried = subjectUrl;
+          console.log(
+            `📚 Subjects API returned ${docs.length} books for "${options.category}"`
+          );
+
+          if (docs.length > 0) {
+            return this.transformSubjectsResponse(docs);
+          }
+        } else {
+          console.warn(
+            `⚠️ Subjects API failed for "${options.category}": ${response.statusText}`
+          );
+        }
+      }
+
+      // STRATEGY 2: Try SEARCH API with has_fulltext filter
+      // This ensures we only get books with readable text
+      const searchQuery =
+        options.search || options.category || "philosophy business psychology";
+      const params = new URLSearchParams({
+        q: searchQuery,
+        has_fulltext: "true",
+        language: options.language || "eng",
+        limit: limit.toString(),
+      });
+
+      // Optional: bias towards public domain scans
+      if (!options.search) {
+        params.append("public_scan_b", "true");
+      }
+
+      const searchUrl = `${this.baseUrl}/search.json?${params.toString()}`;
+      urls.push(searchUrl);
+
+      console.log(`🔍 Open Library SEARCH API: ${searchUrl}`);
+      const searchResponse = await fetch(searchUrl, { headers });
+
+      if (!searchResponse.ok) {
+        throw new Error(`Open Library API error: ${searchResponse.statusText}`);
+      }
+
+      const searchData = await searchResponse.json();
+      docs = searchData.docs || [];
+      urlTried = searchUrl;
+
+      console.log(
+        `📚 Search API returned ${searchData.numFound || 0} total results, ${
+          docs.length
+        } in this batch`
+      );
+
+      // STRATEGY 3: Last resort - drop all filters and try plain search
+      if (docs.length === 0) {
+        console.warn(
+          `⚠️ No results with filters, trying plain search for "${searchQuery}"`
         );
+        const fallbackUrl = `${this.baseUrl}/search.json?q=${encodeURIComponent(
+          searchQuery
+        )}&limit=${limit}`;
+        const fallbackResponse = await fetch(fallbackUrl, { headers });
+
+        if (fallbackResponse.ok) {
+          const fallbackData = await fallbackResponse.json();
+          docs = fallbackData.docs || [];
+          urlTried = fallbackUrl;
+          console.log(
+            `📚 Fallback search returned ${docs.length} books (no filters)`
+          );
+        }
       }
 
-      if (options.language) {
-        params.append("language", options.language);
+      if (docs.length === 0) {
+        console.warn(
+          `❌ Open Library returned 0 results for all strategies. Last URL: ${urlTried}`
+        );
+        return [];
       }
 
-      params.append("limit", (options.limit || 50).toString());
-      params.append("offset", (options.offset || 0).toString());
-
-      const url = `${this.baseUrl}/search.json?${params.toString()}`;
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error(`Open Library API error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      // Transform search results
       const books: ImportedBook[] = [];
-
-      for (const item of data.docs || []) {
+      for (const item of docs) {
         try {
           const book = this.transformBook(item);
           if (book) {
@@ -51,11 +134,51 @@ export class OpenLibraryImporter extends BookImporter {
         }
       }
 
+      console.log(
+        `✅ Successfully transformed ${books.length} books from Open Library`
+      );
       return books;
     } catch (error) {
       console.error("Open Library search error:", error);
       return [];
     }
+  }
+
+  /**
+   * Transform subjects API response (different structure than search API)
+   */
+  private transformSubjectsResponse(works: any[]): ImportedBook[] {
+    const books: ImportedBook[] = [];
+
+    for (const work of works) {
+      try {
+        // Subjects API has a slightly different structure
+        const item = {
+          title: work.title,
+          key: work.key,
+          author_name: work.authors?.map((a: any) => a.name) || [],
+          first_publish_year: work.first_publish_year,
+          cover_id: work.cover_id,
+          subject: work.subject || [],
+          language: ["eng"], // Subjects API doesn't return language
+          isbn: [],
+          publisher: [],
+          first_sentence: [],
+          number_of_pages_median: work.lending_edition_s
+            ? undefined
+            : undefined,
+        };
+
+        const book = this.transformBook(item);
+        if (book) {
+          books.push(book);
+        }
+      } catch (error) {
+        console.error(`Error transforming subjects work:`, error);
+      }
+    }
+
+    return books;
   }
 
   async getBookContent(externalId: string): Promise<string | null> {

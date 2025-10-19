@@ -35,6 +35,22 @@ export default function BookImportPage() {
   const [results, setResults] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
 
+  // Load stats function
+  const loadStats = async () => {
+    try {
+      const response = await fetch("/api/admin/books/import-public");
+      const data = await response.json();
+      setStats(data);
+    } catch (error) {
+      console.error("Failed to load stats:", error);
+    }
+  };
+
+  // Load stats on mount
+  useEffect(() => {
+    loadStats();
+  }, []);
+
   // Check admin access with useEffect to avoid hydration mismatch
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -141,20 +157,6 @@ export default function BookImportPage() {
       setImporting(false);
     }
   };
-
-  const loadStats = async () => {
-    try {
-      const response = await fetch("/api/admin/books/import-public");
-      const data = await response.json();
-      setStats(data);
-    } catch (error) {
-      console.error("Failed to load stats:", error);
-    }
-  };
-
-  useEffect(() => {
-    loadStats();
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A0E27] via-[#1a1f3a] to-[#0A1628]">

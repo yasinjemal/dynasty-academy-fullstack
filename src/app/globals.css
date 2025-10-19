@@ -563,3 +563,148 @@ textarea:focus-visible {
     background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
   }
 }
+
+/* ============================================
+   📝 ADVANCED CONTENT FORMATTER STYLES
+   Beautiful typography for books & articles
+   ============================================ */
+
+.chapter-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 3rem 0 2rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.section-heading {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 2rem 0 1rem;
+  letter-spacing: 0.025em;
+  color: #4a5568;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.numbered-list {
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+  counter-reset: item;
+}
+
+.numbered-item {
+  margin: 0.75rem 0;
+  line-height: 1.8;
+  position: relative;
+}
+
+.numbered-item::marker {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.bullet-list {
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.bullet-item {
+  margin: 0.75rem 0;
+  line-height: 1.8;
+}
+
+.bullet-item::marker {
+  color: #667eea;
+  font-size: 1.2em;
+}
+
+.book-quote {
+  margin: 2rem 0;
+  padding: 1.5rem 2rem;
+  border-left: 4px solid #667eea;
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.05) 0%,
+    rgba(118, 75, 162, 0.05) 100%
+  );
+  border-radius: 0.5rem;
+  font-style: italic;
+  color: #4a5568;
+  animation: slideIn 0.5s ease-out;
+}
+
+.author-attribution {
+  text-align: right;
+  font-style: italic;
+  color: #718096;
+  margin: 1rem 0;
+  font-size: 0.95em;
+}
+
+.text-bold {
+  font-weight: 600;
+  color: inherit;
+}
+
+.text-italic {
+  font-style: italic;
+  color: inherit;
+}
+
+.book-paragraph {
+  margin: 1.25rem 0;
+  line-height: inherit;
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* Dark theme variants */
+.dark .section-heading {
+  color: #cbd5e0;
+}
+
+.dark .book-quote {
+  border-left-color: #9f7aea;
+  background: rgba(159, 122, 234, 0.1);
+  color: #e2e8f0;
+}
+
+.dark .author-attribution {
+  color: #a0aec0;
+}
+
+.dark .chapter-title {
+  background: linear-gradient(135deg, #9f7aea 0%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

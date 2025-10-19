@@ -187,6 +187,12 @@ model Book {
   isbn               String?
   publisher          String?
   publicationYear    Int?
+  // 🔮 NEW: Advanced SEO Fields
+  seoTitle           String?              // AI-optimized title
+  seoDescription     String?              @db.Text // AI-optimized description
+  seoKeywords        String?              // Comma-separated keywords
+  seoOgImage         String?              // Dynamic OG image URL
+  seoSchemaJson      String?              @db.Text // JSON-LD structured data
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   audioAssets        AudioAsset[]
