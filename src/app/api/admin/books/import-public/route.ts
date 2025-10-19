@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
       category, // Optional category filter
       search, // Optional search query
       limit = 50, // How many books to import
+      minRating = 0, // NEW: Minimum rating filter (0-5)
       language = "en",
       dryRun = false, // Preview mode without importing
     } = body;
@@ -79,7 +80,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Search for books
-    const importedBooks = await importer.search({
+    let importedBooks = await importer.search({
       category,
       search,
       limit,
@@ -87,6 +88,17 @@ export async function POST(req: NextRequest) {
     });
 
     console.log(`✅ Found ${importedBooks.length} books from ${importer.name}`);
+
+    // 🌟 Filter by minimum rating if specified
+    if (minRating > 0) {
+      const beforeFilter = importedBooks.length;
+      importedBooks = importedBooks.filter(
+        (book) => (book.rating || 0) >= minRating
+      );
+      console.log(
+        `⭐ Filtered by rating ≥${minRating}: ${beforeFilter} → ${importedBooks.length} books`
+      );
+    }
 
     if (dryRun) {
       return NextResponse.json({

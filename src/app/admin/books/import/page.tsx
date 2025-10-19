@@ -30,6 +30,7 @@ export default function BookImportPage() {
   const [category, setCategory] = useState("");
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(50);
+  const [minRating, setMinRating] = useState(3.0); // NEW: Minimum rating filter
   const [importing, setImporting] = useState(false);
   const [dryRun, setDryRun] = useState(false);
   const [results, setResults] = useState<any>(null);
@@ -140,6 +141,7 @@ export default function BookImportPage() {
           category: category || undefined,
           search: search || undefined,
           limit,
+          minRating, // 🌟 NEW: Send minimum rating filter
           dryRun: preview,
         }),
       });
@@ -272,6 +274,31 @@ export default function BookImportPage() {
                   </select>
                 </div>
 
+                {/* Minimum Rating */}
+                <div>
+                  <label className="text-white font-semibold mb-2 flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-yellow-400" />
+                    Minimum Rating: {minRating.toFixed(1)} ⭐
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="5"
+                    step="0.5"
+                    value={minRating}
+                    onChange={(e) => setMinRating(parseFloat(e.target.value))}
+                    className="w-full accent-yellow-500"
+                  />
+                  <div className="flex justify-between text-white/60 text-sm mt-1">
+                    <span>No filter</span>
+                    <span>⭐ 2.5</span>
+                    <span>⭐⭐⭐⭐⭐ 5.0</span>
+                  </div>
+                  <p className="text-white/40 text-xs mt-2">
+                    Filter books by their average rating from readers
+                  </p>
+                </div>
+
                 {/* Limit */}
                 <div>
                   <label className="text-white font-semibold mb-2 block">
@@ -392,6 +419,13 @@ export default function BookImportPage() {
                             <p className="text-white/60 text-sm">
                               {book.author} • {book.category}
                             </p>
+                            {book.rating && (
+                              <div className="flex items-center gap-1 mt-1">
+                                <span className="text-yellow-400 text-sm">
+                                  ⭐ {book.rating.toFixed(1)}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
