@@ -54,9 +54,15 @@ export async function POST(request: NextRequest) {
       0
     );
 
+    // Generate unique ID
+    const courseId = `course_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
     // Create course with sections and lessons
     const course = await prisma.courses.create({
       data: {
+        id: courseId,
         title,
         slug: title
           .toLowerCase()
@@ -65,50 +71,64 @@ export async function POST(request: NextRequest) {
         shortDescription: subtitle || "",
         description,
         category,
-        level: level as any,
-        language: language || "English",
+        level: level || "beginner",
         coverImage: thumbnail || "",
+        previewVideo: "",
         price: parseFloat(price) || 0,
         isPremium: isPremium || false,
         tags: tags || [],
         lessonCount,
         duration,
         status: status === "published" ? "published" : "draft",
-        instructorId: session.user.id,
+        authorId: session.user.id, // Use authorId not instructorId
         enrollmentCount: 0,
         averageRating: 0,
         reviewCount: 0,
         featured: false,
         publishedAt: status === "published" ? new Date() : null,
-        // Store additional metadata in a JSON field if your schema supports it
       },
     });
 
     // Create sections and lessons
     if (sections && sections.length > 0) {
       for (const [sectionIndex, section] of sections.entries()) {
+        const sectionId = `section_${Date.now()}_${Math.random()
+          .toString(36)
+          .substr(2, 9)}`;
+
         const createdSection = await prisma.course_sections.create({
           data: {
+            id: sectionId,
             courseId: course.id,
             title: section.title || `Section ${sectionIndex + 1}`,
             description: section.description || "",
-            order: sectionIndex + 1,
+            order: section.order || sectionIndex + 1,
           },
         });
 
         // Create lessons for this section
         if (section.lessons && section.lessons.length > 0) {
           for (const [lessonIndex, lesson] of section.lessons.entries()) {
+            const lessonId = `lesson_${Date.now()}_${Math.random()
+              .toString(36)
+              .substr(2, 9)}`;
+            const lessonSlug = (lesson.title || `Lesson ${lessonIndex + 1}`)
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/(^-|-$)/g, "");
+
             await prisma.course_lessons.create({
               data: {
+                id: lessonId,
                 courseId: course.id,
                 sectionId: createdSection.id,
                 title: lesson.title || `Lesson ${lessonIndex + 1}`,
+                slug: lessonSlug,
                 description: lesson.description || "",
                 type: lesson.type || "video",
                 content: lesson.content || "",
                 videoUrl: lesson.videoUrl || "",
-                duration: lesson.duration || 0,
+                videoDuration: lesson.duration || 0, // Use videoDuration not duration
                 order: lessonIndex + 1,
                 isFree: false,
               },
@@ -149,7 +169,7 @@ export async function GET(request: NextRequest) {
     // Get all courses created by this instructor
     const courses = await prisma.courses.findMany({
       where: {
-        instructorId: session.user.id,
+        authorId: session.user.id, // Use authorId not instructorId
       },
       orderBy: {
         createdAt: "desc",

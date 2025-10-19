@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -140,6 +140,50 @@ export default function CreateCoursePage() {
 
   const levels = ["beginner", "intermediate", "advanced", "all-levels"];
 
+  // Load prefilled data from YouTube Transformer
+  useEffect(() => {
+    const prefillData = localStorage.getItem("prefillCourseData");
+    if (prefillData) {
+      try {
+        const data = JSON.parse(prefillData);
+
+        // Update course data
+        setCourseData((prev) => ({
+          ...prev,
+          title: data.title || "",
+          description: data.description || "",
+        }));
+
+        // Update sections - convert YouTube sections to create-course format
+        if (data.sections && data.sections.length > 0) {
+          const formattedSections = data.sections.map((section: any) => ({
+            id: section.id || Math.random().toString(36).substr(2, 9),
+            title: section.title,
+            description: section.description || "",
+            lessons: section.lessons.map((lesson: any) => ({
+              id: Math.random().toString(36).substr(2, 9),
+              title: lesson.title,
+              description: lesson.content || "",
+              duration: lesson.duration || 0,
+              type: lesson.type || "video",
+              videoUrl: lesson.videoUrl || "",
+              content: lesson.content || "",
+            })),
+          }));
+          setSections(formattedSections);
+        }
+
+        // Clear the localStorage after loading
+        localStorage.removeItem("prefillCourseData");
+
+        console.log("✅ Loaded YouTube course data:", data);
+      } catch (error) {
+        console.error("Failed to parse prefill data:", error);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
+
   const handleNext = () => {
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
@@ -167,7 +211,9 @@ export default function CreateCoursePage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
         alert("Course saved as draft!");
+        router.push("/instructor/courses"); // Redirect to courses list
       }
     } catch (error) {
       console.error("Error saving draft:", error);
@@ -194,7 +240,7 @@ export default function CreateCoursePage() {
       if (response.ok) {
         const data = await response.json();
         alert("Course published successfully!");
-        router.push(`/instructor/courses/${data.id}`);
+        router.push("/instructor/courses"); // Redirect to courses list instead of individual course
       }
     } catch (error) {
       console.error("Error publishing course:", error);

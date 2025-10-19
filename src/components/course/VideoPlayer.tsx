@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import {
   Play,
   Pause,
@@ -10,6 +11,7 @@ import {
   Settings,
   Loader2,
 } from "lucide-react";
+import { dynastyAI } from "@/lib/intelligence/DynastyIntelligenceEngine";
 
 interface VideoPlayerProps {
   videoUrl: string;
@@ -20,6 +22,9 @@ interface VideoPlayerProps {
   autoPlay?: boolean;
   courseId?: string;
   lessonId?: string;
+  // 🎬 NEW: Section timestamps for YouTube videos
+  startTime?: number; // Start time in seconds
+  endTime?: number; // End time in seconds
 }
 
 /**
@@ -47,6 +52,8 @@ export function VideoPlayer({
   autoPlay = false,
   courseId,
   lessonId,
+  startTime,
+  endTime,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -58,6 +65,13 @@ export function VideoPlayer({
   const [isLoading, setIsLoading] = useState(true);
   const [showControls, setShowControls] = useState(true);
   const [hasCompletedThreshold, setHasCompletedThreshold] = useState(false);
+
+  // 🧠 Dynasty Intelligence tracking
+  const { data: session } = useSession();
+  const [watchStartTime, setWatchStartTime] = useState<number>(0);
+  const [totalWatchTime, setTotalWatchTime] = useState<number>(0);
+  const [pauseCount, setPauseCount] = useState<number>(0);
+  const [seekCount, setSeekCount] = useState<number>(0);
 
   // Auto-save progress every 5 seconds
   useEffect(() => {
@@ -211,12 +225,112 @@ export function VideoPlayer({
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, []);
 
-  const togglePlayPause = () => {
+  // 🧠 Dynasty Intelligence Tracking Functions
+  const calculateEngagement = (
+    watchDuration: number,
+    videoTime: number
+  ): number => {
+    // High engagement: watched continuously without too many pauses
+    if (pauseCount === 0 && watchDuration > 0) return 1.0;
+    if (pauseCount <= 2 && watchDuration > videoTime * 0.8) return 0.9;
+    if (pauseCount <= 5 && watchDuration > videoTime * 0.6) return 0.7;
+    if (pauseCount > 10) return 0.4; // Many pauses = low engagement
+    return 0.5; // Default moderate engagement
+  };
+
+  const trackPlayEvent = async () => {
+    if (!session?.user || !courseId || !lessonId) return;
+
+    setWatchStartTime(Date.now());
+
+    // Track play event
+    try {
+      await dynastyAI.trackEvent({
+        userId: session.user.id,
+        courseId: courseId,
+        lessonId: lessonId,
+        type: "video_watch",
+        duration: 0,
+        engagement: 0.8, // Starting engagement
+        metadata: {
+          action: "play",
+          videoTime: currentTime,
+          videoProvider,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to track play event:", error);
+    }
+  };
+
+  const trackPauseEvent = async () => {
+    if (!session?.user || !courseId || !lessonId || watchStartTime === 0)
+      return;
+
+    const watchDuration = (Date.now() - watchStartTime) / 1000; // seconds
+    setTotalWatchTime((prev) => prev + watchDuration);
+    setPauseCount((prev) => prev + 1);
+
+    // Track pause event with engagement calculation
+    try {
+      await dynastyAI.trackEvent({
+        userId: session.user.id,
+        courseId: courseId,
+        lessonId: lessonId,
+        type: "video_watch",
+        duration: watchDuration,
+        engagement: calculateEngagement(watchDuration, currentTime),
+        metadata: {
+          action: "pause",
+          videoTime: currentTime,
+          totalWatchTime: totalWatchTime + watchDuration,
+          pauseCount: pauseCount + 1,
+          videoProvider,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to track pause event:", error);
+    }
+  };
+
+  const trackSeekEvent = async (oldTime: number, newTime: number) => {
+    if (!session?.user || !courseId || !lessonId) return;
+
+    setSeekCount((prev) => prev + 1);
+
+    // Detect replay (seeking backward)
+    const isReplay = newTime < oldTime;
+
+    try {
+      await dynastyAI.trackEvent({
+        userId: session.user.id,
+        courseId: courseId,
+        lessonId: lessonId,
+        type: "video_watch",
+        duration: 0,
+        engagement: isReplay ? 0.5 : 0.7, // Replay = struggling, skip = moderate
+        metadata: {
+          action: isReplay ? "replay" : "seek",
+          oldTime,
+          newTime,
+          seekDistance: Math.abs(newTime - oldTime),
+          seekCount: seekCount + 1,
+          videoProvider,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to track seek event:", error);
+    }
+  };
+
+  const togglePlayPause = async () => {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
+        await trackPauseEvent();
       } else {
         videoRef.current.play();
+        await trackPlayEvent();
       }
       setIsPlaying(!isPlaying);
     }
@@ -239,11 +353,19 @@ export function VideoPlayer({
     }
   };
 
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSeek = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTime = parseFloat(e.target.value);
+    const oldTime = currentTime;
+
     if (videoRef.current) {
       videoRef.current.currentTime = newTime;
       setCurrentTime(newTime);
+
+      // Track seek event
+      if (Math.abs(newTime - oldTime) > 2) {
+        // Only track significant seeks
+        await trackSeekEvent(oldTime, newTime);
+      }
     }
   };
 
@@ -264,14 +386,53 @@ export function VideoPlayer({
 
   // YouTube Player
   if (videoProvider === "youtube" && videoId) {
+    // Use startTime if provided, otherwise use lastPosition
+    const seekToTime =
+      startTime !== undefined ? startTime : Math.floor(lastPosition);
+
+    // Build YouTube URL with parameters
+    const youtubeParams = new URLSearchParams({
+      start: seekToTime.toString(),
+      autoplay: autoPlay ? "1" : "0",
+      rel: "0",
+      modestbranding: "1",
+    });
+
+    // Add end time if provided (for sectioned videos)
+    if (endTime !== undefined) {
+      youtubeParams.append("end", Math.floor(endTime).toString());
+    }
+
     return (
       <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden">
+        {/* Section Info Badge */}
+        {startTime !== undefined && endTime !== undefined && (
+          <div className="absolute top-4 left-4 z-10 bg-purple-600/90 backdrop-blur-sm px-4 py-2 rounded-xl border border-purple-400/30">
+            <div className="text-white text-sm font-semibold flex items-center gap-2">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>
+                Section: {formatTime(startTime)} - {formatTime(endTime)}
+              </span>
+            </div>
+          </div>
+        )}
+
         <iframe
           ref={iframeRef}
           className="absolute inset-0 w-full h-full"
-          src={`https://www.youtube.com/embed/${videoId}?start=${Math.floor(
-            lastPosition
-          )}&autoplay=${autoPlay ? 1 : 0}&rel=0&modestbranding=1`}
+          src={`https://www.youtube.com/embed/${videoId}?${youtubeParams.toString()}`}
           title="YouTube video player"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

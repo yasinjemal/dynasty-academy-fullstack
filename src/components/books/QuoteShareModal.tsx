@@ -812,6 +812,12 @@ export default function QuoteShareModal({
   const [showStickers, setShowStickers] = useState(false);
   const [selectedStickers, setSelectedStickers] = useState<string[]>([]);
 
+  // 🚀 NEW EMPIRE FEATURES
+  const [showWatermark, setShowWatermark] = useState(true);
+  const [autoCaption, setAutoCaption] = useState("");
+  const [detectedMood, setDetectedMood] = useState<string>("");
+  const [showCaptionGenerator, setShowCaptionGenerator] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sticker library - 20+ decorative elements
@@ -842,28 +848,67 @@ export default function QuoteShareModal({
   const handleDownload = async () => {
     setIsGenerating(true);
     const cardElement = document.getElementById("quote-card");
-    if (!cardElement) return;
+    if (!cardElement) {
+      console.error("Quote card element not found");
+      setIsGenerating(false);
+      return;
+    }
 
     try {
-      // 🔥 FULL 3x HD EXPORT - No size constraints!
+      // 🔥 FULL 3x HD EXPORT with error handling
       const canvas = await html2canvas(cardElement, {
         backgroundColor: null,
         scale: 3, // 3x resolution multiplier
-        logging: false,
+        logging: false, // Suppress warnings
         useCORS: true,
         allowTaint: true,
-        // Remove width/height to let scale do its magic at full resolution
+        onclone: (clonedDoc) => {
+          // Fix any oklch colors in the cloned document
+          const clonedCard = clonedDoc.getElementById("quote-card");
+          if (clonedCard) {
+            // Get original elements to read their computed styles
+            const originalElements = cardElement.querySelectorAll("*");
+            const clonedElements = clonedCard.querySelectorAll("*");
+
+            // Apply computed styles from original to cloned
+            clonedElements.forEach((clonedEl, index) => {
+              if (originalElements[index]) {
+                const element = clonedEl as HTMLElement;
+                const originalElement = originalElements[index] as HTMLElement;
+                const styles = window.getComputedStyle(originalElement);
+
+                // Convert computed styles to inline styles to avoid oklch issues
+                if (
+                  styles.backgroundColor &&
+                  styles.backgroundColor !== "rgba(0, 0, 0, 0)"
+                ) {
+                  element.style.backgroundColor = styles.backgroundColor;
+                }
+                if (styles.color && styles.color !== "rgb(0, 0, 0)") {
+                  element.style.color = styles.color;
+                }
+                if (styles.borderColor) {
+                  element.style.borderColor = styles.borderColor;
+                }
+              }
+            });
+          }
+        },
       });
 
       const link = document.createElement("a");
-      link.download = `dynasty-quote-${bookTitle.slice(
-        0,
-        20
-      )}-${Date.now()}.png`;
+      link.download = `dynasty-quote-${bookTitle
+        .replace(/[^a-zA-Z0-9]/g, "-")
+        .slice(0, 20)}-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png", 1.0); // Maximum quality
       link.click();
+
+      console.log("✅ Quote downloaded successfully!");
     } catch (error) {
-      console.error("Error generating image:", error);
+      console.error("❌ Error generating image:", error);
+      alert(
+        "Failed to download image. Please try again or try a different template."
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -873,15 +918,44 @@ export default function QuoteShareModal({
   const handleCopyImage = async () => {
     setIsGenerating(true);
     const cardElement = document.getElementById("quote-card");
-    if (!cardElement) return;
+    if (!cardElement) {
+      setIsGenerating(false);
+      return;
+    }
 
     try {
       const canvas = await html2canvas(cardElement, {
         backgroundColor: null,
         scale: 3,
         logging: false,
-        width: currentFormat.width,
-        height: currentFormat.height,
+        onclone: (clonedDoc) => {
+          const clonedCard = clonedDoc.getElementById("quote-card");
+          if (clonedCard) {
+            const originalElements = cardElement.querySelectorAll("*");
+            const clonedElements = clonedCard.querySelectorAll("*");
+
+            clonedElements.forEach((clonedEl, index) => {
+              if (originalElements[index]) {
+                const element = clonedEl as HTMLElement;
+                const originalElement = originalElements[index] as HTMLElement;
+                const styles = window.getComputedStyle(originalElement);
+
+                if (
+                  styles.backgroundColor &&
+                  styles.backgroundColor !== "rgba(0, 0, 0, 0)"
+                ) {
+                  element.style.backgroundColor = styles.backgroundColor;
+                }
+                if (styles.color) {
+                  element.style.color = styles.color;
+                }
+                if (styles.borderColor) {
+                  element.style.borderColor = styles.borderColor;
+                }
+              }
+            });
+          }
+        },
       });
 
       canvas.toBlob(async (blob) => {
@@ -895,6 +969,7 @@ export default function QuoteShareModal({
       });
     } catch (error) {
       console.error("Error copying image:", error);
+      alert("Failed to copy image. Please try downloading instead.");
     } finally {
       setIsGenerating(false);
     }
@@ -904,15 +979,44 @@ export default function QuoteShareModal({
   const handleShare = async () => {
     setIsGenerating(true);
     const cardElement = document.getElementById("quote-card");
-    if (!cardElement) return;
+    if (!cardElement) {
+      setIsGenerating(false);
+      return;
+    }
 
     try {
       const canvas = await html2canvas(cardElement, {
         backgroundColor: null,
         scale: 3,
         logging: false,
-        width: currentFormat.width,
-        height: currentFormat.height,
+        onclone: (clonedDoc) => {
+          const clonedCard = clonedDoc.getElementById("quote-card");
+          if (clonedCard) {
+            const originalElements = cardElement.querySelectorAll("*");
+            const clonedElements = clonedCard.querySelectorAll("*");
+
+            clonedElements.forEach((clonedEl, index) => {
+              if (originalElements[index]) {
+                const element = clonedEl as HTMLElement;
+                const originalElement = originalElements[index] as HTMLElement;
+                const styles = window.getComputedStyle(originalElement);
+
+                if (
+                  styles.backgroundColor &&
+                  styles.backgroundColor !== "rgba(0, 0, 0, 0)"
+                ) {
+                  element.style.backgroundColor = styles.backgroundColor;
+                }
+                if (styles.color) {
+                  element.style.color = styles.color;
+                }
+                if (styles.borderColor) {
+                  element.style.borderColor = styles.borderColor;
+                }
+              }
+            });
+          }
+        },
       });
 
       canvas.toBlob(async (blob) => {
@@ -930,6 +1034,7 @@ export default function QuoteShareModal({
       });
     } catch (error) {
       console.error("Error sharing:", error);
+      alert("Failed to share. Please try downloading instead.");
     } finally {
       setIsGenerating(false);
     }
@@ -940,6 +1045,100 @@ export default function QuoteShareModal({
     navigator.clipboard.writeText(
       `"${selectedText}"\n\n— ${bookTitle} by ${authorName}`
     );
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  // 🧠 AI MOOD DETECTION - Analyzes quote emotion
+  const detectQuoteMood = (text: string): string => {
+    const lowerText = text.toLowerCase();
+
+    // Power & Leadership
+    if (
+      /power|control|dominate|conquer|rule|master|command|lead|strong/i.test(
+        lowerText
+      )
+    ) {
+      return "⚡ Power & Leadership";
+    }
+    // Love & Romance
+    if (
+      /love|heart|soul|passion|romance|beauty|desire|forever/i.test(lowerText)
+    ) {
+      return "❤️ Love & Romance";
+    }
+    // Wisdom & Philosophy
+    if (
+      /wisdom|truth|knowledge|understand|learn|think|mind|reason/i.test(
+        lowerText
+      )
+    ) {
+      return "🧠 Wisdom & Philosophy";
+    }
+    // Motivation & Success
+    if (
+      /success|achieve|goal|dream|win|victory|ambition|rise|grow/i.test(
+        lowerText
+      )
+    ) {
+      return "🚀 Motivation & Success";
+    }
+    // Fear & Dark
+    if (/fear|dark|death|shadow|pain|suffer|lose|end|alone/i.test(lowerText)) {
+      return "🌑 Dark & Profound";
+    }
+    // Peace & Zen
+    if (
+      /peace|calm|quiet|serene|tranquil|still|rest|breathe/i.test(lowerText)
+    ) {
+      return "🕊️ Peace & Zen";
+    }
+    // Rebellion & Freedom
+    if (
+      /free|rebel|fight|break|change|revolution|wild|chaos/i.test(lowerText)
+    ) {
+      return "🔥 Rebellion & Freedom";
+    }
+
+    return "💭 Reflective";
+  };
+
+  // 🎯 AUTO CAPTION GENERATOR - Creates viral social media captions
+  const generateAutoCaption = () => {
+    const mood = detectQuoteMood(selectedText);
+    setDetectedMood(mood);
+
+    // Get mood emoji
+    const moodEmoji = mood.split(" ")[0];
+
+    // Generate hashtags based on book title and mood
+    const bookHashtag =
+      "#" + bookTitle.replace(/[^a-zA-Z0-9]/g, "").slice(0, 20);
+    const authorHashtag = "#" + authorName.replace(/[^a-zA-Z0-9]/g, "");
+
+    // Create caption with CTA
+    const captions = [
+      `${moodEmoji} Words that hit different.\n\nFrom "${bookTitle}" by ${authorName}\n\n✨ Created in Dynasty Quote Forge\n📚 Read more at dynasty.academy\n\n${bookHashtag} #DynastyAcademy #Quotes #BookLovers #Wisdom`,
+
+      `This quote stopped me in my tracks. ${moodEmoji}\n\n"${selectedText.slice(
+        0,
+        80
+      )}..."\n\nFrom ${bookTitle} 📖\n\n💎 Every quote is a lesson. Every book is a journey.\n\n${bookHashtag} #DynastyReader #BookQuotes #ReadingCommunity`,
+
+      `${moodEmoji} Master your mind, and the world follows.\n\nWisdom from ${authorName}'s "${bookTitle}"\n\n🎨 Designed with Dynasty Quote Forge\n🔗 dynasty.academy\n\n${bookHashtag} ${authorHashtag} #Motivation #SelfGrowth`,
+
+      `The kind of wisdom that changes everything. ${moodEmoji}\n\n📚 ${bookTitle}\n✍️ ${authorName}\n✨ Shared from Dynasty Academy\n\nYour next favorite book is waiting.\n\n${bookHashtag} #BookRecommendations #MustRead`,
+    ];
+
+    // Pick random caption
+    const randomCaption = captions[Math.floor(Math.random() * captions.length)];
+    setAutoCaption(randomCaption);
+    setShowCaptionGenerator(true);
+  };
+
+  // Copy caption to clipboard
+  const handleCopyCaption = () => {
+    navigator.clipboard.writeText(autoCaption);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
   };
@@ -985,685 +1184,881 @@ export default function QuoteShareModal({
             </motion.button>
           </div>
 
-          <div className="p-6 space-y-6">
-            {/* Template Selection - Now with 10 Templates! */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Choose a Style (70 PREMIUM Templates!) 🎨✨
-                </h3>
-                <motion.button
-                  onClick={() => setShowCustomization(!showCustomization)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg text-sm font-semibold"
-                >
-                  <Sliders className="w-4 h-4" />
-                  {showCustomization ? "Hide" : "Customize"}
-                </motion.button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-3 max-h-[300px] overflow-y-auto pr-2">
-                {(Object.keys(templates) as TemplateStyle[]).map((template) => (
-                  <motion.button
-                    key={template}
-                    onClick={() => setSelectedTemplate(template)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      selectedTemplate === template
-                        ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg"
-                        : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-purple-300"
-                    }`}
-                  >
-                    <div className="text-3xl mb-2">
-                      {templates[template].icon}
-                    </div>
-                    <div className="text-xs font-medium text-gray-900 dark:text-white">
-                      {templates[template].name}
-                    </div>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-
-            {/* Advanced Customization Panel */}
-            <AnimatePresence>
-              {showCustomization && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
-                  <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl border-2 border-purple-200 dark:border-purple-700 space-y-6">
-                    {/* Custom Background Upload */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                        <Upload className="w-4 h-4" />
-                        Custom Background Image
-                      </label>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleBgUpload}
-                        className="hidden"
+          {/* Split Layout Container: Preview LEFT, Controls RIGHT */}
+          <div className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* LEFT SIDE: PREVIEW (Always Visible) */}
+              <div className="order-2 lg:order-1 space-y-4">
+                {/* Preview Card - Now with ALL customizations */}
+                <div className="space-y-3 sticky top-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Live Preview
+                  </h3>
+                  <div className="flex justify-center p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl">
+                    <div
+                      id="quote-card"
+                      className={`relative rounded-3xl shadow-2xl overflow-hidden ${fontFamilies[fontFamily].className}`}
+                      style={{
+                        width: `${Math.min(currentFormat.width, 500)}px`,
+                        height: `${Math.min(currentFormat.height, 500)}px`,
+                        maxWidth: "100%",
+                        aspectRatio: `${currentFormat.width} / ${currentFormat.height}`,
+                      }}
+                    >
+                      {/* Background Layer with Blur */}
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          background: customBg
+                            ? `url(${customBg}) center/cover`
+                            : currentTemplate.bg,
+                          filter:
+                            blurIntensity > 0
+                              ? `blur(${blurIntensity}px)`
+                              : "none",
+                        }}
                       />
-                      <div className="flex gap-2">
+
+                      {/* Background Overlay for Custom Images */}
+                      {customBg && (
+                        <div
+                          className="absolute inset-0"
+                          style={{
+                            background: "rgba(0, 0, 0, 0.4)",
+                          }}
+                        />
+                      )}
+
+                      {/* Decorative Border */}
+                      {borderStyle !== "none" && (
+                        <div
+                          className="absolute inset-4 rounded-2xl"
+                          style={{
+                            border:
+                              borderStyle === "solid"
+                                ? `3px solid ${currentTemplate.border}`
+                                : borderStyle === "double"
+                                ? `6px double ${currentTemplate.border}`
+                                : borderStyle === "gradient"
+                                ? "3px solid transparent"
+                                : "none",
+                            backgroundImage:
+                              borderStyle === "gradient"
+                                ? `linear-gradient(white, white), ${currentTemplate.bg}`
+                                : "none",
+                            backgroundOrigin: "border-box",
+                            backgroundClip:
+                              borderStyle === "gradient"
+                                ? "padding-box, border-box"
+                                : "border-box",
+                          }}
+                        />
+                      )}
+
+                      {/* Content */}
+                      <div
+                        className="relative h-full flex flex-col items-center justify-center px-8 md:px-12 py-12"
+                        style={{
+                          textAlign: textAlign,
+                          textShadow:
+                            shadowIntensity > 0
+                              ? `0 ${shadowIntensity}px ${
+                                  shadowIntensity * 2
+                                }px rgba(0,0,0,0.3)`
+                              : "none",
+                        }}
+                      >
+                        {/* Opening Quote */}
+                        <div
+                          className="mb-4 opacity-30"
+                          style={{
+                            color: currentTemplate.accent,
+                            fontSize: `${fontSize * 2.5}px`,
+                          }}
+                        >
+                          "
+                        </div>
+
+                        {/* Quote Text */}
+                        <p
+                          className="leading-relaxed mb-6"
+                          style={{
+                            color: displayTextColor,
+                            fontSize: `${fontSize}px`,
+                            lineHeight: "1.6",
+                          }}
+                        >
+                          {selectedText}
+                        </p>
+
+                        {/* Closing Quote */}
+                        <div
+                          className="mb-6 opacity-30"
+                          style={{
+                            color: currentTemplate.accent,
+                            fontSize: `${fontSize * 2.5}px`,
+                          }}
+                        >
+                          "
+                        </div>
+
+                        {/* Book Title */}
+                        <div className="space-y-2">
+                          <div
+                            className="font-bold"
+                            style={{
+                              color: currentTemplate.accent,
+                              fontSize: `${fontSize * 0.75}px`,
+                            }}
+                          >
+                            {bookTitle}
+                          </div>
+                          <div
+                            className="text-sm opacity-80"
+                            style={{
+                              color: displayTextColor,
+                              fontSize: `${fontSize * 0.6}px`,
+                            }}
+                          >
+                            {authorName}
+                          </div>
+
+                          {/* Dynasty Watermark - EMPIRE BRANDING */}
+                          {showWatermark && (
+                            <div
+                              className="mt-4 pt-4 border-t"
+                              style={{ borderColor: currentTemplate.border }}
+                            >
+                              <div className="space-y-1">
+                                <div
+                                  className="font-semibold flex items-center justify-center gap-2"
+                                  style={{
+                                    color: currentTemplate.accent,
+                                    fontSize: `${fontSize * 0.65}px`,
+                                  }}
+                                >
+                                  <Sparkles className="w-4 h-4" />
+                                  Dynasty Academy
+                                </div>
+                                <div
+                                  className="text-xs opacity-75 text-center"
+                                  style={{
+                                    color: currentTemplate.text,
+                                    fontSize: `${fontSize * 0.45}px`,
+                                  }}
+                                >
+                                  📚 dynasty.academy
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* ✨ STICKERS OVERLAY - NEW! */}
+                        {selectedStickers.length > 0 && (
+                          <div className="absolute inset-0 pointer-events-none">
+                            {selectedStickers.map((sticker, index) => {
+                              // Position stickers in corners and edges
+                              const positions = [
+                                { top: "10%", left: "10%" }, // Top-left
+                                { top: "10%", right: "10%" }, // Top-right
+                                { bottom: "10%", left: "10%" }, // Bottom-left
+                                { bottom: "10%", right: "10%" }, // Bottom-right
+                                { top: "50%", left: "5%" }, // Middle-left
+                                { top: "50%", right: "5%" }, // Middle-right
+                                { top: "5%", left: "50%" }, // Top-middle
+                                { bottom: "5%", left: "50%" }, // Bottom-middle
+                              ];
+                              const position =
+                                positions[index % positions.length];
+
+                              return (
+                                <motion.div
+                                  key={`${sticker}-${index}`}
+                                  initial={{ scale: 0, rotate: 0 }}
+                                  animate={{
+                                    scale: enableAnimation ? [1, 1.2, 1] : 1,
+                                    rotate: enableAnimation
+                                      ? [0, 10, -10, 0]
+                                      : 0,
+                                  }}
+                                  transition={{
+                                    duration: 2,
+                                    repeat: enableAnimation ? Infinity : 0,
+                                    delay: index * 0.2,
+                                  }}
+                                  className="absolute text-3xl md:text-4xl"
+                                  style={{
+                                    ...position,
+                                    transform: "translate(-50%, -50%)",
+                                    opacity: 0.9,
+                                    filter:
+                                      "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
+                                  }}
+                                >
+                                  {sticker}
+                                </motion.div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* 🎬 ANIMATION LAYER - Preview of effects */}
+                        {enableAnimation && (
+                          <motion.div
+                            className="absolute inset-0 pointer-events-none"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                          >
+                            {animationStyle === "glow" && (
+                              <div
+                                className="absolute inset-0 rounded-3xl"
+                                style={{
+                                  boxShadow: `0 0 40px ${currentTemplate.accent}`,
+                                  animation: "pulse 2s ease-in-out infinite",
+                                }}
+                              />
+                            )}
+                          </motion.div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <motion.button
+                      onClick={handleDownload}
+                      disabled={isGenerating}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                      <Download className="w-5 h-5" />
+                      Download
+                    </motion.button>
+
+                    <motion.button
+                      onClick={handleCopyImage}
+                      disabled={isGenerating}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                      {isCopied ? (
+                        <>
+                          <Check className="w-5 h-5" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-5 h-5" />
+                          Copy
+                        </>
+                      )}
+                    </motion.button>
+
+                    {typeof navigator !== "undefined" &&
+                      navigator.share !== undefined && (
                         <motion.button
-                          onClick={() => fileInputRef.current?.click()}
+                          onClick={handleShare}
+                          disabled={isGenerating}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="flex-1 px-4 py-2 bg-white dark:bg-gray-800 border-2 border-purple-300 dark:border-purple-600 rounded-lg text-sm font-medium text-gray-900 dark:text-white hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all"
+                          className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                         >
-                          Upload Image
+                          <Share2 className="w-5 h-5" />
+                          Share
                         </motion.button>
-                        {customBg && (
-                          <motion.button
-                            onClick={() => setCustomBg(null)}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium"
-                          >
-                            Clear
-                          </motion.button>
-                        )}
+                      )}
+
+                    <motion.button
+                      onClick={handleCopyText}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                    >
+                      <Copy className="w-5 h-5" />
+                      Text
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+              {/* RIGHT SIDE: CONTROLS (Scrollable) */}
+              <div className="order-1 lg:order-2 space-y-6 max-h-[80vh] overflow-y-auto pr-2">
+                {/* 🚀 AI CAPTION GENERATOR - EMPIRE FEATURE */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-6 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-2xl shadow-2xl text-white"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+                          <Wand2 className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold">
+                            AI Caption Generator
+                          </h3>
+                          <p className="text-sm text-white/80">
+                            Viral-ready social media captions
+                          </p>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Font Size */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                        <Type className="w-4 h-4" />
-                        Font Size: {fontSize}px
-                      </label>
-                      <input
-                        type="range"
-                        min="16"
-                        max="48"
-                        value={fontSize}
-                        onChange={(e) => setFontSize(Number(e.target.value))}
-                        className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
-                      />
-                    </div>
+                    <motion.button
+                      onClick={generateAutoCaption}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full py-4 bg-white text-purple-600 rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transition-all flex items-center justify-center gap-3"
+                    >
+                      <Sparkles className="w-6 h-6" />
+                      Generate Viral Caption
+                    </motion.button>
 
-                    {/* Font Family */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-gray-900 dark:text-white">
-                        Font Family
-                      </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {(Object.keys(fontFamilies) as FontFamily[]).map(
-                          (font) => (
+                    {detectedMood && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="p-4 bg-white/10 rounded-xl backdrop-blur-sm border border-white/20"
+                      >
+                        <p className="text-sm font-semibold mb-1">
+                          Detected Mood:
+                        </p>
+                        <p className="text-2xl">{detectedMood}</p>
+                      </motion.div>
+                    )}
+
+                    <AnimatePresence>
+                      {showCaptionGenerator && autoCaption && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="space-y-3"
+                        >
+                          <div className="p-4 bg-white/10 rounded-xl backdrop-blur-sm border border-white/20">
+                            <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+                              <Sparkles className="w-4 h-4" />
+                              Your Viral Caption:
+                            </p>
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                              {autoCaption}
+                            </p>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
                             <motion.button
-                              key={font}
-                              onClick={() => setFontFamily(font)}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                                fontFamily === font
-                                  ? "bg-purple-500 text-white"
-                                  : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-                              }`}
+                              onClick={handleCopyCaption}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              className="py-3 bg-white/20 hover:bg-white/30 rounded-xl font-semibold backdrop-blur-sm border border-white/20 flex items-center justify-center gap-2"
                             >
-                              {fontFamilies[font].name}
+                              {isCopied ? (
+                                <>
+                                  <Check className="w-5 h-5" />
+                                  Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-5 h-5" />
+                                  Copy Caption
+                                </>
+                              )}
                             </motion.button>
-                          )
-                        )}
-                      </div>
-                    </div>
 
-                    {/* Text Color Picker */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                        <Palette className="w-4 h-4" />
-                        Text Color (Optional - uses template default if empty)
-                      </label>
-                      <div className="flex gap-2">
-                        <input
-                          type="color"
-                          value={textColor || currentTemplate.text}
-                          onChange={(e) => setTextColor(e.target.value)}
-                          className="w-16 h-10 rounded-lg cursor-pointer"
-                        />
-                        <input
-                          type="text"
-                          value={textColor}
-                          onChange={(e) => setTextColor(e.target.value)}
-                          placeholder={currentTemplate.text}
-                          className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm"
-                        />
-                        {textColor && (
-                          <motion.button
-                            onClick={() => setTextColor("")}
-                            whileHover={{ scale: 1.05 }}
-                            className="px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-sm"
-                          >
-                            Reset
-                          </motion.button>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Text Alignment */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-gray-900 dark:text-white">
-                        Text Alignment
-                      </label>
-                      <div className="grid grid-cols-3 gap-2">
-                        {(["left", "center", "right"] as const).map((align) => (
-                          <motion.button
-                            key={align}
-                            onClick={() => setTextAlign(align)}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`px-3 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
-                              textAlign === align
-                                ? "bg-purple-500 text-white"
-                                : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-                            }`}
-                          >
-                            {align}
-                          </motion.button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Effects */}
-                    <div className="grid grid-cols-2 gap-4">
-                      {/* Blur Intensity */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-900 dark:text-white">
-                          Blur: {blurIntensity}px
-                        </label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="20"
-                          value={blurIntensity}
-                          onChange={(e) =>
-                            setBlurIntensity(Number(e.target.value))
-                          }
-                          className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
-                        />
-                      </div>
-
-                      {/* Shadow Intensity */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-900 dark:text-white">
-                          Shadow: {shadowIntensity}px
-                        </label>
-                        <input
-                          type="range"
-                          min="0"
-                          max="50"
-                          value={shadowIntensity}
-                          onChange={(e) =>
-                            setShadowIntensity(Number(e.target.value))
-                          }
-                          className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Border Style */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-gray-900 dark:text-white">
-                        Border Style
-                      </label>
-                      <div className="grid grid-cols-4 gap-2">
-                        {(["none", "solid", "double", "gradient"] as const).map(
-                          (border) => (
                             <motion.button
-                              key={border}
-                              onClick={() => setBorderStyle(border)}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className={`px-3 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
-                                borderStyle === border
-                                  ? "bg-purple-500 text-white"
-                                  : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-                              }`}
+                              onClick={generateAutoCaption}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              className="py-3 bg-white/20 hover:bg-white/30 rounded-xl font-semibold backdrop-blur-sm border border-white/20 flex items-center justify-center gap-2"
                             >
-                              {border}
+                              <Wand2 className="w-5 h-5" />
+                              Regenerate
                             </motion.button>
-                          )
-                        )}
-                      </div>
-                    </div>
+                          </div>
 
-                    {/* Export Format */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                        <ImageIcon className="w-4 h-4" />
-                        Export Format: {currentFormat.name}
-                      </label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {(Object.keys(exportFormats) as ExportFormat[]).map(
-                          (format) => (
-                            <motion.button
-                              key={format}
-                              onClick={() => setExportFormat(format)}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                                exportFormat === format
-                                  ? "bg-purple-500 text-white"
-                                  : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
-                              }`}
-                            >
-                              {exportFormats[format].name}
-                            </motion.button>
-                          )
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {currentFormat.width} × {currentFormat.height}px
-                      </p>
-                    </div>
+                          <div className="p-3 bg-white/5 rounded-lg border border-white/10">
+                            <p className="text-xs text-white/70 leading-relaxed">
+                              💡 <strong>Pro Tip:</strong> Copy this caption and
+                              paste it when sharing your quote! Every share =
+                              free marketing for Dynasty Academy. 🚀
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
 
-                    {/* 🎬 ANIMATION EFFECTS - NEW! */}
-                    <div className="space-y-2 p-4 bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 rounded-xl border-2 border-pink-300 dark:border-pink-600">
-                      <div className="flex items-center justify-between">
-                        <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                          <Wand2 className="w-4 h-4" />✨ Animations (Coming to
-                          Video Export!)
-                        </label>
+                {/* Template Selection - Now with 10 Templates! */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Choose a Style (70 PREMIUM Templates!) 🎨✨
+                    </h3>
+                    <motion.button
+                      onClick={() => setShowCustomization(!showCustomization)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg text-sm font-semibold"
+                    >
+                      <Sliders className="w-4 h-4" />
+                      {showCustomization ? "Hide" : "Customize"}
+                    </motion.button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-3 max-h-[300px] overflow-y-auto pr-2">
+                    {(Object.keys(templates) as TemplateStyle[]).map(
+                      (template) => (
                         <motion.button
-                          onClick={() => setEnableAnimation(!enableAnimation)}
+                          key={template}
+                          onClick={() => setSelectedTemplate(template)}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                            enableAnimation
-                              ? "bg-pink-500 text-white"
-                              : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                          className={`p-4 rounded-xl border-2 transition-all ${
+                            selectedTemplate === template
+                              ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg"
+                              : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-purple-300"
                           }`}
                         >
-                          {enableAnimation ? "ON" : "OFF"}
+                          <div className="text-3xl mb-2">
+                            {templates[template].icon}
+                          </div>
+                          <div className="text-xs font-medium text-gray-900 dark:text-white">
+                            {templates[template].name}
+                          </div>
                         </motion.button>
-                      </div>
-                      {enableAnimation && (
-                        <div className="grid grid-cols-4 gap-2 mt-2">
-                          {(
-                            ["fade", "slide", "particles", "glow"] as const
-                          ).map((anim) => (
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Advanced Customization Panel */}
+                <AnimatePresence>
+                  {showCustomization && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl border-2 border-purple-200 dark:border-purple-700 space-y-6">
+                        {/* Custom Background Upload */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Upload className="w-4 h-4" />
+                            Custom Background Image
+                          </label>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleBgUpload}
+                            className="hidden"
+                          />
+                          <div className="flex gap-2">
                             <motion.button
-                              key={anim}
-                              onClick={() => setAnimationStyle(anim)}
+                              onClick={() => fileInputRef.current?.click()}
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                              className="flex-1 px-4 py-2 bg-white dark:bg-gray-800 border-2 border-purple-300 dark:border-purple-600 rounded-lg text-sm font-medium text-gray-900 dark:text-white hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all"
+                            >
+                              Upload Image
+                            </motion.button>
+                            {customBg && (
+                              <motion.button
+                                onClick={() => setCustomBg(null)}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium"
+                              >
+                                Clear
+                              </motion.button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Font Size */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Type className="w-4 h-4" />
+                            Font Size: {fontSize}px
+                          </label>
+                          <input
+                            type="range"
+                            min="16"
+                            max="48"
+                            value={fontSize}
+                            onChange={(e) =>
+                              setFontSize(Number(e.target.value))
+                            }
+                            className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                          />
+                        </div>
+
+                        {/* Font Family */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-gray-900 dark:text-white">
+                            Font Family
+                          </label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {(Object.keys(fontFamilies) as FontFamily[]).map(
+                              (font) => (
+                                <motion.button
+                                  key={font}
+                                  onClick={() => setFontFamily(font)}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                    fontFamily === font
+                                      ? "bg-purple-500 text-white"
+                                      : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+                                  }`}
+                                >
+                                  {fontFamilies[font].name}
+                                </motion.button>
+                              )
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Text Color Picker */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <Palette className="w-4 h-4" />
+                            Text Color (Optional - uses template default if
+                            empty)
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="color"
+                              value={textColor || currentTemplate.text}
+                              onChange={(e) => setTextColor(e.target.value)}
+                              className="w-16 h-10 rounded-lg cursor-pointer"
+                            />
+                            <input
+                              type="text"
+                              value={textColor}
+                              onChange={(e) => setTextColor(e.target.value)}
+                              placeholder={currentTemplate.text}
+                              className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-sm"
+                            />
+                            {textColor && (
+                              <motion.button
+                                onClick={() => setTextColor("")}
+                                whileHover={{ scale: 1.05 }}
+                                className="px-3 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-sm"
+                              >
+                                Reset
+                              </motion.button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Text Alignment */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-gray-900 dark:text-white">
+                            Text Alignment
+                          </label>
+                          <div className="grid grid-cols-3 gap-2">
+                            {(["left", "center", "right"] as const).map(
+                              (align) => (
+                                <motion.button
+                                  key={align}
+                                  onClick={() => setTextAlign(align)}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className={`px-3 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
+                                    textAlign === align
+                                      ? "bg-purple-500 text-white"
+                                      : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+                                  }`}
+                                >
+                                  {align}
+                                </motion.button>
+                              )
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Effects */}
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Blur Intensity */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-900 dark:text-white">
+                              Blur: {blurIntensity}px
+                            </label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="20"
+                              value={blurIntensity}
+                              onChange={(e) =>
+                                setBlurIntensity(Number(e.target.value))
+                              }
+                              className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                            />
+                          </div>
+
+                          {/* Shadow Intensity */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-900 dark:text-white">
+                              Shadow: {shadowIntensity}px
+                            </label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="50"
+                              value={shadowIntensity}
+                              onChange={(e) =>
+                                setShadowIntensity(Number(e.target.value))
+                              }
+                              className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Border Style */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-gray-900 dark:text-white">
+                            Border Style
+                          </label>
+                          <div className="grid grid-cols-4 gap-2">
+                            {(
+                              ["none", "solid", "double", "gradient"] as const
+                            ).map((border) => (
+                              <motion.button
+                                key={border}
+                                onClick={() => setBorderStyle(border)}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className={`px-3 py-2 rounded-lg text-sm font-medium capitalize transition-all ${
+                                  borderStyle === border
+                                    ? "bg-purple-500 text-white"
+                                    : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+                                }`}
+                              >
+                                {border}
+                              </motion.button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Export Format */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                            <ImageIcon className="w-4 h-4" />
+                            Export Format: {currentFormat.name}
+                          </label>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            {(Object.keys(exportFormats) as ExportFormat[]).map(
+                              (format) => (
+                                <motion.button
+                                  key={format}
+                                  onClick={() => setExportFormat(format)}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                                    exportFormat === format
+                                      ? "bg-purple-500 text-white"
+                                      : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600"
+                                  }`}
+                                >
+                                  {exportFormats[format].name}
+                                </motion.button>
+                              )
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            {currentFormat.width} × {currentFormat.height}px
+                          </p>
+                        </div>
+
+                        {/* 🚀 Dynasty Watermark Toggle - BRANDING CONTROL */}
+                        <div className="space-y-3 p-4 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl border-2 border-purple-300 dark:border-purple-600">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <label className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <Sparkles className="w-4 h-4 text-purple-500" />
+                                Dynasty Watermark
+                              </label>
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                Every share = Free viral marketing! 📈
+                              </p>
+                            </div>
+                            <motion.button
+                              onClick={() => setShowWatermark(!showWatermark)}
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              className={`px-2 py-1 rounded-lg text-xs font-medium capitalize ${
-                                animationStyle === anim
+                              className={`relative w-14 h-7 rounded-full transition-colors ${
+                                showWatermark
+                                  ? "bg-purple-500"
+                                  : "bg-gray-300 dark:bg-gray-600"
+                              }`}
+                            >
+                              <motion.div
+                                animate={{ x: showWatermark ? 28 : 2 }}
+                                transition={{
+                                  type: "spring",
+                                  stiffness: 500,
+                                  damping: 30,
+                                }}
+                                className="absolute top-1 w-5 h-5 bg-white rounded-full shadow-lg"
+                              />
+                            </motion.button>
+                          </div>
+                          {showWatermark && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              className="pt-3 border-t border-purple-200 dark:border-purple-700"
+                            >
+                              <p className="text-xs text-purple-600 dark:text-purple-400 font-semibold">
+                                ✨ Includes: "Dynasty Academy" +
+                                "dynasty.academy" branding
+                              </p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                                💡 Your readers become content creators → Their
+                                followers become YOUR readers!
+                              </p>
+                            </motion.div>
+                          )}
+                        </div>
+
+                        {/* 🎬 ANIMATION EFFECTS - NEW! */}
+                        <div className="space-y-2 p-4 bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 rounded-xl border-2 border-pink-300 dark:border-pink-600">
+                          <div className="flex items-center justify-between">
+                            <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                              <Wand2 className="w-4 h-4" />✨ Animations (Coming
+                              to Video Export!)
+                            </label>
+                            <motion.button
+                              onClick={() =>
+                                setEnableAnimation(!enableAnimation)
+                              }
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                                enableAnimation
                                   ? "bg-pink-500 text-white"
                                   : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                               }`}
                             >
-                              {anim}
+                              {enableAnimation ? "ON" : "OFF"}
                             </motion.button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* ✨ STICKERS & OVERLAYS - NEW! */}
-                    <div className="space-y-2 p-4 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-xl border-2 border-yellow-300 dark:border-yellow-600">
-                      <div className="flex items-center justify-between">
-                        <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                          <Sparkles className="w-4 h-4" />✨ Decorative Stickers
-                        </label>
-                        <motion.button
-                          onClick={() => setShowStickers(!showStickers)}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                            showStickers
-                              ? "bg-orange-500 text-white"
-                              : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                          }`}
-                        >
-                          {showStickers ? "HIDE" : "SHOW"}
-                        </motion.button>
-                      </div>
-                      {showStickers && (
-                        <div className="space-y-3 mt-2">
-                          {Object.entries(stickerLibrary).map(
-                            ([category, stickers]) => (
-                              <div key={category} className="space-y-1">
-                                <div className="text-xs font-medium text-gray-700 dark:text-gray-300 capitalize">
-                                  {category}:
-                                </div>
-                                <div className="grid grid-cols-8 gap-1">
-                                  {stickers.map((sticker) => (
-                                    <motion.button
-                                      key={sticker}
-                                      onClick={() => {
-                                        if (
-                                          selectedStickers.includes(sticker)
-                                        ) {
-                                          setSelectedStickers(
-                                            selectedStickers.filter(
-                                              (s) => s !== sticker
-                                            )
-                                          );
-                                        } else {
-                                          setSelectedStickers([
-                                            ...selectedStickers,
-                                            sticker,
-                                          ]);
-                                        }
-                                      }}
-                                      whileHover={{ scale: 1.2 }}
-                                      whileTap={{ scale: 0.9 }}
-                                      className={`text-2xl p-2 rounded-lg transition-all ${
-                                        selectedStickers.includes(sticker)
-                                          ? "bg-orange-500 ring-2 ring-orange-300"
-                                          : "bg-white dark:bg-gray-800 hover:bg-orange-100 dark:hover:bg-orange-900/30"
-                                      }`}
-                                    >
-                                      {sticker}
-                                    </motion.button>
-                                  ))}
-                                </div>
-                              </div>
-                            )
+                          </div>
+                          {enableAnimation && (
+                            <div className="grid grid-cols-4 gap-2 mt-2">
+                              {(
+                                ["fade", "slide", "particles", "glow"] as const
+                              ).map((anim) => (
+                                <motion.button
+                                  key={anim}
+                                  onClick={() => setAnimationStyle(anim)}
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
+                                  className={`px-2 py-1 rounded-lg text-xs font-medium capitalize ${
+                                    animationStyle === anim
+                                      ? "bg-pink-500 text-white"
+                                      : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                  }`}
+                                >
+                                  {anim}
+                                </motion.button>
+                              ))}
+                            </div>
                           )}
-                          {selectedStickers.length > 0 && (
+                        </div>
+
+                        {/* ✨ STICKERS & OVERLAYS - NEW! */}
+                        <div className="space-y-2 p-4 bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-xl border-2 border-yellow-300 dark:border-yellow-600">
+                          <div className="flex items-center justify-between">
+                            <label className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                              <Sparkles className="w-4 h-4" />✨ Decorative
+                              Stickers
+                            </label>
                             <motion.button
-                              onClick={() => setSelectedStickers([])}
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              className="w-full px-3 py-2 bg-red-500 text-white rounded-lg text-xs font-semibold"
+                              onClick={() => setShowStickers(!showStickers)}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                                showStickers
+                                  ? "bg-orange-500 text-white"
+                                  : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                              }`}
                             >
-                              Clear All Stickers ({selectedStickers.length})
+                              {showStickers ? "HIDE" : "SHOW"}
                             </motion.button>
+                          </div>
+                          {showStickers && (
+                            <div className="space-y-3 mt-2">
+                              {Object.entries(stickerLibrary).map(
+                                ([category, stickers]) => (
+                                  <div key={category} className="space-y-1">
+                                    <div className="text-xs font-medium text-gray-700 dark:text-gray-300 capitalize">
+                                      {category}:
+                                    </div>
+                                    <div className="grid grid-cols-8 gap-1">
+                                      {stickers.map((sticker) => (
+                                        <motion.button
+                                          key={sticker}
+                                          onClick={() => {
+                                            if (
+                                              selectedStickers.includes(sticker)
+                                            ) {
+                                              setSelectedStickers(
+                                                selectedStickers.filter(
+                                                  (s) => s !== sticker
+                                                )
+                                              );
+                                            } else {
+                                              setSelectedStickers([
+                                                ...selectedStickers,
+                                                sticker,
+                                              ]);
+                                            }
+                                          }}
+                                          whileHover={{ scale: 1.2 }}
+                                          whileTap={{ scale: 0.9 }}
+                                          className={`text-2xl p-2 rounded-lg transition-all ${
+                                            selectedStickers.includes(sticker)
+                                              ? "bg-orange-500 ring-2 ring-orange-300"
+                                              : "bg-white dark:bg-gray-800 hover:bg-orange-100 dark:hover:bg-orange-900/30"
+                                          }`}
+                                        >
+                                          {sticker}
+                                        </motion.button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )
+                              )}
+                              {selectedStickers.length > 0 && (
+                                <motion.button
+                                  onClick={() => setSelectedStickers([])}
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  className="w-full px-3 py-2 bg-red-500 text-white rounded-lg text-xs font-semibold"
+                                >
+                                  Clear All Stickers ({selectedStickers.length})
+                                </motion.button>
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Preview Card - Now with ALL customizations */}
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Preview
-              </h3>
-              <div className="flex justify-center p-6 bg-gray-50 dark:bg-gray-800 rounded-2xl">
-                <div
-                  id="quote-card"
-                  className={`relative rounded-3xl shadow-2xl overflow-hidden ${fontFamilies[fontFamily].className}`}
-                  style={{
-                    width: `${Math.min(currentFormat.width, 500)}px`,
-                    height: `${Math.min(currentFormat.height, 500)}px`,
-                    maxWidth: "100%",
-                    aspectRatio: `${currentFormat.width} / ${currentFormat.height}`,
-                  }}
-                >
-                  {/* Background Layer with Blur */}
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background: customBg
-                        ? `url(${customBg}) center/cover`
-                        : currentTemplate.bg,
-                      filter:
-                        blurIntensity > 0 ? `blur(${blurIntensity}px)` : "none",
-                    }}
-                  />
-
-                  {/* Background Overlay for Custom Images */}
-                  {customBg && (
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background: "rgba(0, 0, 0, 0.4)",
-                      }}
-                    />
+                      </div>
+                    </motion.div>
                   )}
-
-                  {/* Decorative Border */}
-                  {borderStyle !== "none" && (
-                    <div
-                      className="absolute inset-4 rounded-2xl"
-                      style={{
-                        border:
-                          borderStyle === "solid"
-                            ? `3px solid ${currentTemplate.border}`
-                            : borderStyle === "double"
-                            ? `6px double ${currentTemplate.border}`
-                            : borderStyle === "gradient"
-                            ? "3px solid transparent"
-                            : "none",
-                        backgroundImage:
-                          borderStyle === "gradient"
-                            ? `linear-gradient(white, white), ${currentTemplate.bg}`
-                            : "none",
-                        backgroundOrigin: "border-box",
-                        backgroundClip:
-                          borderStyle === "gradient"
-                            ? "padding-box, border-box"
-                            : "border-box",
-                      }}
-                    />
-                  )}
-
-                  {/* Content */}
-                  <div
-                    className="relative h-full flex flex-col items-center justify-center px-8 md:px-12 py-12"
-                    style={{
-                      textAlign: textAlign,
-                      textShadow:
-                        shadowIntensity > 0
-                          ? `0 ${shadowIntensity}px ${
-                              shadowIntensity * 2
-                            }px rgba(0,0,0,0.3)`
-                          : "none",
-                    }}
-                  >
-                    {/* Opening Quote */}
-                    <div
-                      className="mb-4 opacity-30"
-                      style={{
-                        color: currentTemplate.accent,
-                        fontSize: `${fontSize * 2.5}px`,
-                      }}
-                    >
-                      "
-                    </div>
-
-                    {/* Quote Text */}
-                    <p
-                      className="leading-relaxed mb-6"
-                      style={{
-                        color: displayTextColor,
-                        fontSize: `${fontSize}px`,
-                        lineHeight: "1.6",
-                      }}
-                    >
-                      {selectedText}
-                    </p>
-
-                    {/* Closing Quote */}
-                    <div
-                      className="mb-6 opacity-30"
-                      style={{
-                        color: currentTemplate.accent,
-                        fontSize: `${fontSize * 2.5}px`,
-                      }}
-                    >
-                      "
-                    </div>
-
-                    {/* Book Title */}
-                    <div className="space-y-2">
-                      <div
-                        className="font-bold"
-                        style={{
-                          color: currentTemplate.accent,
-                          fontSize: `${fontSize * 0.75}px`,
-                        }}
-                      >
-                        {bookTitle}
-                      </div>
-                      <div
-                        className="text-sm opacity-80"
-                        style={{
-                          color: displayTextColor,
-                          fontSize: `${fontSize * 0.6}px`,
-                        }}
-                      >
-                        {authorName}
-                      </div>
-
-                      {/* Dynasty Watermark */}
-                      <div
-                        className="mt-4 pt-4 border-t"
-                        style={{ borderColor: currentTemplate.border }}
-                      >
-                        <div
-                          className="font-semibold flex items-center justify-center gap-2"
-                          style={{
-                            color: currentTemplate.accent,
-                            fontSize: `${fontSize * 0.65}px`,
-                          }}
-                        >
-                          <Sparkles className="w-4 h-4" />
-                          Dynasty Academy
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* ✨ STICKERS OVERLAY - NEW! */}
-                    {selectedStickers.length > 0 && (
-                      <div className="absolute inset-0 pointer-events-none">
-                        {selectedStickers.map((sticker, index) => {
-                          // Position stickers in corners and edges
-                          const positions = [
-                            { top: "10%", left: "10%" }, // Top-left
-                            { top: "10%", right: "10%" }, // Top-right
-                            { bottom: "10%", left: "10%" }, // Bottom-left
-                            { bottom: "10%", right: "10%" }, // Bottom-right
-                            { top: "50%", left: "5%" }, // Middle-left
-                            { top: "50%", right: "5%" }, // Middle-right
-                            { top: "5%", left: "50%" }, // Top-middle
-                            { bottom: "5%", left: "50%" }, // Bottom-middle
-                          ];
-                          const position = positions[index % positions.length];
-
-                          return (
-                            <motion.div
-                              key={`${sticker}-${index}`}
-                              initial={{ scale: 0, rotate: 0 }}
-                              animate={{
-                                scale: enableAnimation ? [1, 1.2, 1] : 1,
-                                rotate: enableAnimation ? [0, 10, -10, 0] : 0,
-                              }}
-                              transition={{
-                                duration: 2,
-                                repeat: enableAnimation ? Infinity : 0,
-                                delay: index * 0.2,
-                              }}
-                              className="absolute text-3xl md:text-4xl"
-                              style={{
-                                ...position,
-                                transform: "translate(-50%, -50%)",
-                                opacity: 0.9,
-                                filter:
-                                  "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
-                              }}
-                            >
-                              {sticker}
-                            </motion.div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* 🎬 ANIMATION LAYER - Preview of effects */}
-                    {enableAnimation && (
-                      <motion.div
-                        className="absolute inset-0 pointer-events-none"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1, repeat: Infinity }}
-                      >
-                        {animationStyle === "glow" && (
-                          <div
-                            className="absolute inset-0 rounded-3xl"
-                            style={{
-                              boxShadow: `0 0 40px ${currentTemplate.accent}`,
-                              animation: "pulse 2s ease-in-out infinite",
-                            }}
-                          />
-                        )}
-                      </motion.div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <motion.button
-                onClick={handleDownload}
-                disabled={isGenerating}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                <Download className="w-5 h-5" />
-                Download
-              </motion.button>
-
-              <motion.button
-                onClick={handleCopyImage}
-                disabled={isGenerating}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-              >
-                {isCopied ? (
-                  <>
-                    <Check className="w-5 h-5" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-5 h-5" />
-                    Copy Image
-                  </>
-                )}
-              </motion.button>
-
-              {typeof navigator !== "undefined" &&
-                navigator.share !== undefined && (
-                  <motion.button
-                    onClick={handleShare}
-                    disabled={isGenerating}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                  >
-                    <Share2 className="w-5 h-5" />
-                    Share
-                  </motion.button>
-                )}
-
-              <motion.button
-                onClick={handleCopyText}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
-              >
-                <Copy className="w-5 h-5" />
-                Copy Text
-              </motion.button>
-            </div>
-
+                </AnimatePresence>
+              </div>{" "}
+              {/* Close right side controls */}
+            </div>{" "}
+            {/* Close grid */}
             {/* Tips - Updated for ALL features */}
             <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border-2 border-purple-200 dark:border-purple-700">
               <div className="flex items-start gap-3">

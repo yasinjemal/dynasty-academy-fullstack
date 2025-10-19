@@ -180,6 +180,29 @@ class BrowserAI {
   }
 
   /**
+   * Get learning events for analysis (used by Chat with Data)
+   */
+  async getEvents(userId: string, courseId?: string): Promise<LearningEvent[]> {
+    if (!this.db) await this.initialize();
+
+    try {
+      const allEvents = (await this.db!.getAll(
+        "learning-events"
+      )) as LearningEvent[];
+
+      // Filter by userId and optionally courseId
+      return allEvents.filter((event) => {
+        const matchesUser = event.userId === userId;
+        const matchesCourse = !courseId || event.courseId === courseId;
+        return matchesUser && matchesCourse;
+      });
+    } catch (error) {
+      console.error("[BrowserAI] Error getting events:", error);
+      return [];
+    }
+  }
+
+  /**
    * Analyze event in background (Web Worker)
    */
   private analyzeInBackground(event: LearningEvent) {

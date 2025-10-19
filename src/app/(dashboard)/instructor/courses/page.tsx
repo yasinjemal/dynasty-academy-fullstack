@@ -127,7 +127,7 @@ export default function InstructorCoursesPage() {
                 Manage and track your course performance
               </p>
             </div>
-            <Link href="/instructor/create-course">
+            <Link href="/instructor/create">
               <button className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-xl text-white font-semibold shadow-lg shadow-purple-500/50 transition-all flex items-center gap-2">
                 <Plus className="w-5 h-5" />
                 Create Course

@@ -12,6 +12,8 @@ import {
   AlertCircle,
   Trophy,
 } from "lucide-react";
+import { dynastyAI } from "@/lib/intelligence/DynastyIntelligenceEngine";
+import { useSession } from "next-auth/react";
 
 interface QuizOption {
   id: string;
@@ -52,6 +54,7 @@ interface QuizComponentProps {
 }
 
 export function QuizComponent({ lessonId, onComplete }: QuizComponentProps) {
+  const { data: session } = useSession();
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
@@ -60,6 +63,12 @@ export function QuizComponent({ lessonId, onComplete }: QuizComponentProps) {
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
+
+  // Dynasty Intelligence tracking state
+  const [quizStartTime, setQuizStartTime] = useState<number>(0);
+  const [questionStartTimes, setQuestionStartTimes] = useState<
+    Record<string, number>
+  >({});
 
   // Fetch quiz data
   useEffect(() => {
@@ -127,6 +136,10 @@ export function QuizComponent({ lessonId, onComplete }: QuizComponentProps) {
   const handleSubmitQuiz = async () => {
     if (!quiz) return;
 
+    const totalTime = quizStartTime
+      ? Math.floor((Date.now() - quizStartTime) / 1000)
+      : 0;
+
     try {
       const response = await fetch(`/api/lessons/${lessonId}/quiz/submit`, {
         method: "POST",
@@ -139,6 +152,13 @@ export function QuizComponent({ lessonId, onComplete }: QuizComponentProps) {
         setAttempt(data.attempt);
         setShowResults(true);
         onComplete?.(data.attempt.passed, data.attempt.score);
+
+        // Track quiz completion with Dynasty Intelligence
+        await trackQuizComplete(
+          data.attempt.score,
+          data.attempt.passed,
+          totalTime
+        );
       }
     } catch (error) {
       console.error("Failed to submit quiz:", error);
@@ -153,6 +173,83 @@ export function QuizComponent({ lessonId, onComplete }: QuizComponentProps) {
     setHasStarted(false);
     if (quiz?.timeLimit) {
       setTimeRemaining(quiz.timeLimit * 60);
+    }
+  };
+
+  // Dynasty Intelligence Tracking Functions
+  const trackQuizStart = async () => {
+    if (!session?.user?.id || !quiz) return;
+
+    const startTime = Date.now();
+    setQuizStartTime(startTime);
+
+    try {
+      await dynastyAI.trackEvent({
+        userId: session.user.id,
+        courseId: lessonId, // Using lessonId as courseId for now
+        lessonId: lessonId,
+        type: "quiz_complete", // Using quiz_complete for both start and completion
+        duration: 0,
+        engagement: 1.0, // Starting quiz shows high engagement
+        metadata: {
+          quizId: quiz.id,
+          questionCount: quiz.questions.length,
+          timeLimit: quiz.timeLimit,
+          passingScore: quiz.passingScore,
+          status: "started",
+          timestamp: new Date().toISOString(),
+        },
+      });
+      console.log("📊 [Dynasty AI] Quiz started:", quiz.id);
+    } catch (error) {
+      console.error("[Dynasty AI] Quiz start tracking failed:", error);
+    }
+  };
+
+  const trackQuizComplete = async (
+    finalScore: number,
+    passed: boolean,
+    totalTime: number
+  ) => {
+    if (!session?.user?.id || !quiz) return;
+
+    // Calculate engagement based on completion time and score
+    const avgTimePerQuestion = totalTime / quiz.questions.length;
+    const timeEngagement = Math.min(avgTimePerQuestion / 60, 1); // Normalize to 0-1
+    const scoreEngagement = finalScore / 100;
+    const engagement = timeEngagement * 0.4 + scoreEngagement * 0.6;
+
+    try {
+      await dynastyAI.trackEvent({
+        userId: session.user.id,
+        courseId: lessonId,
+        lessonId: lessonId,
+        type: "quiz_complete",
+        duration: totalTime,
+        engagement: engagement,
+        metadata: {
+          quizId: quiz.id,
+          score: finalScore,
+          passed: passed,
+          status: "completed",
+          questionCount: quiz.questions.length,
+          correctAnswers: Object.keys(answers).filter((qId) => {
+            const question = quiz.questions.find((q) => q.id === qId);
+            return question && answers[qId] === question.correctAnswer;
+          }).length,
+          totalQuestions: quiz.questions.length,
+          accuracy: finalScore / 100,
+          timeSpent: totalTime,
+          timestamp: new Date().toISOString(),
+        },
+      });
+      console.log("📊 [Dynasty AI] Quiz completed:", {
+        score: finalScore,
+        passed,
+        engagement: engagement.toFixed(2),
+      });
+    } catch (error) {
+      console.error("[Dynasty AI] Quiz completion tracking failed:", error);
     }
   };
 
@@ -234,7 +331,10 @@ export function QuizComponent({ lessonId, onComplete }: QuizComponentProps) {
           </div>
 
           <button
-            onClick={() => setHasStarted(true)}
+            onClick={() => {
+              setHasStarted(true);
+              trackQuizStart();
+            }}
             className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all font-semibold text-lg flex items-center justify-center gap-2"
           >
             Start Quiz

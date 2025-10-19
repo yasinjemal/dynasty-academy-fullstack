@@ -13,6 +13,8 @@ import {
   Send,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { dynastyAI } from "@/lib/intelligence/DynastyIntelligenceEngine";
+import { useSession } from "next-auth/react";
 
 interface VideoBookmark {
   id: string;
@@ -37,6 +39,7 @@ export function BookmarksManager({
   onFavoriteToggle,
   onJumpToTimestamp,
 }: BookmarksManagerProps) {
+  const { data: session } = useSession();
   const [bookmarks, setBookmarks] = useState<VideoBookmark[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -105,9 +108,53 @@ export function BookmarksManager({
         setBookmarks([...bookmarks, data.bookmark]);
         setNewBookmark({ title: "", note: "", timestamp: 0 });
         setShowAddForm(false);
+
+        // Track note creation with Dynasty Intelligence
+        await trackNoteCreation(
+          newBookmark.title,
+          newBookmark.note || "",
+          timestamp
+        );
       }
     } catch (error) {
       console.error("Failed to add bookmark:", error);
+    }
+  };
+
+  // Dynasty Intelligence Tracking
+  const trackNoteCreation = async (
+    title: string,
+    noteContent: string,
+    timestamp: number
+  ) => {
+    if (!session?.user?.id) return;
+
+    const noteLength = noteContent.length + title.length;
+    const engagement = Math.min((noteLength / 100) * 0.5 + 0.5, 1); // 0.5-1.0 based on length
+
+    try {
+      await dynastyAI.trackEvent({
+        userId: session.user.id,
+        courseId: lessonId,
+        lessonId: lessonId,
+        type: "note_taken",
+        duration: 0,
+        engagement: engagement,
+        metadata: {
+          noteTitle: title,
+          noteLength: noteLength,
+          hasContent: noteContent.length > 0,
+          videoTimestamp: timestamp,
+          timestamp: new Date().toISOString(),
+        },
+      });
+      console.log("📊 [Dynasty AI] Note created:", {
+        title,
+        length: noteLength,
+        engagement: engagement.toFixed(2),
+      });
+    } catch (error) {
+      console.error("[Dynasty AI] Note tracking failed:", error);
     }
   };
 
