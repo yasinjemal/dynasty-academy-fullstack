@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "./providers";
 import { ToasterWrapper } from "@/components/ui/toaster-wrapper";
 import HeyDynastyUltimate from "@/components/voice/HeyDynastyUltimate";
+import AiChatWidget from "@/components/ai/AiChatWidget";
 // import OnboardingCheck from "@/components/profile/OnboardingCheck";
 
 const inter = Inter({
@@ -43,7 +44,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`}>
         <ToasterWrapper />
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          {/* 🤖 Dynasty AI Coach - Available on all pages */}
+          <AiChatWidget />
+        </Providers>
         <HeyDynastyUltimate />
       </body>
     </html>

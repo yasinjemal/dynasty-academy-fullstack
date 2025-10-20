@@ -109,6 +109,8 @@ model User {
   opponentDuels          Duel[]               @relation("OpponentDuels")
   wonDuels               Duel[]               @relation("WonDuels")
   duelStats              DuelStats?           @relation("UserDuelStats")
+  // 🤖 AI Coach Relations
+  aiConversations        AiConversation[]     @relation("UserAiConversations")
 
   @@index([email])
   @@index([role])
@@ -1841,4 +1843,111 @@ enum DuelTier {
   DIAMOND    // 10,000-19,999 XP
   MASTER     // 20,000-49,999 XP
   LEGEND     // 50,000+ XP
+}
+
+// 🤖 ============================================
+// DYNASTY NEXUS - AI INTELLIGENCE SYSTEM
+// ============================================
+
+// 💬 AI Coach - Conversations
+model AiConversation {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation("UserAiConversations", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Conversation Data
+  messages    Json     @db.JsonB // Array of {role: "user"|"assistant", content: string, timestamp: DateTime}
+  messageCount Int     @default(0)
+  
+  // Context Awareness
+  context     Json?    @db.JsonB // {page: string, courseId?: string, lessonId?: string, bookId?: string}
+  topic       String?  // Main topic extracted from conversation
+  
+  // Status & Quality
+  status      AiConversationStatus @default(ACTIVE)
+  resolved    Boolean  @default(false)
+  sentiment   Float?   // -1 (negative) to 1 (positive)
+  rating      Int?     // 1-5 stars (user feedback)
+  feedback    String?  @db.Text
+  
+  // Analytics
+  responseTime Float?  // Average AI response time in seconds
+  tokensUsed   Int     @default(0)
+  cost         Float   @default(0) // Cost in USD
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+  @@index([topic])
+  @@index([createdAt])
+  @@index([rating])
+  @@map("ai_conversations")
+}
+
+enum AiConversationStatus {
+  ACTIVE      // Ongoing conversation
+  RESOLVED    // User's question answered
+  ESCALATED   // Needs human support
+  ABANDONED   // User left without resolution
+}
+
+// 📊 AI Insights - Content Gap Analysis
+model AiInsight {
+  id          String   @id @default(cuid())
+  
+  // Insight Type
+  type        AiInsightType
+  category    String   // "course", "book", "lesson", "general"
+  
+  // Content
+  content     String   @db.Text
+  question    String?  @db.Text // Original user question if applicable
+  
+  // Relations
+  relatedTo   String?  // courseId, bookId, lessonId
+  relatedType String?  // "course", "book", "lesson"
+  
+  // Analytics
+  frequency   Int      @default(1) // How many times this came up
+  userCount   Int      @default(1) // How many unique users
+  avgSentiment Float?  // Average sentiment of conversations about this
+  
+  // Resolution
+  resolved    Boolean  @default(false)
+  resolvedAt  DateTime?
+  resolvedBy  String?  // Admin user ID
+  resolution  String?  @db.Text // What action was taken
+  
+  // Priority
+  priority    AiInsightPriority @default(MEDIUM)
+  impact      String?  // Estimated impact of addressing this
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([type])
+  @@index([category])
+  @@index([relatedTo])
+  @@index([resolved])
+  @@index([priority])
+  @@index([frequency])
+  @@map("ai_insights")
+}
+
+enum AiInsightType {
+  CONFUSION       // Users confused about a concept
+  QUESTION        // Frequently asked question
+  FEATURE_REQUEST // Users asking for a feature
+  BUG_REPORT      // Users reporting an issue
+  CONTENT_GAP     // Missing content identified
+  IMPROVEMENT     // Suggestion for improvement
+}
+
+enum AiInsightPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }
