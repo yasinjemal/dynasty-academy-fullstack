@@ -84,11 +84,12 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
 
   // Get page context
   const getContext = () => {
+    const currentPath = pathname || '/';
     return {
-      page: pathname || '/',
-      courseId: pathname.includes('/courses/') ? pathname.split('/courses/')[1]?.split('/')[0] : undefined,
-      lessonId: pathname.includes('/lessons/') ? pathname.split('/lessons/')[1]?.split('/')[0] : undefined,
-      bookId: pathname.includes('/books/') ? pathname.split('/books/')[1]?.split('/')[0] : undefined,
+      page: currentPath,
+      courseId: currentPath.includes('/courses/') ? currentPath.split('/courses/')[1]?.split('/')[0] : undefined,
+      lessonId: currentPath.includes('/lessons/') ? currentPath.split('/lessons/')[1]?.split('/')[0] : undefined,
+      bookId: currentPath.includes('/books/') ? currentPath.split('/books/')[1]?.split('/')[0] : undefined,
     };
   };
 
@@ -362,30 +363,31 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
                             : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                         }`}
                       >
-                        <ReactMarkdown
-                          className="prose prose-sm dark:prose-invert max-w-none"
-                          components={{
-                            code({ node, inline, className, children, ...props }) {
-                              const match = /language-(\w+)/.exec(className || '');
-                              return !inline && match ? (
-                                <SyntaxHighlighter
-                                  style={vscDarkPlus as any}
-                                  language={match[1]}
-                                  PreTag="div"
-                                  {...props}
-                                >
-                                  {String(children).replace(/\n$/, '')}
-                                </SyntaxHighlighter>
-                              ) : (
-                                <code className={className} {...props}>
-                                  {children}
-                                </code>
-                              );
-                            },
-                          }}
-                        >
-                          {message.content}
-                        </ReactMarkdown>
+                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                          <ReactMarkdown
+                            components={{
+                              code({ node, className, children, ...props }: any) {
+                                const match = /language-(\w+)/.exec(className || '');
+                                const inline = !match;
+                                return !inline && match ? (
+                                  <SyntaxHighlighter
+                                    style={vscDarkPlus as any}
+                                    language={match[1]}
+                                    PreTag="div"
+                                  >
+                                    {String(children).replace(/\n$/, '')}
+                                  </SyntaxHighlighter>
+                                ) : (
+                                  <code className={className} {...props}>
+                                    {children}
+                                  </code>
+                                );
+                              },
+                            }}
+                          >
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -394,9 +396,9 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
                   {streamingMessage && (
                     <div className="flex justify-start">
                       <div className="max-w-[80%] rounded-2xl px-4 py-3 bg-gray-100 dark:bg-gray-800">
-                        <ReactMarkdown className="prose prose-sm dark:prose-invert max-w-none">
-                          {streamingMessage}
-                        </ReactMarkdown>
+                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                          <ReactMarkdown>{streamingMessage}</ReactMarkdown>
+                        </div>
                         <div className="inline-block w-2 h-4 bg-purple-600 animate-pulse ml-1" />
                       </div>
                     </div>

@@ -16,8 +16,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { authOptions } from '@/lib/auth/auth-options';
+import { prisma } from '@/lib/db/prisma';
 import OpenAI from 'openai';
 
 // Initialize OpenAI
@@ -376,29 +376,36 @@ async function extractInsights(
 
     if (isConfused && context?.lessonId) {
       // Record confusion about specific lesson
-      await prisma.aiInsight.upsert({
+      const existingConfusion = await prisma.aiInsight.findFirst({
         where: {
-          type_relatedTo: {
-            type: 'CONFUSION',
-            relatedTo: context.lessonId,
-          },
-        },
-        update: {
-          frequency: { increment: 1 },
-          userCount: { increment: 1 },
-        },
-        create: {
           type: 'CONFUSION',
-          category: 'lesson',
-          content: `Users are confused about this lesson`,
-          question: userMessage.slice(0, 500),
           relatedTo: context.lessonId,
-          relatedType: 'lesson',
-          frequency: 1,
-          userCount: 1,
-          priority: 'MEDIUM',
         },
       });
+
+      if (existingConfusion) {
+        await prisma.aiInsight.update({
+          where: { id: existingConfusion.id },
+          data: {
+            frequency: { increment: 1 },
+            userCount: { increment: 1 },
+          },
+        });
+      } else {
+        await prisma.aiInsight.create({
+          data: {
+            type: 'CONFUSION',
+            category: 'lesson',
+            content: `Users are confused about this lesson`,
+            question: userMessage.slice(0, 500),
+            relatedTo: context.lessonId,
+            relatedType: 'lesson',
+            frequency: 1,
+            userCount: 1,
+            priority: 'MEDIUM',
+          },
+        });
+      }
     }
 
     // Check for frequently asked questions
