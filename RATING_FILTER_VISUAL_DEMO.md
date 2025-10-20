@@ -102,6 +102,7 @@
 ## 🎬 Step-by-Step Demo
 
 ### Step 1: Arrive at Import Page
+
 ```
 URL: /admin/books/import
 Status: ✅ Admin authenticated
@@ -109,6 +110,7 @@ View: Clean, modern dark theme
 ```
 
 ### Step 2: See the Rating Slider
+
 ```
 Label: "📊 Minimum Rating: 3.0 ⭐"
 Slider: Positioned at 3.0 (middle)
@@ -117,6 +119,7 @@ Accent: Yellow color (matches stars)
 ```
 
 ### Step 3: Move Slider to 4.0
+
 ```
 Action: Drag slider right
 Label updates: "📊 Minimum Rating: 4.0 ⭐"
@@ -125,6 +128,7 @@ Feedback: Instant visual update
 ```
 
 ### Step 4: Select Source
+
 ```
 Click: "Open Library" card
 Visual: Purple border + checkmark
@@ -132,12 +136,14 @@ Status: Selected ✓
 ```
 
 ### Step 5: Choose Category
+
 ```
 Dropdown: "Leadership"
 Status: Filter applied ✓
 ```
 
 ### Step 6: Click Preview
+
 ```
 Button: "🔍 Preview (Dry Run)"
 Loading: Spinner animation
@@ -145,6 +151,7 @@ Status: Fetching from Open Library...
 ```
 
 ### Step 7: See Filtered Results
+
 ```
 Console:
   ✅ Found 150 books from Open Library
@@ -153,7 +160,7 @@ Console:
 UI:
   📊 Total Found: 150
   ⭐ Filtered to: 62 books
-  
+
 Preview List:
   ✅ All books show ratings
   ✅ All ratings ≥4.0
@@ -161,6 +168,7 @@ Preview List:
 ```
 
 ### Step 8: Import
+
 ```
 Button: "⚡ Import Now"
 Status: Importing 62 books...
@@ -172,6 +180,7 @@ Result: ✅ 62 books imported, 0 failed
 ## 🎨 Color Scheme
 
 ### Slider Components
+
 ```css
 /* Label */
 color: white
@@ -192,6 +201,7 @@ font-size: xs
 ```
 
 ### Rating Display
+
 ```css
 /* Star Icon */
 emoji: ⭐
@@ -208,6 +218,7 @@ format: X.X (e.g., 4.3)
 ## 📱 Responsive Design
 
 ### Desktop (lg+)
+
 ```
 Slider: Full width
 Labels: Horizontal layout
@@ -215,6 +226,7 @@ Range indicators: 3 labels (No filter, 2.5, 5.0)
 ```
 
 ### Tablet (md)
+
 ```
 Slider: Full width
 Labels: Stacked if needed
@@ -222,6 +234,7 @@ Range indicators: 2 labels (No filter, 5.0)
 ```
 
 ### Mobile (sm)
+
 ```
 Slider: Touch-friendly
 Labels: Compact
@@ -233,6 +246,7 @@ Range indicators: Min/Max only
 ## 🎯 Interactive States
 
 ### Default State
+
 ```
 Rating: 3.0 ⭐
 Color: White text, yellow accent
@@ -240,6 +254,7 @@ Status: Ready to filter
 ```
 
 ### Hovering Slider
+
 ```
 Cursor: pointer
 Track: Slightly brighter
@@ -247,6 +262,7 @@ Thumb: Grows 5%
 ```
 
 ### Dragging Slider
+
 ```
 Cursor: grabbing
 Feedback: Label updates live
@@ -254,6 +270,7 @@ Value: Updates in real-time
 ```
 
 ### After Selection
+
 ```
 Label: "Minimum Rating: 4.5 ⭐"
 Visual: Slider at 90% position
@@ -265,6 +282,7 @@ Status: Filter will be applied
 ## 🔍 Example Scenarios
 
 ### Scenario A: No Filter
+
 ```
 ┌────────────────────────────────────┐
 │ Minimum Rating: 0.0 ⭐             │
@@ -275,6 +293,7 @@ Result: All books imported (no filtering)
 ```
 
 ### Scenario B: Good Quality
+
 ```
 ┌────────────────────────────────────┐
 │ Minimum Rating: 3.5 ⭐             │
@@ -285,6 +304,7 @@ Result: Books with ≥3.5 stars imported
 ```
 
 ### Scenario C: High Quality
+
 ```
 ┌────────────────────────────────────┐
 │ Minimum Rating: 4.5 ⭐             │
@@ -295,6 +315,7 @@ Result: Books with ≥4.5 stars imported
 ```
 
 ### Scenario D: Perfect Only
+
 ```
 ┌────────────────────────────────────┐
 │ Minimum Rating: 5.0 ⭐             │
@@ -344,10 +365,11 @@ Importing 62 books...
 ## 🎉 Final Result
 
 ### What You See in Database
+
 ```sql
-SELECT title, rating, source 
-FROM books 
-WHERE source = 'openlibrary' 
+SELECT title, rating, source
+FROM books
+WHERE source = 'openlibrary'
   AND createdAt > NOW() - INTERVAL '1 hour'
 ORDER BY rating DESC;
 
@@ -362,6 +384,7 @@ Deep Work             | 4.2 | openlibrary
 ```
 
 ### What Users See
+
 ```
 📚 New Books (Leadership)
 ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬

@@ -104,6 +104,11 @@ model User {
   userAchievements       UserAchievement[]    @relation("UserAchievements")
   progress               UserProgress[]
   userQuests             UserQuest[]
+  // 🎮 Duel Relations
+  challengedDuels        Duel[]               @relation("ChallengerDuels")
+  opponentDuels          Duel[]               @relation("OpponentDuels")
+  wonDuels               Duel[]               @relation("WonDuels")
+  duelStats              DuelStats?           @relation("UserDuelStats")
 
   @@index([email])
   @@index([role])
@@ -212,6 +217,7 @@ model Book {
   reviews            Review[]
   sentenceHighlights SentenceHighlight[]  @relation("BookSentenceHighlights")
   progress           UserProgress[]
+  duels              Duel[]               // 🎮 Knowledge battles for this book
 
   @@index([slug])
   @@index([category])
@@ -1693,4 +1699,146 @@ enum ReportStatus {
   REVIEWING
   RESOLVED
   DISMISSED
+}
+
+// 🎮⚔️ DYNASTY DUELS - Knowledge Battle System
+
+model Duel {
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  startedAt     DateTime?
+  completedAt   DateTime?
+  
+  // Players
+  challengerId  String
+  challenger    User        @relation("ChallengerDuels", fields: [challengerId], references: [id], onDelete: Cascade)
+  opponentId    String
+  opponent      User        @relation("OpponentDuels", fields: [opponentId], references: [id], onDelete: Cascade)
+  
+  // Book Context
+  bookId        String
+  book          Book        @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  chapterId     Int?
+  chapterTitle  String?
+  
+  // Game Settings
+  questionCount Int         @default(5)
+  timeLimit     Int         @default(60) // seconds per question
+  difficulty    String      @default("medium") // easy, medium, hard
+  
+  // Stakes & Betting
+  xpBet         Int         @default(0)
+  coinBet       Int         @default(0)
+  
+  // Results
+  challengerScore  Int?
+  opponentScore    Int?
+  winnerId         String?
+  winner           User?       @relation("WonDuels", fields: [winnerId], references: [id], onDelete: SetNull)
+  
+  // Status
+  status        DuelStatus  @default(PENDING)
+  
+  // Relations
+  questions     DuelQuestion[]
+  
+  @@index([challengerId])
+  @@index([opponentId])
+  @@index([bookId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("duels")
+}
+
+enum DuelStatus {
+  PENDING    // Waiting for opponent to accept
+  ACTIVE     // Battle in progress
+  COMPLETED  // Finished
+  DECLINED   // Opponent declined
+  EXPIRED    // Timeout (no response within 24h)
+  CANCELLED  // Cancelled by challenger
+}
+
+model DuelQuestion {
+  id            String   @id @default(cuid())
+  duelId        String
+  duel          Duel     @relation(fields: [duelId], references: [id], onDelete: Cascade)
+  
+  // Question Content
+  questionText  String   @db.Text
+  options       Json     // ["Option A", "Option B", "Option C", "Option D"]
+  correctAnswer Int      // 0, 1, 2, or 3 (array index)
+  explanation   String   @db.Text
+  
+  // Metadata
+  questionOrder Int      @default(0) // 1-5
+  pageReference Int?
+  difficulty    Float    @default(0.5) // 0-1 scale
+  estimatedTime Int      @default(12) // seconds
+  
+  // Player Answers
+  challengerAnswer   Int?     // 0-3 or null if no answer
+  challengerTime     Int?     // milliseconds taken
+  challengerCorrect  Boolean?
+  
+  opponentAnswer     Int?
+  opponentTime       Int?
+  opponentCorrect    Boolean?
+  
+  createdAt     DateTime @default(now())
+  
+  @@index([duelId])
+  @@index([questionOrder])
+  @@map("duel_questions")
+}
+
+model DuelStats {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation("UserDuelStats", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Overall Stats
+  totalDuels      Int @default(0)
+  wins            Int @default(0)
+  losses          Int @default(0)
+  draws           Int @default(0)
+  
+  // Streaks
+  currentStreak   Int @default(0)
+  longestStreak   Int @default(0)
+  lastDuelAt      DateTime?
+  
+  // Rankings & Currency
+  rank            Int?
+  tier            DuelTier @default(BRONZE)
+  xp              Int @default(0)
+  coins           Int @default(500) // Starting coins
+  
+  // Performance Metrics
+  perfectGames    Int @default(0) // All questions correct
+  fastestWin      Int? // seconds
+  highestScore    Int @default(0)
+  totalXpEarned   Int @default(0)
+  totalXpLost     Int @default(0)
+  
+  // By Book Stats (stored as JSON for flexibility)
+  bookStats       Json? // { "book-id": { wins: 5, losses: 2, avgScore: 450 } }
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([rank])
+  @@index([xp])
+  @@index([tier])
+  @@map("duel_stats")
+}
+
+enum DuelTier {
+  BRONZE     // 0-999 XP
+  SILVER     // 1,000-2,999 XP
+  GOLD       // 3,000-5,999 XP
+  PLATINUM   // 6,000-9,999 XP
+  DIAMOND    // 10,000-19,999 XP
+  MASTER     // 20,000-49,999 XP
+  LEGEND     // 50,000+ XP
 }
