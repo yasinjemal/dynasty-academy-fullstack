@@ -1,9 +1,9 @@
 /**
  * 🤖 DYNASTY AI COACH - FLOATING CHAT WIDGET
- * 
+ *
  * Beautiful ChatGPT-style interface that floats on all pages.
  * Context-aware, streaming responses, conversation history.
- * 
+ *
  * Features:
  * - Floating bubble (bottom-right)
  * - Expandable chat window
@@ -15,12 +15,12 @@
  * - Mobile responsive
  */
 
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageCircle,
   X,
@@ -30,13 +30,13 @@ import {
   ThumbsUp,
   ThumbsDown,
   RotateCcw,
-} from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+} from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: string;
 }
@@ -45,7 +45,9 @@ interface AiChatWidgetProps {
   defaultOpen?: boolean;
 }
 
-export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps) {
+export default function AiChatWidget({
+  defaultOpen = false,
+}: AiChatWidgetProps) {
   const { data: session } = useSession();
   const pathname = usePathname();
 
@@ -57,9 +59,9 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
 
   // Chat State
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [streamingMessage, setStreamingMessage] = useState('');
+  const [streamingMessage, setStreamingMessage] = useState("");
 
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -68,7 +70,7 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -84,12 +86,18 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
 
   // Get page context
   const getContext = () => {
-    const currentPath = pathname || '/';
+    const currentPath = pathname || "/";
     return {
       page: currentPath,
-      courseId: currentPath.includes('/courses/') ? currentPath.split('/courses/')[1]?.split('/')[0] : undefined,
-      lessonId: currentPath.includes('/lessons/') ? currentPath.split('/lessons/')[1]?.split('/')[0] : undefined,
-      bookId: currentPath.includes('/books/') ? currentPath.split('/books/')[1]?.split('/')[0] : undefined,
+      courseId: currentPath.includes("/courses/")
+        ? currentPath.split("/courses/")[1]?.split("/")[0]
+        : undefined,
+      lessonId: currentPath.includes("/lessons/")
+        ? currentPath.split("/lessons/")[1]?.split("/")[0]
+        : undefined,
+      bookId: currentPath.includes("/books/")
+        ? currentPath.split("/books/")[1]?.split("/")[0]
+        : undefined,
     };
   };
 
@@ -100,24 +108,24 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
     if (!input.trim() || isStreaming || !session) return;
 
     const userMessage: Message = {
-      role: 'user',
+      role: "user",
       content: input.trim(),
       timestamp: new Date().toISOString(),
     };
 
     // Add user message immediately
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
     setIsStreaming(true);
-    setStreamingMessage('');
+    setStreamingMessage("");
 
     try {
       // Create AbortController for cancellation
       abortControllerRef.current = new AbortController();
 
-      const response = await fetch('/api/ai/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: userMessage.content,
           conversationId,
@@ -128,26 +136,28 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to send message');
+        throw new Error(error.error || "Failed to send message");
       }
 
       // Handle streaming response
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
 
-      if (!reader) throw new Error('No response stream');
+      if (!reader) throw new Error("No response stream");
 
-      let fullMessage = '';
+      let fullMessage = "";
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = decoder.decode(value);
-        const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '));
+        const lines = chunk
+          .split("\n")
+          .filter((line) => line.trim().startsWith("data: "));
 
         for (const line of lines) {
-          const data = line.replace('data: ', '');
+          const data = line.replace("data: ", "");
           try {
             const parsed = JSON.parse(data);
 
@@ -159,13 +169,13 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
             if (parsed.done) {
               // Streaming complete
               const assistantMessage: Message = {
-                role: 'assistant',
+                role: "assistant",
                 content: fullMessage,
                 timestamp: new Date().toISOString(),
               };
 
-              setMessages(prev => [...prev, assistantMessage]);
-              setStreamingMessage('');
+              setMessages((prev) => [...prev, assistantMessage]);
+              setStreamingMessage("");
               setIsStreaming(false);
 
               // Save conversation ID
@@ -174,25 +184,25 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
               }
             }
           } catch (parseError) {
-            console.error('Parse error:', parseError);
+            console.error("Parse error:", parseError);
           }
         }
       }
     } catch (error: any) {
-      console.error('❌ Send message error:', error);
+      console.error("❌ Send message error:", error);
 
-      if (error.name !== 'AbortError') {
+      if (error.name !== "AbortError") {
         // Show error message
         const errorMessage: Message = {
-          role: 'assistant',
+          role: "assistant",
           content: `Sorry, I encountered an error: ${error.message}. Please try again.`,
           timestamp: new Date().toISOString(),
         };
 
-        setMessages(prev => [...prev, errorMessage]);
+        setMessages((prev) => [...prev, errorMessage]);
       }
 
-      setStreamingMessage('');
+      setStreamingMessage("");
       setIsStreaming(false);
     }
   };
@@ -201,23 +211,23 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
   const cancelStreaming = () => {
     abortControllerRef.current?.abort();
     setIsStreaming(false);
-    setStreamingMessage('');
+    setStreamingMessage("");
   };
 
   // Reset conversation
   const resetConversation = () => {
     setMessages([]);
     setConversationId(null);
-    setStreamingMessage('');
+    setStreamingMessage("");
     setIsStreaming(false);
   };
 
   // Quick action buttons
   const quickActions = [
-    { text: 'Help me understand this lesson', icon: '📚' },
-    { text: 'Quiz me on this topic', icon: '✍️' },
-    { text: 'Explain this concept simply', icon: '💡' },
-    { text: 'Give me study tips', icon: '🎯' },
+    { text: "Help me understand this lesson", icon: "📚" },
+    { text: "Quiz me on this topic", icon: "✍️" },
+    { text: "Explain this concept simply", icon: "💡" },
+    { text: "Give me study tips", icon: "🎯" },
   ];
 
   const handleQuickAction = (text: string) => {
@@ -274,8 +284,8 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
             transition={{ duration: 0.2 }}
             className={`fixed z-50 ${
               isMinimized
-                ? 'bottom-6 right-6 w-80'
-                : 'bottom-6 right-6 w-96 h-[600px]'
+                ? "bottom-6 right-6 w-80"
+                : "bottom-6 right-6 w-96 h-[600px]"
             } flex flex-col bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden`}
           >
             {/* Header */}
@@ -289,7 +299,9 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
                 </div>
                 <div>
                   <h3 className="font-bold">Dynasty AI Coach</h3>
-                  <p className="text-xs text-white/80">Always here to help 🚀</p>
+                  <p className="text-xs text-white/80">
+                    Always here to help 🚀
+                  </p>
                 </div>
               </div>
 
@@ -326,7 +338,8 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
                           Hi! I'm your AI Coach 👋
                         </h3>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Ask me anything about your courses, books, or learning journey!
+                          Ask me anything about your courses, books, or learning
+                          journey!
                         </p>
                       </div>
 
@@ -353,21 +366,30 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
                     <div
                       key={idx}
                       className={`flex ${
-                        message.role === 'user' ? 'justify-end' : 'justify-start'
+                        message.role === "user"
+                          ? "justify-end"
+                          : "justify-start"
                       }`}
                     >
                       <div
                         className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                          message.role === 'user'
-                            ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
+                          message.role === "user"
+                            ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                            : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                         }`}
                       >
                         <div className="prose prose-sm dark:prose-invert max-w-none">
                           <ReactMarkdown
                             components={{
-                              code({ node, className, children, ...props }: any) {
-                                const match = /language-(\w+)/.exec(className || '');
+                              code({
+                                node,
+                                className,
+                                children,
+                                ...props
+                              }: any) {
+                                const match = /language-(\w+)/.exec(
+                                  className || ""
+                                );
                                 const inline = !match;
                                 return !inline && match ? (
                                   <SyntaxHighlighter
@@ -375,7 +397,7 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
                                     language={match[1]}
                                     PreTag="div"
                                   >
-                                    {String(children).replace(/\n$/, '')}
+                                    {String(children).replace(/\n$/, "")}
                                   </SyntaxHighlighter>
                                 ) : (
                                   <code className={className} {...props}>
@@ -428,7 +450,7 @@ export default function AiChatWidget({ defaultOpen = false }: AiChatWidgetProps)
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
+                          if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
                             sendMessage();
                           }

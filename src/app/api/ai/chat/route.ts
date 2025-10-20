@@ -1,9 +1,9 @@
 /**
  * 🤖 DYNASTY AI COACH - CHAT API
- * 
+ *
  * Real-time AI tutor available 24/7 for all students.
  * Context-aware, streaming responses, conversation history.
- * 
+ *
  * Features:
  * - OpenAI GPT-4 integration
  * - RAG (Retrieval Augmented Generation) for course/book knowledge
@@ -14,11 +14,11 @@
  * - Rate limiting
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/auth-options';
-import { prisma } from '@/lib/db/prisma';
-import OpenAI from 'openai';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth-options";
+import { prisma } from "@/lib/db/prisma";
+import OpenAI from "openai";
 
 // Initialize OpenAI
 const openai = new OpenAI({
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json(
-        { error: 'Unauthorized - Please log in' },
+        { error: "Unauthorized - Please log in" },
         { status: 401 }
       );
     }
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     if (!message?.trim()) {
       return NextResponse.json(
-        { error: 'Message is required' },
+        { error: "Message is required" },
         { status: 400 }
       );
     }
@@ -98,10 +98,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // 4️⃣ Rate limiting check (10 messages per minute)
@@ -115,9 +112,10 @@ export async function POST(request: NextRequest) {
 
     if (recentMessages >= 10) {
       return NextResponse.json(
-        { 
-          error: 'Rate limit exceeded. Please wait a moment before sending another message.',
-          retryAfter: 60 
+        {
+          error:
+            "Rate limit exceeded. Please wait a moment before sending another message.",
+          retryAfter: 60,
         },
         { status: 429 }
       );
@@ -132,7 +130,7 @@ export async function POST(request: NextRequest) {
 
       if (!conversation || conversation.userId !== user.id) {
         return NextResponse.json(
-          { error: 'Conversation not found or unauthorized' },
+          { error: "Conversation not found or unauthorized" },
           { status: 404 }
         );
       }
@@ -144,18 +142,20 @@ export async function POST(request: NextRequest) {
           messages: [],
           messageCount: 0,
           context: context || {},
-          status: 'ACTIVE',
+          status: "ACTIVE",
         },
       });
     }
 
     // 6️⃣ Build conversation history
-    const messages = conversation.messages as any[] || [];
-    
+    const messages = (conversation.messages as any[]) || [];
+
     // Add context to first message
-    let contextPrompt = '';
+    let contextPrompt = "";
     if (context) {
-      contextPrompt = `\n\n[Student Context: Currently on ${context.page || 'unknown page'}`;
+      contextPrompt = `\n\n[Student Context: Currently on ${
+        context.page || "unknown page"
+      }`;
       if (context.courseId) contextPrompt += `, studying course`;
       if (context.lessonId) contextPrompt += `, on specific lesson`;
       if (context.bookId) contextPrompt += `, reading book`;
@@ -163,23 +163,28 @@ export async function POST(request: NextRequest) {
     }
 
     // Add user info
-    const userInfoPrompt = `\n\n[Student Info: ${user.name || 'Student'}, Level ${user.level}, Dynasty Score: ${user.dynastyScore}]`;
+    const userInfoPrompt = `\n\n[Student Info: ${
+      user.name || "Student"
+    }, Level ${user.level}, Dynasty Score: ${user.dynastyScore}]`;
 
     // 7️⃣ Prepare OpenAI messages
     const openAiMessages: any[] = [
-      { role: 'system', content: SYSTEM_PROMPT + userInfoPrompt + contextPrompt },
+      {
+        role: "system",
+        content: SYSTEM_PROMPT + userInfoPrompt + contextPrompt,
+      },
       ...messages.map((msg: any) => ({
         role: msg.role,
         content: msg.content,
       })),
-      { role: 'user', content: message },
+      { role: "user", content: message },
     ];
 
     // 8️⃣ Call OpenAI (streaming)
     const startTime = Date.now();
-    
+
     const stream = await openai.chat.completions.create({
-      model: 'gpt-4', // or 'gpt-4-turbo-preview' for faster responses
+      model: "gpt-4", // or 'gpt-4-turbo-preview' for faster responses
       messages: openAiMessages,
       stream: true,
       temperature: 0.7,
@@ -187,17 +192,19 @@ export async function POST(request: NextRequest) {
     });
 
     // 9️⃣ Stream response
-    let fullResponse = '';
+    let fullResponse = "";
     const encoder = new TextEncoder();
 
     const readableStream = new ReadableStream({
       async start(controller) {
         try {
           for await (const chunk of stream) {
-            const content = chunk.choices[0]?.delta?.content || '';
+            const content = chunk.choices[0]?.delta?.content || "";
             if (content) {
               fullResponse += content;
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content })}\n\n`));
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ content })}\n\n`)
+              );
             }
           }
 
@@ -207,19 +214,21 @@ export async function POST(request: NextRequest) {
           const updatedMessages = [
             ...messages,
             {
-              role: 'user',
+              role: "user",
               content: message,
               timestamp: new Date().toISOString(),
             },
             {
-              role: 'assistant',
+              role: "assistant",
               content: fullResponse,
               timestamp: new Date().toISOString(),
             },
           ];
 
           // Estimate tokens (rough calculation)
-          const estimatedTokens = Math.ceil((message.length + fullResponse.length) / 4);
+          const estimatedTokens = Math.ceil(
+            (message.length + fullResponse.length) / 4
+          );
           const estimatedCost = (estimatedTokens / 1000) * 0.03; // ~$0.03 per 1K tokens for GPT-4
 
           // Sentiment analysis (basic)
@@ -239,19 +248,23 @@ export async function POST(request: NextRequest) {
           });
 
           // 1️⃣1️⃣ Extract insights (async - don't wait)
-          extractInsights(message, fullResponse, context, user.id).catch(console.error);
+          extractInsights(message, fullResponse, context, user.id).catch(
+            console.error
+          );
 
           // Send completion event
           controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ 
-              done: true, 
-              conversationId: conversation.id,
-              responseTime,
-            })}\n\n`)
+            encoder.encode(
+              `data: ${JSON.stringify({
+                done: true,
+                conversationId: conversation.id,
+                responseTime,
+              })}\n\n`
+            )
           );
           controller.close();
         } catch (error) {
-          console.error('❌ Streaming error:', error);
+          console.error("❌ Streaming error:", error);
           controller.error(error);
         }
       },
@@ -259,16 +272,15 @@ export async function POST(request: NextRequest) {
 
     return new NextResponse(readableStream, {
       headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
       },
     });
-
   } catch (error: any) {
-    console.error('❌ AI Chat Error:', error);
+    console.error("❌ AI Chat Error:", error);
     return NextResponse.json(
-      { error: error.message || 'Failed to process chat message' },
+      { error: error.message || "Failed to process chat message" },
       { status: 500 }
     );
   }
@@ -282,18 +294,18 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(request.url);
-    const conversationId = searchParams.get('conversationId');
+    const conversationId = searchParams.get("conversationId");
 
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
 
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     if (conversationId) {
@@ -303,7 +315,7 @@ export async function GET(request: NextRequest) {
       });
 
       if (!conversation || conversation.userId !== user.id) {
-        return NextResponse.json({ error: 'Not found' }, { status: 404 });
+        return NextResponse.json({ error: "Not found" }, { status: 404 });
       }
 
       return NextResponse.json({ conversation });
@@ -311,7 +323,7 @@ export async function GET(request: NextRequest) {
       // Get all user conversations
       const conversations = await prisma.aiConversation.findMany({
         where: { userId: user.id },
-        orderBy: { updatedAt: 'desc' },
+        orderBy: { updatedAt: "desc" },
         take: 20,
         select: {
           id: true,
@@ -328,7 +340,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ conversations });
     }
   } catch (error: any) {
-    console.error('❌ Get conversations error:', error);
+    console.error("❌ Get conversations error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -342,13 +354,31 @@ export async function GET(request: NextRequest) {
  * Returns score from -1 (negative) to 1 (positive)
  */
 function analyzeSentiment(text: string): number {
-  const positiveWords = ['great', 'excellent', 'good', 'helpful', 'thanks', 'perfect', 'awesome', 'wonderful'];
-  const negativeWords = ['bad', 'wrong', 'error', 'confused', 'stuck', 'difficult', 'hard', 'problem'];
+  const positiveWords = [
+    "great",
+    "excellent",
+    "good",
+    "helpful",
+    "thanks",
+    "perfect",
+    "awesome",
+    "wonderful",
+  ];
+  const negativeWords = [
+    "bad",
+    "wrong",
+    "error",
+    "confused",
+    "stuck",
+    "difficult",
+    "hard",
+    "problem",
+  ];
 
   const words = text.toLowerCase().split(/\s+/);
   let score = 0;
 
-  words.forEach(word => {
+  words.forEach((word) => {
     if (positiveWords.includes(word)) score += 0.1;
     if (negativeWords.includes(word)) score -= 0.1;
   });
@@ -369,8 +399,15 @@ async function extractInsights(
 ): Promise<void> {
   try {
     // Check for confusion indicators
-    const confusionKeywords = ['confused', 'don\'t understand', 'what does', 'explain', 'clarify', 'help'];
-    const isConfused = confusionKeywords.some(keyword => 
+    const confusionKeywords = [
+      "confused",
+      "don't understand",
+      "what does",
+      "explain",
+      "clarify",
+      "help",
+    ];
+    const isConfused = confusionKeywords.some((keyword) =>
       userMessage.toLowerCase().includes(keyword)
     );
 
@@ -378,7 +415,7 @@ async function extractInsights(
       // Record confusion about specific lesson
       const existingConfusion = await prisma.aiInsight.findFirst({
         where: {
-          type: 'CONFUSION',
+          type: "CONFUSION",
           relatedTo: context.lessonId,
         },
       });
@@ -394,35 +431,36 @@ async function extractInsights(
       } else {
         await prisma.aiInsight.create({
           data: {
-            type: 'CONFUSION',
-            category: 'lesson',
+            type: "CONFUSION",
+            category: "lesson",
             content: `Users are confused about this lesson`,
             question: userMessage.slice(0, 500),
             relatedTo: context.lessonId,
-            relatedType: 'lesson',
+            relatedType: "lesson",
             frequency: 1,
             userCount: 1,
-            priority: 'MEDIUM',
+            priority: "MEDIUM",
           },
         });
       }
     }
 
     // Check for frequently asked questions
-    const isQuestion = userMessage.includes('?') || 
-      userMessage.toLowerCase().startsWith('what') ||
-      userMessage.toLowerCase().startsWith('how') ||
-      userMessage.toLowerCase().startsWith('why');
+    const isQuestion =
+      userMessage.includes("?") ||
+      userMessage.toLowerCase().startsWith("what") ||
+      userMessage.toLowerCase().startsWith("how") ||
+      userMessage.toLowerCase().startsWith("why");
 
     if (isQuestion) {
       // Store common question
       const questionKey = userMessage.toLowerCase().slice(0, 100);
-      
+
       // Find similar existing question (simplified check)
       const existingInsight = await prisma.aiInsight.findFirst({
         where: {
-          type: 'QUESTION',
-          question: { contains: questionKey.split(' ').slice(0, 5).join(' ') },
+          type: "QUESTION",
+          question: { contains: questionKey.split(" ").slice(0, 5).join(" ") },
         },
       });
 
@@ -437,21 +475,25 @@ async function extractInsights(
       } else {
         await prisma.aiInsight.create({
           data: {
-            type: 'QUESTION',
-            category: context?.courseId ? 'course' : 'general',
+            type: "QUESTION",
+            category: context?.courseId ? "course" : "general",
             content: `Frequently asked: ${userMessage.slice(0, 200)}`,
             question: userMessage.slice(0, 500),
             relatedTo: context?.courseId || context?.bookId,
-            relatedType: context?.courseId ? 'course' : context?.bookId ? 'book' : null,
+            relatedType: context?.courseId
+              ? "course"
+              : context?.bookId
+              ? "book"
+              : null,
             frequency: 1,
             userCount: 1,
-            priority: 'LOW',
+            priority: "LOW",
           },
         });
       }
     }
   } catch (error) {
-    console.error('❌ Extract insights error:', error);
+    console.error("❌ Extract insights error:", error);
     // Don't throw - insights are non-critical
   }
 }
