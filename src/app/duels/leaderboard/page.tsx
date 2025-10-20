@@ -284,9 +284,7 @@ export default function LeaderboardPage() {
 
                       {/* Avatar */}
                       <img
-                        src={
-                          entry.user.image || "/avatars/default-avatar.png"
-                        }
+                        src={entry.user.image || "/avatars/default-avatar.png"}
                         alt={entry.user.name}
                         className={`w-14 h-14 rounded-full border-2 ${
                           entry.rank <= 3
