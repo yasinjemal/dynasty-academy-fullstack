@@ -9,6 +9,7 @@ import NotificationBell from "@/components/shared/NotificationBell";
 import ThemeToggle from "@/components/shared/ThemeToggle";
 import UserProfileDropdown from "@/components/shared/UserProfileDropdown";
 import InstructorQuickAccess from "@/components/shared/InstructorQuickAccess";
+import DuelCenter from "@/components/duels/DuelCenter";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -62,6 +63,15 @@ export default function DashboardPage() {
               </span>
             </Link>
             <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
+              <Link href="/duels">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs sm:text-sm bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border border-purple-500/30"
+                >
+                  ⚔️ Duels
+                </Button>
+              </Link>
               <Link href="/courses">
                 <Button
                   variant="ghost"
@@ -407,9 +417,17 @@ export default function DashboardPage() {
               </div>
             </Link>
           </div>
+        </div>
 
+        {/* 🎮 DYNASTY DUELS - The Game Changer! */}
+        <div className="mb-6 sm:mb-8">
+          <DuelCenter />
+        </div>
+
+        {/* Community Section */}
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-xl p-5 sm:p-6 md:p-7 lg:p-8 border border-purple-200/50 dark:border-purple-800/50">
           {/* Community CTA - Different for Users vs Admins */}
-          <div className="mt-6 sm:mt-8">
+          <div>
             {session.user?.role === "ADMIN" ? (
               <Link href="/admin/blog">
                 <button className="group relative w-full bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 hover:from-purple-700 hover:via-blue-700 hover:to-purple-700 text-white rounded-xl p-6 transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02] shadow-lg hover:shadow-2xl hover:shadow-purple-500/50 overflow-hidden">

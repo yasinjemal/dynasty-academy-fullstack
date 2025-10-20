@@ -357,9 +357,7 @@ export default function DuelsPage() {
                     4
                   </div>
                   <div>
-                    <p className="font-semibold text-white">
-                      Winner Takes All
-                    </p>
+                    <p className="font-semibold text-white">Winner Takes All</p>
                     <p className="text-sm text-purple-300">
                       Earn XP, coins, and bragging rights!
                     </p>
@@ -397,7 +395,9 @@ export default function DuelsPage() {
                     <span className="font-semibold text-white">
                       {tier.tier}
                     </span>
-                    <span className="text-sm text-purple-300">{tier.xp} XP</span>
+                    <span className="text-sm text-purple-300">
+                      {tier.xp} XP
+                    </span>
                   </div>
                 ))}
               </div>

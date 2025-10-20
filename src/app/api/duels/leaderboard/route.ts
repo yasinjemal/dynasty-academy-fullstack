@@ -41,11 +41,7 @@ export async function GET(req: NextRequest) {
             },
           },
         },
-        orderBy: [
-          { xp: "desc" },
-          { wins: "desc" },
-          { currentStreak: "desc" },
-        ],
+        orderBy: [{ xp: "desc" }, { wins: "desc" }, { currentStreak: "desc" }],
         take: limit,
         skip: offset,
       });
@@ -94,11 +90,7 @@ export async function GET(req: NextRequest) {
             },
           },
         },
-        orderBy: [
-          { xp: "desc" },
-          { wins: "desc" },
-          { currentStreak: "desc" },
-        ],
+        orderBy: [{ xp: "desc" }, { wins: "desc" }, { currentStreak: "desc" }],
         take: limit,
         skip: offset,
       });
@@ -177,8 +169,7 @@ export async function GET(req: NextRequest) {
         .sort((a: any, b: any) => {
           // Sort by avg score, then total duels, then win rate
           if (b.avgScore !== a.avgScore) return b.avgScore - a.avgScore;
-          if (b.totalDuels !== a.totalDuels)
-            return b.totalDuels - a.totalDuels;
+          if (b.totalDuels !== a.totalDuels) return b.totalDuels - a.totalDuels;
           return b.winRate - a.winRate;
         });
 
@@ -211,7 +202,8 @@ export async function GET(req: NextRequest) {
           ],
           select: { userId: true },
         });
-        const rank = allStats.findIndex((s) => s.userId === session.user.id) + 1;
+        const rank =
+          allStats.findIndex((s) => s.userId === session.user.id) + 1;
         if (rank > 0) {
           userPosition = {
             rank,

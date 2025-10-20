@@ -199,7 +199,7 @@ export async function POST(
       // Award rewards to winner
       if (winnerId) {
         const isWinner = winnerId === session.user.id;
-        
+
         if (isWinner) {
           // Calculate rewards
           xpReward = score; // Base XP = score
@@ -220,10 +220,14 @@ export async function POST(
           });
 
           // Update loser's stats
-          const loserId = winnerId === duel.challengerId ? duel.opponentId : duel.challengerId;
+          const loserId =
+            winnerId === duel.challengerId
+              ? duel.opponentId
+              : duel.challengerId;
           await updateDuelStats(loserId, {
             won: false,
-            score: winnerId === duel.challengerId ? opponentScore : challengerScore,
+            score:
+              winnerId === duel.challengerId ? opponentScore : challengerScore,
             xpEarned: 0,
             coinsEarned: 0,
             perfectGame: false,
