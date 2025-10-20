@@ -102,15 +102,28 @@ export async function POST(request: NextRequest) {
     }
 
     // 4️⃣ Rate limiting check (10 messages per minute)
+    // NOTE: This counts message pairs (user + AI response) not conversations
     const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
-    const recentMessages = await prisma.aiConversation.count({
+    
+    // Count recent message exchanges (each conversation update = 2 messages)
+    const recentConversations = await prisma.aiConversation.findMany({
       where: {
         userId: user.id,
         updatedAt: { gte: oneMinuteAgo },
       },
+      select: {
+        messageCount: true,
+      },
     });
 
-    if (recentMessages >= 10) {
+    // Calculate total messages in last minute
+    const totalRecentMessages = recentConversations.reduce(
+      (sum, conv) => sum + conv.messageCount,
+      0
+    );
+
+    // Allow up to 20 messages (10 exchanges) per minute
+    if (totalRecentMessages >= 20) {
       return NextResponse.json(
         {
           error:

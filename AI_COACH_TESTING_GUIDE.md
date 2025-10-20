@@ -1,6 +1,7 @@
 # 🧪 DYNASTY AI COACH - TESTING GUIDE
 
 ## 🎯 **OBJECTIVE:**
+
 Verify that the AI Coach system works perfectly before building additional features.
 
 ---
@@ -20,11 +21,13 @@ Verify that the AI Coach system works perfectly before building additional featu
 ### **TEST 1: Login & Widget Visibility** 🟢
 
 **Steps:**
+
 1. Open browser → http://localhost:3000
 2. Log in with your account
 3. Look at bottom-right corner
 
 **Expected Results:**
+
 - ✅ Floating chat bubble visible
 - ✅ Purple-pink gradient background
 - ✅ Sparkle (⚡) indicator in top-right of bubble
@@ -33,6 +36,7 @@ Verify that the AI Coach system works perfectly before building additional featu
 - ✅ Tooltip appears: "Ask Dynasty AI Coach"
 
 **If Failed:**
+
 - Check browser console for errors
 - Verify `AiChatWidget` is imported in `layout.tsx`
 - Verify session exists (user is logged in)
@@ -42,10 +46,12 @@ Verify that the AI Coach system works perfectly before building additional featu
 ### **TEST 2: Open Chat Window** 🟢
 
 **Steps:**
+
 1. Click the floating bubble
 2. Wait for animation
 
 **Expected Results:**
+
 - ✅ Chat window expands (w-96, h-600px)
 - ✅ Header shows "Dynasty AI Coach" with sparkle icon
 - ✅ Online status indicator (green dot)
@@ -62,6 +68,7 @@ Verify that the AI Coach system works perfectly before building additional featu
 - ✅ Send button (purple gradient)
 
 **If Failed:**
+
 - Check console for React errors
 - Verify Framer Motion animations
 - Check z-index conflicts with other elements
@@ -71,11 +78,13 @@ Verify that the AI Coach system works perfectly before building additional featu
 ### **TEST 3: Send Message & Streaming Response** 🟢
 
 **Steps:**
+
 1. Type in input field: "Hello! Can you help me learn Python?"
 2. Press Enter (or click Send)
 3. Watch the response
 
 **Expected Results:**
+
 - ✅ Your message appears immediately (right side, purple bubble)
 - ✅ "Thinking..." indicator appears briefly
 - ✅ AI response streams in character-by-character (left side, gray bubble)
@@ -87,6 +96,7 @@ Verify that the AI Coach system works perfectly before building additional featu
 - ✅ Full response completes in 2-5 seconds
 
 **Expected Response Style:**
+
 ```
 Sure, I'd love to help you learn Python! 🚀
 
@@ -97,6 +107,7 @@ What specific aspect of Python would you like to start with?
 ```
 
 **If Failed:**
+
 - Check browser Network tab for `/api/ai/chat` request
 - Verify OpenAI API key is valid
 - Check server console for API errors
@@ -107,18 +118,21 @@ What specific aspect of Python would you like to start with?
 ### **TEST 4: Context Awareness** 🟢
 
 **Steps:**
+
 1. Navigate to any course page (e.g., `/courses/[course-id]`)
 2. Open AI Chat
 3. Ask: "What am I learning right now?"
 4. Wait for response
 
 **Expected Results:**
+
 - ✅ AI mentions it knows you're on a course page
 - ✅ AI references the context (even if it doesn't know the exact course name yet - RAG not implemented)
 - ✅ Response shows awareness of Dynasty Academy platform
 - ✅ Conversation context saved in database with `courseId`
 
 **Example Response:**
+
 ```
 I can see you're currently on a course page! 📚
 
@@ -126,11 +140,13 @@ While I don't have the specific course details yet, I'm here to help you with an
 ```
 
 **Then try:**
+
 1. Navigate to `/books/[book-id]` page
 2. Ask: "What book am I reading?"
 3. Verify AI knows you're on a book page
 
 **If Failed:**
+
 - Check `getContext()` function in `AiChatWidget.tsx`
 - Verify pathname detection works
 - Check that context is sent to API
@@ -141,11 +157,13 @@ While I don't have the specific course details yet, I'm here to help you with an
 ### **TEST 5: Rate Limiting** 🟡
 
 **Steps:**
+
 1. Open chat
 2. Send 10 messages rapidly (spam "test 1", "test 2", etc.)
 3. Try to send 11th message within 1 minute
 
 **Expected Results:**
+
 - ✅ First 10 messages go through successfully
 - ✅ 11th message gets error response
 - ✅ Error message displayed: "Rate limit exceeded. Please wait a moment..."
@@ -153,6 +171,7 @@ While I don't have the specific course details yet, I'm here to help you with an
 - ✅ Can send again after 60 seconds
 
 **If Failed:**
+
 - Check rate limiting logic in `/api/ai/chat/route.ts`
 - Verify `updatedAt` timestamp check
 - Check if `oneMinuteAgo` calculation is correct
@@ -162,6 +181,7 @@ While I don't have the specific course details yet, I'm here to help you with an
 ### **TEST 6: Database Persistence** 🟢
 
 **Steps:**
+
 1. After sending 2-3 test messages
 2. Open new terminal
 3. Run: `npx prisma studio`
@@ -169,6 +189,7 @@ While I don't have the specific course details yet, I'm here to help you with an
 5. Click on "AiConversation" model
 
 **Expected Results:**
+
 - ✅ At least 1 conversation record exists
 - ✅ `userId` matches your user ID
 - ✅ `messages` field contains JSON array with your messages
@@ -181,6 +202,7 @@ While I don't have the specific course details yet, I'm here to help you with an
 - ✅ `createdAt` and `updatedAt` timestamps
 
 **Sample Data:**
+
 ```json
 {
   "id": "clxxx...",
@@ -214,6 +236,7 @@ While I don't have the specific course details yet, I'm here to help you with an
 ```
 
 **If Failed:**
+
 - Check Prisma Client is up to date
 - Verify database connection
 - Check API logs for save errors
@@ -226,10 +249,12 @@ While I don't have the specific course details yet, I'm here to help you with an
 ### **TEST 7: Markdown Rendering** 📝
 
 **Steps:**
+
 1. Ask AI: "Show me a Python code example"
 2. Wait for response
 
 **Expected:**
+
 - ✅ Code blocks render with syntax highlighting
 - ✅ Inline code has `monospace` font
 - ✅ Bold, italic, lists render correctly
@@ -240,10 +265,12 @@ While I don't have the specific course details yet, I'm here to help you with an
 ### **TEST 8: Long Conversation** 💬
 
 **Steps:**
+
 1. Send 5-6 messages back and forth
 2. Scroll through conversation
 
 **Expected:**
+
 - ✅ All messages visible
 - ✅ Scroll works smoothly
 - ✅ Auto-scrolls to latest message
@@ -255,11 +282,13 @@ While I don't have the specific course details yet, I'm here to help you with an
 ### **TEST 9: Close & Reopen** 🔄
 
 **Steps:**
+
 1. Have a conversation (3 messages)
 2. Click X to close chat
 3. Reopen chat bubble
 
 **Expected:**
+
 - ✅ Previous conversation still visible (from state)
 - ✅ Can continue conversation
 - ✅ Conversation ID persists
@@ -272,12 +301,14 @@ While I don't have the specific course details yet, I'm here to help you with an
 ### **TEST 10: Mobile Responsive** 📱
 
 **Steps:**
+
 1. Open DevTools (F12)
 2. Toggle device toolbar (Ctrl+Shift+M)
 3. Select iPhone 12 Pro or similar
 4. Test chat widget
 
 **Expected:**
+
 - ✅ Chat bubble visible on mobile
 - ✅ Chat window adjusts to screen width
 - ✅ Text is readable
@@ -291,52 +322,62 @@ While I don't have the specific course details yet, I'm here to help you with an
 
 After testing, verify these metrics:
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| **First Response Time** | < 3 seconds | ⏱️ |
-| **Streaming Start** | < 1 second | ⏱️ |
-| **Character Stream Rate** | ~50 chars/sec | ⏱️ |
-| **API Response (no stream)** | < 2 seconds | ⏱️ |
-| **Database Save Time** | < 100ms | ⏱️ |
-| **Cost Per Message** | ~$0.003-0.01 | ⏱️ |
-| **Tokens Per Exchange** | 100-300 | ⏱️ |
-| **UI Animation FPS** | 60 fps | ⏱️ |
+| Metric                       | Target        | Status |
+| ---------------------------- | ------------- | ------ |
+| **First Response Time**      | < 3 seconds   | ⏱️     |
+| **Streaming Start**          | < 1 second    | ⏱️     |
+| **Character Stream Rate**    | ~50 chars/sec | ⏱️     |
+| **API Response (no stream)** | < 2 seconds   | ⏱️     |
+| **Database Save Time**       | < 100ms       | ⏱️     |
+| **Cost Per Message**         | ~$0.003-0.01  | ⏱️     |
+| **Tokens Per Exchange**      | 100-300       | ⏱️     |
+| **UI Animation FPS**         | 60 fps        | ⏱️     |
 
 ---
 
 ## 🐛 **COMMON ISSUES & FIXES:**
 
 ### **Issue 1: Chat bubble not appearing**
+
 **Cause:** Session not loaded or AiChatWidget not rendered  
-**Fix:** 
+**Fix:**
+
 - Verify user is logged in
 - Check `Providers` wraps `AiChatWidget` in layout.tsx
 - Look for console errors
 
 ### **Issue 2: Streaming doesn't work**
+
 **Cause:** OpenAI API key invalid or network issues  
 **Fix:**
+
 - Verify `.env` has correct `OPENAI_API_KEY`
 - Check browser Network tab for errors
 - Test API key with: `curl https://api.openai.com/v1/models -H "Authorization: Bearer YOUR_KEY"`
 
 ### **Issue 3: Rate limit not working**
+
 **Cause:** Time calculation bug  
 **Fix:**
+
 - Check server timezone
 - Verify `Date.now() - 60 * 1000` calculation
 - Add console.log to see message count
 
 ### **Issue 4: Context not detected**
+
 **Cause:** Pathname parsing error  
 **Fix:**
+
 - Check `usePathname()` returns correct value
 - Verify URL structure matches split logic
 - Test with: `console.log('pathname:', pathname)`
 
 ### **Issue 5: Database not saving**
+
 **Cause:** Prisma Client not updated or connection error  
 **Fix:**
+
 - Run `npx prisma generate`
 - Check DATABASE_URL in .env
 - Verify Supabase connection
@@ -382,42 +423,51 @@ Use this template to record your results:
 ## Test Session: [Date/Time]
 
 ### TEST 1: Login & Widget Visibility
+
 - Status: ✅ PASS / ❌ FAIL
-- Notes: 
+- Notes:
 
 ### TEST 2: Open Chat Window
+
 - Status: ✅ PASS / ❌ FAIL
 - Notes:
 
 ### TEST 3: Send Message & Streaming
+
 - Status: ✅ PASS / ❌ FAIL
-- Response Time: ___ seconds
+- Response Time: \_\_\_ seconds
 - Notes:
 
 ### TEST 4: Context Awareness
+
 - Status: ✅ PASS / ❌ FAIL
 - Notes:
 
 ### TEST 5: Rate Limiting
+
 - Status: ✅ PASS / ❌ FAIL
 - Notes:
 
 ### TEST 6: Database Persistence
+
 - Status: ✅ PASS / ❌ FAIL
-- Records Created: ___
+- Records Created: \_\_\_
 - Notes:
 
 ### Performance Metrics:
-- Avg Response Time: ___s
-- Avg Cost Per Message: $___
-- Avg Tokens: ___
+
+- Avg Response Time: \_\_\_s
+- Avg Cost Per Message: $\_\_\_
+- Avg Tokens: \_\_\_
 
 ### Issues Found:
-1. 
-2. 
-3. 
+
+1.
+2.
+3.
 
 ### Overall Assessment:
+
 - Ready for Production: YES / NO
 - Next Steps:
 ```
