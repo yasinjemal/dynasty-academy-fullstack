@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     // Get chapter/page content (for context)
     let contentContext = "";
-    
+
     if (pageNumber) {
       // Get specific page content
       const pageContent = await prisma.bookContent.findFirst({
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
           pageNumber,
         },
       });
-      
+
       if (pageContent) {
         contentContext = pageContent.content.substring(0, 3000); // Limit to 3000 chars
       }
@@ -68,7 +68,9 @@ export async function POST(req: NextRequest) {
       contentContext = book.description;
     }
 
-    console.log(`🤖 Generating questions for "${book.title}" (difficulty: ${difficulty})`);
+    console.log(
+      `🤖 Generating questions for "${book.title}" (difficulty: ${difficulty})`
+    );
 
     // Generate questions using OpenAI
     const completion = await openai.chat.completions.create({
@@ -124,7 +126,7 @@ Generate 5 ${difficulty} difficulty questions for a 60-second knowledge battle.`
     });
 
     const responseText = completion.choices[0]?.message?.content || "[]";
-    
+
     // Parse the JSON response
     let questions;
     try {
@@ -151,12 +153,16 @@ Generate 5 ${difficulty} difficulty questions for a 60-second knowledge battle.`
       correctAnswer: q.correctAnswer,
       explanation: q.explanation,
       questionOrder: index + 1,
-      difficulty: q.difficulty || (difficulty === "easy" ? 0.3 : difficulty === "hard" ? 0.8 : 0.5),
+      difficulty:
+        q.difficulty ||
+        (difficulty === "easy" ? 0.3 : difficulty === "hard" ? 0.8 : 0.5),
       estimatedTime: q.estimatedTime || 12,
       pageReference: pageNumber || null,
     }));
 
-    console.log(`✅ Generated ${enhancedQuestions.length} questions successfully!`);
+    console.log(
+      `✅ Generated ${enhancedQuestions.length} questions successfully!`
+    );
 
     return NextResponse.json({
       success: true,

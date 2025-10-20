@@ -80,14 +80,18 @@ export async function POST(req: NextRequest) {
     // Check if challenger has enough XP/coins for bet
     if (xpBet > 0 && challengerStats.xp < xpBet) {
       return NextResponse.json(
-        { error: `Insufficient XP. You have ${challengerStats.xp}, need ${xpBet}` },
+        {
+          error: `Insufficient XP. You have ${challengerStats.xp}, need ${xpBet}`,
+        },
         { status: 400 }
       );
     }
 
     if (coinBet > 0 && challengerStats.coins < coinBet) {
       return NextResponse.json(
-        { error: `Insufficient coins. You have ${challengerStats.coins}, need ${coinBet}` },
+        {
+          error: `Insufficient coins. You have ${challengerStats.coins}, need ${coinBet}`,
+        },
         { status: 400 }
       );
     }
@@ -104,7 +108,9 @@ export async function POST(req: NextRequest) {
 
     if (existingDuel) {
       return NextResponse.json(
-        { error: "You already have a pending duel with this user for this book" },
+        {
+          error: "You already have a pending duel with this user for this book",
+        },
         { status: 400 }
       );
     }

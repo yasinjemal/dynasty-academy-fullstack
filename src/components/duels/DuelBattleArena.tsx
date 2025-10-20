@@ -86,9 +86,9 @@ export default function DuelBattleArena({
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
   const [isAnswering, setIsAnswering] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
-  const [gamePhase, setGamePhase] = useState<
-    "intro" | "battle" | "results"
-  >("intro");
+  const [gamePhase, setGamePhase] = useState<"intro" | "battle" | "results">(
+    "intro"
+  );
   const [streak, setStreak] = useState(0);
   const [combo, setCombo] = useState(0);
 
@@ -107,7 +107,11 @@ export default function DuelBattleArena({
   }, []);
 
   // Play sound effect
-  const playSound = (frequency: number, duration: number, type: string = "sine") => {
+  const playSound = (
+    frequency: number,
+    duration: number,
+    type: string = "sine"
+  ) => {
     if (!audioContextRef.current) return;
 
     const oscillator = audioContextRef.current.createOscillator();
@@ -172,10 +176,12 @@ export default function DuelBattleArena({
       // Difficulty bonus: up to 50 points
       const difficultyBonus = Math.floor(question.difficulty * 50);
       // Combo multiplier
-      const comboMultiplier = 1 + (combo * 0.1);
-      
-      points = Math.floor((100 + timeBonus + difficultyBonus) * comboMultiplier);
-      
+      const comboMultiplier = 1 + combo * 0.1;
+
+      points = Math.floor(
+        (100 + timeBonus + difficultyBonus) * comboMultiplier
+      );
+
       setMyScore((prev) => prev + points);
       setStreak((prev) => prev + 1);
       setCombo((prev) => prev + 1);
@@ -251,7 +257,7 @@ export default function DuelBattleArena({
     };
 
     setGamePhase("results");
-    
+
     // Victory sound
     if (results.myScore > results.opponentScore) {
       playSound(523, 0.2); // C
@@ -270,13 +276,16 @@ export default function DuelBattleArena({
     <div className="min-h-screen bg-gradient-to-br from-[#0A0E27] via-[#1a1047] to-[#0A0E27] relative overflow-hidden">
       {/* Animated Background Grid */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `
             linear-gradient(to right, #8b5cf6 1px, transparent 1px),
             linear-gradient(to bottom, #8b5cf6 1px, transparent 1px)
           `,
-          backgroundSize: '50px 50px',
-        }} />
+            backgroundSize: "50px 50px",
+          }}
+        />
       </div>
 
       {/* Particles */}
@@ -300,7 +309,11 @@ export default function DuelBattleArena({
                 : "text-red-400"
             }`}
           >
-            {particle.type === "success" ? "✨" : particle.type === "victory" ? "🏆" : "💥"}
+            {particle.type === "success"
+              ? "✨"
+              : particle.type === "victory"
+              ? "🏆"
+              : "💥"}
           </motion.div>
         ))}
       </AnimatePresence>
@@ -333,9 +346,11 @@ export default function DuelBattleArena({
                     className="inline-flex items-center gap-2 bg-purple-500/20 border border-purple-500/30 px-6 py-3 rounded-full mb-4"
                   >
                     <Swords className="w-5 h-5 text-purple-400" />
-                    <span className="text-purple-300 font-bold">KNOWLEDGE DUEL</span>
+                    <span className="text-purple-300 font-bold">
+                      KNOWLEDGE DUEL
+                    </span>
                   </motion.div>
-                  
+
                   <h2 className="text-2xl font-bold text-white mb-2">
                     {duel.book.title}
                   </h2>
@@ -439,13 +454,17 @@ export default function DuelBattleArena({
                     {duel.xpBet > 0 && (
                       <div className="flex items-center gap-2 bg-purple-500/20 border border-purple-500/30 px-4 py-2 rounded-full">
                         <Zap className="w-4 h-4 text-purple-400" />
-                        <span className="text-white font-bold">{duel.xpBet} XP</span>
+                        <span className="text-white font-bold">
+                          {duel.xpBet} XP
+                        </span>
                       </div>
                     )}
                     {duel.coinBet > 0 && (
                       <div className="flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/30 px-4 py-2 rounded-full">
                         <Star className="w-4 h-4 text-yellow-400" />
-                        <span className="text-white font-bold">{duel.coinBet} Coins</span>
+                        <span className="text-white font-bold">
+                          {duel.coinBet} Coins
+                        </span>
                       </div>
                     )}
                   </motion.div>
@@ -517,7 +536,13 @@ export default function DuelBattleArena({
                 className="backdrop-blur-xl bg-white/5 border-2 border-white/10 rounded-2xl p-4"
               >
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Clock className={`w-5 h-5 ${timeLeft <= 10 ? "text-red-400 animate-pulse" : "text-cyan-400"}`} />
+                  <Clock
+                    className={`w-5 h-5 ${
+                      timeLeft <= 10
+                        ? "text-red-400 animate-pulse"
+                        : "text-cyan-400"
+                    }`}
+                  />
                   <span className="text-white/80 text-sm">Time Left</span>
                 </div>
                 <div
@@ -591,14 +616,14 @@ export default function DuelBattleArena({
                           QUESTION {currentQuestion + 1}
                         </span>
                         <div className="flex gap-1">
-                          {Array.from({ length: Math.ceil(question.difficulty * 5) }).map(
-                            (_, i) => (
-                              <Star
-                                key={i}
-                                className="w-3 h-3 fill-yellow-400 text-yellow-400"
-                              />
-                            )
-                          )}
+                          {Array.from({
+                            length: Math.ceil(question.difficulty * 5),
+                          }).map((_, i) => (
+                            <Star
+                              key={i}
+                              className="w-3 h-3 fill-yellow-400 text-yellow-400"
+                            />
+                          ))}
                         </div>
                       </div>
                       <h3 className="text-2xl font-bold text-white leading-relaxed">
@@ -646,7 +671,9 @@ export default function DuelBattleArena({
                       {(shouldShowCorrect || shouldShowWrong) && (
                         <div
                           className={`absolute inset-0 blur-xl ${
-                            shouldShowCorrect ? "bg-green-500/30" : "bg-red-500/30"
+                            shouldShowCorrect
+                              ? "bg-green-500/30"
+                              : "bg-red-500/30"
                           }`}
                         />
                       )}

@@ -284,7 +284,8 @@ export default function DuelResults({
               <span className="text-white/80 text-sm">Time</span>
             </div>
             <div className="text-3xl font-black text-cyan-400">
-              {Math.floor(totalTime / 60)}:{String(totalTime % 60).padStart(2, "0")}
+              {Math.floor(totalTime / 60)}:
+              {String(totalTime % 60).padStart(2, "0")}
             </div>
           </div>
 
@@ -294,12 +295,17 @@ export default function DuelResults({
               <Target className="w-5 h-5 text-green-400" />
               <span className="text-white/80 text-sm">Accuracy</span>
             </div>
-            <div className="text-3xl font-black text-green-400">{accuracy}%</div>
+            <div className="text-3xl font-black text-green-400">
+              {accuracy}%
+            </div>
           </div>
         </motion.div>
 
         {/* Achievements & Bonuses */}
-        {(perfectGame || streak > 2 || achievements.length > 0 || (newRank && oldRank)) && (
+        {(perfectGame ||
+          streak > 2 ||
+          achievements.length > 0 ||
+          (newRank && oldRank)) && (
           <motion.div
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

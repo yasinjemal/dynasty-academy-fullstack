@@ -83,21 +83,27 @@ export async function POST(
     // Check if opponent has enough XP/coins for bet
     if (duel.xpBet > 0 && opponentStats.xp < duel.xpBet) {
       return NextResponse.json(
-        { error: `Insufficient XP. You have ${opponentStats.xp}, need ${duel.xpBet}` },
+        {
+          error: `Insufficient XP. You have ${opponentStats.xp}, need ${duel.xpBet}`,
+        },
         { status: 400 }
       );
     }
 
     if (duel.coinBet > 0 && opponentStats.coins < duel.coinBet) {
       return NextResponse.json(
-        { error: `Insufficient coins. You have ${opponentStats.coins}, need ${duel.coinBet}` },
+        {
+          error: `Insufficient coins. You have ${opponentStats.coins}, need ${duel.coinBet}`,
+        },
         { status: 400 }
       );
     }
 
     // Generate questions using AI
     const questionsResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/duels/generate-questions`,
+      `${
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+      }/api/duels/generate-questions`,
       {
         method: "POST",
         headers: {
@@ -233,9 +239,7 @@ export async function DELETE(
       data: { status: "DECLINED" },
     });
 
-    console.log(
-      `❌ Duel declined by opponent (ID: ${duel.opponentId})`
-    );
+    console.log(`❌ Duel declined by opponent (ID: ${duel.opponentId})`);
 
     // TODO: Send notification to challenger that duel was declined
 
