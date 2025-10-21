@@ -17,6 +17,16 @@ const menuItems = [
   { href: "/admin/blog", label: "Blog Posts", icon: "📝" },
   { href: "/admin/users", label: "Users", icon: "👥" },
   { href: "/admin/orders", label: "Orders", icon: "🛒" },
+  {
+    href: "/admin/gamification-demo",
+    label: "🎮 Gamification Demo",
+    icon: "🎮",
+  },
+  {
+    href: "/admin/audio-intelligence",
+    label: "🧠 Audio Intelligence",
+    icon: "🧠",
+  },
 ];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {

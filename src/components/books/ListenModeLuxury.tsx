@@ -80,7 +80,7 @@ export default function ListenModeLuxury({
   const [activeSentenceIndex, setActiveSentenceIndex] = useState<number>(-1);
   const [followText, setFollowText] = useState(true);
   const [immersiveMode, setImmersiveMode] = useState(false);
-  const [showParticles, setShowParticles] = useState(true);
+  const [showParticles, setShowParticles] = useState(false); // ✅ DISABLED by default - too distracting
   const [visualizerStyle, setVisualizerStyle] = useState<
     "wave" | "pulse" | "bars"
   >("wave");
@@ -112,10 +112,10 @@ export default function ListenModeLuxury({
   const [listenAtmosphere, setListenAtmosphere] = useState<string>("none");
   const [backgroundMusicUrl, setBackgroundMusicUrl] = useState<string>("");
   const [backgroundMusicVolume, setBackgroundMusicVolume] = useState(0.15); // 15% default
-  const [musicDucking, setMusicDucking] = useState(true); // Auto-lower music when voice speaks
+  const [musicDucking, setMusicDucking] = useState(false); // ✅ DISABLED - let user control manually
 
   // 🎨 REVOLUTIONARY: Voice Mood Sync (Visual matches voice personality)
-  const [voiceMoodSync, setVoiceMoodSync] = useState(true);
+  const [voiceMoodSync, setVoiceMoodSync] = useState(false); // ✅ DISABLED by default - too distracting
   const [backgroundGradient, setBackgroundGradient] = useState("");
 
   // ⏰ REVOLUTIONARY: Time-Based Listening Rituals
@@ -125,11 +125,11 @@ export default function ListenModeLuxury({
   >("afternoon");
 
   // 🌊 REVOLUTIONARY: Audio-Reactive Visuals
-  const [audioReactiveIntensity, setAudioReactiveIntensity] = useState(50); // 0-100
-  const [particleReactivity, setParticleReactivity] = useState(true);
+  const [audioReactiveIntensity, setAudioReactiveIntensity] = useState(0); // ✅ DISABLED by default (0 = off)
+  const [particleReactivity, setParticleReactivity] = useState(false); // ✅ DISABLED by default
 
   // 🧠 PANDORA'S BOX #1: Emotional Intelligence AI (WORLD'S FIRST!)
-  const [emotionalMode, setEmotionalMode] = useState(true); // Auto-detect emotions
+  const [emotionalMode, setEmotionalMode] = useState(false); // ✅ DISABLED by default - causes "radio effect"
   const [currentEmotion, setCurrentEmotion] = useState<
     "neutral" | "tension" | "joy" | "wisdom" | "suspense"
   >("neutral");
@@ -253,77 +253,72 @@ export default function ListenModeLuxury({
   });
   const { showAchievementToast } = useAchievementToasts();
 
-  // 🧠 CONTEXTUAL INTELLIGENCE ENGINE: World's First AI Reading Intelligence
-  const intelligence = useContextualIntelligence(
-    bookSlug,
-    chapterNumber,
-    isPremiumUser // Only track for premium users
-  );
+  // 🧠 CONTEXTUAL INTELLIGENCE ENGINE: ✅ DISABLED - Too much background processing
+  // const intelligence = useContextualIntelligence(
+  //   bookSlug,
+  //   chapterNumber,
+  //   isPremiumUser // Only track for premium users
+  // );
 
-  // Cleanup: End tracking when component unmounts
-  useEffect(() => {
-    return () => {
-      if (isPremiumUser) {
-        intelligence.endTracking(false); // false = not completed
-      }
-    };
-  }, [isPremiumUser, intelligence]);
+  // Cleanup: End tracking when component unmounts - ✅ DISABLED
+  // useEffect(() => {
+  //   return () => {
+  //     if (isPremiumUser) {
+  //       intelligence.endTracking(false); // false = not completed
+  //     }
+  //   };
+  // }, [isPremiumUser, intelligence]);
 
-  // 🤖 AUTO-APPLY AI RECOMMENDATIONS: Smart suggestions based on predictions
-  useEffect(() => {
-    if (!isPremiumUser || !intelligence.predictions || !isPlaying) return;
-
-    const predictions = intelligence.predictions;
-
-    // Suggest speed change if significantly different from recommendation
-    if (
-      predictions.recommendedSpeed &&
-      Math.abs(playbackRate - predictions.recommendedSpeed) > 0.2
-    ) {
-      const speedDiff = predictions.recommendedSpeed - playbackRate;
-      const suggestion =
-        speedDiff > 0
-          ? `🧠 AI suggests speeding up to ${predictions.recommendedSpeed}x for this chapter`
-          : `🧠 AI suggests slowing down to ${predictions.recommendedSpeed}x for this chapter`;
-
-      showAchievementToast({
-        id: `ai-speed-${Date.now()}`,
-        key: "ai_speed_recommendation",
-        name: "AI Reading Coach",
-        description: suggestion,
-        icon: "🧠",
-        category: "intelligence",
-        rarity: "EPIC",
-        dynastyPoints: 0,
-      });
-    }
-
-    // Break reminder based on AI prediction
-    if (predictions.suggestedBreakInterval) {
-      const breakTimer = setTimeout(() => {
-        if (isPlaying) {
-          showAchievementToast({
-            id: `ai-break-${Date.now()}`,
-            key: "ai_break_recommendation",
-            name: "Take a Break",
-            description: `AI recommends a ${predictions.suggestedBreakInterval} minute break for optimal retention`,
-            icon: "☕",
-            category: "intelligence",
-            rarity: "RARE",
-            dynastyPoints: 0,
-          });
-        }
-      }, predictions.suggestedBreakInterval * 60 * 1000);
-
-      return () => clearTimeout(breakTimer);
-    }
-  }, [
-    intelligence.predictions,
-    isPremiumUser,
-    isPlaying,
-    playbackRate,
-    showAchievementToast,
-  ]);
+  // 🤖 AUTO-APPLY AI RECOMMENDATIONS: ✅ DISABLED - No more auto-suggestions
+  // useEffect(() => {
+  //   if (!isPremiumUser || !intelligence.predictions || !isPlaying) return;
+  //   const predictions = intelligence.predictions;
+  //   // Suggest speed change if significantly different from recommendation
+  //   if (
+  //     predictions.recommendedSpeed &&
+  //     Math.abs(playbackRate - predictions.recommendedSpeed) > 0.2
+  //   ) {
+  //     const speedDiff = predictions.recommendedSpeed - playbackRate;
+  //     const suggestion =
+  //       speedDiff > 0
+  //         ? `🧠 AI suggests speeding up to ${predictions.recommendedSpeed}x for this chapter`
+  //         : `🧠 AI suggests slowing down to ${predictions.recommendedSpeed}x for this chapter`;
+  //     showAchievementToast({
+  //       id: `ai-speed-${Date.now()}`,
+  //       key: "ai_speed_recommendation",
+  //       name: "AI Reading Coach",
+  //       description: suggestion,
+  //       icon: "🧠",
+  //       category: "intelligence",
+  //       rarity: "EPIC",
+  //       dynastyPoints: 0,
+  //     });
+  //   }
+  //   // Break reminder based on AI prediction
+  //   if (predictions.suggestedBreakInterval) {
+  //     const breakTimer = setTimeout(() => {
+  //       if (isPlaying) {
+  //         showAchievementToast({
+  //           id: `ai-break-${Date.now()}`,
+  //           key: "ai_break_recommendation",
+  //           name: "Take a Break",
+  //           description: `AI recommends a ${predictions.suggestedBreakInterval} minute break for optimal retention`,
+  //           icon: "☕",
+  //           category: "intelligence",
+  //           rarity: "RARE",
+  //           dynastyPoints: 0,
+  //         });
+  //       }
+  //     }, predictions.suggestedBreakInterval * 60 * 1000);
+  //     return () => clearTimeout(breakTimer);
+  //   }
+  // }, [
+  //   intelligence.predictions,
+  //   isPremiumUser,
+  //   isPlaying,
+  //   playbackRate,
+  //   showAchievementToast,
+  // ]);
 
   // 📱 Mobile gesture handlers
   useMobileGestures(containerRef, {
@@ -1213,10 +1208,10 @@ export default function ListenModeLuxury({
     setVisualizerStyle(atmosphere.visualizerStyle);
     setPlaybackRate(atmosphere.recommendedSpeed);
 
-    // Track atmosphere change with intelligence
-    if (isPremiumUser) {
-      intelligence.onAtmosphereChange();
-    }
+    // Track atmosphere change with intelligence - ✅ DISABLED
+    // if (isPremiumUser) {
+    //   intelligence.onAtmosphereChange();
+    // }
 
     // Track event
     trackEvent("listening_atmosphere_applied", {
@@ -2076,17 +2071,17 @@ export default function ListenModeLuxury({
     try {
       if (isPlaying) {
         audioRef.current.pause();
-        // Track pause with intelligence
-        if (isPremiumUser) {
-          intelligence.onPause();
-        }
+        // Track pause with intelligence - ✅ DISABLED
+        // if (isPremiumUser) {
+        //   intelligence.onPause();
+        // }
       } else {
         await audioRef.current.play();
-        // Start tracking when playback begins
-        if (isPremiumUser) {
-          intelligence.startTracking();
-          intelligence.onResume();
-        }
+        // Start tracking when playback begins - ✅ DISABLED
+        // if (isPremiumUser) {
+        //   intelligence.startTracking();
+        //   intelligence.onResume();
+        // }
       }
     } catch (err) {
       console.error("Playback error:", err);
@@ -2814,10 +2809,10 @@ export default function ListenModeLuxury({
                       const newSpeed = parseFloat(e.target.value);
                       setPlaybackRate(newSpeed);
 
-                      // Track speed change with intelligence
-                      if (isPremiumUser) {
-                        intelligence.onSpeedChange();
-                      }
+                      // Track speed change with intelligence - ✅ DISABLED
+                      // if (isPremiumUser) {
+                      //   intelligence.onSpeedChange();
+                      // }
 
                       trackEvent("speed_changed", {
                         fromSpeed: playbackRate,

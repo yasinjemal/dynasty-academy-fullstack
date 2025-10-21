@@ -1,36 +1,36 @@
-'use client'
+"use client";
 
-import { useSession } from 'next-auth/react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useSession } from "next-auth/react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface DashboardStats {
-  totalUsers: number
-  totalBooks: number
-  totalBlogPosts: number
-  totalOrders: number
-  totalRevenue: number
+  totalUsers: number;
+  totalBooks: number;
+  totalBlogPosts: number;
+  totalOrders: number;
+  totalRevenue: number;
   recentActivities: Array<{
-    id: string
-    type: string
-    description: string
-    time: string
-  }>
+    id: string;
+    type: string;
+    description: string;
+    time: string;
+  }>;
 }
 
 export default function AdminDashboardPage() {
-  const { data: session, status } = useSession()
+  const { data: session, status } = useSession();
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     totalBooks: 0,
     totalBlogPosts: 0,
     totalOrders: 0,
     totalRevenue: 0,
-    recentActivities: []
-  })
-  const [loading, setLoading] = useState(true)
+    recentActivities: [],
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -42,36 +42,63 @@ export default function AdminDashboardPage() {
           totalBooks: 52,
           totalBlogPosts: 186,
           totalOrders: 423,
-          totalRevenue: 12450.50,
+          totalRevenue: 12450.5,
           recentActivities: [
-            { id: '1', type: 'user', description: 'New user registration: John Doe', time: '5 min ago' },
-            { id: '2', type: 'order', description: 'New order #1234 - $49.99', time: '12 min ago' },
-            { id: '3', type: 'book', description: 'Book updated: Advanced JavaScript', time: '1 hour ago' },
-            { id: '4', type: 'blog', description: 'New blog post published', time: '2 hours ago' },
-            { id: '5', type: 'order', description: 'Order #1233 completed', time: '3 hours ago' },
-          ]
-        })
+            {
+              id: "1",
+              type: "user",
+              description: "New user registration: John Doe",
+              time: "5 min ago",
+            },
+            {
+              id: "2",
+              type: "order",
+              description: "New order #1234 - $49.99",
+              time: "12 min ago",
+            },
+            {
+              id: "3",
+              type: "book",
+              description: "Book updated: Advanced JavaScript",
+              time: "1 hour ago",
+            },
+            {
+              id: "4",
+              type: "blog",
+              description: "New blog post published",
+              time: "2 hours ago",
+            },
+            {
+              id: "5",
+              type: "order",
+              description: "Order #1233 completed",
+              time: "3 hours ago",
+            },
+          ],
+        });
       } catch (error) {
-        console.error('Error fetching stats:', error)
+        console.error("Error fetching stats:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    if (status === 'authenticated') {
-      fetchStats()
+    if (status === "authenticated") {
+      fetchStats();
     }
-  }, [status])
+  }, [status]);
 
-  if (status === 'loading' || loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading dashboard...</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading dashboard...
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -85,7 +112,7 @@ export default function AdminDashboardPage() {
             </div>
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Welcome back, {session?.user?.name || 'Admin'}!
+                Welcome back, {session?.user?.name || "Admin"}!
               </h1>
               <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
                 Here's what's happening with your academy today
@@ -101,16 +128,22 @@ export default function AdminDashboardPage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
             <CardHeader className="pb-3 relative z-10">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium opacity-90">Total Users</CardTitle>
+                <CardTitle className="text-sm font-medium opacity-90">
+                  Total Users
+                </CardTitle>
                 <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl backdrop-blur-sm">
                   👥
                 </div>
               </div>
             </CardHeader>
             <CardContent className="relative z-10">
-              <div className="text-4xl font-bold mb-1">{stats.totalUsers.toLocaleString()}</div>
+              <div className="text-4xl font-bold mb-1">
+                {stats.totalUsers.toLocaleString()}
+              </div>
               <div className="flex items-center gap-1 text-xs">
-                <span className="inline-block w-4 h-4 rounded bg-white/30 flex items-center justify-center">↑</span>
+                <span className="inline-block w-4 h-4 rounded bg-white/30 flex items-center justify-center">
+                  ↑
+                </span>
                 <span className="opacity-90">+12% from last month</span>
               </div>
             </CardContent>
@@ -121,7 +154,9 @@ export default function AdminDashboardPage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
             <CardHeader className="pb-3 relative z-10">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium opacity-90">Books</CardTitle>
+                <CardTitle className="text-sm font-medium opacity-90">
+                  Books
+                </CardTitle>
                 <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl backdrop-blur-sm">
                   📚
                 </div>
@@ -130,7 +165,9 @@ export default function AdminDashboardPage() {
             <CardContent className="relative z-10">
               <div className="text-4xl font-bold mb-1">{stats.totalBooks}</div>
               <div className="flex items-center gap-1 text-xs">
-                <span className="inline-block w-4 h-4 rounded bg-white/30 flex items-center justify-center">+</span>
+                <span className="inline-block w-4 h-4 rounded bg-white/30 flex items-center justify-center">
+                  +
+                </span>
                 <span className="opacity-90">3 new this month</span>
               </div>
             </CardContent>
@@ -141,16 +178,22 @@ export default function AdminDashboardPage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
             <CardHeader className="pb-3 relative z-10">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium opacity-90">Blog Posts</CardTitle>
+                <CardTitle className="text-sm font-medium opacity-90">
+                  Blog Posts
+                </CardTitle>
                 <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl backdrop-blur-sm">
                   ✍️
                 </div>
               </div>
             </CardHeader>
             <CardContent className="relative z-10">
-              <div className="text-4xl font-bold mb-1">{stats.totalBlogPosts}</div>
+              <div className="text-4xl font-bold mb-1">
+                {stats.totalBlogPosts}
+              </div>
               <div className="flex items-center gap-1 text-xs">
-                <span className="inline-block w-4 h-4 rounded bg-white/30 flex items-center justify-center">🔥</span>
+                <span className="inline-block w-4 h-4 rounded bg-white/30 flex items-center justify-center">
+                  🔥
+                </span>
                 <span className="opacity-90">+8 this week</span>
               </div>
             </CardContent>
@@ -161,7 +204,9 @@ export default function AdminDashboardPage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
             <CardHeader className="pb-3 relative z-10">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium opacity-90">Orders</CardTitle>
+                <CardTitle className="text-sm font-medium opacity-90">
+                  Orders
+                </CardTitle>
                 <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl backdrop-blur-sm">
                   🛒
                 </div>
@@ -170,7 +215,9 @@ export default function AdminDashboardPage() {
             <CardContent className="relative z-10">
               <div className="text-4xl font-bold mb-1">{stats.totalOrders}</div>
               <div className="flex items-center gap-1 text-xs">
-                <span className="inline-block w-4 h-4 rounded bg-white/30 flex items-center justify-center">↑</span>
+                <span className="inline-block w-4 h-4 rounded bg-white/30 flex items-center justify-center">
+                  ↑
+                </span>
                 <span className="opacity-90">+18% from last month</span>
               </div>
             </CardContent>
@@ -181,16 +228,22 @@ export default function AdminDashboardPage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
             <CardHeader className="pb-3 relative z-10">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium opacity-90">Revenue</CardTitle>
+                <CardTitle className="text-sm font-medium opacity-90">
+                  Revenue
+                </CardTitle>
                 <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl backdrop-blur-sm">
                   💰
                 </div>
               </div>
             </CardHeader>
             <CardContent className="relative z-10">
-              <div className="text-4xl font-bold mb-1">${stats.totalRevenue.toLocaleString()}</div>
+              <div className="text-4xl font-bold mb-1">
+                ${stats.totalRevenue.toLocaleString()}
+              </div>
               <div className="flex items-center gap-1 text-xs">
-                <span className="inline-block w-4 h-4 rounded bg-white/30 flex items-center justify-center">↑</span>
+                <span className="inline-block w-4 h-4 rounded bg-white/30 flex items-center justify-center">
+                  ↑
+                </span>
                 <span className="opacity-90">+25% from last month</span>
               </div>
             </CardContent>
@@ -211,24 +264,31 @@ export default function AdminDashboardPage() {
             <CardContent className="pt-6">
               <div className="space-y-4">
                 {stats.recentActivities.map((activity, index) => (
-                  <div 
-                    key={activity.id} 
+                  <div
+                    key={activity.id}
                     className="flex items-start space-x-4 pb-4 border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/50 -mx-4 px-4 py-2 rounded-lg transition-colors duration-200"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg shadow-lg ${
-                      activity.type === 'user' ? 'bg-gradient-to-br from-purple-500 to-purple-700' :
-                      activity.type === 'order' ? 'bg-gradient-to-br from-orange-500 to-red-600' :
-                      activity.type === 'book' ? 'bg-gradient-to-br from-blue-500 to-cyan-600' :
-                      'bg-gradient-to-br from-green-500 to-emerald-600'
-                    }`}>
-                      {activity.type === 'user' && '👤'}
-                      {activity.type === 'order' && '🛒'}
-                      {activity.type === 'book' && '📚'}
-                      {activity.type === 'blog' && '📝'}
+                    <div
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg shadow-lg ${
+                        activity.type === "user"
+                          ? "bg-gradient-to-br from-purple-500 to-purple-700"
+                          : activity.type === "order"
+                          ? "bg-gradient-to-br from-orange-500 to-red-600"
+                          : activity.type === "book"
+                          ? "bg-gradient-to-br from-blue-500 to-cyan-600"
+                          : "bg-gradient-to-br from-green-500 to-emerald-600"
+                      }`}
+                    >
+                      {activity.type === "user" && "👤"}
+                      {activity.type === "order" && "🛒"}
+                      {activity.type === "book" && "📚"}
+                      {activity.type === "blog" && "📝"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{activity.description}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {activity.description}
+                      </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
                         <span>🕐</span>
                         {activity.time}
@@ -251,6 +311,66 @@ export default function AdminDashboardPage() {
               </div>
             </CardHeader>
             <CardContent className="pt-6 space-y-3">
+              <Link href="/admin/course-generator">
+                <Button className="w-full justify-start bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 hover:from-purple-700 hover:via-pink-700 hover:to-rose-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-12 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                  <span className="mr-3 text-xl relative z-10">✨</span>
+                  <span className="font-medium relative z-10">
+                    AI Course Generator
+                  </span>
+                  <span className="ml-auto text-xs bg-white/20 px-2 py-0.5 rounded-full relative z-10">
+                    NEW
+                  </span>
+                </Button>
+              </Link>
+              <Link href="/admin/lesson-generator">
+                <Button className="w-full justify-start bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-12 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                  <span className="mr-3 text-xl relative z-10">📝</span>
+                  <span className="font-medium relative z-10">
+                    AI Lesson Generator
+                  </span>
+                  <span className="ml-auto text-xs bg-white/20 px-2 py-0.5 rounded-full relative z-10">
+                    NEW
+                  </span>
+                </Button>
+              </Link>
+              <Link href="/admin/quiz-generator">
+                <Button className="w-full justify-start bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-700 hover:via-blue-700 hover:to-indigo-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-12 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                  <span className="mr-3 text-xl relative z-10">🎯</span>
+                  <span className="font-medium relative z-10">
+                    AI Quiz Generator
+                  </span>
+                  <span className="ml-auto text-xs bg-white/20 px-2 py-0.5 rounded-full relative z-10">
+                    NEW
+                  </span>
+                </Button>
+              </Link>
+              <Link href="/admin/publisher">
+                <Button className="w-full justify-start bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:from-emerald-700 hover:via-green-700 hover:to-teal-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-12 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                  <span className="mr-3 text-xl relative z-10">🚀</span>
+                  <span className="font-medium relative z-10">
+                    AI Publisher
+                  </span>
+                  <span className="ml-auto text-xs bg-gradient-to-r from-yellow-300 to-orange-300 text-orange-900 px-2 py-0.5 rounded-full font-bold relative z-10 animate-pulse">
+                    LIVE
+                  </span>
+                </Button>
+              </Link>
+              <Link href="/admin/ai-insights">
+                <Button className="w-full justify-start bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-12">
+                  <span className="mr-3 text-xl">🤖</span>
+                  <span className="font-medium">AI Insights</span>
+                </Button>
+              </Link>
+              <Link href="/admin/rag-management">
+                <Button className="w-full justify-start bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-12">
+                  <span className="mr-3 text-xl">🎛️</span>
+                  <span className="font-medium">RAG Management</span>
+                </Button>
+              </Link>
               <Link href="/admin/books">
                 <Button className="w-full justify-start bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-12">
                   <span className="mr-3 text-xl">📚</span>
@@ -280,5 +400,5 @@ export default function AdminDashboardPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

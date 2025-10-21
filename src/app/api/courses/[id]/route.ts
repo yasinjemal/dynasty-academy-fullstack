@@ -17,9 +17,9 @@ export async function GET(
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id || null;
 
-    const { id: courseId } = await params;
+    const { id: courseIdOrSlug } = await params;
 
-    // Fetch course with raw SQL (since Prisma schema not updated yet)
+    // Fetch course with raw SQL - support both ID and slug lookup
     const course = await prisma.$queryRaw<any[]>`
       SELECT 
         c.id, c.title, c.description, c."coverImage",
@@ -30,13 +30,15 @@ export async function GET(
         c."lessonCount" as "totalLessons"
       FROM courses c
       LEFT JOIN course_enrollments e ON e."courseId" = c.id AND e."userId" = ${userId}
-      WHERE c.id = ${courseId}
+      WHERE c.id = ${courseIdOrSlug} OR c.slug = ${courseIdOrSlug}
       LIMIT 1
     `;
 
     if (!course || course.length === 0) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
+
+    const courseId = course[0].id;
 
     // Fetch sections
     const sections = await prisma.$queryRaw<any[]>`

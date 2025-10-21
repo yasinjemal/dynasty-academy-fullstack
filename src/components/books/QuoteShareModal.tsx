@@ -863,33 +863,48 @@ export default function QuoteShareModal({
         useCORS: true,
         allowTaint: true,
         onclone: (clonedDoc) => {
-          // Fix any oklch colors in the cloned document
+          // 🔥 FIX: Convert ALL oklch colors to RGB format
           const clonedCard = clonedDoc.getElementById("quote-card");
           if (clonedCard) {
-            // Get original elements to read their computed styles
-            const originalElements = cardElement.querySelectorAll("*");
-            const clonedElements = clonedCard.querySelectorAll("*");
+            // Get ALL elements (including nested)
+            const allElements = clonedCard.querySelectorAll("*");
 
-            // Apply computed styles from original to cloned
-            clonedElements.forEach((clonedEl, index) => {
-              if (originalElements[index]) {
-                const element = clonedEl as HTMLElement;
-                const originalElement = originalElements[index] as HTMLElement;
-                const styles = window.getComputedStyle(originalElement);
+            allElements.forEach((el) => {
+              const element = el as HTMLElement;
+              const computedStyle = window.getComputedStyle(element);
 
-                // Convert computed styles to inline styles to avoid oklch issues
+              // Force inline styles for ALL color properties (RGB format)
+              // This prevents oklch parsing errors in html2canvas
+              const colorProps = [
+                "color",
+                "backgroundColor",
+                "borderColor",
+                "borderTopColor",
+                "borderRightColor",
+                "borderBottomColor",
+                "borderLeftColor",
+                "textShadow",
+                "boxShadow",
+                "fill",
+                "stroke",
+              ];
+
+              colorProps.forEach((prop) => {
+                const value = computedStyle.getPropertyValue(prop);
                 if (
-                  styles.backgroundColor &&
-                  styles.backgroundColor !== "rgba(0, 0, 0, 0)"
+                  value &&
+                  value !== "none" &&
+                  value !== "rgba(0, 0, 0, 0)" &&
+                  value !== "transparent"
                 ) {
-                  element.style.backgroundColor = styles.backgroundColor;
+                  (element.style as any)[prop] = value;
                 }
-                if (styles.color && styles.color !== "rgb(0, 0, 0)") {
-                  element.style.color = styles.color;
-                }
-                if (styles.borderColor) {
-                  element.style.borderColor = styles.borderColor;
-                }
+              });
+
+              // Also force background-image for gradients
+              const bgImage = computedStyle.backgroundImage;
+              if (bgImage && bgImage !== "none") {
+                element.style.backgroundImage = bgImage;
               }
             });
           }
@@ -928,30 +943,47 @@ export default function QuoteShareModal({
         backgroundColor: null,
         scale: 3,
         logging: false,
+        useCORS: true,
+        allowTaint: true,
         onclone: (clonedDoc) => {
+          // 🔥 FIX: Convert ALL oklch colors to RGB format
           const clonedCard = clonedDoc.getElementById("quote-card");
           if (clonedCard) {
-            const originalElements = cardElement.querySelectorAll("*");
-            const clonedElements = clonedCard.querySelectorAll("*");
+            const allElements = clonedCard.querySelectorAll("*");
 
-            clonedElements.forEach((clonedEl, index) => {
-              if (originalElements[index]) {
-                const element = clonedEl as HTMLElement;
-                const originalElement = originalElements[index] as HTMLElement;
-                const styles = window.getComputedStyle(originalElement);
+            allElements.forEach((el) => {
+              const element = el as HTMLElement;
+              const computedStyle = window.getComputedStyle(element);
 
+              const colorProps = [
+                "color",
+                "backgroundColor",
+                "borderColor",
+                "borderTopColor",
+                "borderRightColor",
+                "borderBottomColor",
+                "borderLeftColor",
+                "textShadow",
+                "boxShadow",
+                "fill",
+                "stroke",
+              ];
+
+              colorProps.forEach((prop) => {
+                const value = computedStyle.getPropertyValue(prop);
                 if (
-                  styles.backgroundColor &&
-                  styles.backgroundColor !== "rgba(0, 0, 0, 0)"
+                  value &&
+                  value !== "none" &&
+                  value !== "rgba(0, 0, 0, 0)" &&
+                  value !== "transparent"
                 ) {
-                  element.style.backgroundColor = styles.backgroundColor;
+                  (element.style as any)[prop] = value;
                 }
-                if (styles.color) {
-                  element.style.color = styles.color;
-                }
-                if (styles.borderColor) {
-                  element.style.borderColor = styles.borderColor;
-                }
+              });
+
+              const bgImage = computedStyle.backgroundImage;
+              if (bgImage && bgImage !== "none") {
+                element.style.backgroundImage = bgImage;
               }
             });
           }
@@ -989,30 +1021,47 @@ export default function QuoteShareModal({
         backgroundColor: null,
         scale: 3,
         logging: false,
+        useCORS: true,
+        allowTaint: true,
         onclone: (clonedDoc) => {
+          // 🔥 FIX: Convert ALL oklch colors to RGB format
           const clonedCard = clonedDoc.getElementById("quote-card");
           if (clonedCard) {
-            const originalElements = cardElement.querySelectorAll("*");
-            const clonedElements = clonedCard.querySelectorAll("*");
+            const allElements = clonedCard.querySelectorAll("*");
 
-            clonedElements.forEach((clonedEl, index) => {
-              if (originalElements[index]) {
-                const element = clonedEl as HTMLElement;
-                const originalElement = originalElements[index] as HTMLElement;
-                const styles = window.getComputedStyle(originalElement);
+            allElements.forEach((el) => {
+              const element = el as HTMLElement;
+              const computedStyle = window.getComputedStyle(element);
 
+              const colorProps = [
+                "color",
+                "backgroundColor",
+                "borderColor",
+                "borderTopColor",
+                "borderRightColor",
+                "borderBottomColor",
+                "borderLeftColor",
+                "textShadow",
+                "boxShadow",
+                "fill",
+                "stroke",
+              ];
+
+              colorProps.forEach((prop) => {
+                const value = computedStyle.getPropertyValue(prop);
                 if (
-                  styles.backgroundColor &&
-                  styles.backgroundColor !== "rgba(0, 0, 0, 0)"
+                  value &&
+                  value !== "none" &&
+                  value !== "rgba(0, 0, 0, 0)" &&
+                  value !== "transparent"
                 ) {
-                  element.style.backgroundColor = styles.backgroundColor;
+                  (element.style as any)[prop] = value;
                 }
-                if (styles.color) {
-                  element.style.color = styles.color;
-                }
-                if (styles.borderColor) {
-                  element.style.borderColor = styles.borderColor;
-                }
+              });
+
+              const bgImage = computedStyle.backgroundImage;
+              if (bgImage && bgImage !== "none") {
+                element.style.backgroundImage = bgImage;
               }
             });
           }

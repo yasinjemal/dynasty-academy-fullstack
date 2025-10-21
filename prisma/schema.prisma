@@ -474,10 +474,19 @@ model AudioAsset {
   metadata      Json?
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
+  // 🔥 REVOLUTIONARY SMART CACHING FIELDS
+  contentHash   String?  @map("content_hash") // SHA-256 hash for deduplication
+  voiceId       String?  @map("voice_id") // Voice used for generation
+  storageUrl    String?  @map("storage_url") // Permanent storage location
+  durationSec   Float?   @map("duration_sec") // Duration in seconds
+  wordCount     Int?     @map("word_count") // Word count for cost calculation
+  format        String?  @default("mp3_44100_128") // Audio format
+  accessCount   Int      @default(0) @map("access_count") // Track usage
   book          Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
 
   @@unique([bookId, chapterNumber])
   @@index([bookId])
+  @@index([contentHash]) // Critical for cache performance
   @@map("book_audio")
 }
 

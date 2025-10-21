@@ -19,6 +19,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 import { prisma } from "@/lib/db/prisma";
 import OpenAI from "openai";
+import { searchSimilarContent } from "@/lib/embeddings";
 
 // Initialize OpenAI
 const openai = new OpenAI({
@@ -54,6 +55,13 @@ Context awareness:
 - You have access to the user's current page and learning context
 - Reference their progress and achievements when relevant
 - Suggest related lessons or resources from Dynasty Academy
+
+📚 RAG (Retrieval Augmented Generation):
+- When relevant content is provided from books/courses, USE IT as your primary source
+- Quote directly from the source material with page numbers: "As stated in [Book Title, Page X]..."
+- If the source content answers the question, reference it explicitly
+- If no relevant content is found, use your general knowledge but mention it
+- Always prioritize accuracy from Dynasty Academy materials over general knowledge
 `;
 
 /**
@@ -104,7 +112,7 @@ export async function POST(request: NextRequest) {
     // 4️⃣ Rate limiting check (10 messages per minute)
     // NOTE: This counts message pairs (user + AI response) not conversations
     const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
-    
+
     // Count recent message exchanges (each conversation update = 2 messages)
     const recentConversations = await prisma.aiConversation.findMany({
       where: {
@@ -180,11 +188,40 @@ export async function POST(request: NextRequest) {
       user.name || "Student"
     }, Level ${user.level}, Dynasty Score: ${user.dynastyScore}]`;
 
+    // 6.5️⃣ RAG: Search for relevant content from books/courses
+    let ragContext = "";
+    try {
+      const relevantContent = await searchSimilarContent(message, {
+        matchThreshold: 0.75, // Higher threshold for quality matches
+        matchCount: 3, // Top 3 most relevant chunks
+        filterType: context?.bookId
+          ? "book"
+          : context?.courseId
+          ? "course"
+          : undefined,
+        filterId: context?.bookId || context?.courseId || undefined,
+      });
+
+      if (relevantContent.length > 0) {
+        ragContext = "\n\n📚 Relevant content from Dynasty Academy:\n";
+        relevantContent.forEach((content, idx) => {
+          ragContext += `\n[Source ${idx + 1}: ${content.content_title}${
+            content.page_number ? `, Page ${content.page_number}` : ""
+          }]\n${content.chunk_text}\n`;
+        });
+        ragContext +=
+          "\n⚠️ Use this content to provide accurate, specific answers. Quote sources with page numbers when relevant.";
+      }
+    } catch (error) {
+      console.error("❌ RAG search error (continuing without):", error);
+      // Gracefully continue without RAG if there's an error
+    }
+
     // 7️⃣ Prepare OpenAI messages
     const openAiMessages: any[] = [
       {
         role: "system",
-        content: SYSTEM_PROMPT + userInfoPrompt + contextPrompt,
+        content: SYSTEM_PROMPT + userInfoPrompt + contextPrompt + ragContext,
       },
       ...messages.map((msg: any) => ({
         role: msg.role,
