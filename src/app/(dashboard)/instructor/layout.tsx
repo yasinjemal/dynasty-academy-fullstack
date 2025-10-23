@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import {
@@ -15,6 +15,7 @@ import {
   LogOut,
   Bell,
   MessageSquare,
+  AlertTriangle,
 } from "lucide-react";
 
 interface InstructorLayoutProps {
@@ -62,7 +63,91 @@ const menuItems = [
 
 export default function InstructorLayout({ children }: InstructorLayoutProps) {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check authentication and authorization
+    if (status === "loading") {
+      return; // Still loading session
+    }
+
+    if (status === "unauthenticated") {
+      // Not logged in - redirect to login
+      router.push("/auth/signin?callbackUrl=/instructor/dashboard");
+      return;
+    }
+
+    if (session?.user) {
+      // Check if user has INSTRUCTOR or ADMIN role
+      const userRole = session.user.role;
+      
+      if (userRole === "INSTRUCTOR" || userRole === "ADMIN") {
+        setIsAuthorized(true);
+        setIsLoading(false);
+      } else {
+        // User doesn't have instructor access
+        setIsAuthorized(false);
+        setIsLoading(false);
+        // Redirect to become instructor page after 3 seconds
+        setTimeout(() => {
+          router.push("/become-instructor");
+        }, 3000);
+      }
+    }
+  }, [session, status, router]);
+
+  // Loading state
+  if (status === "loading" || isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Unauthorized access
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 flex items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full bg-slate-900/50 border border-red-500/20 rounded-xl p-8 backdrop-blur-sm text-center"
+        >
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-8 h-8 text-red-400" />
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">Access Denied</h1>
+          <p className="text-gray-400 mb-6">
+            You need to be an approved instructor to access this dashboard.
+          </p>
+          <div className="space-y-3">
+            <Link href="/become-instructor">
+              <button className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg font-semibold text-white transition-all">
+                Apply to Become an Instructor
+              </button>
+            </Link>
+            <Link href="/">
+              <button className="w-full py-3 bg-slate-800/50 border border-purple-500/20 hover:border-purple-500/40 rounded-lg font-semibold text-white transition-all">
+                Back to Home
+              </button>
+            </Link>
+          </div>
+          <p className="text-xs text-gray-500 mt-4">
+            Redirecting in 3 seconds...
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Authorized - show instructor dashboard
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950">
@@ -151,9 +236,7 @@ export default function InstructorLayout({ children }: InstructorLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
-        {children}
-      </main>
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }

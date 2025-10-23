@@ -137,9 +137,7 @@ export default function InstructorDashboardPage() {
             {stats.totalStudents.toLocaleString()}
           </div>
           <div className="text-gray-400 text-sm mt-2">Total Students</div>
-          <div className="mt-3 text-xs text-blue-400">
-            +47 new this week
-          </div>
+          <div className="mt-3 text-xs text-blue-400">+47 new this week</div>
         </motion.div>
 
         <motion.div

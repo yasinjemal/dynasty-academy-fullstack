@@ -14,6 +14,7 @@ export async function middleware(request: NextRequest) {
   const isAdminPage = request.nextUrl.pathname.startsWith("/admin");
   const isDashboardPage = request.nextUrl.pathname.startsWith("/dashboard");
   const isSettingsPage = request.nextUrl.pathname.startsWith("/settings");
+  const isInstructorPage = request.nextUrl.pathname.startsWith("/instructor");
 
   // Redirect authenticated users away from auth pages
   if (isAuthPage && isAuth) {
@@ -21,7 +22,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect unauthenticated users to login
-  if (!isAuth && (isDashboardPage || isAdminPage || isSettingsPage)) {
+  if (!isAuth && (isDashboardPage || isAdminPage || isSettingsPage || isInstructorPage)) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
@@ -34,6 +35,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Check instructor role for instructor pages
+  if (isInstructorPage && isAuth) {
+    const userRole = token.role as string;
+    if (userRole !== "INSTRUCTOR" && userRole !== "ADMIN") {
+      // Not an instructor - redirect to become instructor page
+      return NextResponse.redirect(new URL("/become-instructor", request.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
@@ -42,6 +52,7 @@ export const config = {
     "/dashboard/:path*",
     "/settings/:path*",
     "/admin/:path*",
+    "/instructor/:path*",
     "/login",
     "/register",
   ],

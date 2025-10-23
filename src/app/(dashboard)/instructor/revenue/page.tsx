@@ -65,7 +65,9 @@ interface CourseRevenue {
 export default function InstructorRevenuePage() {
   const [stats, setStats] = useState<RevenueStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d" | "1y">("30d");
+  const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d" | "1y">(
+    "30d"
+  );
 
   useEffect(() => {
     fetchRevenueStats();
@@ -73,7 +75,9 @@ export default function InstructorRevenuePage() {
 
   const fetchRevenueStats = async () => {
     try {
-      const response = await fetch(`/api/instructor/revenue?range=${timeRange}`);
+      const response = await fetch(
+        `/api/instructor/revenue?range=${timeRange}`
+      );
       const data = await response.json();
       setStats(data);
     } catch (error) {
@@ -142,8 +146,16 @@ export default function InstructorRevenuePage() {
               <div className="p-3 bg-green-500/20 rounded-lg">
                 <DollarSign className="w-6 h-6 text-green-400" />
               </div>
-              <div className={`flex items-center gap-1 text-sm ${isPositiveGrowth ? 'text-green-400' : 'text-red-400'}`}>
-                {isPositiveGrowth ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+              <div
+                className={`flex items-center gap-1 text-sm ${
+                  isPositiveGrowth ? "text-green-400" : "text-red-400"
+                }`}
+              >
+                {isPositiveGrowth ? (
+                  <ArrowUpRight className="w-4 h-4" />
+                ) : (
+                  <ArrowDownRight className="w-4 h-4" />
+                )}
                 {Math.abs(revenueChange).toFixed(1)}%
               </div>
             </div>
@@ -237,7 +249,9 @@ export default function InstructorRevenuePage() {
             {/* Simple Bar Chart */}
             <div className="space-y-4">
               {stats.revenueByWeek.map((week, index) => {
-                const maxRevenue = Math.max(...stats.revenueByWeek.map(w => w.revenue));
+                const maxRevenue = Math.max(
+                  ...stats.revenueByWeek.map((w) => w.revenue)
+                );
                 const percentage = (week.revenue / maxRevenue) * 100;
 
                 return (
@@ -245,7 +259,9 @@ export default function InstructorRevenuePage() {
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-400">{week.week}</span>
                       <div className="flex items-center gap-4">
-                        <span className="text-gray-500">{week.students} students</span>
+                        <span className="text-gray-500">
+                          {week.students} students
+                        </span>
                         <span className="font-semibold text-purple-400">
                           ${week.revenue.toLocaleString()}
                         </span>
@@ -289,18 +305,23 @@ export default function InstructorRevenuePage() {
                 </div>
                 <div className="text-sm text-gray-400 flex items-center gap-2">
                   <Clock className="w-4 h-4" />
-                  {new Date(stats.upcomingPayout.date).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
+                  {new Date(stats.upcomingPayout.date).toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    }
+                  )}
                 </div>
               </div>
 
               <div className="space-y-3 pt-4 border-t border-purple-500/20">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-400">Courses included</span>
-                  <span className="font-semibold">{stats.upcomingPayout.coursesIncluded}</span>
+                  <span className="font-semibold">
+                    {stats.upcomingPayout.coursesIncluded}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-400">Pending amount</span>
@@ -319,7 +340,12 @@ export default function InstructorRevenuePage() {
                 <div className="w-full bg-slate-800/50 rounded-full h-3 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: `${Math.min((stats.availableBalance / 50) * 100, 100)}%` }}
+                    animate={{
+                      width: `${Math.min(
+                        (stats.availableBalance / 50) * 100,
+                        100
+                      )}%`,
+                    }}
                     transition={{ duration: 1 }}
                     className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"
                   />
@@ -378,15 +404,27 @@ export default function InstructorRevenuePage() {
                   <div className="text-xl font-bold text-green-400 mb-1">
                     ${course.revenue.toLocaleString()}
                   </div>
-                  <div className={`flex items-center gap-1 text-sm ${
-                    course.trend === 'up' ? 'text-green-400' : 
-                    course.trend === 'down' ? 'text-red-400' : 'text-gray-400'
-                  }`}>
-                    {course.trend === 'up' ? <TrendingUp className="w-4 h-4" /> : 
-                     course.trend === 'down' ? <ArrowDownRight className="w-4 h-4" /> : 
-                     <Target className="w-4 h-4" />}
-                    {course.trend === 'up' ? 'Growing' : 
-                     course.trend === 'down' ? 'Declining' : 'Stable'}
+                  <div
+                    className={`flex items-center gap-1 text-sm ${
+                      course.trend === "up"
+                        ? "text-green-400"
+                        : course.trend === "down"
+                        ? "text-red-400"
+                        : "text-gray-400"
+                    }`}
+                  >
+                    {course.trend === "up" ? (
+                      <TrendingUp className="w-4 h-4" />
+                    ) : course.trend === "down" ? (
+                      <ArrowDownRight className="w-4 h-4" />
+                    ) : (
+                      <Target className="w-4 h-4" />
+                    )}
+                    {course.trend === "up"
+                      ? "Growing"
+                      : course.trend === "down"
+                      ? "Declining"
+                      : "Stable"}
                   </div>
                 </div>
               </motion.div>
@@ -407,21 +445,34 @@ export default function InstructorRevenuePage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-purple-500/20">
-                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">Date</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">Amount</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">Method</th>
-                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">Status</th>
-                  <th className="text-right py-3 px-4 text-gray-400 font-semibold">Actions</th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">
+                    Date
+                  </th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">
+                    Amount
+                  </th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">
+                    Method
+                  </th>
+                  <th className="text-left py-3 px-4 text-gray-400 font-semibold">
+                    Status
+                  </th>
+                  <th className="text-right py-3 px-4 text-gray-400 font-semibold">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {stats.payoutHistory.map((payout) => (
-                  <tr key={payout.id} className="border-b border-purple-500/10 hover:bg-slate-800/30 transition-colors">
+                  <tr
+                    key={payout.id}
+                    className="border-b border-purple-500/10 hover:bg-slate-800/30 transition-colors"
+                  >
                     <td className="py-4 px-4">
-                      {new Date(payout.date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
+                      {new Date(payout.date).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
                       })}
                     </td>
                     <td className="py-4 px-4 font-semibold text-green-400">
@@ -429,12 +480,17 @@ export default function InstructorRevenuePage() {
                     </td>
                     <td className="py-4 px-4 text-gray-400">{payout.method}</td>
                     <td className="py-4 px-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        payout.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                        payout.status === 'processing' ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-blue-500/20 text-blue-400'
-                      }`}>
-                        {payout.status.charAt(0).toUpperCase() + payout.status.slice(1)}
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          payout.status === "completed"
+                            ? "bg-green-500/20 text-green-400"
+                            : payout.status === "processing"
+                            ? "bg-yellow-500/20 text-yellow-400"
+                            : "bg-blue-500/20 text-blue-400"
+                        }`}
+                      >
+                        {payout.status.charAt(0).toUpperCase() +
+                          payout.status.slice(1)}
                       </span>
                     </td>
                     <td className="py-4 px-4 text-right">
