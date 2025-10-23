@@ -158,14 +158,21 @@ export async function extractConceptsFromAllCourses(): Promise<{
       throw new Error("Prisma course model is undefined");
     }
 
-    // Get all published courses
+    // Get all published courses AND books
     const courses = await prisma.courses.findMany({
       where: { published: true },
-      select: { id: true },
+      select: { id: true, title: true },
     });
 
-    logInfo("Starting concept extraction for all courses", {
+    const books = await prisma.books.findMany({
+      where: { isPublic: true },
+      select: { id: true, title: true },
+    });
+
+    logInfo("Starting concept extraction for all content", {
       courseCount: courses.length,
+      bookCount: books.length,
+      totalItems: courses.length + books.length,
     });
 
     const results: ConceptExtractionResult[] = [];
@@ -175,6 +182,7 @@ export async function extractConceptsFromAllCourses(): Promise<{
     // Process courses sequentially to avoid rate limits
     for (const course of courses) {
       try {
+        logInfo(`Extracting concepts from course: ${course.title}`);
         const result = await extractConceptsFromCourse(course.id);
         results.push(result);
         totalConcepts += result.totalConcepts;
@@ -185,17 +193,39 @@ export async function extractConceptsFromAllCourses(): Promise<{
       } catch (error) {
         logError("Failed to extract concepts from course", error as Error, {
           courseId: course.id,
+          courseTitle: course.title,
+        });
+      }
+    }
+
+    // Process books sequentially
+    for (const book of books) {
+      try {
+        logInfo(`Extracting concepts from book: ${book.title}`);
+        const result = await extractConceptsFromCourse(book.id); // Books use same extraction logic
+        results.push(result);
+        totalConcepts += result.totalConcepts;
+        totalCost += result.cost;
+
+        // Small delay to respect API rate limits
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } catch (error) {
+        logError("Failed to extract concepts from book", error as Error, {
+          bookId: book.id,
+          bookTitle: book.title,
         });
       }
     }
 
     const duration = Date.now() - startTime;
 
-    logInfo("Concept extraction complete for all courses", {
-      courseCount: results.length,
+    logInfo("Concept extraction complete for all content", {
+      totalItems: results.length,
+      courseCount: courses.length,
+      bookCount: books.length,
       totalConcepts,
       totalCost,
-      duration,
+      durationMs: duration,
     });
 
     return {
