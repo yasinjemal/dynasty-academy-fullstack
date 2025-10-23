@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
-import { getSecurityEventsSummary, getAuditLogs } from "@/lib/security/audit-logger";
+import {
+  getSecurityEventsSummary,
+  getAuditLogs,
+} from "@/lib/security/audit-logger";
 
 /**
  * GET /api/admin/security/stats

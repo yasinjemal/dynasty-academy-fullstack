@@ -5,11 +5,17 @@ import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/db/prisma";
 import { compare } from "bcryptjs";
 import crypto from "crypto";
+import {
+  enhancedJWTCallback,
+  enhancedSessionCallback,
+  TOKEN_CONFIG,
+} from "@/lib/auth/token-manager";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
+    maxAge: TOKEN_CONFIG.ACCESS_TOKEN_LIFETIME, // 15 minutes
   },
   pages: {
     signIn: "/login",
@@ -86,6 +92,9 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user, trigger, session, account }) {
+      // Use enhanced JWT callback with automatic token rotation
+      const enhancedToken = await enhancedJWTCallback({ token, user, trigger });
+      
       if (user) {
         // For Google OAuth, fetch the user from database to get the actual ID
         if (account?.provider === "google" && user.email) {
@@ -93,47 +102,25 @@ export const authOptions: NextAuthOptions = {
             where: { email: user.email },
           });
           if (dbUser) {
-            token.id = dbUser.id;
-            token.role = dbUser.role;
+            enhancedToken.id = dbUser.id;
+            enhancedToken.role = dbUser.role;
           }
         } else {
-          token.id = user.id;
-          token.role = user.role;
+          enhancedToken.id = user.id;
+          enhancedToken.role = user.role;
         }
       }
 
       // Handle session update
       if (trigger === "update" && session) {
-        token = { ...token, ...session };
+        return { ...enhancedToken, ...session };
       }
 
-      return token;
+      return enhancedToken;
     },
     async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-
-        // Fetch username, bio, and premium status from database
-        if (token.id) {
-          const user = await prisma.user.findUnique({
-            where: { id: token.id as string },
-            select: {
-              username: true,
-              bio: true,
-              isPremium: true,
-              premiumUntil: true,
-            },
-          });
-          if (user) {
-            session.user.username = user.username;
-            session.user.bio = user.bio;
-            session.user.isPremium = user.isPremium || false;
-            session.user.premiumUntil = user.premiumUntil;
-          }
-        }
-      }
-      return session;
+      // Use enhanced session callback with validation
+      return await enhancedSessionCallback({ session, token });
     },
   },
   events: {

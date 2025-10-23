@@ -137,7 +137,11 @@ export async function rateLimit(
   identifier?: string
 ): Promise<{ allowed: boolean; headers: Record<string, string> }> {
   const id = identifier || getIdentifier(request);
-  const result = await rateLimiter.checkLimit(id, config.limit, config.windowMs);
+  const result = await rateLimiter.checkLimit(
+    id,
+    config.limit,
+    config.windowMs
+  );
 
   const headers = {
     "X-RateLimit-Limit": config.limit.toString(),

@@ -52,7 +52,9 @@ export default function SecurityDashboardPage() {
 
   const fetchSecurityStats = async () => {
     try {
-      const response = await fetch(`/api/admin/security/stats?range=${timeRange}`);
+      const response = await fetch(
+        `/api/admin/security/stats?range=${timeRange}`
+      );
       const data = await response.json();
       setStats(data);
     } catch (error) {
@@ -148,7 +150,8 @@ export default function SecurityDashboardPage() {
                   {stats.threatLevel} Threat Level
                 </div>
                 <div className="text-sm opacity-80">
-                  {stats.criticalEvents} critical events detected in the last {timeRange}
+                  {stats.criticalEvents} critical events detected in the last{" "}
+                  {timeRange}
                 </div>
               </div>
             </div>
@@ -210,9 +213,7 @@ export default function SecurityDashboardPage() {
               </div>
             </div>
             <div className="text-lg font-semibold">Suspicious Activity</div>
-            <div className="text-sm text-gray-400 mt-1">
-              Anomaly detections
-            </div>
+            <div className="text-sm text-gray-400 mt-1">Anomaly detections</div>
           </motion.div>
 
           <motion.div
@@ -228,9 +229,7 @@ export default function SecurityDashboardPage() {
               </div>
             </div>
             <div className="text-lg font-semibold">Active Users</div>
-            <div className="text-sm text-gray-400 mt-1">
-              Currently online
-            </div>
+            <div className="text-sm text-gray-400 mt-1">Currently online</div>
           </motion.div>
         </div>
 
@@ -249,7 +248,9 @@ export default function SecurityDashboardPage() {
 
             <div className="space-y-4">
               {stats.topThreats.map((threat, index) => {
-                const maxCount = Math.max(...stats.topThreats.map((t) => t.count));
+                const maxCount = Math.max(
+                  ...stats.topThreats.map((t) => t.count)
+                );
                 const percentage = (threat.count / maxCount) * 100;
 
                 return (

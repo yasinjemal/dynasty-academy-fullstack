@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
-import rateLimiter, { RATE_LIMITS, getIdentifier } from "@/lib/security/rate-limiter";
+import rateLimiter, {
+  RATE_LIMITS,
+  getIdentifier,
+} from "@/lib/security/rate-limiter";
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -9,7 +12,9 @@ export async function middleware(request: NextRequest) {
   // Rate limiting for auth pages
   if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
     const identifier = getIdentifier(request);
-    const config = pathname.startsWith("/login") ? RATE_LIMITS.LOGIN : RATE_LIMITS.REGISTER;
+    const config = pathname.startsWith("/login")
+      ? RATE_LIMITS.LOGIN
+      : RATE_LIMITS.REGISTER;
     const { allowed, remaining, resetTime } = await rateLimiter.checkLimit(
       identifier,
       config.limit,

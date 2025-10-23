@@ -18,7 +18,9 @@ export type AuditAction =
   | "COURSE_DELETED"
   | "PAYOUT_REQUESTED"
   | "PAYOUT_COMPLETED"
-  | "SUSPICIOUS_ACTIVITY";
+  | "SUSPICIOUS_ACTIVITY"
+  | "EMAIL_SENT"
+  | "EMAIL_SEND_FAILURE";
 
 interface AuditLogParams {
   action: AuditAction;
@@ -185,7 +187,10 @@ export async function getSecurityEventsSummary(days = 7) {
 /**
  * Detect suspicious activity patterns
  */
-export async function detectSuspiciousActivity(userId: string, ipAddress: string) {
+export async function detectSuspiciousActivity(
+  userId: string,
+  ipAddress: string
+) {
   const last15Minutes = new Date();
   last15Minutes.setMinutes(last15Minutes.getMinutes() - 15);
 
@@ -273,9 +278,10 @@ async function handleCriticalSecurityEvent(params: AuditLogParams) {
  */
 export function getRequestMetadata(request: Request) {
   return {
-    ipAddress: request.headers.get("x-forwarded-for") || 
-                request.headers.get("x-real-ip") || 
-                "unknown",
+    ipAddress:
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("x-real-ip") ||
+      "unknown",
     userAgent: request.headers.get("user-agent") || "unknown",
     targetRoute: new URL(request.url).pathname,
   };
