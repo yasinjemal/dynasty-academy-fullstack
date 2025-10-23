@@ -12,7 +12,7 @@
 
 import OpenAI from "openai";
 import { getCache, setCache, deleteCache } from "@/lib/infrastructure/redis";
-import { logger } from "@/lib/infrastructure/logger";
+import { logInfo, logError, logWarning } from "@/lib/infrastructure/logger";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -63,7 +63,7 @@ export async function generateEmbedding(
   const cachedEmbedding = await getCache(cacheKey);
 
   if (cachedEmbedding) {
-    logger.logInfo("Embedding cache hit", {
+    logInfo("Embedding cache hit", {
       contentType,
       contentId,
       duration: Date.now() - startTime,
@@ -92,7 +92,7 @@ export async function generateEmbedding(
     // Cache the embedding
     await setCache(cacheKey, JSON.stringify(embedding), "LONG");
 
-    logger.logInfo("Embedding generated", {
+    logInfo("Embedding generated", {
       contentType,
       contentId,
       tokenCount,
@@ -107,7 +107,7 @@ export async function generateEmbedding(
       cost,
     };
   } catch (error) {
-    logger.logError("Failed to generate embedding", error as Error, {
+    logError("Failed to generate embedding", error as Error, {
       contentType,
       contentId,
       textLength: cleanText.length,
@@ -190,14 +190,14 @@ export async function generateBatchEmbeddings(
           await setCache(cacheKey, JSON.stringify(embedding), "LONG");
         }
 
-        logger.logInfo("Batch embeddings generated", {
+        logInfo("Batch embeddings generated", {
           contentType,
           batchSize: uncachedTexts.length,
           tokenCount: batchTokens,
           cost: batchCost,
         });
       } catch (error) {
-        logger.logError("Failed to generate batch embeddings", error as Error, {
+        logError("Failed to generate batch embeddings", error as Error, {
           contentType,
           batchSize: uncachedTexts.length,
         });
@@ -206,7 +206,7 @@ export async function generateBatchEmbeddings(
     }
   }
 
-  logger.logInfo("Batch embedding complete", {
+  logInfo("Batch embedding complete", {
     contentType,
     totalTexts: texts.length,
     cachedCount,
@@ -350,7 +350,7 @@ export async function invalidateEmbeddingCache(
 
   // Note: This is a simplified version
   // In production, you'd want to track cache keys in a separate index
-  logger.logInfo("Embedding cache invalidated", {
+  logInfo("Embedding cache invalidated", {
     contentType,
     contentId,
   });
@@ -409,7 +409,7 @@ export async function warmupEmbeddingCache(
     totalCost += result.totalCost;
   }
 
-  logger.logInfo("Embedding cache warmup complete", {
+  logInfo("Embedding cache warmup complete", {
     processed: contentItems.length,
     cached,
     generated,
