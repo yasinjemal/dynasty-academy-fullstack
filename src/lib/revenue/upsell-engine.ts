@@ -98,7 +98,8 @@ function evaluateUpsellCondition(rule: any, context: UpsellContext): boolean {
 
   // Check if user completed specific course
   if (conditions.completedCourse && context.completedCourses) {
-    if (!context.completedCourses.includes(conditions.completedCourse)) return false;
+    if (!context.completedCourses.includes(conditions.completedCourse))
+      return false;
   }
 
   // Check time of day
@@ -168,7 +169,10 @@ function generateCTA(offerType: string): string {
 /**
  * Generate recommendation reason
  */
-function generateRecommendationReason(rule: any, context: UpsellContext): string {
+function generateRecommendationReason(
+  rule: any,
+  context: UpsellContext
+): string {
   if (context.completedCourses && context.completedCourses.length > 0) {
     return "Based on your completed courses";
   }
@@ -312,8 +316,10 @@ export async function getUpsellAnalytics(ruleId?: string) {
 
   return rules.map((rule) => ({
     ...rule,
-    clickRate: rule.impressions > 0 ? (rule.clicks / rule.impressions) * 100 : 0,
-    conversionRate: rule.clicks > 0 ? (rule.conversions / rule.clicks) * 100 : 0,
+    clickRate:
+      rule.impressions > 0 ? (rule.clicks / rule.impressions) * 100 : 0,
+    conversionRate:
+      rule.clicks > 0 ? (rule.conversions / rule.clicks) * 100 : 0,
     avgRevenue: rule.conversions > 0 ? rule.revenue / rule.conversions : 0,
   }));
 }

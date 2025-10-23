@@ -100,7 +100,8 @@ export async function POST(req: NextRequest) {
       medium: results.filter((r) => r.segment === "medium").length,
       low: results.filter((r) => r.segment === "low").length,
       atRisk: results.filter((r) => r.segment === "at-risk").length,
-      avgLTV: results.reduce((sum, r) => sum + r.predictedLTV, 0) / results.length,
+      avgLTV:
+        results.reduce((sum, r) => sum + r.predictedLTV, 0) / results.length,
       totalPredictedValue: results.reduce((sum, r) => sum + r.predictedLTV, 0),
     };
 

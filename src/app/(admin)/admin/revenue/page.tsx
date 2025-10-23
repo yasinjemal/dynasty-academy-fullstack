@@ -57,7 +57,9 @@ export default function RevenueMaximizerPage() {
       });
 
       const data = await res.json();
-      alert(`Processed ${data.processed} users. ${data.highRisk} at high risk.`);
+      alert(
+        `Processed ${data.processed} users. ${data.highRisk} at high risk.`
+      );
       fetchDashboardStats();
     } catch (error) {
       alert("Failed to run batch analysis");
@@ -74,7 +76,11 @@ export default function RevenueMaximizerPage() {
 
       const data = await res.json();
       alert(
-        `Calculated LTV for ${data.summary.total} users.\nAvg LTV: R${Math.round(data.summary.avgLTV)}\nWhales: ${data.summary.whales} | High-value: ${data.summary.highValue}`
+        `Calculated LTV for ${
+          data.summary.total
+        } users.\nAvg LTV: R${Math.round(data.summary.avgLTV)}\nWhales: ${
+          data.summary.whales
+        } | High-value: ${data.summary.highValue}`
       );
       fetchDashboardStats();
     } catch (error) {
@@ -109,9 +115,7 @@ export default function RevenueMaximizerPage() {
           <Button onClick={runBatchLTVCalculation} variant="outline">
             💎 Calculate LTV
           </Button>
-          <Button onClick={fetchDashboardStats}>
-            🔄 Refresh
-          </Button>
+          <Button onClick={fetchDashboardStats}>🔄 Refresh</Button>
         </div>
       </div>
 
@@ -212,10 +216,15 @@ export default function RevenueMaximizerPage() {
             <CardContent>
               <div className="space-y-4">
                 <div className="text-center py-8 text-muted-foreground">
-                  <p className="text-lg mb-4">💵 Dynamic Pricing Engine Ready!</p>
-                  <p>Configure pricing rules to optimize revenue automatically.</p>
+                  <p className="text-lg mb-4">
+                    💵 Dynamic Pricing Engine Ready!
+                  </p>
+                  <p>
+                    Configure pricing rules to optimize revenue automatically.
+                  </p>
                   <p className="text-sm mt-2">
-                    Base price adjusts based on time, demand, user segment, and more.
+                    Base price adjusts based on time, demand, user segment, and
+                    more.
                   </p>
                   <Button className="mt-4" variant="outline">
                     + Create Pricing Rule
@@ -235,12 +244,16 @@ export default function RevenueMaximizerPage() {
             <CardContent>
               <div className="space-y-4">
                 <div className="text-center py-8 text-muted-foreground">
-                  <p className="text-lg mb-4">🎯 Smart Upsell System Deployed!</p>
+                  <p className="text-lg mb-4">
+                    🎯 Smart Upsell System Deployed!
+                  </p>
                   <p>
-                    Personalized recommendations at cart, checkout, and post-purchase.
+                    Personalized recommendations at cart, checkout, and
+                    post-purchase.
                   </p>
                   <p className="text-sm mt-2">
-                    Automatically suggests complementary products based on user behavior.
+                    Automatically suggests complementary products based on user
+                    behavior.
                   </p>
                   <Button className="mt-4" variant="outline">
                     + Create Upsell Rule
@@ -325,8 +338,12 @@ export default function RevenueMaximizerPage() {
                   <div className="p-4 border rounded-lg text-center bg-red-50">
                     <div className="text-2xl mb-2">⚠️</div>
                     <div className="font-bold">At-Risk</div>
-                    <div className="text-2xl font-bold mt-2">{stats?.atRiskUsers}</div>
-                    <div className="text-sm text-red-600">Churn prob &gt; 70%</div>
+                    <div className="text-2xl font-bold mt-2">
+                      {stats?.atRiskUsers}
+                    </div>
+                    <div className="text-sm text-red-600">
+                      Churn prob &gt; 70%
+                    </div>
                   </div>
                 </div>
 

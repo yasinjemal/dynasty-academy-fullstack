@@ -2666,3 +2666,242 @@ model ReferralCampaign {
   @@index([startDate])
   @@map("referral_campaigns")
 }
+
+// 📊📊📊 MODULE 5: ANALYTICS BRAIN 📊📊📊
+
+// 📈 Analytics Events - Track everything
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  userId      String?
+  sessionId   String?
+  event       String   // "page_view", "button_click", "purchase", "signup", etc
+  category    String?  // "engagement", "revenue", "content", etc
+  properties  Json     @db.JsonB // Event-specific data
+  page        String?  // Current page URL
+  referrer    String?  // Where they came from
+  userAgent   String?  // Browser info
+  timestamp   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([sessionId])
+  @@index([event])
+  @@index([category])
+  @@index([timestamp])
+  @@map("analytics_events")
+}
+
+// 📊 Metrics - Track key business metrics over time
+model Metric {
+  id         String   @id @default(cuid())
+  name       String   // "dau", "mau", "mrr", "churn_rate", etc
+  value      Float
+  target     Float?   // Goal value
+  change     Float?   // % change from last period
+  period     String   // "hourly", "daily", "weekly", "monthly"
+  date       DateTime @default(now())
+  metadata   Json?    @db.JsonB // Additional context
+  
+  @@unique([name, period, date])
+  @@index([name])
+  @@index([period])
+  @@index([date])
+  @@map("metrics")
+}
+
+// 🧪 A/B Tests - Experiment framework
+model ABTest {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?  @db.Text
+  hypothesis    String?  @db.Text
+  
+  // Variants
+  variants      Json     @db.JsonB // [{id, name, config, allocation%}]
+  allocation    Json     @db.JsonB // {variant_id: percentage}
+  
+  // What to measure
+  metrics       String[] // ["conversion", "revenue", "engagement"]
+  primaryMetric String   // Main metric to optimize
+  
+  // Test configuration
+  trafficAllocation Float @default(1.0) // % of users to include (0-1)
+  
+  // Status
+  status        String   @default("draft") // "draft", "running", "paused", "completed"
+  startDate     DateTime?
+  endDate       DateTime?
+  
+  // Results
+  results       Json?    @db.JsonB // Final statistical results
+  winner        String?  // Winning variant ID
+  confidence    Float?   // Statistical confidence (0-1)
+  
+  // Metadata
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  assignments   ABTestAssignment[]
+  
+  @@index([status])
+  @@index([startDate])
+  @@map("ab_tests")
+}
+
+// 🎯 A/B Test Assignments - Which user saw which variant
+model ABTestAssignment {
+  id         String   @id @default(cuid())
+  testId     String
+  test       ABTest   @relation(fields: [testId], references: [id], onDelete: Cascade)
+  userId     String
+  variant    String   // Variant ID
+  assignedAt DateTime @default(now())
+  
+  // Tracking
+  converted  Boolean  @default(false)
+  convertedAt DateTime?
+  value      Float?   // Conversion value (revenue, etc)
+  
+  @@unique([testId, userId])
+  @@index([testId])
+  @@index([userId])
+  @@index([variant])
+  @@map("ab_test_assignments")
+}
+
+// 📉 Funnels - Track conversion paths
+model Funnel {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  
+  // Steps in the funnel
+  steps       Json     @db.JsonB // [{step: 1, name: "Landing", event: "page_view"}]
+  
+  // Configuration
+  timeWindow  Int      @default(86400) // Max time between steps (seconds)
+  active      Boolean  @default(true)
+  
+  // Relations
+  events      FunnelEvent[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([active])
+  @@map("funnels")
+}
+
+// 📊 Funnel Events - Track user progress through funnels
+model FunnelEvent {
+  id         String   @id @default(cuid())
+  funnelId   String
+  funnel     Funnel   @relation(fields: [funnelId], references: [id], onDelete: Cascade)
+  userId     String
+  sessionId  String
+  step       Int      // Which step (1, 2, 3, etc)
+  completed  Boolean  @default(false)
+  timestamp  DateTime @default(now())
+  
+  @@index([funnelId, userId])
+  @@index([sessionId])
+  @@index([timestamp])
+  @@map("funnel_events")
+}
+
+// 📅 Cohorts - Group users by signup date for retention analysis
+model Cohort {
+  id            String   @id @default(cuid())
+  name          String
+  startDate     DateTime
+  endDate       DateTime
+  
+  // Stats
+  totalUsers    Int      @default(0)
+  activeUsers   Int      @default(0)
+  
+  // Retention rates by period
+  retentionData Json     @db.JsonB // {week1: 0.85, week2: 0.72, week4: 0.65}
+  
+  calculatedAt  DateTime @default(now())
+  
+  @@index([startDate])
+  @@map("cohorts")
+}
+
+// 📈 Predictions - Store ML predictions for future reference
+model Prediction {
+  id           String   @id @default(cuid())
+  type         String   // "revenue", "churn", "ltv", "demand"
+  target       String?  // What we're predicting (userId, productId, etc)
+  
+  // Prediction details
+  value        Float    // Predicted value
+  confidence   Float    // Confidence level (0-1)
+  horizon      Int      // Days into future
+  
+  // Features used
+  features     Json     @db.JsonB
+  modelVersion String?  // Which ML model
+  
+  // Actual outcome (for accuracy tracking)
+  actualValue  Float?
+  accuracy     Float?   // How close was prediction
+  
+  predictedAt  DateTime @default(now())
+  actualizedAt DateTime? // When actual value became known
+  
+  @@index([type])
+  @@index([target])
+  @@index([predictedAt])
+  @@map("predictions")
+}
+
+// 📊 Dashboard Snapshots - Save dashboard state for reports
+model DashboardSnapshot {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // "executive", "revenue", "engagement", "custom"
+  
+  // Data snapshot
+  data        Json     @db.JsonB // All metrics at this point in time
+  
+  // Metadata
+  period      String   // "daily", "weekly", "monthly"
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  
+  @@index([type])
+  @@index([period])
+  @@index([createdAt])
+  @@map("dashboard_snapshots")
+}
+
+// 🔔 Alerts - Automated alerts for metric thresholds
+model Alert {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  
+  // Alert configuration
+  metric      String   // Which metric to monitor
+  condition   String   // "greater_than", "less_than", "equals", "change_percent"
+  threshold   Float    // Trigger value
+  
+  // Notification settings
+  channels    String[] // ["email", "slack", "sms"]
+  recipients  String[] // User IDs or email addresses
+  
+  // Status
+  active      Boolean  @default(true)
+  lastTriggered DateTime?
+  triggerCount Int     @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([metric])
+  @@index([active])
+  @@map("alerts")
+}

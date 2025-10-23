@@ -29,7 +29,9 @@ export interface ChurnPrediction {
 /**
  * Calculate churn risk score for a user
  */
-export async function calculateChurnRisk(userId: string): Promise<ChurnPrediction> {
+export async function calculateChurnRisk(
+  userId: string
+): Promise<ChurnPrediction> {
   // Get user data
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -66,9 +68,9 @@ export async function calculateChurnRisk(userId: string): Promise<ChurnPredictio
   const weights = {
     loginFrequency: 0.25,
     sessionDuration: 0.15,
-    completionRate: 0.20,
-    engagementScore: 0.20,
-    supportSentiment: 0.10,
+    completionRate: 0.2,
+    engagementScore: 0.2,
+    supportSentiment: 0.1,
     paymentIssues: 0.05,
     timeOnPlatform: 0.05,
   };
@@ -258,7 +260,8 @@ export async function triggerWinBackIntervention(userId: string) {
     // Second attempt: Discount offer
     offerType = "discount";
     discountPercent = 20;
-    message = "Special offer: 20% off your next purchase! Don't let your streak die.";
+    message =
+      "Special offer: 20% off your next purchase! Don't let your streak die.";
   } else if (riskLevel === "critical") {
     // Critical: Big offer
     offerType = "discount";
@@ -333,7 +336,10 @@ export async function batchCalculateChurnRisks(limit = 100) {
       await saveChurnRisk(prediction);
 
       // Auto-trigger intervention for high/critical risk
-      if (prediction.riskLevel === "high" || prediction.riskLevel === "critical") {
+      if (
+        prediction.riskLevel === "high" ||
+        prediction.riskLevel === "critical"
+      ) {
         await triggerWinBackIntervention(user.id);
       }
 

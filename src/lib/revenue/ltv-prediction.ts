@@ -61,7 +61,8 @@ export async function calculateUserLTV(userId: string): Promise<LTVPrediction> {
   const segment = segmentUser(predictedLTV, churnProb);
 
   const monthsSinceSignup = Math.floor(
-    (Date.now() - new Date(user.createdAt).getTime()) / (30 * 24 * 60 * 60 * 1000)
+    (Date.now() - new Date(user.createdAt).getTime()) /
+      (30 * 24 * 60 * 60 * 1000)
   );
 
   return {
@@ -82,7 +83,10 @@ export async function calculateUserLTV(userId: string): Promise<LTVPrediction> {
  */
 function extractLTVFeatures(user: any): LTVFeatures {
   const purchases = user.purchases || [];
-  const totalSpent = purchases.reduce((sum: number, p: any) => sum + p.amount, 0);
+  const totalSpent = purchases.reduce(
+    (sum: number, p: any) => sum + p.amount,
+    0
+  );
   const totalPurchases = purchases.length;
 
   const daysSinceSignup =
@@ -107,7 +111,8 @@ function extractLTVFeatures(user: any): LTVFeatures {
 
   // Engagement metrics
   const engagementScore = user.engagementScore?.score || 0;
-  const completedProgress = user.progress?.filter((p: any) => p.completed) || [];
+  const completedProgress =
+    user.progress?.filter((p: any) => p.completed) || [];
   const completionRate =
     user.progress?.length > 0
       ? (completedProgress.length / user.progress.length) * 100
@@ -115,9 +120,11 @@ function extractLTVFeatures(user: any): LTVFeatures {
 
   // Session frequency (logins per week)
   const daysSinceLastActive = user.lastActiveAt
-    ? (Date.now() - new Date(user.lastActiveAt).getTime()) / (24 * 60 * 60 * 1000)
+    ? (Date.now() - new Date(user.lastActiveAt).getTime()) /
+      (24 * 60 * 60 * 1000)
     : 999;
-  const sessionFrequency = daysSinceLastActive < 7 ? 5 : daysSinceLastActive < 30 ? 2 : 0;
+  const sessionFrequency =
+    daysSinceLastActive < 7 ? 5 : daysSinceLastActive < 30 ? 2 : 0;
 
   return {
     totalSpent,
@@ -209,14 +216,14 @@ function predictUpgradeProbability(features: LTVFeatures): number {
   let prob = 0;
 
   // High engagement → likely to upgrade
-  prob += features.engagementScore / 100 * 0.4;
+  prob += (features.engagementScore / 100) * 0.4;
 
   // Frequent purchases → buyer mentality
   if (features.purchaseFrequency > 1) prob += 0.3;
   else if (features.purchaseFrequency > 0.5) prob += 0.15;
 
   // High completion → sees value
-  prob += features.completionRate / 100 * 0.3;
+  prob += (features.completionRate / 100) * 0.3;
 
   return Math.min(prob, 1.0);
 }
@@ -232,10 +239,10 @@ function predictChurnProbability(features: LTVFeatures): number {
   else if (features.daysSinceLastPurchase > 90) prob += 0.2;
 
   // Low engagement
-  prob += (100 - features.engagementScore) / 100 * 0.3;
+  prob += ((100 - features.engagementScore) / 100) * 0.3;
 
   // Low completion
-  prob += (100 - features.completionRate) / 100 * 0.2;
+  prob += ((100 - features.completionRate) / 100) * 0.2;
 
   // Low session frequency
   if (features.sessionFrequency < 1) prob += 0.1;
@@ -250,10 +257,10 @@ function predictReferralProbability(features: LTVFeatures): number {
   let prob = 0;
 
   // High engagement → likely to share
-  prob += features.engagementScore / 100 * 0.4;
+  prob += (features.engagementScore / 100) * 0.4;
 
   // Many completions → satisfied customer
-  prob += features.completionRate / 100 * 0.3;
+  prob += (features.completionRate / 100) * 0.3;
 
   // Already referred others
   if (features.totalReferrals > 0) prob += 0.3;

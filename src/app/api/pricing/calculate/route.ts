@@ -38,7 +38,11 @@ export async function POST(req: NextRequest) {
     };
 
     // Calculate price
-    const pricing = await calculateDynamicPrice(productId, productType, fullContext);
+    const pricing = await calculateDynamicPrice(
+      productId,
+      productType,
+      fullContext
+    );
 
     // Track price test impression
     if (pricing.finalPrice !== pricing.basePrice) {

@@ -52,8 +52,13 @@ export async function GET(req: NextRequest) {
     const context = {
       userId,
       currentPage: req.headers.get("referer") || "",
-      cartValue: user.cartItems?.reduce((sum, item) => sum + (item.price || 0), 0),
-      cartItems: user.cartItems?.map((item) => item.bookId || item.courseId || ""),
+      cartValue: user.cartItems?.reduce(
+        (sum, item) => sum + (item.price || 0),
+        0
+      ),
+      cartItems: user.cartItems?.map(
+        (item) => item.bookId || item.courseId || ""
+      ),
       completedCourses: user.progress
         ?.filter((p) => p.completed)
         .map((p) => p.bookId),

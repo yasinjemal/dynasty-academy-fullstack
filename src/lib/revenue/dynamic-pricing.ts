@@ -112,7 +112,10 @@ export async function calculateDynamicPrice(
 /**
  * Evaluate if a pricing rule condition is met
  */
-function evaluateCondition(rule: PricingRule, context: PricingContext): boolean {
+function evaluateCondition(
+  rule: PricingRule,
+  context: PricingContext
+): boolean {
   const { condition, operator, value } = rule;
 
   // Time-based rules
@@ -195,12 +198,14 @@ function generatePriceReason(appliedRules: string[]): string {
 
   if (appliedRules.includes("isWeekend")) reasons.push("Weekend premium");
   if (appliedRules.includes("timeOfDay")) reasons.push("Time-based pricing");
-  if (appliedRules.includes("userSegment")) reasons.push("Personalized discount");
+  if (appliedRules.includes("userSegment"))
+    reasons.push("Personalized discount");
   if (appliedRules.includes("isFirstPurchase"))
     reasons.push("First-time buyer discount");
   if (appliedRules.includes("cartValue")) reasons.push("Cart value bonus");
   if (appliedRules.includes("demand")) reasons.push("High demand pricing");
-  if (appliedRules.includes("minimum_price_floor")) reasons.push("Minimum price applied");
+  if (appliedRules.includes("minimum_price_floor"))
+    reasons.push("Minimum price applied");
   if (appliedRules.includes("maximum_price_ceiling"))
     reasons.push("Maximum price applied");
 
