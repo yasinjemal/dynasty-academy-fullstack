@@ -12,7 +12,7 @@
  */
 
 import OpenAI from "openai";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import { generateEmbedding } from "./vector-embeddings";
 import { logInfo, logError } from "@/lib/infrastructure/logger";
 

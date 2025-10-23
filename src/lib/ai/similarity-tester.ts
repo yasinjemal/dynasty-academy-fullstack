@@ -11,7 +11,7 @@
  * Target: 85%+ accuracy
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 import {
   findSimilarConcepts,
   semanticConceptSearch,
