@@ -1,18 +1,18 @@
 /**
  * Vector Embeddings Service
- * 
+ *
  * Handles all embedding operations for Dynasty Nexus 2.0 Phase 1:
  * - Generate embeddings using OpenAI API
  * - Cache embeddings in Redis
  * - Batch processing for large datasets
  * - Cost optimization and rate limiting
- * 
+ *
  * Week 1 - Phase 1 Self-Healing Knowledge Graph MVP
  */
 
-import OpenAI from 'openai';
-import { getCache, setCache, deleteCache } from '@/lib/infrastructure/redis';
-import { logger } from '@/lib/infrastructure/logger';
+import OpenAI from "openai";
+import { getCache, setCache, deleteCache } from "@/lib/infrastructure/redis";
+import { logger } from "@/lib/infrastructure/logger";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -20,7 +20,7 @@ const openai = new OpenAI({
 });
 
 // Constants
-const EMBEDDING_MODEL = 'text-embedding-3-large'; // 1536 dimensions
+const EMBEDDING_MODEL = "text-embedding-3-large"; // 1536 dimensions
 const EMBEDDING_DIMENSIONS = 1536;
 const MAX_TOKENS = 8191; // OpenAI limit for embeddings
 const BATCH_SIZE = 100; // Process 100 embeddings at once
@@ -55,13 +55,15 @@ export async function generateEmbedding(
 
   // Clean and truncate text if needed
   const cleanText = cleanTextForEmbedding(text);
-  
+
   // Check cache first
-  const cacheKey = `embedding:${contentType}:${contentId}:${hashText(cleanText)}`;
+  const cacheKey = `embedding:${contentType}:${contentId}:${hashText(
+    cleanText
+  )}`;
   const cachedEmbedding = await getCache(cacheKey);
-  
+
   if (cachedEmbedding) {
-    logger.logInfo('Embedding cache hit', {
+    logger.logInfo("Embedding cache hit", {
       contentType,
       contentId,
       duration: Date.now() - startTime,
@@ -80,7 +82,7 @@ export async function generateEmbedding(
     const response = await openai.embeddings.create({
       model: EMBEDDING_MODEL,
       input: cleanText,
-      encoding_format: 'float',
+      encoding_format: "float",
     });
 
     const embedding = response.data[0].embedding;
@@ -88,9 +90,9 @@ export async function generateEmbedding(
     const cost = calculateEmbeddingCost(tokenCount);
 
     // Cache the embedding
-    await setCache(cacheKey, JSON.stringify(embedding), 'LONG');
+    await setCache(cacheKey, JSON.stringify(embedding), "LONG");
 
-    logger.logInfo('Embedding generated', {
+    logger.logInfo("Embedding generated", {
       contentType,
       contentId,
       tokenCount,
@@ -105,7 +107,7 @@ export async function generateEmbedding(
       cost,
     };
   } catch (error) {
-    logger.logError('Failed to generate embedding', error as Error, {
+    logger.logError("Failed to generate embedding", error as Error, {
       contentType,
       contentId,
       textLength: cleanText.length,
@@ -143,10 +145,12 @@ export async function generateBatchEmbeddings(
       const text = batch[j];
       const contentId = batchIds?.[j];
       const cleanText = cleanTextForEmbedding(text);
-      const cacheKey = `embedding:${contentType}:${contentId}:${hashText(cleanText)}`;
-      
+      const cacheKey = `embedding:${contentType}:${contentId}:${hashText(
+        cleanText
+      )}`;
+
       const cachedEmbedding = await getCache(cacheKey);
-      
+
       if (cachedEmbedding) {
         results.push(JSON.parse(cachedEmbedding as string));
         cachedCount++;
@@ -162,7 +166,7 @@ export async function generateBatchEmbeddings(
         const response = await openai.embeddings.create({
           model: EMBEDDING_MODEL,
           input: uncachedTexts,
-          encoding_format: 'float',
+          encoding_format: "float",
         });
 
         const batchTokens = response.usage.total_tokens;
@@ -176,22 +180,24 @@ export async function generateBatchEmbeddings(
           const embedding = response.data[j].embedding;
           const originalIndex = uncachedIndices[j];
           const contentId = contentIds?.[originalIndex];
-          
+
           results.push(embedding);
 
           // Cache the embedding
-          const cacheKey = `embedding:${contentType}:${contentId}:${hashText(uncachedTexts[j])}`;
-          await setCache(cacheKey, JSON.stringify(embedding), 'LONG');
+          const cacheKey = `embedding:${contentType}:${contentId}:${hashText(
+            uncachedTexts[j]
+          )}`;
+          await setCache(cacheKey, JSON.stringify(embedding), "LONG");
         }
 
-        logger.logInfo('Batch embeddings generated', {
+        logger.logInfo("Batch embeddings generated", {
           contentType,
           batchSize: uncachedTexts.length,
           tokenCount: batchTokens,
           cost: batchCost,
         });
       } catch (error) {
-        logger.logError('Failed to generate batch embeddings', error as Error, {
+        logger.logError("Failed to generate batch embeddings", error as Error, {
           contentType,
           batchSize: uncachedTexts.length,
         });
@@ -200,7 +206,7 @@ export async function generateBatchEmbeddings(
     }
   }
 
-  logger.logInfo('Batch embedding complete', {
+  logger.logInfo("Batch embedding complete", {
     contentType,
     totalTexts: texts.length,
     cachedCount,
@@ -223,9 +229,12 @@ export async function generateBatchEmbeddings(
  * Calculate cosine similarity between two embeddings
  * Returns value between -1 (opposite) and 1 (identical)
  */
-export function cosineSimilarity(embedding1: number[], embedding2: number[]): number {
+export function cosineSimilarity(
+  embedding1: number[],
+  embedding2: number[]
+): number {
   if (embedding1.length !== embedding2.length) {
-    throw new Error('Embeddings must have same dimensions');
+    throw new Error("Embeddings must have same dimensions");
   }
 
   let dotProduct = 0;
@@ -269,14 +278,14 @@ export function findMostSimilar(
  */
 function cleanTextForEmbedding(text: string): string {
   // Remove excessive whitespace
-  let cleaned = text.replace(/\s+/g, ' ').trim();
+  let cleaned = text.replace(/\s+/g, " ").trim();
 
   // Normalize unicode
-  cleaned = cleaned.normalize('NFKC');
+  cleaned = cleaned.normalize("NFKC");
 
   // Rough token estimation (1 token ≈ 4 characters)
   const estimatedTokens = Math.ceil(cleaned.length / 4);
-  
+
   if (estimatedTokens > MAX_TOKENS) {
     // Truncate to stay within limit
     const maxChars = MAX_TOKENS * 4;
@@ -299,7 +308,7 @@ function hashText(text: string): string {
   }
 
   // Convert to positive hex string
-  return (hash >>> 0).toString(16).padStart(8, '0');
+  return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
 /**
@@ -338,10 +347,10 @@ export async function invalidateEmbeddingCache(
 ): Promise<void> {
   // We don't know the exact hash, so we use a pattern
   const pattern = `embedding:${contentType}:${contentId}:*`;
-  
+
   // Note: This is a simplified version
   // In production, you'd want to track cache keys in a separate index
-  logger.logInfo('Embedding cache invalidated', {
+  logger.logInfo("Embedding cache invalidated", {
     contentType,
     contentId,
   });
@@ -384,19 +393,23 @@ export async function warmupEmbeddingCache(
   // Process in batches
   for (let i = 0; i < contentItems.length; i += BATCH_SIZE) {
     const batch = contentItems.slice(i, i + BATCH_SIZE);
-    
-    const texts = batch.map(item => item.text);
-    const contentIds = batch.map(item => item.id);
+
+    const texts = batch.map((item) => item.text);
+    const contentIds = batch.map((item) => item.id);
     const contentType = batch[0].type; // Assume same type per batch
 
-    const result = await generateBatchEmbeddings(texts, contentType, contentIds);
-    
+    const result = await generateBatchEmbeddings(
+      texts,
+      contentType,
+      contentIds
+    );
+
     generated += result.newCount;
     cached += result.cachedCount;
     totalCost += result.totalCost;
   }
 
-  logger.logInfo('Embedding cache warmup complete', {
+  logger.logInfo("Embedding cache warmup complete", {
     processed: contentItems.length,
     cached,
     generated,
