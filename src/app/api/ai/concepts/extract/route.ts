@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
+import { prisma } from "@/lib/db/prisma";
 import {
   extractConceptsFromCourse,
   processConceptsForCourse,
@@ -75,6 +76,16 @@ export async function POST(request: NextRequest) {
 
     // Extract for all courses
     if (mode === "all") {
+      // TEMPORARY FIX: Test Prisma directly in route to bypass caching issues
+      console.log("Testing Prisma connection...");
+      const testCourses = await prisma.course.findMany({
+        where: { published: true },
+        select: { id: true, title: true },
+        take: 5,
+      });
+      console.log("Found courses:", testCourses.length);
+
+      // If we get here, Prisma works - call the actual function
       const result = await processConceptsForAllCourses();
 
       return NextResponse.json({

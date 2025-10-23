@@ -64,7 +64,7 @@ export async function extractConceptsFromCourse(
 
   try {
     // Get course with lessons
-    const course = await prisma.course.findUnique({
+    const course = await prisma.courses.findUnique({
       where: { id: courseId },
       include: {
         lessons: {
@@ -154,12 +154,12 @@ export async function extractConceptsFromAllCourses(): Promise<{
     if (!prisma) {
       throw new Error("Prisma client is undefined - import failed");
     }
-    if (!prisma.course) {
+    if (!prisma.courses) {
       throw new Error("Prisma course model is undefined");
     }
-    
+
     // Get all published courses
-    const courses = await prisma.course.findMany({
+    const courses = await prisma.courses.findMany({
       where: { published: true },
       select: { id: true },
     });
@@ -531,3 +531,4 @@ export async function getConceptStats(): Promise<{
     throw error;
   }
 }
+
