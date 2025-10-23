@@ -1,8 +1,32 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import rateLimiter, { RATE_LIMITS, getIdentifier } from "@/lib/security/rate-limiter";
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // Rate limiting for auth pages
+  if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
+    const identifier = getIdentifier(request);
+    const config = pathname.startsWith("/login") ? RATE_LIMITS.LOGIN : RATE_LIMITS.REGISTER;
+    const { allowed, remaining, resetTime } = await rateLimiter.checkLimit(
+      identifier,
+      config.limit,
+      config.windowMs
+    );
+
+    if (!allowed) {
+      return new NextResponse("Too Many Requests - Please try again later", {
+        status: 429,
+        headers: {
+          "Retry-After": Math.ceil((resetTime - Date.now()) / 1000).toString(),
+          "Content-Type": "text/plain",
+        },
+      });
+    }
+  }
+
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
@@ -22,7 +46,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect unauthenticated users to login
-  if (!isAuth && (isDashboardPage || isAdminPage || isSettingsPage || isInstructorPage)) {
+  if (
+    !isAuth &&
+    (isDashboardPage || isAdminPage || isSettingsPage || isInstructorPage)
+  ) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);

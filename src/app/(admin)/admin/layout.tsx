@@ -28,6 +28,11 @@ const menuItems = [
     icon: "⚖️",
   },
   {
+    href: "/admin/security",
+    label: "Security Center",
+    icon: "🛡️",
+  },
+  {
     href: "/admin/gamification-demo",
     label: "🎮 Gamification Demo",
     icon: "🎮",

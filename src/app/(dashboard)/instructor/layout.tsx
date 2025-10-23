@@ -83,7 +83,7 @@ export default function InstructorLayout({ children }: InstructorLayoutProps) {
     if (session?.user) {
       // Check if user has INSTRUCTOR or ADMIN role
       const userRole = session.user.role;
-      
+
       if (userRole === "INSTRUCTOR" || userRole === "ADMIN") {
         setIsAuthorized(true);
         setIsLoading(false);
