@@ -6,9 +6,9 @@ import { prisma } from "@/lib/db/prisma";
 import PostDetailClient from "./PostDetailClient";
 
 interface PostPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 async function getPost(slug: string) {

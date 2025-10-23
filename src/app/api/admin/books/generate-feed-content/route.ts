@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 import OpenAI from "openai";
-import prisma from "@/lib/db/prisma";
+import { prisma } from "@/lib/db/prisma";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,

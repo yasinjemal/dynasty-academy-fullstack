@@ -1,32 +1,36 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+export const runtime = "edge";
+
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function CheckoutSuccessPage() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const [loading, setLoading] = useState(true)
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Simulate processing
     setTimeout(() => {
-      setLoading(false)
-    }, 2000)
-  }, [])
+      setLoading(false);
+    }, 2000);
+  }, []);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Processing your order...</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Processing your order...
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -55,13 +59,15 @@ export default function CheckoutSuccessPage() {
               Order Successful!
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-              Thank you for your purchase! Your order has been confirmed and will be processed shortly.
+              Thank you for your purchase! Your order has been confirmed and
+              will be processed shortly.
             </p>
             <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-8">
               <p className="text-green-800 dark:text-green-200">
-                ✓ Payment received<br />
-                ✓ Order confirmation sent to your email<br />
-                ✓ You can now access your purchased books
+                ✓ Payment received
+                <br />
+                ✓ Order confirmation sent to your email
+                <br />✓ You can now access your purchased books
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -69,12 +75,14 @@ export default function CheckoutSuccessPage() {
                 <Button size="lg">View My Dashboard</Button>
               </Link>
               <Link href="/books">
-                <Button size="lg" variant="outline">Continue Shopping</Button>
+                <Button size="lg" variant="outline">
+                  Continue Shopping
+                </Button>
               </Link>
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }

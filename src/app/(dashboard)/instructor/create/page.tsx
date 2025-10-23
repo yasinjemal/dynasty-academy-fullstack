@@ -88,12 +88,24 @@ export default function CourseForgeHub() {
             key={i}
             className="absolute w-2 h-2 bg-purple-500/20 rounded-full"
             initial={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
+              x:
+                typeof window !== "undefined"
+                  ? Math.random() * window.innerWidth
+                  : Math.random() * 1920,
+              y:
+                typeof window !== "undefined"
+                  ? Math.random() * window.innerHeight
+                  : Math.random() * 1080,
             }}
             animate={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
+              x:
+                typeof window !== "undefined"
+                  ? Math.random() * window.innerWidth
+                  : Math.random() * 1920,
+              y:
+                typeof window !== "undefined"
+                  ? Math.random() * window.innerHeight
+                  : Math.random() * 1080,
             }}
             transition={{
               duration: Math.random() * 20 + 10,

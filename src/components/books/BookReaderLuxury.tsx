@@ -18,6 +18,7 @@ import VideoBackground from "./VideoBackground";
 import VideoControls from "./VideoControls";
 import { ContentFormatter } from "@/lib/bookContent/contentFormatter";
 import { useFastBookReader } from "@/hooks/useFastBookReader";
+import InsanePageFlip from "./InsanePageFlip";
 import {
   motion,
   AnimatePresence,
@@ -82,6 +83,7 @@ import {
   Map,
   Flag,
   Navigation,
+  Mic,
 } from "lucide-react";
 
 interface BookReaderLuxuryProps {
@@ -217,6 +219,11 @@ export default function BookReaderLuxury({
 
   // 🎭🌟 IMMERSIVE READING REVOLUTION - THE GAME CHANGER!
   const [atmospherePreset, setAtmospherePreset] = useState<string | null>(null);
+
+  // 🎬 PAGE FLIP ANIMATION INTENSITY - USER CONTROL!
+  const [animationIntensity, setAnimationIntensity] = useState<
+    "off" | "subtle" | "normal" | "insane"
+  >("normal");
   const [immersiveMode, setImmersiveMode] = useState(false);
   const [backgroundType, setBackgroundType] = useState<
     "image" | "video" | "gradient"
@@ -232,6 +239,47 @@ export default function BookReaderLuxury({
 
   // 🌊✨ PARALLAX MAGIC (SUBTLE MOVEMENT FOR DEPTH)
   const [parallaxEffect, setParallaxEffect] = useState(false);
+
+  // 🔊 PRO-LEVEL BROWSER NARRATOR (FREE FOR ALL USERS!)
+  const [isNarrating, setIsNarrating] = useState(false);
+  const [narratorPaused, setNarratorPaused] = useState(false);
+  const [narratorVoice, setNarratorVoice] =
+    useState<SpeechSynthesisVoice | null>(null);
+  const [narratorRate, setNarratorRate] = useState(1.0);
+  const [narratorPitch, setNarratorPitch] = useState(1.0);
+  const [narratorVolume, setNarratorVolume] = useState(1.0);
+  const [availableVoices, setAvailableVoices] = useState<
+    SpeechSynthesisVoice[]
+  >([]);
+  const [autoAdvancePage, setAutoAdvancePage] = useState(true);
+  const [narratorProgress, setNarratorProgress] = useState(0);
+  const [showNarratorControls, setShowNarratorControls] = useState(false);
+  const narratorUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  // 🎤 LIP SYNC / WORD HIGHLIGHTING MAGIC!
+  const [currentReadingWord, setCurrentReadingWord] = useState<number>(-1);
+  const [highlightEnabled, setHighlightEnabled] = useState(true);
+  const [highlightColor, setHighlightColor] = useState<
+    "yellow" | "green" | "blue" | "purple" | "pink"
+  >("yellow");
+  const narratorIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 🎙️ COMMUNITY NARRATOR - USERS RECORD & SHARE! 🔥
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [previewAudioUrl, setPreviewAudioUrl] = useState<string | null>(null);
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const [communityNarrations, setCommunityNarrations] = useState<any[]>([]);
+  const [showCommunityPanel, setShowCommunityPanel] = useState(false);
+  const [playingCommunityAudio, setPlayingCommunityAudio] = useState<
+    string | null
+  >(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const communityAudioRef = useRef<HTMLAudioElement | null>(null);
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+
   const [parallaxIntensity, setParallaxIntensity] = useState(5);
 
   // ⏰🌅 TIME-BASED AUTO-SWITCHING (AI-POWERED)
@@ -432,6 +480,7 @@ export default function BookReaderLuxury({
   // ===========================================
   const contentRef = useRef<HTMLDivElement>(null);
   const autoScrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const prevPageRef = useRef<number>(1); // Track previous page for animation direction
 
   // ===========================================
   // 🧠 CONTEXTUAL INTELLIGENCE ENGINE: AI Reading Intelligence for Read Mode
@@ -453,6 +502,429 @@ export default function BookReaderLuxury({
 
   const canReadPage = isPurchased || currentPage <= freePages;
   const progressPercentage = (currentPage / totalPages) * 100;
+
+  // 🔊 LOAD AVAILABLE VOICES FOR BROWSER NARRATOR
+  useEffect(() => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        setAvailableVoices(voices);
+        if (voices.length > 0 && !narratorVoice) {
+          // Set default to first English voice or first available
+          const englishVoice = voices.find((v) => v.lang.startsWith("en"));
+          setNarratorVoice(englishVoice || voices[0]);
+        }
+      };
+
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
+
+  // 🔊 PRO-LEVEL NARRATOR CONTROLS
+  const startNarration = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      // Stop any ongoing speech
+      window.speechSynthesis.cancel();
+
+      // Get text content without HTML tags
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = pageContent;
+      const textToRead = tempDiv.textContent || tempDiv.innerText || "";
+
+      if (textToRead.trim()) {
+        const utterance = new SpeechSynthesisUtterance(textToRead);
+        if (narratorVoice) {
+          utterance.voice = narratorVoice;
+        }
+        utterance.rate = narratorRate;
+        utterance.pitch = narratorPitch;
+        utterance.volume = narratorVolume;
+
+        // 🎤 LIP SYNC: Track word-by-word reading with highlighting!
+        const words = textToRead.split(/\s+/).filter((w) => w.length > 0);
+        const wordDuration = (60 / (200 * narratorRate)) * 1000; // Approx time per word
+        let currentWord = 0;
+
+        const progressInterval = setInterval(() => {
+          const progress = Math.min((currentWord / words.length) * 100, 100);
+          setNarratorProgress(progress);
+
+          // 🔥 HIGHLIGHT CURRENT WORD!
+          if (highlightEnabled) {
+            setCurrentReadingWord(currentWord);
+          }
+
+          currentWord++;
+
+          if (currentWord >= words.length) {
+            clearInterval(progressInterval);
+            setCurrentReadingWord(-1);
+          }
+        }, wordDuration);
+
+        narratorIntervalRef.current = progressInterval;
+
+        utterance.onend = () => {
+          setIsNarrating(false);
+          setNarratorPaused(false);
+          setNarratorProgress(0);
+          setCurrentReadingWord(-1);
+          clearInterval(progressInterval);
+
+          // 🚀 AUTO-ADVANCE TO NEXT PAGE!
+          if (autoAdvancePage && currentPage < totalPages) {
+            setTimeout(() => {
+              nextPage();
+            }, 1000); // Small delay before next page
+          }
+        };
+
+        utterance.onerror = () => {
+          setIsNarrating(false);
+          setNarratorPaused(false);
+          setNarratorProgress(0);
+          setCurrentReadingWord(-1);
+          clearInterval(progressInterval);
+        };
+
+        narratorUtteranceRef.current = utterance;
+        window.speechSynthesis.speak(utterance);
+        setIsNarrating(true);
+        setNarratorPaused(false);
+        setShowNarratorControls(true);
+      }
+    }
+  };
+
+  const pauseNarration = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+        window.speechSynthesis.pause();
+        setNarratorPaused(true);
+      }
+    }
+  };
+
+  const resumeNarration = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+        setNarratorPaused(false);
+      }
+    }
+  };
+
+  const stopNarration = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsNarrating(false);
+      setNarratorPaused(false);
+      setNarratorProgress(0);
+      setCurrentReadingWord(-1);
+      setShowNarratorControls(false);
+
+      // Clear interval
+      if (narratorIntervalRef.current) {
+        clearInterval(narratorIntervalRef.current);
+        narratorIntervalRef.current = null;
+      }
+    }
+  };
+
+  // Quick speed presets
+  const setQuickSpeed = (speed: number) => {
+    setNarratorRate(speed);
+    // If currently playing, restart with new speed
+    if (isNarrating) {
+      stopNarration();
+      setTimeout(() => startNarration(), 100);
+    }
+  };
+
+  // Stop narration when page changes
+  useEffect(() => {
+    stopNarration();
+  }, [currentPage]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  // ===========================================
+  // 🎙️ COMMUNITY NARRATOR - RECORDING FUNCTIONS 🚀
+  // ===========================================
+
+  const startRecording = async () => {
+    try {
+      // Request microphone permission
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Create MediaRecorder
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      // Collect audio chunks
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      // Handle recording completion
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm",
+        });
+        setRecordedBlob(audioBlob);
+
+        // Stop all tracks to turn off microphone
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      // Start recording
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error("Failed to start recording:", error);
+      alert(
+        "Could not access microphone. Please allow microphone permission and try again."
+      );
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const playPreview = () => {
+    if (!recordedBlob) return;
+
+    // Create object URL from blob
+    const url = URL.createObjectURL(recordedBlob);
+    setPreviewAudioUrl(url);
+
+    // Create and play audio
+    const audio = new Audio(url);
+    previewAudioRef.current = audio;
+
+    audio.onplay = () => setIsPlayingPreview(true);
+    audio.onended = () => {
+      setIsPlayingPreview(false);
+      URL.revokeObjectURL(url);
+    };
+    audio.onerror = () => {
+      setIsPlayingPreview(false);
+      URL.revokeObjectURL(url);
+      alert("Failed to play preview");
+    };
+
+    audio.play();
+  };
+
+  const stopPreview = () => {
+    if (previewAudioRef.current) {
+      previewAudioRef.current.pause();
+      previewAudioRef.current = null;
+      setIsPlayingPreview(false);
+      if (previewAudioUrl) {
+        URL.revokeObjectURL(previewAudioUrl);
+        setPreviewAudioUrl(null);
+      }
+    }
+  };
+
+  const deleteRecording = () => {
+    stopPreview();
+    setRecordedBlob(null);
+    if (previewAudioUrl) {
+      URL.revokeObjectURL(previewAudioUrl);
+      setPreviewAudioUrl(null);
+    }
+  };
+
+  const uploadRecording = async () => {
+    if (!recordedBlob || !bookId) return;
+
+    try {
+      // Extract paragraph text from current page content
+      const contentElement = document.querySelector(".reader-content");
+      const paragraphText =
+        contentElement?.textContent?.trim() || "Unknown paragraph";
+
+      const formData = new FormData();
+      formData.append("audio", recordedBlob, "narration.webm");
+      formData.append("bookId", bookId);
+      formData.append("pageNumber", String(currentPage));
+      formData.append("paragraphText", paragraphText.substring(0, 500)); // First 500 chars
+      formData.append("language", "en"); // Default to English
+      formData.append("readingStyle", "narrative"); // Default style
+
+      const response = await fetch("/api/narrations", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        setCommunityNarrations((prev) => [result.narration, ...prev]);
+
+        // Clean up recording and preview
+        deleteRecording();
+
+        // Show moderation status
+        if (result.moderation?.autoApproved) {
+          alert("🎉 Auto-approved! Your narration is live with the community!");
+        } else {
+          alert(
+            "✅ Uploaded! Your narration is under review and will be live soon."
+          );
+        }
+      } else {
+        throw new Error(result.error || "Upload failed");
+      }
+    } catch (error) {
+      console.error("Failed to upload recording:", error);
+      alert(
+        `Failed to upload: ${
+          error instanceof Error ? error.message : "Please try again."
+        }`
+      );
+    }
+  };
+
+  const likeNarration = async (narrationId: string) => {
+    try {
+      const response = await fetch(`/api/narrations/${narrationId}/like`, {
+        method: "POST",
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // Update the narration in the list
+        setCommunityNarrations((prev) =>
+          prev.map((n) =>
+            n.id === narrationId
+              ? {
+                  ...n,
+                  likeCount:
+                    (n.likeCount || 0) + (result.action === "liked" ? 1 : -1),
+                }
+              : n
+          )
+        );
+      } else if (response.status === 401) {
+        alert("Please sign in to like narrations");
+      } else if (response.status === 429) {
+        alert("Too many likes! Please slow down.");
+      }
+    } catch (error) {
+      console.error("Failed to like narration:", error);
+    }
+  };
+
+  const deleteCommunityNarration = async (narrationId: string) => {
+    if (!confirm("Delete this narration? This cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/narrations/${narrationId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        // Remove from list
+        setCommunityNarrations((prev) =>
+          prev.filter((n) => n.id !== narrationId)
+        );
+        alert("Narration deleted successfully!");
+      } else if (response.status === 401) {
+        alert("You can only delete your own narrations");
+      } else {
+        alert("Failed to delete narration");
+      }
+    } catch (error) {
+      console.error("Failed to delete narration:", error);
+      alert("Failed to delete narration");
+    }
+  };
+
+  const playCommunityNarration = (narrationId: string, audioUrl: string) => {
+    // Stop any playing narration
+    if (communityAudioRef.current) {
+      communityAudioRef.current.pause();
+      communityAudioRef.current = null;
+    }
+
+    // Stop browser narrator if playing
+    if (isNarrating) {
+      stopNarration();
+    }
+
+    // Count the play (fire and forget)
+    fetch(`/api/narrations/${narrationId}/play`, {
+      method: "POST",
+    }).catch((err) => console.error("Failed to count play:", err));
+
+    // Play new narration
+    const audio = new Audio(audioUrl);
+    communityAudioRef.current = audio;
+
+    audio.onplay = () => {
+      setPlayingCommunityAudio(narrationId);
+    };
+
+    audio.onended = () => {
+      setPlayingCommunityAudio(null);
+      communityAudioRef.current = null;
+    };
+
+    audio.onerror = () => {
+      alert("Failed to play audio");
+      setPlayingCommunityAudio(null);
+      communityAudioRef.current = null;
+    };
+
+    audio.play();
+  };
+
+  const stopCommunityNarration = () => {
+    if (communityAudioRef.current) {
+      communityAudioRef.current.pause();
+      communityAudioRef.current = null;
+      setPlayingCommunityAudio(null);
+    }
+  };
+
+  // Load current user ID
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => setCurrentUserId(data?.user?.id || null))
+      .catch((err) => console.error("Failed to load user:", err));
+  }, []);
+
+  // Load community narrations for current page
+  useEffect(() => {
+    if (bookId) {
+      fetch(`/api/narrations/book/${bookId}/${currentPage}`)
+        .then((res) => res.json())
+        .then((data) => setCommunityNarrations(data))
+        .catch((err) => console.error("Failed to load narrations:", err));
+    }
+  }, [bookId, currentPage]);
 
   // ===========================================
   // THEME DEFINITIONS (ULTRA-LUXURY PRESETS) - 15 AMAZING THEMES!
@@ -1233,6 +1705,9 @@ export default function BookReaderLuxury({
   useEffect(() => {
     if (!cachedContent) return;
 
+    // 🔥 Update prevPageRef for animation direction
+    prevPageRef.current = currentPage;
+
     // Check paywall for non-purchased books
     if (!canReadPage && currentPage > freePages) {
       setShowPaywall(true);
@@ -1987,18 +2462,22 @@ export default function BookReaderLuxury({
                   )}
                 </div>
 
-                {/* Right: Compact Actions */}
-                <div className="flex items-center gap-1 flex-1 justify-end">
-                  {/* Bookmark - Icon Only */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                {/* Right: Modern Control Bar with Labels */}
+                <div className="flex items-center gap-2 flex-1 justify-end">
+                  {/* 🔖 Bookmark */}
+                  <motion.button
                     onClick={toggleBookmark}
-                    className={`p-2 ${
-                      currentPageBookmarked ? "text-purple-500" : ""
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                      currentPageBookmarked
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+                        : "bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20"
                     }`}
                     title={
-                      currentPageBookmarked ? "Remove bookmark" : "Add bookmark"
+                      currentPageBookmarked
+                        ? "Bookmarked"
+                        : "Bookmark this page"
                     }
                   >
                     <Bookmark
@@ -2006,71 +2485,240 @@ export default function BookReaderLuxury({
                         currentPageBookmarked ? "fill-current" : ""
                       }`}
                     />
-                  </Button>
+                    <span className="text-xs font-medium hidden sm:inline">
+                      Mark
+                    </span>
+                  </motion.button>
 
-                  {/* Listen Mode - Icon Only */}
-                  <Button
-                    variant={listenMode ? "default" : "ghost"}
-                    size="sm"
+                  {/* 🎧 Listen Mode */}
+                  <motion.button
                     onClick={() => setListenMode(!listenMode)}
-                    className={`p-2 ${
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
                       listenMode
-                        ? `bg-gradient-to-r ${currentTheme.accent} text-white`
-                        : ""
+                        ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg"
+                        : "bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20"
                     }`}
-                    title={listenMode ? "Stop listening" : "Listen mode"}
+                    title={listenMode ? "Listening..." : "Listen mode"}
                   >
                     {listenMode ? (
                       <PlayCircle className="w-4 h-4" />
                     ) : (
                       <Headphones className="w-4 h-4" />
                     )}
-                  </Button>
-
-                  {/* AI Study Buddy - Icon Only */}
-                  <Button
-                    variant={showAIChat ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setShowAIChat(!showAIChat)}
-                    className={`p-2 ${
-                      showAIChat
-                        ? `bg-gradient-to-r from-blue-600 to-cyan-600 text-white`
-                        : ""
-                    }`}
-                    title="AI Study Buddy - Ask questions"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                  </Button>
-
-                  {/* ✨ PHASE 4: Quote Share Button */}
-                  <motion.button
-                    onClick={handleTextSelection}
-                    whileHover={{
-                      scale: 1.1,
-                      boxShadow: "0 0 20px rgba(236, 72, 153, 0.6)",
-                    }}
-                    whileTap={{ scale: 0.9 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                    className="p-2 rounded-lg bg-transparent hover:bg-pink-100 dark:hover:bg-pink-900/20"
-                    title="Share a quote - Select text first"
-                  >
-                    <Share2 className="w-4 h-4" />
+                    <span className="text-xs font-medium hidden sm:inline">
+                      Listen
+                    </span>
                   </motion.button>
 
-                  {/* Settings - Icon Only + ✨ Phase 3 Glow Animation */}
+                  {/* 🔊 Narrator */}
+                  <div className="relative">
+                    <motion.button
+                      onClick={() =>
+                        isNarrating ? stopNarration() : startNarration()
+                      }
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all relative overflow-hidden ${
+                        isNarrating
+                          ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg"
+                          : "bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20"
+                      }`}
+                      title={isNarrating ? "Stop narrator" : "Start narrator"}
+                    >
+                      {/* Pulse animation when active */}
+                      {isNarrating && (
+                        <motion.div
+                          className="absolute inset-0 bg-green-400 rounded-lg"
+                          animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.5, 0, 0.5],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                        />
+                      )}
+
+                      <motion.div
+                        className="relative z-10 flex items-center gap-1.5"
+                        animate={isNarrating ? { scale: [1, 1.05, 1] } : {}}
+                        transition={{
+                          duration: 0.5,
+                          repeat: isNarrating ? Infinity : 0,
+                        }}
+                      >
+                        <Volume2
+                          className={`w-4 h-4 ${
+                            isNarrating ? "animate-pulse" : ""
+                          }`}
+                        />
+                        <span className="text-xs font-medium hidden sm:inline">
+                          Read
+                        </span>
+                      </motion.div>
+                    </motion.button>
+
+                    {/* Progress indicator */}
+                    {isNarrating && narratorProgress > 0 && (
+                      <div className="absolute -bottom-1 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-gradient-to-r from-green-500 to-emerald-500"
+                          initial={{ width: "0%" }}
+                          animate={{ width: `${narratorProgress}%` }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 🎙️ Record */}
+                  <div className="relative">
+                    <motion.button
+                      onClick={() => {
+                        if (isRecording) {
+                          stopRecording();
+                        } else {
+                          startRecording();
+                        }
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all relative overflow-hidden ${
+                        isRecording
+                          ? "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg"
+                          : "bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20"
+                      }`}
+                      title={isRecording ? "Stop recording" : "Record yourself"}
+                    >
+                      {/* Pulse animation when recording */}
+                      {isRecording && (
+                        <motion.div
+                          className="absolute inset-0 bg-red-400 rounded-lg"
+                          animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.5, 0, 0.5],
+                          }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                        />
+                      )}
+
+                      <motion.div
+                        className="relative z-10 flex items-center gap-1.5"
+                        animate={isRecording ? { scale: [1, 1.05, 1] } : {}}
+                        transition={{
+                          duration: 0.5,
+                          repeat: isRecording ? Infinity : 0,
+                        }}
+                      >
+                        <Mic
+                          className={`w-4 h-4 ${
+                            isRecording ? "animate-pulse" : ""
+                          }`}
+                        />
+                        <span className="text-xs font-medium hidden sm:inline">
+                          Record
+                        </span>
+                      </motion.div>
+                    </motion.button>
+
+                    {/* Recording indicator dot */}
+                    {isRecording && (
+                      <motion.div
+                        className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full shadow-lg"
+                        animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                      />
+                    )}
+                  </div>
+
+                  {/* 👥 Community */}
+                  <div className="relative">
+                    <motion.button
+                      onClick={() => setShowCommunityPanel(!showCommunityPanel)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                        showCommunityPanel
+                          ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-lg"
+                          : "bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20"
+                      }`}
+                      title="Community narrations"
+                    >
+                      <Users className="w-4 h-4" />
+                      <span className="text-xs font-medium hidden sm:inline">
+                        Community
+                      </span>
+                    </motion.button>
+
+                    {/* Badge showing count */}
+                    {communityNarrations.length > 0 && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-lg"
+                      >
+                        {communityNarrations.length}
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* 🤖 AI Chat */}
+                  <motion.button
+                    onClick={() => setShowAIChat(!showAIChat)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                      showAIChat
+                        ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg"
+                        : "bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20"
+                    }`}
+                    title="AI Study Buddy"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span className="text-xs font-medium hidden sm:inline">
+                      AI
+                    </span>
+                  </motion.button>
+
+                  {/* 📤 Share */}
+                  <motion.button
+                    onClick={handleTextSelection}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20"
+                    title="Share a quote"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span className="text-xs font-medium hidden sm:inline">
+                      Share
+                    </span>
+                  </motion.button>
+
+                  {/* ⚙️ Settings */}
                   <motion.button
                     onClick={() => setShowSettings(!showSettings)}
-                    whileHover={{
-                      scale: 1.1,
-                      rotate: 90,
-                      boxShadow: "0 0 20px rgba(168, 85, 247, 0.6)",
-                    }}
-                    whileTap={{ scale: 0.9, rotate: 180 }}
+                    whileHover={{ scale: 1.05, rotate: 90 }}
+                    whileTap={{ scale: 0.95, rotate: 180 }}
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                    className="p-2 rounded-lg bg-transparent hover:bg-purple-100 dark:hover:bg-purple-900/20"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                      showSettings
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg"
+                        : "bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20"
+                    }`}
                     title="Reading settings"
                   >
                     <Settings className="w-4 h-4" />
+                    <span className="text-xs font-medium hidden sm:inline">
+                      Settings
+                    </span>
                   </motion.button>
                 </div>
               </div>
@@ -2692,6 +3340,33 @@ export default function BookReaderLuxury({
                       </div>
                     </div>
 
+                    {/* 🎬 Animation Intensity Control */}
+                    <div className="space-y-3">
+                      <h4 className="text-sm font-semibold opacity-60">
+                        Animation Intensity 🔥
+                      </h4>
+                      <div className="grid grid-cols-4 gap-2">
+                        {(["off", "subtle", "normal", "insane"] as const).map(
+                          (intensity) => (
+                            <button
+                              key={intensity}
+                              onClick={() => setAnimationIntensity(intensity)}
+                              className={`px-3 py-2 rounded-xl border-2 capitalize transition-all text-xs ${
+                                animationIntensity === intensity
+                                  ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20 shadow-lg"
+                                  : `border-gray-300 dark:border-gray-600 ${currentTheme.secondary} hover:border-purple-300`
+                              }`}
+                            >
+                              {intensity === "off" && "❌"}
+                              {intensity === "subtle" && "✨"}
+                              {intensity === "normal" && "🎨"}
+                              {intensity === "insane" && "🔥"} {intensity}
+                            </button>
+                          )
+                        )}
+                      </div>
+                    </div>
+
                     {/* Accent Color Selector */}
                     <div className="space-y-3">
                       <h4 className="text-sm font-semibold opacity-60">
@@ -2755,6 +3430,326 @@ export default function BookReaderLuxury({
                           }`}
                         />
                       </button>
+                    </div>
+
+                    {/* 🎙️ PRO NARRATOR SETTINGS - FREE FOR ALL! 🚀 */}
+                    <div className="space-y-3 p-4 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-teal-900/20 rounded-xl border-2 border-green-300 dark:border-green-600 shadow-lg">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-sm font-bold flex items-center gap-2">
+                          <Volume2 className="w-5 h-5 text-green-600" />
+                          PRO Narrator (FREE) 🔥
+                        </h4>
+                        <div className="flex items-center gap-1 text-xs font-bold text-green-600 bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded-full">
+                          <Zap className="w-3 h-3" />
+                          PRO
+                        </div>
+                      </div>
+
+                      {/* Voice Selection with search-like styling */}
+                      {availableVoices.length > 0 && (
+                        <div className="space-y-2">
+                          <label className="text-xs font-semibold opacity-80 flex items-center gap-1">
+                            🎭 Select Voice ({availableVoices.length} available)
+                          </label>
+                          <select
+                            value={narratorVoice?.name || ""}
+                            onChange={(e) => {
+                              const voice = availableVoices.find(
+                                (v) => v.name === e.target.value
+                              );
+                              if (voice) setNarratorVoice(voice);
+                            }}
+                            className="w-full px-3 py-2 rounded-lg border-2 border-green-300 dark:border-green-600 focus:border-green-500 focus:outline-none text-sm bg-white dark:bg-gray-800 font-medium"
+                          >
+                            {availableVoices.map((voice) => (
+                              <option key={voice.name} value={voice.name}>
+                                {voice.name} • {voice.lang}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Quick Speed Presets */}
+                      <div className="space-y-2">
+                        <label className="text-xs font-semibold opacity-80">
+                          ⚡ Quick Speed
+                        </label>
+                        <div className="grid grid-cols-5 gap-2">
+                          {[0.75, 1, 1.25, 1.5, 2].map((speed) => (
+                            <button
+                              key={speed}
+                              onClick={() => setQuickSpeed(speed)}
+                              className={`px-2 py-2 rounded-lg text-xs font-bold transition-all ${
+                                Math.abs(narratorRate - speed) < 0.1
+                                  ? "bg-green-600 text-white shadow-lg scale-105"
+                                  : "bg-white dark:bg-gray-800 hover:bg-green-100 dark:hover:bg-green-900/20 border-2 border-green-200 dark:border-green-700"
+                              }`}
+                            >
+                              {speed}x
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Speed Fine Control */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <label className="text-xs font-semibold opacity-80">
+                            🎚️ Fine-tune Speed
+                          </label>
+                          <span className="text-xs font-mono bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded font-bold text-green-700 dark:text-green-300">
+                            {narratorRate.toFixed(1)}x
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0.5"
+                          max="2"
+                          step="0.1"
+                          value={narratorRate}
+                          onChange={(e) =>
+                            setNarratorRate(parseFloat(e.target.value))
+                          }
+                          className="w-full accent-green-600"
+                        />
+                      </div>
+
+                      {/* Volume Control */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <label className="text-xs font-semibold opacity-80">
+                            🔊 Volume
+                          </label>
+                          <span className="text-xs font-mono bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded font-bold text-green-700 dark:text-green-300">
+                            {Math.round(narratorVolume * 100)}%
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.1"
+                          value={narratorVolume}
+                          onChange={(e) =>
+                            setNarratorVolume(parseFloat(e.target.value))
+                          }
+                          className="w-full accent-green-600"
+                        />
+                      </div>
+
+                      {/* Pitch Control */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <label className="text-xs font-semibold opacity-80">
+                            🎵 Pitch
+                          </label>
+                          <span className="text-xs font-mono bg-green-100 dark:bg-green-900/40 px-2 py-1 rounded font-bold text-green-700 dark:text-green-300">
+                            {narratorPitch.toFixed(1)}
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0.5"
+                          max="2"
+                          step="0.1"
+                          value={narratorPitch}
+                          onChange={(e) =>
+                            setNarratorPitch(parseFloat(e.target.value))
+                          }
+                          className="w-full accent-green-600"
+                        />
+                      </div>
+
+                      {/* Auto-advance toggle */}
+                      <div className="flex items-center justify-between p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <FastForward className="w-4 h-4 text-green-600" />
+                          <span className="text-xs font-semibold">
+                            Auto-advance pages
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setAutoAdvancePage(!autoAdvancePage)}
+                          className={`relative w-12 h-6 rounded-full transition-colors ${
+                            autoAdvancePage
+                              ? "bg-green-600"
+                              : "bg-gray-300 dark:bg-gray-600"
+                          }`}
+                        >
+                          <div
+                            className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                              autoAdvancePage
+                                ? "translate-x-7"
+                                : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </div>
+
+                      {/* Control Buttons */}
+                      <div className="flex gap-2">
+                        {!isNarrating ? (
+                          <Button
+                            onClick={startNarration}
+                            className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
+                            size="sm"
+                          >
+                            <PlayCircle className="w-4 h-4 mr-2" />
+                            Start Reading
+                          </Button>
+                        ) : (
+                          <>
+                            <Button
+                              onClick={() =>
+                                narratorPaused
+                                  ? resumeNarration()
+                                  : pauseNarration()
+                              }
+                              variant="outline"
+                              className="flex-1 border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+                              size="sm"
+                            >
+                              {narratorPaused ? (
+                                <>
+                                  <PlayCircle className="w-4 h-4 mr-2" />
+                                  Resume
+                                </>
+                              ) : (
+                                <>
+                                  <PauseCircle className="w-4 h-4 mr-2" />
+                                  Pause
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              onClick={stopNarration}
+                              variant="outline"
+                              className="flex-1 border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                              size="sm"
+                            >
+                              <X className="w-4 h-4 mr-2" />
+                              Stop
+                            </Button>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Status indicator */}
+                      {isNarrating && (
+                        <div className="flex items-center justify-center gap-2 p-2 bg-green-100 dark:bg-green-900/40 rounded-lg">
+                          <div className="flex gap-1">
+                            {[...Array(3)].map((_, i) => (
+                              <motion.div
+                                key={i}
+                                className="w-1 h-3 bg-green-600 rounded-full"
+                                animate={{
+                                  height: narratorPaused
+                                    ? "12px"
+                                    : ["12px", "20px", "12px"],
+                                }}
+                                transition={{
+                                  duration: 0.6,
+                                  repeat: narratorPaused ? 0 : Infinity,
+                                  delay: i * 0.1,
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs font-semibold text-green-700 dark:text-green-300">
+                            {narratorPaused ? "Paused" : "Playing..."}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* 🎤 LIP SYNC HIGHLIGHT SETTINGS */}
+                      <div className="space-y-3 p-3 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-lg border border-yellow-300 dark:border-yellow-700">
+                        <h5 className="text-xs font-bold flex items-center gap-1">
+                          🎤 Lip Sync Highlighting
+                        </h5>
+
+                        {/* Enable/Disable */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold opacity-80">
+                            Highlight words as read
+                          </span>
+                          <button
+                            onClick={() =>
+                              setHighlightEnabled(!highlightEnabled)
+                            }
+                            className={`relative w-12 h-6 rounded-full transition-colors ${
+                              highlightEnabled
+                                ? "bg-green-600"
+                                : "bg-gray-300 dark:bg-gray-600"
+                            }`}
+                          >
+                            <div
+                              className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                                highlightEnabled
+                                  ? "translate-x-7"
+                                  : "translate-x-1"
+                              }`}
+                            />
+                          </button>
+                        </div>
+
+                        {/* Color Selection */}
+                        {highlightEnabled && (
+                          <div className="space-y-2">
+                            <label className="text-xs font-semibold opacity-80">
+                              Highlight Color
+                            </label>
+                            <div className="grid grid-cols-5 gap-2">
+                              {(
+                                [
+                                  "yellow",
+                                  "green",
+                                  "blue",
+                                  "purple",
+                                  "pink",
+                                ] as const
+                              ).map((color) => (
+                                <button
+                                  key={color}
+                                  onClick={() => setHighlightColor(color)}
+                                  className={`aspect-square rounded-lg transition-all ${
+                                    highlightColor === color
+                                      ? "ring-2 ring-green-600 scale-110 shadow-lg"
+                                      : "opacity-60 hover:opacity-100 hover:scale-105"
+                                  }`}
+                                  style={{
+                                    backgroundColor:
+                                      color === "yellow"
+                                        ? "#fde047"
+                                        : color === "green"
+                                        ? "#4ade80"
+                                        : color === "blue"
+                                        ? "#60a5fa"
+                                        : color === "purple"
+                                        ? "#a78bfa"
+                                        : "#f472b6",
+                                  }}
+                                  title={
+                                    color.charAt(0).toUpperCase() +
+                                    color.slice(1)
+                                  }
+                                >
+                                  {highlightColor === color && (
+                                    <Check className="w-4 h-4 mx-auto text-white drop-shadow" />
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                            <p className="text-xs opacity-60 italic">
+                              See exactly what word is being read in real-time!
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      <p className="text-xs opacity-60 italic text-center">
+                        🎙️ Pro-level features • Works offline • Free forever! 🚀
+                      </p>
                     </div>
 
                     {/* 🎨 CUSTOM TEXT COLOR MIXER - ULTIMATE PERSONALIZATION! */}
@@ -3929,36 +4924,48 @@ export default function BookReaderLuxury({
                     />
                   ) : (
                     <>
-                      {/* Reading Content - ✨ PHASE 3: BUTTER-SMOOTH PAGE TRANSITIONS! */}
-                      <AnimatePresence mode="wait">
-                        <motion.article
-                          key={currentPage}
-                          ref={contentRef}
-                          initial={{
-                            opacity: 0,
-                            x: pageTransition === "slide" ? 100 : 0,
-                            scale: pageTransition === "flip" ? 0.95 : 1,
-                            rotateY: pageTransition === "flip" ? 20 : 0,
-                          }}
-                          animate={{
-                            opacity: 1,
-                            x: 0,
-                            scale: 1,
-                            rotateY: 0,
-                          }}
-                          exit={{
-                            opacity: 0,
-                            x: pageTransition === "slide" ? -100 : 0,
-                            scale: pageTransition === "flip" ? 0.95 : 1,
-                            rotateY: pageTransition === "flip" ? -20 : 0,
-                          }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 260,
-                            damping: 20,
-                            mass: 0.8,
-                          }}
-                          className={`
+                      {/* 🔥 INSANE PAGE FLIP ANIMATION - GOES VIRAL! */}
+                      <InsanePageFlip
+                        pageNumber={currentPage}
+                        direction={
+                          currentPage > (prevPageRef.current || 0)
+                            ? "next"
+                            : "prev"
+                        }
+                        isTransitioning={isTransitioning}
+                        theme={theme}
+                        intensity={animationIntensity}
+                      >
+                        {/* Reading Content - ✨ PHASE 3: BUTTER-SMOOTH PAGE TRANSITIONS! */}
+                        <AnimatePresence mode="wait">
+                          <motion.article
+                            key={currentPage}
+                            ref={contentRef}
+                            initial={{
+                              opacity: 0,
+                              x: pageTransition === "slide" ? 100 : 0,
+                              scale: pageTransition === "flip" ? 0.95 : 1,
+                              rotateY: pageTransition === "flip" ? 20 : 0,
+                            }}
+                            animate={{
+                              opacity: 1,
+                              x: 0,
+                              scale: 1,
+                              rotateY: 0,
+                            }}
+                            exit={{
+                              opacity: 0,
+                              x: pageTransition === "slide" ? -100 : 0,
+                              scale: pageTransition === "flip" ? 0.95 : 1,
+                              rotateY: pageTransition === "flip" ? -20 : 0,
+                            }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 260,
+                              damping: 20,
+                              mass: 0.8,
+                            }}
+                            className={`
                         prose prose-lg max-w-none leading-relaxed
                         ${fontFamilies[fontFamily].class}
                         ${
@@ -3968,15 +4975,227 @@ export default function BookReaderLuxury({
                         }
                         ${columnMode === 2 ? "columns-2 gap-8" : ""}
                       `}
-                          style={{
-                            fontSize: `${fontSize}px`,
-                            lineHeight: lineHeight,
-                            ...(useCustomTextColor && customTextColor
-                              ? { color: customTextColor }
-                              : {}),
-                          }}
-                          dangerouslySetInnerHTML={{ __html: pageContent }}
-                        />
+                            style={{
+                              fontSize: `${fontSize}px`,
+                              lineHeight: lineHeight,
+                              ...(useCustomTextColor && customTextColor
+                                ? { color: customTextColor }
+                                : {}),
+                            }}
+                          >
+                            {/* 🎤 LIP SYNC HIGHLIGHTED CONTENT */}
+                            {isNarrating && highlightEnabled ? (
+                              <HighlightedContent
+                                htmlContent={pageContent}
+                                currentWordIndex={currentReadingWord}
+                                highlightColor={highlightColor}
+                              />
+                            ) : (
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: pageContent,
+                                }}
+                              />
+                            )}
+                          </motion.article>
+                        </AnimatePresence>
+                      </InsanePageFlip>
+
+                      {/* 🎙️ FLOATING PRO NARRATOR CONTROLS - Appears when narrating */}
+                      <AnimatePresence>
+                        {showNarratorControls && isNarrating && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+                            className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50"
+                          >
+                            <div className="bg-gradient-to-br from-green-600 via-emerald-600 to-teal-600 text-white rounded-2xl shadow-2xl p-4 backdrop-blur-xl border-2 border-white/20">
+                              {/* Progress Bar */}
+                              <div className="mb-3">
+                                <div className="flex items-center justify-between text-xs mb-1">
+                                  <span className="font-semibold">
+                                    🎙️ Narrator Playing
+                                  </span>
+                                  <span className="font-mono">
+                                    {Math.round(narratorProgress)}%
+                                  </span>
+                                </div>
+                                <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                                  <motion.div
+                                    className="h-full bg-white rounded-full"
+                                    initial={{ width: "0%" }}
+                                    animate={{ width: `${narratorProgress}%` }}
+                                    transition={{ duration: 0.3 }}
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Controls */}
+                              <div className="flex items-center gap-2">
+                                {/* Pause/Resume */}
+                                <Button
+                                  onClick={() =>
+                                    narratorPaused
+                                      ? resumeNarration()
+                                      : pauseNarration()
+                                  }
+                                  size="sm"
+                                  variant="outline"
+                                  className="bg-white/10 hover:bg-white/20 border-white/30 text-white"
+                                >
+                                  {narratorPaused ? (
+                                    <PlayCircle className="w-4 h-4" />
+                                  ) : (
+                                    <PauseCircle className="w-4 h-4" />
+                                  )}
+                                </Button>
+
+                                {/* Quick Speed Buttons */}
+                                <div className="flex gap-1">
+                                  {[0.75, 1, 1.25, 1.5, 2].map((speed) => (
+                                    <button
+                                      key={speed}
+                                      onClick={() => setQuickSpeed(speed)}
+                                      className={`px-2 py-1 rounded-lg text-xs font-bold transition-all ${
+                                        Math.abs(narratorRate - speed) < 0.1
+                                          ? "bg-white text-green-600 shadow-lg scale-110"
+                                          : "bg-white/10 hover:bg-white/20"
+                                      }`}
+                                    >
+                                      {speed}x
+                                    </button>
+                                  ))}
+                                </div>
+
+                                {/* Stop */}
+                                <Button
+                                  onClick={stopNarration}
+                                  size="sm"
+                                  variant="outline"
+                                  className="bg-red-500/20 hover:bg-red-500/30 border-red-300/30 text-white"
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+
+                              {/* Toggles Row 1 */}
+                              <div className="mt-2 space-y-1">
+                                {/* Auto-advance toggle */}
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="opacity-80">
+                                    Auto-advance pages
+                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      setAutoAdvancePage(!autoAdvancePage)
+                                    }
+                                    className={`relative w-10 h-5 rounded-full transition-colors ${
+                                      autoAdvancePage
+                                        ? "bg-white"
+                                        : "bg-white/20"
+                                    }`}
+                                  >
+                                    <div
+                                      className={`absolute top-0.5 w-4 h-4 rounded-full transition-all ${
+                                        autoAdvancePage
+                                          ? "translate-x-5 bg-green-600"
+                                          : "translate-x-0.5 bg-white"
+                                      }`}
+                                    />
+                                  </button>
+                                </div>
+
+                                {/* 🎤 Highlight words toggle */}
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="opacity-80 flex items-center gap-1">
+                                    🎤 Highlight words
+                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      setHighlightEnabled(!highlightEnabled)
+                                    }
+                                    className={`relative w-10 h-5 rounded-full transition-colors ${
+                                      highlightEnabled
+                                        ? "bg-white"
+                                        : "bg-white/20"
+                                    }`}
+                                  >
+                                    <div
+                                      className={`absolute top-0.5 w-4 h-4 rounded-full transition-all ${
+                                        highlightEnabled
+                                          ? "translate-x-5 bg-green-600"
+                                          : "translate-x-0.5 bg-white"
+                                      }`}
+                                    />
+                                  </button>
+                                </div>
+
+                                {/* Highlight color picker */}
+                                {highlightEnabled && (
+                                  <div className="flex items-center justify-between text-xs pt-1">
+                                    <span className="opacity-80">Color:</span>
+                                    <div className="flex gap-1">
+                                      {(
+                                        [
+                                          "yellow",
+                                          "green",
+                                          "blue",
+                                          "purple",
+                                          "pink",
+                                        ] as const
+                                      ).map((color) => (
+                                        <button
+                                          key={color}
+                                          onClick={() =>
+                                            setHighlightColor(color)
+                                          }
+                                          className={`w-5 h-5 rounded-full transition-all ${
+                                            highlightColor === color
+                                              ? "ring-2 ring-white scale-110"
+                                              : "opacity-60 hover:opacity-100"
+                                          }`}
+                                          style={{
+                                            backgroundColor:
+                                              color === "yellow"
+                                                ? "#fde047"
+                                                : color === "green"
+                                                ? "#4ade80"
+                                                : color === "blue"
+                                                ? "#60a5fa"
+                                                : color === "purple"
+                                                ? "#a78bfa"
+                                                : "#f472b6",
+                                          }}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Sound wave animation */}
+                              {!narratorPaused && (
+                                <div className="mt-2 flex items-center justify-center gap-1">
+                                  {[...Array(5)].map((_, i) => (
+                                    <motion.div
+                                      key={i}
+                                      className="w-1 bg-white/60 rounded-full"
+                                      animate={{
+                                        height: ["4px", "16px", "4px"],
+                                      }}
+                                      transition={{
+                                        duration: 0.6,
+                                        repeat: Infinity,
+                                        delay: i * 0.1,
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
                       </AnimatePresence>
 
                       {/* Reflection CTA */}
@@ -4062,6 +5281,314 @@ export default function BookReaderLuxury({
             }}
           />
         )}
+
+        {/* ===========================================
+          🎙️ COMMUNITY NARRATOR PANELS - RECORD & LISTEN! 🚀
+          =========================================== */}
+
+        {/* RECORDING PREVIEW - Show after recording */}
+        <AnimatePresence>
+          {recordedBlob && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              className="fixed bottom-24 right-8 z-50 w-96 p-6 rounded-2xl shadow-2xl"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(168, 85, 247, 0.95), rgba(59, 130, 246, 0.95))",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+              }}
+            >
+              <div className="text-white">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold flex items-center gap-2">
+                    <Mic className="w-5 h-5" />
+                    Recording Complete!
+                  </h3>
+                  <button
+                    onClick={() => setRecordedBlob(null)}
+                    className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <p className="text-sm opacity-90 mb-4">
+                  Your narration is ready to share with the community!
+                </p>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={uploadRecording}
+                    className="flex-1 py-3 bg-white text-purple-600 rounded-xl font-bold hover:bg-opacity-90 transition-all hover:scale-105"
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      Share with Community
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setRecordedBlob(null)}
+                    className="px-4 py-3 bg-white/20 rounded-xl font-bold hover:bg-white/30 transition-all"
+                  >
+                    Discard
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* COMMUNITY NARRATIONS PANEL - Browse & Listen */}
+        <AnimatePresence>
+          {showCommunityPanel && (
+            <motion.div
+              initial={{ opacity: 0, x: 400 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 400 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed top-20 right-8 z-50 w-96 max-h-[70vh] overflow-hidden rounded-2xl shadow-2xl"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(59, 130, 246, 0.95))",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+              }}
+            >
+              <div className="p-6 text-white">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <Users className="w-6 h-6" />
+                    Community Narrations
+                  </h2>
+                  <button
+                    onClick={() => setShowCommunityPanel(false)}
+                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <p className="text-sm opacity-90 mb-4">
+                  Page {currentPage} - {communityNarrations.length} narrations
+                  available
+                </p>
+
+                {/* Narrations List */}
+                <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+                  {communityNarrations.length === 0 ? (
+                    <div className="text-center py-12 opacity-70">
+                      <Mic className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg font-semibold mb-2">
+                        Be the first narrator!
+                      </p>
+                      <p className="text-sm">
+                        Record yourself reading this page and share with the
+                        community.
+                      </p>
+                    </div>
+                  ) : (
+                    communityNarrations.map((narration: any) => (
+                      <motion.div
+                        key={narration.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`p-4 rounded-xl transition-all cursor-pointer ${
+                          playingCommunityAudio === narration.id
+                            ? "bg-white/30 shadow-lg"
+                            : "bg-white/10 hover:bg-white/20"
+                        }`}
+                        onClick={() => {
+                          if (playingCommunityAudio === narration.id) {
+                            stopCommunityNarration();
+                          } else {
+                            playCommunityNarration(
+                              narration.id,
+                              narration.audioUrl
+                            );
+                          }
+                        }}
+                      >
+                        <div className="flex items-center gap-3">
+                          {/* Avatar */}
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center font-bold text-sm">
+                            {narration.user?.name?.[0] || "U"}
+                          </div>
+
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold truncate">
+                              {narration.user?.name ||
+                                narration.user?.username ||
+                                "Anonymous"}
+                            </div>
+                            <div className="text-xs opacity-70">
+                              {narration.durationSec ? (
+                                <>
+                                  {Math.floor(narration.durationSec / 60)}:
+                                  {String(
+                                    Math.floor(narration.durationSec % 60)
+                                  ).padStart(2, "0")}{" "}
+                                </>
+                              ) : null}
+                              {narration.playCount || 0} plays
+                            </div>
+                          </div>
+
+                          {/* Play Button */}
+                          <div className="shrink-0">
+                            {playingCommunityAudio === narration.id ? (
+                              <motion.div
+                                animate={{ scale: [1, 1.1, 1] }}
+                                transition={{ duration: 0.5, repeat: Infinity }}
+                              >
+                                <PauseCircle className="w-8 h-8" />
+                              </motion.div>
+                            ) : (
+                              <PlayCircle className="w-8 h-8" />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Likes, Date & Delete */}
+                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/20">
+                          <div className="flex items-center gap-4">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                likeNarration(narration.id);
+                              }}
+                              className="flex items-center gap-1 text-sm hover:scale-110 transition-transform"
+                            >
+                              <Heart className="w-4 h-4" />
+                              <span>{narration.likeCount || 0}</span>
+                            </button>
+                            <div className="text-xs opacity-60">
+                              {new Date(
+                                narration.createdAt
+                              ).toLocaleDateString()}
+                            </div>
+                          </div>
+
+                          {/* Delete button - only for your narrations */}
+                          {currentUserId &&
+                            narration.userId === currentUserId && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteCommunityNarration(narration.id);
+                                }}
+                                className="text-xs text-red-300 hover:text-red-100 hover:bg-red-500/20 px-2 py-1 rounded transition-all flex items-center gap-1"
+                                title="Delete your narration"
+                              >
+                                <X className="w-3 h-3" />
+                                Delete
+                              </button>
+                            )}
+                        </div>
+                      </motion.div>
+                    ))
+                  )}
+                </div>
+
+                {/* Call to Action */}
+                <div className="mt-6 pt-6 border-t border-white/20">
+                  <button
+                    onClick={() => {
+                      setShowCommunityPanel(false);
+                      startRecording();
+                    }}
+                    className="w-full py-3 bg-white text-purple-600 rounded-xl font-bold hover:bg-opacity-90 transition-all hover:scale-105 flex items-center justify-center gap-2"
+                  >
+                    <Mic className="w-5 h-5" />
+                    Record Your Narration
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ===========================================
+          RECORDING PREVIEW MODAL - 🎙️ REVIEW YOUR NARRATION
+          =========================================== */}
+        <AnimatePresence>
+          {recordedBlob && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+              onClick={deleteRecording}
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-gradient-to-br from-purple-900 to-pink-900 text-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                    <Mic className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold">Recording Complete!</h3>
+                    <p className="text-sm opacity-80">
+                      Preview before uploading
+                    </p>
+                  </div>
+                </div>
+
+                {/* Preview Controls */}
+                <div className="space-y-4">
+                  {/* Play/Pause Button */}
+                  <button
+                    onClick={isPlayingPreview ? stopPreview : playPreview}
+                    className="w-full py-4 bg-white/20 hover:bg-white/30 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-3"
+                  >
+                    {isPlayingPreview ? (
+                      <>
+                        <PauseCircle className="w-6 h-6" />
+                        Playing Preview...
+                      </>
+                    ) : (
+                      <>
+                        <PlayCircle className="w-6 h-6" />
+                        Play Preview
+                      </>
+                    )}
+                  </button>
+
+                  {/* Action Buttons */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={uploadRecording}
+                      className="py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2"
+                    >
+                      <Check className="w-5 h-5" />
+                      Upload
+                    </button>
+                    <button
+                      onClick={deleteRecording}
+                      className="py-3 bg-white/10 hover:bg-white/20 rounded-xl font-bold transition-all hover:scale-105 flex items-center justify-center gap-2"
+                    >
+                      <X className="w-5 h-5" />
+                      Delete
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-center opacity-70">
+                    Your narration will be reviewed before going live
+                  </p>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ===========================================
           FOOTER NAVIGATION - 🎨 GLASSMORPHISM
@@ -4369,5 +5896,100 @@ export default function BookReaderLuxury({
         </div>
       )}
     </div>
+  );
+}
+
+// 🎤 LIP SYNC HIGHLIGHTED CONTENT COMPONENT
+interface HighlightedContentProps {
+  htmlContent: string;
+  currentWordIndex: number;
+  highlightColor: "yellow" | "green" | "blue" | "purple" | "pink";
+}
+
+function HighlightedContent({
+  htmlContent,
+  currentWordIndex,
+  highlightColor,
+}: HighlightedContentProps) {
+  const highlightColors = {
+    yellow: "bg-yellow-300/60 dark:bg-yellow-400/40",
+    green: "bg-green-300/60 dark:bg-green-400/40",
+    blue: "bg-blue-300/60 dark:bg-blue-400/40",
+    purple: "bg-purple-300/60 dark:bg-purple-400/40",
+    pink: "bg-pink-300/60 dark:bg-pink-400/40",
+  };
+
+  const animationColors = {
+    yellow: "shadow-yellow-400",
+    green: "shadow-green-400",
+    blue: "shadow-blue-400",
+    purple: "shadow-purple-400",
+    pink: "shadow-pink-400",
+  };
+
+  // Extract text from HTML
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = htmlContent;
+  const plainText = tempDiv.textContent || tempDiv.innerText || "";
+  const words = plainText.split(/\s+/).filter((w) => w.length > 0);
+
+  // Create a version with highlighted words
+  const createHighlightedHTML = () => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, "text/html");
+    let wordCount = 0;
+
+    const processNode = (node: Node): Node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent || "";
+        const nodeWords = text.split(/(\s+)/); // Keep whitespace
+
+        const span = document.createElement("span");
+        nodeWords.forEach((word, index) => {
+          if (word.trim().length > 0) {
+            const wordSpan = document.createElement("span");
+            wordSpan.textContent = word;
+
+            if (wordCount === currentWordIndex) {
+              wordSpan.className = `${highlightColors[highlightColor]} ${animationColors[highlightColor]} rounded px-1 transition-all duration-200 scale-110 shadow-lg font-bold inline-block animate-pulse`;
+            }
+
+            span.appendChild(wordSpan);
+            wordCount++;
+          } else {
+            span.appendChild(document.createTextNode(word));
+          }
+        });
+
+        return span;
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as Element;
+        const cloned = element.cloneNode(false) as Element;
+
+        Array.from(node.childNodes).forEach((child) => {
+          cloned.appendChild(processNode(child));
+        });
+
+        return cloned;
+      }
+
+      return node.cloneNode(true);
+    };
+
+    const body = doc.body;
+    const processed = document.createElement("div");
+
+    Array.from(body.childNodes).forEach((child) => {
+      processed.appendChild(processNode(child));
+    });
+
+    return processed.innerHTML;
+  };
+
+  return (
+    <div
+      dangerouslySetInnerHTML={{ __html: createHighlightedHTML() }}
+      className="lip-sync-content"
+    />
   );
 }

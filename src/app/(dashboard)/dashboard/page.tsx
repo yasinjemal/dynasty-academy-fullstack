@@ -81,13 +81,13 @@ export default function DashboardPage() {
                   🎓 Courses
                 </Button>
               </Link>
-              <Link href="/books">
+              <Link href="/library">
                 <Button
                   variant="ghost"
                   size="sm"
                   className="text-xs sm:text-sm"
                 >
-                  📚 Books
+                  📚 Library
                 </Button>
               </Link>
               <Link href="/blog">
@@ -102,6 +102,15 @@ export default function DashboardPage() {
               <Link href="/achievements" className="hidden sm:block">
                 <Button variant="ghost" size="sm">
                   🏆
+                </Button>
+              </Link>
+              <Link href="/student/engagement" className="hidden sm:block">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 hover:from-purple-500/20 hover:to-blue-500/20 border border-purple-500/30"
+                >
+                  🚀
                 </Button>
               </Link>
               <Link href="/cart">
@@ -314,7 +323,7 @@ export default function DashboardPage() {
             </Link>
 
             <Link
-              href="/books"
+              href="/library"
               className="group relative bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 rounded-xl p-4 sm:p-5 md:p-6 hover:shadow-lg hover:shadow-purple-200/50 dark:hover:shadow-purple-900/50 transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02] border border-purple-200/50 dark:border-purple-700/50"
             >
               <div className="flex flex-col items-center text-center space-y-2 sm:space-y-3">
@@ -334,7 +343,7 @@ export default function DashboardPage() {
                   </svg>
                 </div>
                 <span className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">
-                  Browse Books
+                  My 3D Library
                 </span>
               </div>
             </Link>
@@ -416,6 +425,225 @@ export default function DashboardPage() {
                 </span>
               </div>
             </Link>
+
+            <Link
+              href="/student/engagement"
+              className="group relative bg-gradient-to-br from-orange-50 to-pink-100 dark:from-orange-900/30 dark:to-pink-800/30 rounded-xl p-4 sm:p-5 md:p-6 hover:shadow-lg hover:shadow-orange-200/50 dark:hover:shadow-orange-900/50 transition-all duration-300 transform hover:-translate-y-1 hover:scale-[1.02] border border-orange-200/50 dark:border-orange-700/50"
+            >
+              <div className="flex flex-col items-center text-center space-y-2 sm:space-y-3">
+                <div className="p-2 sm:p-3 bg-gradient-to-br from-orange-200/50 to-pink-200/50 dark:from-orange-700/50 dark:to-pink-700/50 rounded-xl group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                  <svg
+                    className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-orange-600 dark:text-orange-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                </div>
+                <span className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base">
+                  My Progress
+                </span>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* 💎 PREMIUM FEATURES - The Revolution! */}
+        <div className="mb-6 sm:mb-8 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-xl p-5 sm:p-6 md:p-7 lg:p-8 border border-purple-200/50 dark:border-purple-800/50">
+          <div className="flex items-center justify-between mb-5 sm:mb-6">
+            <div>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Premium Features 💎
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Revolutionary tools to 10x your learning
+              </p>
+            </div>
+            <Link href="/pricing">
+              <Button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs sm:text-sm">
+                View Plans
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* 3D Book Reading */}
+            <Link href="/books/immersive" className="group">
+              <div className="p-5 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 text-white transform hover:scale-105 hover:shadow-2xl transition-all cursor-pointer">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm">3D Book Reading</p>
+                    <p className="text-xs text-white/80">World's First!</p>
+                  </div>
+                </div>
+                <div className="h-1 bg-white/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-white/50 w-full animate-pulse" />
+                </div>
+                <p className="text-xs text-white/80 mt-2">
+                  Immersive reading with realistic page physics
+                </p>
+              </div>
+            </Link>
+
+            {/* AI Chapter Summaries */}
+            <Link href="/summaries" className="group">
+              <div className="p-5 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white transform hover:scale-105 hover:shadow-2xl transition-all cursor-pointer">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm">AI Summaries</p>
+                    <p className="text-xs text-white/80">Save 10+ hours</p>
+                  </div>
+                </div>
+                <div className="h-1 bg-white/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-white/50 w-3/4" />
+                </div>
+                <p className="text-xs text-white/80 mt-2">
+                  Instant chapter summaries & key concepts
+                </p>
+              </div>
+            </Link>
+
+            {/* Reading Goals & Gamification */}
+            <Link href="/goals" className="group">
+              <div className="p-5 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white transform hover:scale-105 hover:shadow-2xl transition-all cursor-pointer">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm">Reading Goals</p>
+                    <p className="text-xs text-white/80">Level 12 • 2,450 XP</p>
+                  </div>
+                </div>
+                <div className="h-1 bg-white/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-white/50 w-2/3" />
+                </div>
+                <p className="text-xs text-white/80 mt-2">
+                  Streaks, badges & achievements
+                </p>
+              </div>
+            </Link>
+
+            {/* Book Upload */}
+            <Link href="/upload" className="group">
+              <div className="p-5 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-white transform hover:scale-105 hover:shadow-2xl transition-all cursor-pointer">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm">Upload Books</p>
+                    <p className="text-xs text-white/80">PDF & EPUB</p>
+                  </div>
+                </div>
+                <div className="h-1 bg-white/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-white/50 w-full animate-pulse" />
+                </div>
+                <p className="text-xs text-white/80 mt-2">
+                  Read your own books in 3D
+                </p>
+              </div>
+            </Link>
+          </div>
+
+          {/* Value Banner */}
+          <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 border-2 border-purple-200 dark:border-purple-800">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg">
+                  <svg
+                    className="w-5 h-5 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-bold text-gray-900 dark:text-white">
+                    $389/mo value for just $99/mo
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    We over-deliver by 290%! See all 10 bonus features →
+                  </p>
+                </div>
+              </div>
+              <Link href="/over-delivery">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden sm:inline-flex"
+                >
+                  View Details
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 

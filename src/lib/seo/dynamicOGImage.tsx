@@ -252,3 +252,12 @@ export class DynamicOGImageGenerator {
     return `https://dynasty-academy.com/api/og/book/${bookSlug}`;
   }
 }
+
+// Export standalone function for backward compatibility
+export function getOGImageURL(
+  bookId: string,
+  slug: string,
+  title: string
+): string {
+  return DynamicOGImageGenerator.getOGImageURL(slug);
+}

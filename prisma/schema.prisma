@@ -31,6 +31,7 @@ model User {
   lastActiveAt           DateTime?
   level                  Int                  @default(1)
   streakDays             Int                  @default(0)
+  xp                     Int                  @default(0)
   suspendedUntil         DateTime?
   username               String?              @unique
   bannerImage            String?
@@ -111,6 +112,17 @@ model User {
   duelStats              DuelStats?           @relation("UserDuelStats")
   // 🤖 AI Coach Relations
   aiConversations        AiConversation[]     @relation("UserAiConversations")
+  // 🎙️ Community Narrator Relations
+  communityNarrations    CommunityNarration[] @relation("UserNarrations")
+  narrationLikes         NarrationLike[]      @relation("UserNarrationLikes")
+  narrationPlays         NarrationPlay[]      @relation("UserNarrationPlays")
+  narrationFlags         NarrationFlag[]      @relation("UserNarrationFlags")
+  // 🎯 Engagement System Relations
+  engagementScore        EngagementScore?     @relation("UserEngagementScore")
+  streak                 Streak?              @relation("UserStreak")
+  personalization        PersonalizationProfile? @relation("UserPersonalization")
+  behaviorEvents         BehaviorEvent[]      @relation("UserBehaviorEvents")
+  interventionTracking   InterventionTracking[] @relation("UserInterventions")
 
   @@index([email])
   @@index([role])
@@ -220,6 +232,9 @@ model Book {
   sentenceHighlights SentenceHighlight[]  @relation("BookSentenceHighlights")
   progress           UserProgress[]
   duels              Duel[]               // 🎮 Knowledge battles for this book
+  communityNarrations CommunityNarration[] @relation("BookNarrations") // 🎙️ Community narrations
+  bookPermissions    BookPermission?      @relation("BookPermissions") // 🎙️ Narration permissions
+  bookContents       BookContent[]        @relation("BookContents") // 📄 Extracted PDF content
 
   @@index([slug])
   @@index([category])
@@ -241,6 +256,7 @@ model BookContent {
   charCount   Int      @default(0) // Characters on this page
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  book        Book     @relation("BookContents", fields: [bookId], references: [id], onDelete: Cascade)
 
   @@unique([bookId, pageNumber]) // One content entry per page per book
   @@index([bookId])
@@ -1959,4 +1975,412 @@ enum AiInsightPriority {
   MEDIUM
   HIGH
   CRITICAL
+}
+
+// 🎙️ COMMUNITY NARRATOR - PRODUCTION SYSTEM WITH MODERATION 🚀
+model CommunityNarration {
+  id               String   @id @default(cuid())
+  userId           String
+  bookId           String
+  pageNumber       Int
+  
+  // Text identification
+  paragraphHash    String   // sha256 of normalized paragraph text
+  paragraphText    String   @db.Text // Original paragraph for display
+  language         String   @default("en")
+  readingStyle     String?  // "neutral", "dramatic", "calm", etc.
+  
+  // Audio storage
+  audioUrl         String   // Blob storage location
+  waveformUrl      String?  // Optional visualization
+  format           String   @default("webm-opus")
+  durationSec      Float    // Duration in seconds
+  sizeBytes        Int      // File size in bytes
+  
+  // Quality & validation
+  transcript       String?  @db.Text // ASR-generated transcript
+  asrConfidence    Float?   // 0-1, ASR confidence score
+  wordErrorRate    Float?   // 0-1, WER vs canonical text
+  qualityScore     Float?   // 0-1, SNR/silence/clipping composite
+  
+  // Moderation
+  status           NarrationStatus @default(PENDING)
+  moderationReason String?  @db.Text
+  moderatedBy      String?  // Admin user ID
+  moderatedAt      DateTime?
+  
+  // Licensing
+  license          String   @default("DYN_COMMERCIAL")
+  
+  // Engagement
+  playCount        Int      @default(0)
+  likeCount        Int      @default(0)
+  
+  // Deduplication
+  contentHash      String   // sha256(normalized text + language + readingStyle)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  // Relations
+  user             User               @relation("UserNarrations", fields: [userId], references: [id], onDelete: Cascade)
+  book             Book               @relation("BookNarrations", fields: [bookId], references: [id], onDelete: Cascade)
+  likes            NarrationLike[]    @relation("NarrationLikes")
+  plays            NarrationPlay[]    @relation("NarrationPlays")
+  flags            NarrationFlag[]    @relation("NarrationFlags")
+  
+  @@index([bookId, pageNumber])
+  @@index([paragraphHash])
+  @@index([likeCount, playCount])
+  @@index([status])
+  @@index([userId])
+  @@map("community_narrations")
+}
+
+enum NarrationStatus {
+  PENDING   // Awaiting moderation
+  APPROVED  // Auto or manual approved
+  REJECTED  // Failed moderation
+}
+
+model NarrationLike {
+  id           String             @id @default(cuid())
+  narrationId  String
+  userId       String
+  createdAt    DateTime           @default(now())
+  
+  narration    CommunityNarration @relation("NarrationLikes", fields: [narrationId], references: [id], onDelete: Cascade)
+  user         User               @relation("UserNarrationLikes", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([narrationId, userId])
+  @@index([userId])
+  @@map("narration_likes")
+}
+
+model NarrationPlay {
+  id           String             @id @default(cuid())
+  narrationId  String
+  userId       String?            // Optional for anonymous
+  ipHash       String             // hash(IP + UA + day) for fraud prevention
+  day          DateTime           // Date only, for deduplication
+  createdAt    DateTime           @default(now())
+  
+  narration    CommunityNarration @relation("NarrationPlays", fields: [narrationId], references: [id], onDelete: Cascade)
+  user         User?              @relation("UserNarrationPlays", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([narrationId, userId, ipHash, day])
+  @@index([narrationId])
+  @@index([day])
+  @@map("narration_plays")
+}
+
+model NarrationFlag {
+  id           String             @id @default(cuid())
+  narrationId  String
+  userId       String?            // Optional for anonymous reports
+  reason       String             @db.Text
+  createdAt    DateTime           @default(now())
+  
+  narration    CommunityNarration @relation("NarrationFlags", fields: [narrationId], references: [id], onDelete: Cascade)
+  user         User?              @relation("UserNarrationFlags", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([narrationId])
+  @@map("narration_flags")
+}
+
+model BookPermission {
+  id                        String   @id @default(cuid())
+  bookId                    String   @unique
+  allowCommunityNarrations  Boolean  @default(false)
+  allowRevenueShare         Boolean  @default(false)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+  
+  book                      Book     @relation("BookPermissions", fields: [bookId], references: [id], onDelete: Cascade)
+  
+  @@map("book_permissions")
+}
+
+// ==================================
+// 🎯 MODULE 3: ENGAGEMENT DOMINATION SYSTEM (NEW MODELS ONLY)
+// ==================================
+
+// 📊 Engagement Score & Drop-off Prediction
+model EngagementScore {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation("UserEngagementScore", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // AI-Predicted Risk Scores (0-100, higher = more at risk)
+  dropOffRisk     Float    @default(0)
+  weeklyRisk      Float    @default(0)
+  monthlyRisk     Float    @default(0)
+  
+  // Engagement Metrics
+  dailyActiveStreak    Int      @default(0)
+  longestStreak        Int      @default(0)
+  lastActiveAt         DateTime @default(now())
+  avgSessionMinutes    Float    @default(0)
+  avgLessonsPerWeek    Float    @default(0)
+  completionVelocity   Float    @default(0)
+  
+  // Behavioral Signals
+  signals         Json     @db.JsonB
+  
+  // Intervention Tracking
+  interventions   Json     @db.JsonB
+  lastIntervention DateTime?
+  interventionCount Int     @default(0)
+  
+  // Effectiveness
+  retained        Boolean?
+  retainedAt      DateTime?
+  
+  lastCalculated  DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([dropOffRisk])
+  @@index([weeklyRisk])
+  @@index([lastActiveAt])
+  @@map("engagement_scores")
+}
+
+//  Daily Streak Tracking
+model Streak {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation("UserStreak", fields: [userId], references: [id], onDelete: Cascade)
+  
+  currentStreak   Int      @default(0)
+  longestStreak   Int      @default(0)
+  
+  lastActivityDate DateTime?
+  streakStartDate  DateTime?
+  
+  freezesAvailable Int      @default(0)
+  freezesUsed      Int      @default(0)
+  
+  milestones      Json     @db.JsonB
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([currentStreak])
+  @@map("streaks")
+}
+
+// 🎯 Personalization Profile
+model PersonalizationProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation("UserPersonalization", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Learning Preferences
+  learningStyle       String?
+  preferredPace       String   @default("MODERATE")
+  preferredDifficulty String   @default("MEDIUM")
+  preferredFormat     String   @default("MIXED")
+  
+  // Optimal Times
+  optimalStudyTime    Json?    @db.JsonB
+  preferredDuration   Int?
+  
+  // Content Preferences
+  topicPreferences    Json?    @db.JsonB
+  avoidedTopics       String[]
+  
+  // Engagement Triggers
+  motivators          Json?    @db.JsonB
+  
+  adaptiveMode        Boolean  @default(true)
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  @@map("personalization_profiles")
+}
+
+// 📈 Behavior Tracking Events
+model BehaviorEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation("UserBehaviorEvents", fields: [userId], references: [id], onDelete: Cascade)
+  
+  eventType   String
+  eventData   Json     @db.JsonB
+  
+  sessionId   String?
+  pageUrl     String?
+  referrer    String?
+  userAgent   String?
+  platform    String?
+  
+  timestamp   DateTime @default(now())
+  
+  @@index([userId, timestamp])
+  @@index([eventType, timestamp])
+  @@map("behavior_events")
+}
+
+// 🎯 Intervention Templates - Customizable Message Templates
+model InterventionTemplate {
+  id              String   @id @default(cuid())
+  name            String
+  type            String   // gentle_reminder, streak_warning, achievement_unlocked, etc.
+  subject         String
+  body            String   @db.Text
+  cta             String   // Call to action text
+  ctaUrl          String   // URL for the CTA button
+  channel         String   // EMAIL, PUSH, IN_APP
+  isActive        Boolean  @default(true)
+  
+  // AI Enhancement
+  useAiPersonalization Boolean @default(false)
+  aiPrompt        String?  @db.Text
+  
+  // A/B Testing
+  variants        InterventionVariant[]
+  
+  // Usage Stats
+  timesSent       Int      @default(0)
+  timesOpened     Int      @default(0)
+  timesClicked    Int      @default(0)
+  timesConverted  Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([type, channel])
+  @@map("intervention_templates")
+}
+
+// 🧪 A/B Testing Variants
+model InterventionVariant {
+  id              String   @id @default(cuid())
+  templateId      String
+  template        InterventionTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  
+  name            String
+  subject         String
+  body            String   @db.Text
+  cta             String
+  
+  // Performance Tracking
+  timesSent       Int      @default(0)
+  timesOpened     Int      @default(0)
+  timesClicked    Int      @default(0)
+  timesConverted  Int      @default(0)
+  
+  isWinner        Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  
+  @@map("intervention_variants")
+}
+
+// 📊 Intervention Tracking - Real Analytics
+model InterventionTracking {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation("UserInterventions", fields: [userId], references: [id], onDelete: Cascade)
+  
+  templateId      String?
+  variantId       String?
+  
+  channel         String    // EMAIL, PUSH, IN_APP
+  type            String    // gentle_reminder, streak_warning, etc.
+  
+  subject         String?
+  body            String?   @db.Text
+  
+  // Tracking Events
+  sentAt          DateTime  @default(now())
+  deliveredAt     DateTime?
+  openedAt        DateTime?
+  clickedAt       DateTime?
+  convertedAt     DateTime?
+  
+  // Email Specific
+  emailId         String?   // SendGrid message ID
+  trackingPixel   String?   @unique
+  
+  // Conversion Tracking
+  conversionGoal  String?   // e.g., "completed_lesson", "returned_to_platform"
+  conversionValue Float?
+  
+  // Metadata
+  metadata        Json?     @db.JsonB
+  
+  @@index([userId, sentAt])
+  @@index([channel, sentAt])
+  @@index([templateId, sentAt])
+  @@index([trackingPixel])
+  @@map("intervention_tracking")
+}
+
+// 📅 Scheduled Campaigns - Automation Paradise
+model ScheduledCampaign {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?   @db.Text
+  
+  templateId      String?
+  
+  // Targeting
+  targetAudience  String    // all_users, at_risk, inactive_7d, inactive_30d, custom
+  customFilter    Json?     @db.JsonB
+  
+  // Scheduling
+  scheduleType    String    // one_time, recurring, drip
+  scheduledAt     DateTime?
+  recurringPattern String?  // daily, weekly, monthly
+  recurringDays   Int[]     @default([]) // [1,3,5] for Mon, Wed, Fri
+  recurringTime   String?   // "09:00"
+  
+  // Drip Campaign
+  isDripCampaign  Boolean   @default(false)
+  dripDays        Int[]     @default([]) // [1,3,7,14] - days after signup
+  
+  // Status
+  status          String    @default("draft") // draft, active, paused, completed
+  isActive        Boolean   @default(false)
+  
+  // Performance
+  totalSent       Int       @default(0)
+  totalOpened     Int       @default(0)
+  totalClicked    Int       @default(0)
+  totalConverted  Int       @default(0)
+  
+  lastRunAt       DateTime?
+  nextRunAt       DateTime?
+  
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([status, isActive])
+  @@index([nextRunAt])
+  @@map("scheduled_campaigns")
+}
+
+// 🎨 Campaign Executions - Track Each Run
+model CampaignExecution {
+  id              String    @id @default(cuid())
+  campaignId      String
+  
+  status          String    // pending, running, completed, failed
+  
+  targetedUsers   Int       @default(0)
+  sentCount       Int       @default(0)
+  failedCount     Int       @default(0)
+  
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  
+  error           String?   @db.Text
+  logs            Json?     @db.JsonB
+  
+  @@index([campaignId, startedAt])
+  @@map("campaign_executions")
 }

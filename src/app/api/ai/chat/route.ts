@@ -19,7 +19,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 import { prisma } from "@/lib/db/prisma";
 import OpenAI from "openai";
-import { searchSimilarContent } from "@/lib/embeddings";
+import { getEnhancedContext, buildContextPrompt } from "@/lib/ai/rag";
 
 // Initialize OpenAI
 const openai = new OpenAI({
@@ -188,29 +188,41 @@ export async function POST(request: NextRequest) {
       user.name || "Student"
     }, Level ${user.level}, Dynasty Score: ${user.dynastyScore}]`;
 
-    // 6.5️⃣ RAG: Search for relevant content from books/courses
+    // 6.5️⃣ RAG: Search for relevant content using Pinecone vector search
     let ragContext = "";
     try {
-      const relevantContent = await searchSimilarContent(message, {
-        matchThreshold: 0.75, // Higher threshold for quality matches
-        matchCount: 3, // Top 3 most relevant chunks
-        filterType: context?.bookId
-          ? "book"
-          : context?.courseId
-          ? "course"
-          : undefined,
-        filterId: context?.bookId || context?.courseId || undefined,
+      const enhancedContext = await getEnhancedContext({
+        query: message,
+        userId: user.id,
+        currentContext: context,
       });
 
-      if (relevantContent.length > 0) {
-        ragContext = "\n\n📚 Relevant content from Dynasty Academy:\n";
-        relevantContent.forEach((content, idx) => {
-          ragContext += `\n[Source ${idx + 1}: ${content.content_title}${
-            content.page_number ? `, Page ${content.page_number}` : ""
-          }]\n${content.chunk_text}\n`;
-        });
-        ragContext +=
-          "\n⚠️ Use this content to provide accurate, specific answers. Quote sources with page numbers when relevant.";
+      // Build RAG context from search results
+      ragContext = buildContextPrompt(enhancedContext.relevantContexts);
+
+      // Add current content context if available
+      if (enhancedContext.currentContent) {
+        ragContext += `\n📍 CURRENT CONTENT:\n`;
+        if (context?.lessonId) {
+          ragContext += `Lesson: "${enhancedContext.currentContent.title}"\n`;
+          ragContext += `Content: ${enhancedContext.currentContent.content?.substring(
+            0,
+            500
+          )}...\n\n`;
+        } else if (context?.courseId) {
+          ragContext += `Course: "${enhancedContext.currentContent.title}"\n`;
+          ragContext += `${enhancedContext.currentContent.description}\n\n`;
+        } else if (context?.bookId) {
+          ragContext += `Book: "${enhancedContext.currentContent.title}" by ${enhancedContext.currentContent.author}\n`;
+          ragContext += `${enhancedContext.currentContent.description}\n\n`;
+        }
+      }
+
+      // Add user progress context
+      if (enhancedContext.userProgress) {
+        ragContext += `\n🎯 STUDENT PROGRESS:\n`;
+        ragContext += `Enrolled in: "${enhancedContext.userProgress.course.title}"\n`;
+        ragContext += `Progress: ${enhancedContext.userProgress.progress}%\n\n`;
       }
     } catch (error) {
       console.error("❌ RAG search error (continuing without):", error);

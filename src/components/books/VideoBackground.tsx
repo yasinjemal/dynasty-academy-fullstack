@@ -20,72 +20,83 @@ interface VideoBackgroundProps {
   onRemoveCustomVideo: () => void;
 }
 
-// Curated ambient videos with free sources
+// Curated ambient effects - Using CSS gradients for performance and reliability
 export const ambientVideos = {
   none: {
     name: "None",
     icon: "🚫",
     url: "",
+    gradient: "",
     description: "No background video",
   },
   rain: {
     name: "Rain & Thunder",
     icon: "🌧️",
-    url: "https://cdn.pixabay.com/vimeo/401879315/Rain.mp4?width=1280&hash=76c5e06de2b0921ac7f4ee84bd1d1a01d96dcc0e",
+    url: "",
+    gradient: "linear-gradient(180deg, #1e3c72 0%, #2a5298 50%, #1e3c72 100%)",
     description: "Peaceful rain with distant thunder",
   },
   ocean: {
     name: "Ocean Waves",
     icon: "🌊",
-    url: "https://cdn.pixabay.com/vimeo/370802760/Ocean.mp4?width=1280&hash=15a2c6c32e75e4d3b8e76dce2c6d4b2e7a4c8e9f",
+    url: "",
+    gradient: "linear-gradient(180deg, #005AA7 0%, #FFFDE4 50%, #005AA7 100%)",
     description: "Gentle waves on a beach",
   },
   fireplace: {
     name: "Cozy Fireplace",
     icon: "🔥",
-    url: "https://cdn.pixabay.com/vimeo/449878202/fireplace.mp4?width=1280&hash=a5c8e06de2b0921ac7f4ee84bd1d1a01d96dcc0e",
+    url: "",
+    gradient: "linear-gradient(180deg, #ff4e00 0%, #ec9f05 50%, #ff4e00 100%)",
     description: "Crackling fireplace ambiance",
   },
   space: {
     name: "Space & Stars",
     icon: "✨",
-    url: "https://cdn.pixabay.com/vimeo/476746611/space.mp4?width=1280&hash=b6d9f17ef3c1a32bd8f5ff95ce2e2b3f8e5d9f0g",
+    url: "",
+    gradient: "linear-gradient(180deg, #000428 0%, #004e92 50%, #000428 100%)",
     description: "Drifting through the cosmos",
   },
   forest: {
     name: "Forest Nature",
     icon: "🌲",
-    url: "https://cdn.pixabay.com/vimeo/411292381/Forest.mp4?width=1280&hash=c7e0g28fg4d2b43ce9g6gg06df3f3c4g9f6e0g1h",
+    url: "",
+    gradient: "linear-gradient(180deg, #134E5E 0%, #71B280 50%, #134E5E 100%)",
     description: "Peaceful forest scenery",
   },
   clouds: {
     name: "Moving Clouds",
     icon: "☁️",
-    url: "https://cdn.pixabay.com/vimeo/364019915/clouds.mp4?width=1280&hash=d8f1h39gh5e3c54df0h7hh17eg4g4d5h0g7f1h2i",
+    url: "",
+    gradient: "linear-gradient(180deg, #bdc3c7 0%, #2c3e50 50%, #bdc3c7 100%)",
     description: "Time-lapse clouds drifting",
   },
   snow: {
     name: "Gentle Snowfall",
     icon: "❄️",
-    url: "https://cdn.pixabay.com/vimeo/494384663/snow.mp4?width=1280&hash=e9g2i40hi6f4d65eg1i8ii28fh5h5e6i1h8g2i3j",
+    url: "",
+    gradient: "linear-gradient(180deg, #e6dada 0%, #274046 50%, #e6dada 100%)",
     description: "Soft snow falling peacefully",
   },
   city: {
     name: "City Night Lights",
     icon: "🌃",
-    url: "https://cdn.pixabay.com/vimeo/351001313/city.mp4?width=1280&hash=f0h3j51ij7g5e76fh2j9jj39gi6i6f7j2i9h3j4k",
+    url: "",
+    gradient: "linear-gradient(180deg, #2C3E50 0%, #FD746C 50%, #2C3E50 100%)",
     description: "Urban night time-lapse",
   },
   sunrise: {
     name: "Sunrise/Sunset",
     icon: "🌅",
-    url: "https://cdn.pixabay.com/vimeo/388367969/sunrise.mp4?width=1280&hash=g1i4k62jk8h6f87gi3k0kk40hj7j7g8k3j0i4k5l",
+    url: "",
+    gradient: "linear-gradient(180deg, #FF512F 0%, #F09819 50%, #FF512F 100%)",
     description: "Golden hour beauty",
   },
   abstract: {
     name: "Abstract Patterns",
     icon: "🎨",
-    url: "https://cdn.pixabay.com/vimeo/456123789/abstract.mp4?width=1280&hash=h2j5l73kl9i7g98hj4l1ll51ik8k8h9l4k1j5l6m",
+    url: "",
+    gradient: "linear-gradient(180deg, #8E2DE2 0%, #4A00E0 50%, #8E2DE2 100%)",
     description: "Flowing abstract visuals",
   },
 };
@@ -107,16 +118,17 @@ export default function VideoBackground({
   onCustomVideoUpload,
   onRemoveCustomVideo,
 }: VideoBackgroundProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get current video URL
-  const currentVideoUrl =
-    customVideo || ambientVideos[selectedVideo as VideoKey]?.url || "";
+  // Get current video data
+  const currentVideo = ambientVideos[selectedVideo as VideoKey];
+  const currentVideoUrl = customVideo || currentVideo?.url || "";
+  const currentGradient = currentVideo?.gradient || "";
 
-  // Handle play/pause
+  // Handle play/pause for videos
   useEffect(() => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !currentVideoUrl) return;
 
     if (isPlaying) {
       videoRef.current.play().catch((err) => {
@@ -125,9 +137,9 @@ export default function VideoBackground({
     } else {
       videoRef.current.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, currentVideoUrl]);
 
-  // Handle mute
+  // Handle mute for videos
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.muted = isMuted;
@@ -139,6 +151,8 @@ export default function VideoBackground({
     if (videoRef.current && currentVideoUrl) {
       setIsLoading(true);
       videoRef.current.load();
+    } else {
+      setIsLoading(false);
     }
   }, [currentVideoUrl]);
 
@@ -160,26 +174,59 @@ export default function VideoBackground({
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-      {/* Video Element */}
-      {currentVideoUrl && (
+      {/* Animated Gradient Background (for preset themes) */}
+      {!customVideo && currentGradient && (
+        <motion.div
+          className="absolute inset-0 w-full h-full"
+          initial={{ opacity: 0 }}
+          animate={{
+            opacity: 1,
+            backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
+          }}
+          transition={{
+            backgroundPosition: {
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear",
+            },
+          }}
+          style={{
+            background: currentGradient,
+            backgroundSize: "200% 200%",
+            opacity: opacity / 100,
+            filter: blur > 0 ? `blur(${blur}px)` : "none",
+          }}
+        />
+      )}
+
+      {/* Video Element (for custom uploads) */}
+      {customVideo && (
         <video
           ref={videoRef}
           className="absolute inset-0 w-full h-full object-cover"
           loop
           playsInline
+          autoPlay
           muted={isMuted}
+          crossOrigin="anonymous"
           onLoadedData={() => setIsLoading(false)}
           onCanPlay={() => {
             if (isPlaying && videoRef.current) {
-              videoRef.current.play().catch(console.log);
+              videoRef.current.play().catch((err) => {
+                console.log("Video autoplay failed:", err);
+              });
             }
+          }}
+          onError={(e) => {
+            console.error("Video loading error:", e);
+            setIsLoading(false);
           }}
           style={{
             opacity: opacity / 100,
             filter: blur > 0 ? `blur(${blur}px)` : "none",
           }}
         >
-          <source src={currentVideoUrl} type="video/mp4" />
+          <source src={customVideo} type="video/mp4" />
           Your browser does not support video backgrounds.
         </video>
       )}

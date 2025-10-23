@@ -248,6 +248,32 @@ export default function AdminDashboardPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Engagement Analytics - NEW */}
+          <Link href="/admin/engagement" className="block">
+            <Card className="group relative overflow-hidden bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-500"></div>
+              <CardHeader className="pb-3 relative z-10">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium opacity-90">
+                    Student Engagement
+                  </CardTitle>
+                  <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl backdrop-blur-sm">
+                    🎯
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="relative z-10">
+                <div className="text-4xl font-bold mb-1">AI Active</div>
+                <div className="flex items-center gap-1 text-xs">
+                  <span className="inline-block px-2 py-0.5 rounded-full bg-gradient-to-r from-green-300 to-emerald-300 text-green-900 font-bold animate-pulse">
+                    LIVE
+                  </span>
+                  <span className="opacity-90 ml-1">Retention System</span>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -356,6 +382,30 @@ export default function AdminDashboardPage() {
                   </span>
                   <span className="ml-auto text-xs bg-gradient-to-r from-yellow-300 to-orange-300 text-orange-900 px-2 py-0.5 rounded-full font-bold relative z-10 animate-pulse">
                     LIVE
+                  </span>
+                </Button>
+              </Link>
+              <Link href="/admin/engagement">
+                <Button className="w-full justify-start bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-12 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                  <span className="mr-3 text-xl relative z-10">🎯</span>
+                  <span className="font-medium relative z-10">
+                    Engagement Analytics
+                  </span>
+                  <span className="ml-auto text-xs bg-gradient-to-r from-green-300 to-emerald-300 text-green-900 px-2 py-0.5 rounded-full font-bold relative z-10 animate-pulse">
+                    AI
+                  </span>
+                </Button>
+              </Link>
+              <Link href="/admin/ai-indexing">
+                <Button className="w-full justify-start bg-gradient-to-r from-orange-600 via-red-600 to-pink-600 hover:from-orange-700 hover:via-red-700 hover:to-pink-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-12 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                  <span className="mr-3 text-xl relative z-10">🤖</span>
+                  <span className="font-medium relative z-10">
+                    AI Content Indexing
+                  </span>
+                  <span className="ml-auto text-xs bg-white/20 px-2 py-0.5 rounded-full relative z-10">
+                    RAG
                   </span>
                 </Button>
               </Link>

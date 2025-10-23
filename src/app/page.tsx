@@ -1,4 +1,8 @@
-﻿import Hero3D from "@/components/home/Hero3D";
+﻿"use client";
+
+import { useState } from "react";
+import FuturePortalSimple from "@/components/intro/FuturePortalSimple";
+import Hero3D from "@/components/home/Hero3D";
 import FeaturesShowcase from "@/components/home/FeaturesShowcase";
 import StatsSection from "@/components/home/StatsSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
@@ -9,34 +13,44 @@ import MouseGlow from "@/components/effects/MouseGlow";
 import LiveActivityFeed from "@/components/effects/LiveActivityFeed";
 
 export default function Home() {
+  const [showIntro, setShowIntro] = useState(true);
+
   return (
-    <div className="min-h-screen bg-[#0A0E27] overflow-hidden">
-      {/* Scroll Progress Indicator - Top Bar + Circular */}
-      <ScrollProgress />
+    <>
+      {/* Future Portal Intro - PRO VERSION WITH 3D */}
+      {showIntro && (
+        <FuturePortalSimple onComplete={() => setShowIntro(false)} />
+      )}
 
-      {/* Mouse Glow Effect */}
-      <MouseGlow />
+      {/* Main Homepage */}
+      <div className="min-h-screen bg-[#0A0E27] overflow-hidden">
+        {/* Scroll Progress Indicator - Top Bar + Circular */}
+        <ScrollProgress />
 
-      {/* Live Activity Feed - Bottom Left */}
-      <LiveActivityFeed />
+        {/* Mouse Glow Effect */}
+        <MouseGlow />
 
-      {/* INSANE 3D Hero Section with Floating Book */}
-      <Hero3D />
+        {/* Live Activity Feed - Bottom Left */}
+        <LiveActivityFeed />
 
-      {/* Premium Features Showcase with Animated Cards */}
-      <FeaturesShowcase />
+        {/* INSANE 3D Hero Section with Floating Book */}
+        <Hero3D />
 
-      {/* Animated Stats with Counting Numbers */}
-      <StatsSection />
+        {/* Premium Features Showcase with Animated Cards */}
+        <FeaturesShowcase />
 
-      {/* Testimonials with 3D Cards & Sparkles */}
-      <TestimonialsSection />
+        {/* Animated Stats with Counting Numbers */}
+        <StatsSection />
 
-      {/* Pricing Plans with Glow Effects */}
-      <PricingSection />
+        {/* Testimonials with 3D Cards & Sparkles */}
+        <TestimonialsSection />
 
-      {/* Footer with Wave Divider */}
-      <Footer />
-    </div>
+        {/* Pricing Plans with Glow Effects */}
+        <PricingSection />
+
+        {/* Footer with Wave Divider */}
+        <Footer />
+      </div>
+    </>
   );
 }
