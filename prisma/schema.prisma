@@ -123,6 +123,10 @@ model User {
   personalization        PersonalizationProfile? @relation("UserPersonalization")
   behaviorEvents         BehaviorEvent[]      @relation("UserBehaviorEvents")
   interventionTracking   InterventionTracking[] @relation("UserInterventions")
+  // 💰 Revenue Maximizer Relations
+  churnRisk              ChurnRisk?           @relation("UserChurnRisk")
+  winBackOffers          WinBackOffer[]       @relation("UserWinBackOffers")
+  userLTV                UserLTV?             @relation("UserLTV")
 
   @@index([email])
   @@index([role])
@@ -2383,4 +2387,282 @@ model CampaignExecution {
   
   @@index([campaignId, startedAt])
   @@map("campaign_executions")
+}
+
+// 💰💰💰 MODULE 4: REVENUE MAXIMIZER 💰💰💰
+
+// 💵 Dynamic Pricing Rules
+model PricingRule {
+  id              String    @id @default(cuid())
+  productId       String
+  productType     String    // "course", "book", "bundle", "subscription"
+  
+  // Pricing
+  basePrice       Float
+  currentPrice    Float
+  minPrice        Float?    // Safety floor
+  maxPrice        Float?    // Safety ceiling
+  
+  // Rules engine (JSON array of conditions)
+  rules           Json      @db.JsonB // [{condition, multiplier, priority, active}]
+  
+  // Performance tracking
+  active          Boolean   @default(true)
+  performance     Json?     @db.JsonB // {pricePoint: {impressions, conversions, revenue}}
+  
+  lastUpdated     DateTime  @updatedAt
+  createdAt       DateTime  @default(now())
+  
+  @@index([productId, active])
+  @@index([productType])
+  @@map("pricing_rules")
+}
+
+// 📊 Price Testing - A/B test different price points
+model PriceTest {
+  id              String    @id @default(cuid())
+  productId       String
+  productType     String
+  
+  pricePoint      Float
+  
+  // Metrics
+  impressions     Int       @default(0)
+  conversions     Int       @default(0)
+  revenue         Float     @default(0)
+  conversionRate  Float?
+  avgOrderValue   Float?
+  
+  // Test window
+  startDate       DateTime  @default(now())
+  endDate         DateTime?
+  isActive        Boolean   @default(true)
+  
+  // Winner determination
+  isWinner        Boolean   @default(false)
+  confidence      Float?    // Statistical confidence level
+  
+  @@index([productId, isActive])
+  @@index([startDate])
+  @@map("price_tests")
+}
+
+// 🎯 Smart Upsell Rules
+model UpsellRule {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?   @db.Text
+  
+  // Trigger configuration
+  triggerType     String    // "cart", "checkout", "post-purchase", "mid-course", "browse"
+  triggerCondition Json     @db.JsonB // When to show {productId, userSegment, timeOfDay, etc}
+  
+  // Offer details
+  offerType       String    // "upgrade", "bundle", "complementary", "next-level"
+  offerProductId  String
+  offerDiscount   Float?    // Percentage or fixed amount
+  offerMessage    String?   @db.Text
+  
+  // Display configuration
+  priority        Int       @default(0)
+  active          Boolean   @default(true)
+  
+  // Performance tracking
+  impressions     Int       @default(0)
+  clicks          Int       @default(0)
+  conversions     Int       @default(0)
+  revenue         Float     @default(0)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([triggerType, active])
+  @@index([priority])
+  @@map("upsell_rules")
+}
+
+// 📈 Upsell Events - Track each upsell interaction
+model UpsellEvent {
+  id              String    @id @default(cuid())
+  userId          String
+  ruleId          String
+  
+  // Context
+  triggerContext  Json      @db.JsonB // What triggered it
+  
+  // Interaction tracking
+  shown           Boolean   @default(false)
+  shownAt         DateTime?
+  clicked         Boolean   @default(false)
+  clickedAt       DateTime?
+  converted       Boolean   @default(false)
+  convertedAt     DateTime?
+  
+  // Financial impact
+  revenue         Float?
+  
+  timestamp       DateTime  @default(now())
+  
+  @@index([userId])
+  @@index([ruleId])
+  @@index([timestamp])
+  @@map("upsell_events")
+}
+
+// 🛡️ Churn Risk Scoring
+model ChurnRisk {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation("UserChurnRisk", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Risk assessment
+  riskScore       Float     // 0-100
+  riskLevel       String    // "low", "medium", "high", "critical"
+  
+  // Contributing factors (JSON object with scores)
+  factors         Json      @db.JsonB // {loginFrequency: 20, sessionDuration: 35, completion: 45, etc}
+  
+  // Predictions
+  churnProbability Float    // 0-1
+  daysUntilChurn   Int?     // Estimated days until churn
+  
+  // Interventions
+  interventionsSent Int     @default(0)
+  lastIntervention  DateTime?
+  interventionHistory Json[] @db.JsonB // [{type, date, result, retained}]
+  
+  // Outcome tracking
+  retained        Boolean?
+  retainedAt      DateTime?
+  churnedAt       DateTime?
+  churnReason     String?
+  
+  calculatedAt    DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([riskScore])
+  @@index([riskLevel])
+  @@index([calculatedAt])
+  @@map("churn_risks")
+}
+
+// 🎁 Win-Back Offers
+model WinBackOffer {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation("UserWinBackOffers", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Offer configuration
+  offerType       String    // "discount", "feature_unlock", "personal_call", "free_month"
+  discountPercent Float?
+  discountAmount  Float?
+  features        Json?     @db.JsonB // What features to unlock
+  message         String?   @db.Text
+  
+  // Timing
+  expiresAt       DateTime
+  
+  // Tracking
+  sent            Boolean   @default(false)
+  sentAt          DateTime?
+  opened          Boolean   @default(false)
+  openedAt        DateTime?
+  clicked         Boolean   @default(false)
+  clickedAt       DateTime?
+  redeemed        Boolean   @default(false)
+  redeemedAt      DateTime?
+  
+  // Value
+  estimatedValue  Float?    // How much we expect to save
+  actualValue     Float?    // Actual LTV retained
+  
+  createdAt       DateTime  @default(now())
+  
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([redeemed])
+  @@map("win_back_offers")
+}
+
+// 💎 User Lifetime Value Predictions
+model UserLTV {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation("UserLTV", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Predictions
+  predictedLTV    Float
+  confidence      Float     // 0-1 (how confident we are)
+  segment         String    // "whale", "high-value", "medium", "low", "at-risk"
+  
+  // Probabilities
+  upgradeProb     Float     // 0-1 (will they upgrade?)
+  churnProb       Float     // 0-1 (will they leave?)
+  referralProb    Float     // 0-1 (will they refer others?)
+  
+  // Actual tracking
+  actualLTV       Float     @default(0)
+  totalSpent      Float     @default(0)
+  totalPurchases  Int       @default(0)
+  totalReferrals  Int       @default(0)
+  referralValue   Float     @default(0)
+  
+  // Time-based metrics
+  monthsSinceSignup Int
+  monthsSinceLastPurchase Int?
+  avgMonthlySpend Float?
+  
+  // Model metadata
+  modelVersion    String?   // Which ML model version
+  features        Json?     @db.JsonB // Features used for prediction
+  
+  calculatedAt    DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([segment])
+  @@index([predictedLTV])
+  @@index([churnProb])
+  @@map("user_ltv")
+}
+
+// 🎊 Referral Campaigns
+model ReferralCampaign {
+  id              String    @id @default(cuid())
+  name            String
+  description     String?   @db.Text
+  
+  // Incentive structure
+  referrerReward  Float     // What referrer gets
+  referredReward  Float     // What new user gets
+  rewardType      String    // "percent", "fixed", "credit", "free_month"
+  
+  // Targeting
+  targetSegment   String?   // Which users can participate
+  minLTV          Float?    // Only users with LTV above this
+  maxReferrals    Int?      // Limit per user
+  
+  // Viral mechanics
+  requirePurchase Boolean   @default(false) // Does referred user need to purchase?
+  tierBonuses     Json?     @db.JsonB // {3: 100, 5: 250, 10: 500} - bonuses at milestones
+  
+  // Performance tracking
+  impressions     Int       @default(0)
+  shares          Int       @default(0)
+  clicks          Int       @default(0)
+  conversions     Int       @default(0)
+  revenue         Float     @default(0)
+  cost            Float     @default(0)
+  viralCoef       Float?    // K-factor (how many people does each user bring)
+  
+  // Status
+  active          Boolean   @default(true)
+  startDate       DateTime  @default(now())
+  endDate         DateTime?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([active])
+  @@index([startDate])
+  @@map("referral_campaigns")
 }
