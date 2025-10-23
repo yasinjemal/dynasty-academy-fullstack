@@ -130,6 +130,13 @@ model User {
   // 🧠 Dynasty Nexus 2.0 - Knowledge Graph Relations
   learningPaths          LearningPath[]       @relation("UserLearningPaths")
   knowledgeGaps          KnowledgeGap[]       @relation("UserKnowledgeGaps")
+  
+  // 🎓 V1 Completion - Instructor & Governance Relations
+  instructorApplications InstructorApplication[] @relation("InstructorApplications")
+  reviewedApplications   InstructorApplication[] @relation("ReviewedApplications")
+  auditLogsCreated      AuditLog[]              @relation("AuditLogsCreated")
+  instructorVerification InstructorVerification? @relation("InstructorVerification")
+  verifiedInstructors   InstructorVerification[] @relation("VerifiedInstructors")
 
   @@index([email])
   @@index([role])
@@ -1667,6 +1674,7 @@ model certificates {
 enum Role {
   USER
   AUTHOR
+  INSTRUCTOR
   MODERATOR
   ADMIN
   PREMIUM
@@ -3093,4 +3101,76 @@ model SimilarityCache {
   @@index([queryEmbeddingId])
   @@index([expiresAt])
   @@map("similarity_cache")
+}
+
+// ============================================================================
+// V1 COMPLETION: INSTRUCTOR ONBOARDING & GOVERNANCE
+// ============================================================================
+
+// Instructor Applications - Enable anyone to apply to teach
+model InstructorApplication {
+  id            String    @id @default(cuid())
+  userId        String
+  pitch         String    @db.Text
+  topics        String[]
+  portfolioUrl  String?
+  status        String    @default("pending") // pending, approved, rejected
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  rejectionReason String? @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  user          User      @relation("InstructorApplications", fields: [userId], references: [id], onDelete: Cascade)
+  reviewer      User?     @relation("ReviewedApplications", fields: [reviewedBy], references: [id])
+  
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("instructor_applications")
+}
+
+// Audit Logs - Track all admin actions for transparency
+model AuditLog {
+  id            String    @id @default(cuid())
+  actorUserId   String
+  action        String    // create_course, delete_user, approve_instructor, etc.
+  entity        String    // course, user, instructor, etc.
+  entityId      String
+  before        Json?
+  after         Json?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime  @default(now())
+  
+  actor         User      @relation("AuditLogsCreated", fields: [actorUserId], references: [id])
+  
+  @@index([actorUserId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+// Instructor Verification - KYC and credential verification
+model InstructorVerification {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  verified      Boolean   @default(false)
+  kycStatus     String?   // pending, approved, rejected
+  credentials   Json?     // degrees, certifications
+  idDocument    String?   // URL to stored ID
+  verifiedAt    DateTime?
+  verifiedBy    String?
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  user          User      @relation("InstructorVerification", fields: [userId], references: [id], onDelete: Cascade)
+  verifier      User?     @relation("VerifiedInstructors", fields: [verifiedBy], references: [id])
+  
+  @@index([userId])
+  @@index([verified])
+  @@index([kycStatus])
+  @@map("instructor_verification")
 }

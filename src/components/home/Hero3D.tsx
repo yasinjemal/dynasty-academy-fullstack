@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import BookPickerModal from "@/components/effects/BookPickerModal";
 import {
   Sparkles,
@@ -185,6 +186,21 @@ export default function Hero3D() {
                     Explore Books
                   </span>
                 </motion.button>
+
+                <Link href="/become-instructor">
+                  <motion.button
+                    className="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-600 border-2 border-purple-400/50 rounded-xl font-bold text-white text-lg cursor-pointer"
+                    whileHover={{
+                      scale: 1.05,
+                      boxShadow: "0 0 30px rgba(168, 85, 247, 0.5)",
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <span className="flex items-center gap-2">
+                      👨‍🏫 Become an Instructor
+                    </span>
+                  </motion.button>
+                </Link>
               </motion.div>
 
               {/* Stats Row */}

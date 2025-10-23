@@ -10,6 +10,7 @@ import ThemeToggle from "@/components/shared/ThemeToggle";
 import UserProfileDropdown from "@/components/shared/UserProfileDropdown";
 import InstructorQuickAccess from "@/components/shared/InstructorQuickAccess";
 import DuelCenter from "@/components/duels/DuelCenter";
+import PersonalizedFeed from "@/components/dashboard/PersonalizedFeed";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -650,6 +651,11 @@ export default function DashboardPage() {
         {/* 🎮 DYNASTY DUELS - The Game Changer! */}
         <div className="mb-6 sm:mb-8">
           <DuelCenter />
+        </div>
+
+        {/* ✨ Personalized Learning Feed */}
+        <div className="mb-6 sm:mb-8">
+          <PersonalizedFeed />
         </div>
 
         {/* Community Section */}

@@ -14,6 +14,7 @@ export default function Navigation() {
     { href: "/books", label: "Books" },
     { href: "/blog", label: "Blog" },
     { href: "/community", label: "Community", highlight: true },
+    { href: "/become-instructor", label: "👨‍🏫 Teach", highlight: true },
     { href: "/pdf-to-course", label: "📄 PDF to Course", highlight: true },
     { href: "/onboarding", label: "🧠 Dynasty Brain", highlight: true },
     { href: "/study-rooms", label: "🎓 Study Rooms", highlight: true },

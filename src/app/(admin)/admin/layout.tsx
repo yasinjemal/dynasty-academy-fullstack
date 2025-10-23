@@ -18,6 +18,16 @@ const menuItems = [
   { href: "/admin/users", label: "Users", icon: "👥" },
   { href: "/admin/orders", label: "Orders", icon: "🛒" },
   {
+    href: "/admin/instructor-applications",
+    label: "Instructor Applications",
+    icon: "👨‍🏫",
+  },
+  {
+    href: "/admin/governance",
+    label: "Governance & Audit",
+    icon: "⚖️",
+  },
+  {
     href: "/admin/gamification-demo",
     label: "🎮 Gamification Demo",
     icon: "🎮",
