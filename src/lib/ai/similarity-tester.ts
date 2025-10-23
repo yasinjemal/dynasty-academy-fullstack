@@ -17,7 +17,7 @@ import {
   semanticConceptSearch,
 } from "./vector-similarity";
 import { generateEmbedding } from "./vector-embeddings";
-import { logger } from "@/lib/infrastructure/logger";
+import { logInfo, logError } from "@/lib/infrastructure/logger";
 
 const prisma = new PrismaClient();
 
@@ -57,7 +57,7 @@ export async function runSimilarityTests(): Promise<{
 }> {
   const startTime = Date.now();
 
-  logger.logInfo("Starting similarity accuracy tests", {});
+  logInfo("Starting similarity accuracy tests", {});
 
   const tests: SimilarityTestResult[] = [];
 
@@ -97,7 +97,7 @@ Overall Test Results:
 ${!passedAllTests ? "\nTarget: 85%+ accuracy required" : ""}
   `.trim();
 
-  logger.logInfo("Similarity tests complete", {
+  logInfo("Similarity tests complete", {
     overallAccuracy: avgAccuracy,
     passedAllTests,
     duration: Date.now() - startTime,

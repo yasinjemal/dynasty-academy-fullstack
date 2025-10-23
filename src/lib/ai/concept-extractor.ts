@@ -14,7 +14,7 @@
 import OpenAI from "openai";
 import { PrismaClient } from "@prisma/client";
 import { generateEmbedding } from "./vector-embeddings";
-import { logger } from "@/lib/infrastructure/logger";
+import { logInfo, logError } from "@/lib/infrastructure/logger";
 
 const prisma = new PrismaClient();
 const openai = new OpenAI({
@@ -102,7 +102,7 @@ export async function extractConceptsFromCourse(
         (usage.completion_tokens / 1000) * 0.06
       : 0;
 
-    logger.logInfo("Concepts extracted from course", {
+    logInfo("Concepts extracted from course", {
       courseId,
       courseTitle: course.title,
       conceptCount: concepts.length,
@@ -119,7 +119,7 @@ export async function extractConceptsFromCourse(
       cost,
     };
   } catch (error) {
-    logger.logError("Failed to extract concepts from course", error as Error, {
+    logError("Failed to extract concepts from course", error as Error, {
       courseId,
     });
     throw error;
@@ -144,7 +144,7 @@ export async function extractConceptsFromAllCourses(): Promise<{
       select: { id: true },
     });
 
-    logger.logInfo("Starting concept extraction for all courses", {
+    logInfo("Starting concept extraction for all courses", {
       courseCount: courses.length,
     });
 
@@ -163,7 +163,7 @@ export async function extractConceptsFromAllCourses(): Promise<{
         // Small delay to respect API rate limits
         await new Promise((resolve) => setTimeout(resolve, 1000));
       } catch (error) {
-        logger.logError(
+        logError(
           "Failed to extract concepts from course",
           error as Error,
           {
@@ -175,7 +175,7 @@ export async function extractConceptsFromAllCourses(): Promise<{
 
     const duration = Date.now() - startTime;
 
-    logger.logInfo("Concept extraction complete for all courses", {
+    logInfo("Concept extraction complete for all courses", {
       courseCount: results.length,
       totalConcepts,
       totalCost,
@@ -189,7 +189,7 @@ export async function extractConceptsFromAllCourses(): Promise<{
       duration,
     };
   } catch (error) {
-    logger.logError(
+    logError(
       "Failed to extract concepts from all courses",
       error as Error
     );
@@ -340,7 +340,7 @@ export async function saveConceptsToDatabase(
       }
     }
 
-    logger.logInfo("Concepts saved to database", {
+    logInfo("Concepts saved to database", {
       courseId: extraction.courseId,
       created,
       updated,
@@ -350,7 +350,7 @@ export async function saveConceptsToDatabase(
 
     return { created, updated, relationships };
   } catch (error) {
-    logger.logError("Failed to save concepts to database", error as Error, {
+    logError("Failed to save concepts to database", error as Error, {
       courseId: extraction.courseId,
     });
     throw error;
@@ -514,7 +514,7 @@ export async function getConceptStats(): Promise<{
         concepts.length > 0 ? totalDifficulty / concepts.length : 0,
     };
   } catch (error) {
-    logger.logError("Failed to get concept stats", error as Error);
+    logError("Failed to get concept stats", error as Error);
     throw error;
   }
 }

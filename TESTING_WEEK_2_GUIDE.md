@@ -16,6 +16,7 @@
 ## 📋 Pre-Test Checklist
 
 ### Environment Setup ✅
+
 - [x] Dev server running: http://localhost:3000
 - [x] OPENAI_API_KEY configured in .env
 - [x] Database connected (Supabase PostgreSQL)
@@ -23,6 +24,7 @@
 - [x] HNSW indexes created
 
 ### Files Ready ✅
+
 - [x] `src/lib/ai/concept-extractor.ts` (550 lines)
 - [x] `src/lib/ai/similarity-tester.ts` (650 lines)
 - [x] `src/app/(admin)/admin/concepts/page.tsx` (850 lines)
@@ -34,12 +36,14 @@
 ## 🚀 Test Procedure
 
 ### Step 1: Access Dashboard
+
 ```
 URL: http://localhost:3000/admin/concepts
 Login: Use your admin account
 ```
 
 **What you should see:**
+
 - 📊 Statistics cards (Concepts, Relationships, Categories, Avg Difficulty)
 - 🎨 Purple gradient background
 - 🧠 Brain icon header
@@ -47,19 +51,23 @@ Login: Use your admin account
 - 🟢 Test button (green gradient)
 
 ### Step 2: Check Current State
+
 **Before extraction:**
+
 - Total Concepts: 0 (if first run)
 - Total Relationships: 0
 - Categories: 0
 - Avg Difficulty: 0
 
 ### Step 3: Extract Concepts
+
 1. Click **"Extract Concepts from All Courses"** button
 2. Button shows: "Extracting Concepts..." with spinner
 3. Wait 6-8 minutes for GPT-4 processing
 4. Watch for completion message with cost
 
 **Expected Results:**
+
 ```
 ✅ Extraction Complete
 - Total courses processed: 10-50 (depends on your data)
@@ -70,13 +78,16 @@ Login: Use your admin account
 ```
 
 ### Step 4: View Updated Statistics
+
 After extraction, you should see:
+
 - **Total Concepts**: 50-500+ (updated)
 - **Relationships**: 150-1500+ (updated)
 - **Categories**: 5-15 categories
 - **Avg Difficulty**: 4-6 (1-10 scale)
 
 **Category Breakdown:**
+
 - Programming Fundamentals
 - Web Development
 - Data Science
@@ -85,12 +96,14 @@ After extraction, you should see:
 - etc.
 
 ### Step 5: Run Accuracy Tests
+
 1. Click **"Run Accuracy Tests"** button
 2. Button shows: "Running Tests..." with spinner
 3. Wait ~30 seconds for all 5 tests
 4. View detailed test results
 
 **Expected Test Results:**
+
 ```
 Test 1: Prerequisite Relationship Accuracy
 ✅ Target: 85%+ | Expected: 89%+
@@ -132,21 +145,25 @@ Status: ✅ PASSED (all tests ≥85%)
 **Extracted Concepts (5-15):**
 
 1. **JSX Syntax**
+
    - Difficulty: 3
    - Prerequisites: ["JavaScript Basics", "HTML"]
    - Category: "Web Development"
 
 2. **React Components**
+
    - Difficulty: 4
    - Prerequisites: ["JSX Syntax", "JavaScript Functions"]
    - Category: "Web Development"
 
 3. **State Management**
+
    - Difficulty: 6
    - Prerequisites: ["React Components", "JavaScript Objects"]
    - Category: "Web Development"
 
 4. **React Hooks**
+
    - Difficulty: 6
    - Prerequisites: ["State Management", "React Components"]
    - Category: "Web Development"
@@ -157,6 +174,7 @@ Status: ✅ PASSED (all tests ≥85%)
    - Category: "Web Development"
 
 **Relationships Created:**
+
 - "JSX Syntax" → prerequisite → "React Components"
 - "React Components" → prerequisite → "State Management"
 - "State Management" → prerequisite → "React Hooks"
@@ -167,6 +185,7 @@ Status: ✅ PASSED (all tests ≥85%)
 ## 🔍 Verification Checklist
 
 ### After Extraction ✅
+
 - [ ] Statistics updated (concepts > 0)
 - [ ] Cost displayed ($0.50-$7.50 range)
 - [ ] No error messages
@@ -174,6 +193,7 @@ Status: ✅ PASSED (all tests ≥85%)
 - [ ] Duration was 6-8 minutes
 
 ### After Testing ✅
+
 - [ ] Overall accuracy ≥85% (target: 90.4%)
 - [ ] All 5 tests show results
 - [ ] Test 1: Prerequisite accuracy ≥85%
@@ -188,7 +208,9 @@ Status: ✅ PASSED (all tests ≥85%)
 ## 🐛 Troubleshooting
 
 ### Issue 1: "No courses found"
+
 **Solution:**
+
 ```sql
 -- Check published courses
 SELECT COUNT(*) FROM "Course" WHERE published = true;
@@ -200,12 +222,15 @@ UPDATE "Course" SET published = true WHERE id IN (
 ```
 
 ### Issue 2: "Failed to extract concepts"
+
 **Possible causes:**
+
 - OPENAI_API_KEY invalid or expired
 - Network connectivity issues
 - Course content too short (need 100+ words)
 
 **Solution:**
+
 ```bash
 # Check API key
 echo $env:OPENAI_API_KEY
@@ -216,29 +241,35 @@ curl https://api.openai.com/v1/models \
 ```
 
 ### Issue 3: "Low accuracy (<85%)"
+
 **Possible causes:**
+
 - Insufficient concepts (<10)
 - Need more diverse content
 - HNSW index not created
 
 **Solution:**
+
 ```sql
 -- Check concept count
 SELECT COUNT(*) FROM concepts;
 
 -- Verify HNSW index exists
-SELECT indexname FROM pg_indexes 
-WHERE tablename = 'concepts' 
+SELECT indexname FROM pg_indexes
+WHERE tablename = 'concepts'
 AND indexname LIKE '%embedding%';
 ```
 
 ### Issue 4: "Search too slow (>50ms)"
+
 **Possible causes:**
+
 - HNSW index not used
 - Too many concepts without index
 - Database connection issues
 
 **Solution:**
+
 ```sql
 -- Force index rebuild
 REINDEX INDEX concepts_embedding_idx;
@@ -252,6 +283,7 @@ SELECT pg_size_pretty(pg_relation_size('concepts_embedding_idx'));
 ## 📈 Success Criteria
 
 ### ✅ Minimum Requirements
+
 - At least 10 concepts extracted
 - Overall accuracy ≥85%
 - All 5 tests pass (≥85%)
@@ -259,6 +291,7 @@ SELECT pg_size_pretty(pg_relation_size('concepts_embedding_idx'));
 - No fatal errors
 
 ### 🌟 Optimal Performance (Expected)
+
 - 50-500 concepts extracted
 - Overall accuracy ≥90%
 - Search performance <30ms
@@ -270,17 +303,20 @@ SELECT pg_size_pretty(pg_relation_size('concepts_embedding_idx'));
 ## 🎯 Next Steps After Testing
 
 ### If All Tests Pass ✅
+
 1. **Week 2 Status**: COMPLETE ✅
 2. **Production Ready**: YES ✅
 3. **Next**: Week 3 Gap Detection System
 
 ### Action Items:
+
 - [ ] Review extracted concepts in dashboard
 - [ ] Test similarity search manually
 - [ ] Plan Week 3: Gap Detection & Personalization
 - [ ] Document any issues or optimizations needed
 
 ### If Some Tests Fail ❌
+
 1. **Review failure details** in test results
 2. **Check logs** for error messages
 3. **Verify data quality** (course content)
@@ -302,6 +338,7 @@ SELECT pg_size_pretty(pg_relation_size('concepts_embedding_idx'));
 ## 📞 Support Commands
 
 ### Check Database
+
 ```bash
 # Open Prisma Studio
 npx prisma studio
@@ -311,6 +348,7 @@ npx prisma studio
 ```
 
 ### Check Logs
+
 ```bash
 # View terminal output
 # Watch for "Concepts extracted from course" messages
@@ -318,6 +356,7 @@ npx prisma studio
 ```
 
 ### Manual API Test
+
 ```bash
 # Get statistics
 curl http://localhost:3000/api/ai/concepts/extract
@@ -335,18 +374,21 @@ curl -X POST http://localhost:3000/api/ai/concepts/extract \
 After successful testing, you should have:
 
 ✅ **Knowledge Graph Built**
+
 - 50-500 concepts with embeddings
 - 150-1500 relationships mapped
 - 5-15 categories identified
 - Difficulty scores (1-10)
 
 ✅ **Accuracy Validated**
+
 - 90.4% average accuracy
 - All 5 tests passed
 - <30ms search performance
 - Production ready
 
 ✅ **Ready for Week 3**
+
 - Gap detection system
 - Personalized recommendations
 - Adaptive learning paths
