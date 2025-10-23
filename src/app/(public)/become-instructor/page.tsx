@@ -151,11 +151,18 @@ export default function BecomeInstructorPage() {
           </p>
 
           {applicationStatus === "approved" && (
-            <Link href="/instructor/create">
-              <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all">
-                Start Teaching Now
-              </button>
-            </Link>
+            <div className="flex gap-4">
+              <Link href="/instructor/dashboard">
+                <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-bold text-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all">
+                  Go to Dashboard
+                </button>
+              </Link>
+              <Link href="/instructor/create">
+                <button className="px-8 py-4 bg-slate-800/50 border border-purple-500/30 rounded-xl text-white font-bold text-lg hover:border-purple-500/50 transition-all">
+                  Create Course
+                </button>
+              </Link>
+            </div>
           )}
 
           {applicationStatus === "pending" && (
