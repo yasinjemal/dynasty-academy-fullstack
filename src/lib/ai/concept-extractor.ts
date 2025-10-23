@@ -1,20 +1,20 @@
 /**
  * Concept Extraction Service
- * 
+ *
  * Uses GPT-4 to intelligently extract key concepts from course content:
  * - Identify core learning concepts
  * - Determine difficulty levels
  * - Map prerequisite relationships
  * - Generate concept definitions
  * - Create concept hierarchies
- * 
+ *
  * Week 2 - Phase 1 Self-Healing Knowledge Graph MVP
  */
 
-import OpenAI from 'openai';
-import { PrismaClient } from '@prisma/client';
-import { generateEmbedding } from './vector-embeddings';
-import { logger } from '@/lib/infrastructure/logger';
+import OpenAI from "openai";
+import { PrismaClient } from "@prisma/client";
+import { generateEmbedding } from "./vector-embeddings";
+import { logger } from "@/lib/infrastructure/logger";
 
 const prisma = new PrismaClient();
 const openai = new OpenAI({
@@ -49,7 +49,7 @@ export async function extractConceptsFromCourse(
   courseId: string
 ): Promise<ConceptExtractionResult> {
   const startTime = Date.now();
-  
+
   try {
     // Get course with lessons
     const course = await prisma.course.findUnique({
@@ -74,33 +74,35 @@ export async function extractConceptsFromCourse(
 
     // Use GPT-4 to extract concepts
     const prompt = buildConceptExtractionPrompt(course.title, courseContent);
-    
+
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: "gpt-4",
       messages: [
         {
-          role: 'system',
-          content: 'You are an expert educational content analyst. Your task is to extract key learning concepts from course material and identify their relationships.',
+          role: "system",
+          content:
+            "You are an expert educational content analyst. Your task is to extract key learning concepts from course material and identify their relationships.",
         },
         {
-          role: 'user',
+          role: "user",
           content: prompt,
         },
       ],
       temperature: 0.3, // Lower temperature for more consistent extraction
-      response_format: { type: 'json_object' },
+      response_format: { type: "json_object" },
     });
 
-    const result = JSON.parse(response.choices[0].message.content || '{}');
+    const result = JSON.parse(response.choices[0].message.content || "{}");
     const concepts = result.concepts || [];
 
     // Calculate cost (GPT-4: $0.03 per 1K input tokens, $0.06 per 1K output tokens)
     const usage = response.usage;
     const cost = usage
-      ? (usage.prompt_tokens / 1000) * 0.03 + (usage.completion_tokens / 1000) * 0.06
+      ? (usage.prompt_tokens / 1000) * 0.03 +
+        (usage.completion_tokens / 1000) * 0.06
       : 0;
 
-    logger.logInfo('Concepts extracted from course', {
+    logger.logInfo("Concepts extracted from course", {
       courseId,
       courseTitle: course.title,
       conceptCount: concepts.length,
@@ -117,7 +119,7 @@ export async function extractConceptsFromCourse(
       cost,
     };
   } catch (error) {
-    logger.logError('Failed to extract concepts from course', error as Error, {
+    logger.logError("Failed to extract concepts from course", error as Error, {
       courseId,
     });
     throw error;
@@ -134,7 +136,7 @@ export async function extractConceptsFromAllCourses(): Promise<{
   duration: number;
 }> {
   const startTime = Date.now();
-  
+
   try {
     // Get all published courses
     const courses = await prisma.course.findMany({
@@ -142,7 +144,7 @@ export async function extractConceptsFromAllCourses(): Promise<{
       select: { id: true },
     });
 
-    logger.logInfo('Starting concept extraction for all courses', {
+    logger.logInfo("Starting concept extraction for all courses", {
       courseCount: courses.length,
     });
 
@@ -159,17 +161,21 @@ export async function extractConceptsFromAllCourses(): Promise<{
         totalCost += result.cost;
 
         // Small delay to respect API rate limits
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       } catch (error) {
-        logger.logError('Failed to extract concepts from course', error as Error, {
-          courseId: course.id,
-        });
+        logger.logError(
+          "Failed to extract concepts from course",
+          error as Error,
+          {
+            courseId: course.id,
+          }
+        );
       }
     }
 
     const duration = Date.now() - startTime;
 
-    logger.logInfo('Concept extraction complete for all courses', {
+    logger.logInfo("Concept extraction complete for all courses", {
       courseCount: results.length,
       totalConcepts,
       totalCost,
@@ -183,7 +189,10 @@ export async function extractConceptsFromAllCourses(): Promise<{
       duration,
     };
   } catch (error) {
-    logger.logError('Failed to extract concepts from all courses', error as Error);
+    logger.logError(
+      "Failed to extract concepts from all courses",
+      error as Error
+    );
     throw error;
   }
 }
@@ -209,15 +218,17 @@ export async function saveConceptsToDatabase(
     // First pass: Create/update all concepts
     for (const concept of extraction.concepts) {
       // Generate embedding for the concept
-      const embeddingText = `${concept.name}\n${concept.description}\n${concept.keywords?.join(', ') || ''}`;
+      const embeddingText = `${concept.name}\n${concept.description}\n${
+        concept.keywords?.join(", ") || ""
+      }`;
       const { embedding } = await generateEmbedding(
         embeddingText,
-        'concept',
+        "concept",
         `${extraction.courseId}:${concept.name}`
       );
 
       // Convert embedding to pgvector format
-      const embeddingStr = `[${embedding.join(',')}]`;
+      const embeddingStr = `[${embedding.join(",")}]`;
 
       // Upsert concept
       const result = await prisma.$executeRaw`
@@ -290,7 +301,7 @@ export async function saveConceptsToDatabase(
             data: {
               parentConceptId: prereqId, // Prerequisite is the parent
               childConceptId: conceptId, // Current concept is the child
-              relationshipType: 'prerequisite',
+              relationshipType: "prerequisite",
               strength: 1.0, // Strong relationship
               validated: true,
             },
@@ -298,7 +309,7 @@ export async function saveConceptsToDatabase(
           relationships++;
         } catch (error) {
           // Ignore duplicate relationships
-          if (!(error as any).code?.includes('23505')) {
+          if (!(error as any).code?.includes("23505")) {
             throw error;
           }
         }
@@ -314,7 +325,7 @@ export async function saveConceptsToDatabase(
             data: {
               parentConceptId: conceptId,
               childConceptId: relatedId,
-              relationshipType: 'related',
+              relationshipType: "related",
               strength: 0.7, // Medium relationship
               validated: false,
             },
@@ -322,14 +333,14 @@ export async function saveConceptsToDatabase(
           relationships++;
         } catch (error) {
           // Ignore duplicates
-          if (!(error as any).code?.includes('23505')) {
+          if (!(error as any).code?.includes("23505")) {
             throw error;
           }
         }
       }
     }
 
-    logger.logInfo('Concepts saved to database', {
+    logger.logInfo("Concepts saved to database", {
       courseId: extraction.courseId,
       created,
       updated,
@@ -339,7 +350,7 @@ export async function saveConceptsToDatabase(
 
     return { created, updated, relationships };
   } catch (error) {
-    logger.logError('Failed to save concepts to database', error as Error, {
+    logger.logError("Failed to save concepts to database", error as Error, {
       courseId: extraction.courseId,
     });
     throw error;
@@ -349,9 +360,7 @@ export async function saveConceptsToDatabase(
 /**
  * Extract and save concepts for a course (combined operation)
  */
-export async function processConceptsForCourse(
-  courseId: string
-): Promise<{
+export async function processConceptsForCourse(courseId: string): Promise<{
   extraction: ConceptExtractionResult;
   database: { created: number; updated: number; relationships: number };
 }> {
@@ -372,14 +381,16 @@ export async function processConceptsForAllCourses(): Promise<{
   duration: number;
 }> {
   const startTime = Date.now();
-  
+
   const { results, totalCost } = await extractConceptsFromAllCourses();
-  
+
   let totalConcepts = 0;
   let totalRelationships = 0;
 
   for (const result of results) {
-    const { created, updated, relationships } = await saveConceptsToDatabase(result);
+    const { created, updated, relationships } = await saveConceptsToDatabase(
+      result
+    );
     totalConcepts += created + updated;
     totalRelationships += relationships;
   }
@@ -401,10 +412,12 @@ export async function processConceptsForAllCourses(): Promise<{
 function compileCourseContent(course: any): string {
   const parts = [
     `Course: ${course.title}`,
-    `Description: ${course.description || ''}`,
-    course.learningOutcomes ? `Learning Outcomes: ${course.learningOutcomes}` : '',
-    course.prerequisites ? `Prerequisites: ${course.prerequisites}` : '',
-    '\nLessons:',
+    `Description: ${course.description || ""}`,
+    course.learningOutcomes
+      ? `Learning Outcomes: ${course.learningOutcomes}`
+      : "",
+    course.prerequisites ? `Prerequisites: ${course.prerequisites}` : "",
+    "\nLessons:",
   ];
 
   course.lessons?.forEach((lesson: any, index: number) => {
@@ -413,13 +426,16 @@ function compileCourseContent(course: any): string {
     if (lesson.content) parts.push(`   ${lesson.content.slice(0, 500)}...`);
   });
 
-  return parts.filter(Boolean).join('\n');
+  return parts.filter(Boolean).join("\n");
 }
 
 /**
  * Build GPT-4 prompt for concept extraction
  */
-function buildConceptExtractionPrompt(courseTitle: string, content: string): string {
+function buildConceptExtractionPrompt(
+  courseTitle: string,
+  content: string
+): string {
   return `
 Analyze the following course content and extract the key learning concepts.
 
@@ -484,8 +500,8 @@ export async function getConceptStats(): Promise<{
     const byCategory: Record<string, number> = {};
     let totalDifficulty = 0;
 
-    concepts.forEach(c => {
-      const cat = c.category || 'Uncategorized';
+    concepts.forEach((c) => {
+      const cat = c.category || "Uncategorized";
       byCategory[cat] = (byCategory[cat] || 0) + 1;
       totalDifficulty += c.difficultyScore || 0;
     });
@@ -494,10 +510,11 @@ export async function getConceptStats(): Promise<{
       totalConcepts: concepts.length,
       totalRelationships: relationships,
       byCategory,
-      avgDifficulty: concepts.length > 0 ? totalDifficulty / concepts.length : 0,
+      avgDifficulty:
+        concepts.length > 0 ? totalDifficulty / concepts.length : 0,
     };
   } catch (error) {
-    logger.logError('Failed to get concept stats', error as Error);
+    logger.logError("Failed to get concept stats", error as Error);
     throw error;
   }
 }

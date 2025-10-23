@@ -1,20 +1,23 @@
 /**
  * Similarity Testing Service
- * 
+ *
  * Tests and validates vector similarity search accuracy:
  * - Precision/Recall metrics
  * - Concept recommendation quality
  * - Search performance benchmarks
  * - False positive detection
- * 
+ *
  * Week 2 - Phase 1 Self-Healing Knowledge Graph MVP
  * Target: 85%+ accuracy
  */
 
-import { PrismaClient } from '@prisma/client';
-import { findSimilarConcepts, semanticConceptSearch } from './vector-similarity';
-import { generateEmbedding } from './vector-embeddings';
-import { logger } from '@/lib/infrastructure/logger';
+import { PrismaClient } from "@prisma/client";
+import {
+  findSimilarConcepts,
+  semanticConceptSearch,
+} from "./vector-similarity";
+import { generateEmbedding } from "./vector-embeddings";
+import { logger } from "@/lib/infrastructure/logger";
 
 const prisma = new PrismaClient();
 
@@ -54,7 +57,7 @@ export async function runSimilarityTests(): Promise<{
 }> {
   const startTime = Date.now();
 
-  logger.logInfo('Starting similarity accuracy tests', {});
+  logger.logInfo("Starting similarity accuracy tests", {});
 
   const tests: SimilarityTestResult[] = [];
 
@@ -78,12 +81,10 @@ export async function runSimilarityTests(): Promise<{
     tests.reduce((sum, t) => sum + t.accuracy, 0) / tests.length;
   const avgPrecision =
     tests.reduce((sum, t) => sum + t.precision, 0) / tests.length;
-  const avgRecall =
-    tests.reduce((sum, t) => sum + t.recall, 0) / tests.length;
-  const avgF1 =
-    tests.reduce((sum, t) => sum + t.f1Score, 0) / tests.length;
+  const avgRecall = tests.reduce((sum, t) => sum + t.recall, 0) / tests.length;
+  const avgF1 = tests.reduce((sum, t) => sum + t.f1Score, 0) / tests.length;
 
-  const passedAllTests = tests.every(t => t.accuracy >= 0.85); // 85% threshold
+  const passedAllTests = tests.every((t) => t.accuracy >= 0.85); // 85% threshold
 
   const summary = `
 Overall Test Results:
@@ -92,11 +93,11 @@ Overall Test Results:
 - Average Recall: ${(avgRecall * 100).toFixed(1)}%
 - Average F1 Score: ${(avgF1 * 100).toFixed(1)}%
 - Duration: ${((Date.now() - startTime) / 1000).toFixed(2)}s
-- Status: ${passedAllTests ? '✅ PASSED' : '❌ FAILED'}
-${!passedAllTests ? '\nTarget: 85%+ accuracy required' : ''}
+- Status: ${passedAllTests ? "✅ PASSED" : "❌ FAILED"}
+${!passedAllTests ? "\nTarget: 85%+ accuracy required" : ""}
   `.trim();
 
-  logger.logInfo('Similarity tests complete', {
+  logger.logInfo("Similarity tests complete", {
     overallAccuracy: avgAccuracy,
     passedAllTests,
     duration: Date.now() - startTime,
@@ -123,12 +124,12 @@ async function testPrerequisiteAccuracy(): Promise<SimilarityTestResult> {
   const concepts = await prisma.concept.findMany({
     where: {
       childRelationships: {
-        some: { relationshipType: 'prerequisite' },
+        some: { relationshipType: "prerequisite" },
       },
     },
     include: {
       childRelationships: {
-        where: { relationshipType: 'prerequisite' },
+        where: { relationshipType: "prerequisite" },
         include: { parentConcept: true },
       },
     },
@@ -137,27 +138,31 @@ async function testPrerequisiteAccuracy(): Promise<SimilarityTestResult> {
 
   for (const concept of concepts) {
     const queryStart = Date.now();
-    
+
     // Find similar concepts
     const similar = await findSimilarConcepts(concept.id, 10);
-    
+
     const searchTime = Date.now() - queryStart;
 
     // Expected: Should find prerequisite concepts
     const expectedIds = new Set(
-      concept.childRelationships.map(r => r.parentConceptId)
+      concept.childRelationships.map((r) => r.parentConceptId)
     );
-    const foundIds = new Set(similar.map(s => s.id));
+    const foundIds = new Set(similar.map((s) => s.id));
 
     const expectedConcepts = concept.childRelationships.map(
-      r => r.parentConcept.name
+      (r) => r.parentConcept.name
     );
-    const foundConcepts = similar.map(s => s.name);
+    const foundConcepts = similar.map((s) => s.name);
 
     // Calculate metrics
-    const truePositives = [...expectedIds].filter(id => foundIds.has(id)).length;
-    const falsePositives = similar.filter(s => !expectedIds.has(s.id)).length;
-    const falseNegatives = [...expectedIds].filter(id => !foundIds.has(id)).length;
+    const truePositives = [...expectedIds].filter((id) =>
+      foundIds.has(id)
+    ).length;
+    const falsePositives = similar.filter((s) => !expectedIds.has(s.id)).length;
+    const falseNegatives = [...expectedIds].filter(
+      (id) => !foundIds.has(id)
+    ).length;
 
     const passed = truePositives >= expectedIds.size * 0.7; // 70% of prerequisites found
     if (passed) totalPassed++;
@@ -187,7 +192,7 @@ async function testPrerequisiteAccuracy(): Promise<SimilarityTestResult> {
   const accuracy = totalPassed / details.length;
 
   return {
-    testName: 'Prerequisite Relationship Accuracy',
+    testName: "Prerequisite Relationship Accuracy",
     accuracy,
     precision,
     recall,
@@ -210,7 +215,7 @@ async function testCategoryAccuracy(): Promise<SimilarityTestResult> {
 
   // Get concepts grouped by category
   const categories = await prisma.concept.groupBy({
-    by: ['category'],
+    by: ["category"],
     having: {
       category: {
         _count: {
@@ -235,11 +240,11 @@ async function testCategoryAccuracy(): Promise<SimilarityTestResult> {
 
       // Expected: Most similar concepts should be from same category
       const sameCategoryCount = similar.filter(
-        s => s.category === category
+        (s) => s.category === category
       ).length;
 
       const expectedConcepts = [category];
-      const foundConcepts = similar.map(s => s.category || 'Unknown');
+      const foundConcepts = similar.map((s) => s.category || "Unknown");
 
       const passed = sameCategoryCount >= 5; // 50% from same category
       if (passed) totalPassed++;
@@ -267,7 +272,7 @@ async function testCategoryAccuracy(): Promise<SimilarityTestResult> {
   const accuracy = totalPassed / details.length;
 
   return {
-    testName: 'Category Clustering Accuracy',
+    testName: "Category Clustering Accuracy",
     accuracy,
     precision,
     recall: precision, // Same as precision for this test
@@ -302,7 +307,7 @@ async function testDifficultyAccuracy(): Promise<SimilarityTestResult> {
     const tolerance = 2;
     const targetDifficulty = concept.difficultyScore!;
     const withinRange = similar.filter(
-      s =>
+      (s) =>
         s.difficultyScore &&
         Math.abs(s.difficultyScore - targetDifficulty) <= tolerance
     ).length;
@@ -312,8 +317,14 @@ async function testDifficultyAccuracy(): Promise<SimilarityTestResult> {
 
     details.push({
       query: `${concept.name} (Difficulty: ${targetDifficulty})`,
-      expectedConcepts: [`Difficulty ${targetDifficulty - tolerance}-${targetDifficulty + tolerance}`],
-      foundConcepts: similar.map(s => `${s.name} (${s.difficultyScore || 'N/A'})`),
+      expectedConcepts: [
+        `Difficulty ${targetDifficulty - tolerance}-${
+          targetDifficulty + tolerance
+        }`,
+      ],
+      foundConcepts: similar.map(
+        (s) => `${s.name} (${s.difficultyScore || "N/A"})`
+      ),
       truePositives: withinRange,
       falsePositives: similar.length - withinRange,
       falseNegatives: 0,
@@ -332,7 +343,7 @@ async function testDifficultyAccuracy(): Promise<SimilarityTestResult> {
   const accuracy = totalPassed / details.length;
 
   return {
-    testName: 'Difficulty Level Similarity',
+    testName: "Difficulty Level Similarity",
     accuracy,
     precision,
     recall: precision,
@@ -355,11 +366,26 @@ async function testSemanticSearchQuality(): Promise<SimilarityTestResult> {
 
   // Test queries
   const testQueries = [
-    { query: 'programming basics', expectedCategories: ['Programming', 'Software Development'] },
-    { query: 'data analysis techniques', expectedCategories: ['Data Science', 'Analytics'] },
-    { query: 'business strategy', expectedCategories: ['Business', 'Management'] },
-    { query: 'machine learning algorithms', expectedCategories: ['AI', 'Machine Learning'] },
-    { query: 'web development fundamentals', expectedCategories: ['Web Development', 'Programming'] },
+    {
+      query: "programming basics",
+      expectedCategories: ["Programming", "Software Development"],
+    },
+    {
+      query: "data analysis techniques",
+      expectedCategories: ["Data Science", "Analytics"],
+    },
+    {
+      query: "business strategy",
+      expectedCategories: ["Business", "Management"],
+    },
+    {
+      query: "machine learning algorithms",
+      expectedCategories: ["AI", "Machine Learning"],
+    },
+    {
+      query: "web development fundamentals",
+      expectedCategories: ["Web Development", "Programming"],
+    },
   ];
 
   for (const test of testQueries) {
@@ -368,8 +394,8 @@ async function testSemanticSearchQuality(): Promise<SimilarityTestResult> {
     const searchTime = Date.now() - queryStart;
 
     // Check if results match expected categories
-    const matchingCategories = results.filter(r =>
-      test.expectedCategories.some(cat => r.category?.includes(cat))
+    const matchingCategories = results.filter((r) =>
+      test.expectedCategories.some((cat) => r.category?.includes(cat))
     ).length;
 
     const passed = matchingCategories >= 3; // At least 30% relevant
@@ -378,7 +404,9 @@ async function testSemanticSearchQuality(): Promise<SimilarityTestResult> {
     details.push({
       query: test.query,
       expectedConcepts: test.expectedCategories,
-      foundConcepts: results.map(r => `${r.name} (${r.category || 'Unknown'})`),
+      foundConcepts: results.map(
+        (r) => `${r.name} (${r.category || "Unknown"})`
+      ),
       truePositives: matchingCategories,
       falsePositives: results.length - matchingCategories,
       falseNegatives: 0,
@@ -397,7 +425,7 @@ async function testSemanticSearchQuality(): Promise<SimilarityTestResult> {
   const accuracy = totalPassed / details.length;
 
   return {
-    testName: 'Semantic Search Quality',
+    testName: "Semantic Search Quality",
     accuracy,
     precision,
     recall: precision,
@@ -430,7 +458,7 @@ async function testSearchPerformance(): Promise<SimilarityTestResult> {
 
     details.push({
       query: concept.name,
-      expectedConcepts: ['<50ms'],
+      expectedConcepts: ["<50ms"],
       foundConcepts: [`${searchTime}ms`],
       truePositives: passed ? 1 : 0,
       falsePositives: 0,
@@ -445,7 +473,7 @@ async function testSearchPerformance(): Promise<SimilarityTestResult> {
   const accuracy = totalPassed / details.length;
 
   return {
-    testName: 'Search Performance (<50ms)',
+    testName: "Search Performance (<50ms)",
     accuracy,
     precision: accuracy,
     recall: accuracy,

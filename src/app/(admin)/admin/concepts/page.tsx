@@ -1,19 +1,19 @@
 /**
  * Concept Extraction Dashboard
- * 
+ *
  * Admin interface for:
  * - Extract concepts from courses
  * - View concept statistics
  * - Manage concept relationships
  * - Test concept similarity
- * 
+ *
  * Week 2 - Phase 1 Self-Healing Knowledge Graph MVP
  */
 
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
   Brain,
   Sparkles,
@@ -24,7 +24,7 @@ import {
   AlertCircle,
   Loader2,
   DollarSign,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface ConceptStats {
   totalConcepts: number;
@@ -76,16 +76,16 @@ export default function ConceptDashboard() {
   const loadStats = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/ai/concepts/extract');
+      const response = await fetch("/api/ai/concepts/extract");
       const data = await response.json();
-      
+
       if (data.success) {
         setStats(data.stats);
       } else {
-        setError(data.error || 'Failed to load stats');
+        setError(data.error || "Failed to load stats");
       }
     } catch (err) {
-      setError('Failed to load stats');
+      setError("Failed to load stats");
       console.error(err);
     } finally {
       setLoading(false);
@@ -99,10 +99,10 @@ export default function ConceptDashboard() {
       setResults([]);
       setTotalCost(0);
 
-      const response = await fetch('/api/ai/concepts/extract', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'all' }),
+      const response = await fetch("/api/ai/concepts/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "all" }),
       });
 
       const data = await response.json();
@@ -112,10 +112,10 @@ export default function ConceptDashboard() {
         // Reload stats after extraction
         await loadStats();
       } else {
-        setError(data.error || 'Failed to extract concepts');
+        setError(data.error || "Failed to extract concepts");
       }
     } catch (err) {
-      setError('Failed to extract concepts');
+      setError("Failed to extract concepts");
       console.error(err);
     } finally {
       setExtracting(false);
@@ -128,9 +128,9 @@ export default function ConceptDashboard() {
       setError(null);
       setTestResult(null);
 
-      const response = await fetch('/api/ai/concepts/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/ai/concepts/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
       });
 
       const data = await response.json();
@@ -138,10 +138,10 @@ export default function ConceptDashboard() {
       if (data.success) {
         setTestResult(data);
       } else {
-        setError(data.error || 'Failed to run tests');
+        setError(data.error || "Failed to run tests");
       }
     } catch (err) {
-      setError('Failed to run tests');
+      setError("Failed to run tests");
       console.error(err);
     } finally {
       setTesting(false);
@@ -167,7 +167,8 @@ export default function ConceptDashboard() {
             AI-Powered Knowledge Graph Builder
           </p>
           <p className="text-gray-400 text-sm mt-2">
-            GPT-4 extracts concepts, relationships, and learning paths from your courses
+            GPT-4 extracts concepts, relationships, and learning paths from your
+            courses
           </p>
         </motion.div>
 
@@ -248,10 +249,11 @@ export default function ConceptDashboard() {
             <Zap className="w-6 h-6 text-yellow-400" />
             Extract Concepts
           </h2>
-          
+
           <div className="space-y-4">
             <p className="text-gray-300">
-              Use GPT-4 to analyze all courses and extract key learning concepts with their relationships.
+              Use GPT-4 to analyze all courses and extract key learning concepts
+              with their relationships.
             </p>
 
             <div className="bg-blue-500/10 border border-blue-500/50 rounded-lg p-4">
@@ -269,7 +271,8 @@ export default function ConceptDashboard() {
 
             <div className="bg-yellow-500/10 border border-yellow-500/50 rounded-lg p-4">
               <p className="text-yellow-300 text-sm">
-                <strong>Cost estimate:</strong> ~$0.05-0.15 per course (GPT-4 pricing)
+                <strong>Cost estimate:</strong> ~$0.05-0.15 per course (GPT-4
+                pricing)
               </p>
             </div>
 
@@ -303,10 +306,11 @@ export default function ConceptDashboard() {
             <TrendingUp className="w-6 h-6 text-green-400" />
             Test Similarity Accuracy
           </h2>
-          
+
           <div className="space-y-4">
             <p className="text-gray-300">
-              Run comprehensive tests to validate vector similarity search accuracy.
+              Run comprehensive tests to validate vector similarity search
+              accuracy.
             </p>
 
             <div className="bg-purple-500/10 border border-purple-500/50 rounded-lg p-4">
@@ -330,7 +334,9 @@ export default function ConceptDashboard() {
 
             <button
               onClick={runAccuracyTests}
-              disabled={testing || loading || !stats || stats.totalConcepts === 0}
+              disabled={
+                testing || loading || !stats || stats.totalConcepts === 0
+              }
               className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl transition-all flex items-center justify-center gap-3 shadow-lg shadow-green-500/25"
             >
               {testing ? (
@@ -367,13 +373,15 @@ export default function ConceptDashboard() {
               <div
                 className={`flex items-center gap-2 ${
                   testResult.passedAllTests
-                    ? 'bg-green-500/20 border-green-500/50'
-                    : 'bg-yellow-500/20 border-yellow-500/50'
+                    ? "bg-green-500/20 border-green-500/50"
+                    : "bg-yellow-500/20 border-yellow-500/50"
                 } border rounded-lg px-4 py-2`}
               >
                 <span
                   className={`font-semibold ${
-                    testResult.passedAllTests ? 'text-green-300' : 'text-yellow-300'
+                    testResult.passedAllTests
+                      ? "text-green-300"
+                      : "text-yellow-300"
                   }`}
                 >
                   Overall: {(testResult.overallAccuracy * 100).toFixed(1)}%
@@ -387,8 +395,8 @@ export default function ConceptDashboard() {
                   key={index}
                   className={`bg-gray-700/50 rounded-lg p-4 border ${
                     test.accuracy >= 0.85
-                      ? 'border-green-500/50'
-                      : 'border-yellow-500/50'
+                      ? "border-green-500/50"
+                      : "border-yellow-500/50"
                   }`}
                 >
                   <p className="text-white font-semibold text-sm mb-2">
@@ -436,9 +444,10 @@ export default function ConceptDashboard() {
                 </span>
               </div>
             </div>
-            
+
             <p className="text-gray-300 text-sm">
-              Concepts have been extracted and saved to your knowledge graph. Reload the page to see updated statistics.
+              Concepts have been extracted and saved to your knowledge graph.
+              Reload the page to see updated statistics.
             </p>
           </motion.div>
         )}
@@ -446,7 +455,9 @@ export default function ConceptDashboard() {
         {/* Footer */}
         <div className="text-center text-gray-400 text-sm">
           <p>Dynasty Nexus 2.0 - Phase 1 Self-Healing Knowledge Graph MVP</p>
-          <p className="mt-1">Week 2: Concept Extraction & Relationship Mapping</p>
+          <p className="mt-1">
+            Week 2: Concept Extraction & Relationship Mapping
+          </p>
         </div>
       </div>
     </div>
@@ -458,15 +469,15 @@ interface StatCardProps {
   icon: React.ElementType;
   label: string;
   value: number | string;
-  color: 'purple' | 'blue' | 'green' | 'yellow';
+  color: "purple" | "blue" | "green" | "yellow";
 }
 
 function StatCard({ icon: Icon, label, value, color }: StatCardProps) {
   const colorClasses = {
-    purple: 'from-purple-600 to-purple-800 text-purple-300',
-    blue: 'from-blue-600 to-blue-800 text-blue-300',
-    green: 'from-green-600 to-green-800 text-green-300',
-    yellow: 'from-yellow-600 to-yellow-800 text-yellow-300',
+    purple: "from-purple-600 to-purple-800 text-purple-300",
+    blue: "from-blue-600 to-blue-800 text-blue-300",
+    green: "from-green-600 to-green-800 text-green-300",
+    yellow: "from-yellow-600 to-yellow-800 text-yellow-300",
   };
 
   return (
