@@ -12,9 +12,22 @@
  */
 
 import OpenAI from "openai";
-import { prisma } from "@/lib/db/prisma";
+import { PrismaClient } from "@prisma/client";
 import { generateEmbedding } from "./vector-embeddings";
 import { logInfo, logError } from "@/lib/infrastructure/logger";
+
+// Initialize Prisma client directly in this module
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["error"] : ["error"],
+  });
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -137,6 +150,14 @@ export async function extractConceptsFromAllCourses(): Promise<{
   const startTime = Date.now();
 
   try {
+    // Debug: Verify prisma object exists
+    if (!prisma) {
+      throw new Error("Prisma client is undefined - import failed");
+    }
+    if (!prisma.course) {
+      throw new Error("Prisma course model is undefined");
+    }
+    
     // Get all published courses
     const courses = await prisma.course.findMany({
       where: { published: true },
