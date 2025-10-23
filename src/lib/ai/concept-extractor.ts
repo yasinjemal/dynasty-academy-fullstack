@@ -12,11 +12,10 @@
  */
 
 import OpenAI from "openai";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import { generateEmbedding } from "./vector-embeddings";
 import { logInfo, logError } from "@/lib/infrastructure/logger";
 
-const prisma = new PrismaClient();
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -163,13 +162,9 @@ export async function extractConceptsFromAllCourses(): Promise<{
         // Small delay to respect API rate limits
         await new Promise((resolve) => setTimeout(resolve, 1000));
       } catch (error) {
-        logError(
-          "Failed to extract concepts from course",
-          error as Error,
-          {
-            courseId: course.id,
-          }
-        );
+        logError("Failed to extract concepts from course", error as Error, {
+          courseId: course.id,
+        });
       }
     }
 
@@ -189,10 +184,7 @@ export async function extractConceptsFromAllCourses(): Promise<{
       duration,
     };
   } catch (error) {
-    logError(
-      "Failed to extract concepts from all courses",
-      error as Error
-    );
+    logError("Failed to extract concepts from all courses", error as Error);
     throw error;
   }
 }

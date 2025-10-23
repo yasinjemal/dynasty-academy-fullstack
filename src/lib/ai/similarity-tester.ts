@@ -11,15 +11,13 @@
  * Target: 85%+ accuracy
  */
 
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 import {
   findSimilarConcepts,
   semanticConceptSearch,
 } from "./vector-similarity";
 import { generateEmbedding } from "./vector-embeddings";
 import { logInfo, logError } from "@/lib/infrastructure/logger";
-
-const prisma = new PrismaClient();
 
 // Test result types
 export interface SimilarityTestResult {
