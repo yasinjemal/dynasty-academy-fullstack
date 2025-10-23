@@ -1,21 +1,29 @@
 /**
  * Batch Embedding Processor
- * 
+ *
  * Processes large amounts of content for embedding generation:
  * - Extracts content from database
  * - Generates embeddings in batches
  * - Stores embeddings in content_embeddings table
  * - Tracks progress and errors
  * - Provides progress updates
- * 
+ *
  * Week 2 - Phase 1 Self-Healing Knowledge Graph MVP
  */
 
-import { PrismaClient } from '@prisma/client';
-import { generateBatchEmbeddings, estimateEmbeddingCost } from './vector-embeddings';
-import { extractAllContent, extractUnembbeddedContent, getExtractionStats, type ExtractedContent } from './content-extractor';
-import { logger } from '@/lib/infrastructure/logger';
-import { queueContentProcessing } from '@/lib/infrastructure/queue-manager';
+import { PrismaClient } from "@prisma/client";
+import {
+  generateBatchEmbeddings,
+  estimateEmbeddingCost,
+} from "./vector-embeddings";
+import {
+  extractAllContent,
+  extractUnembbeddedContent,
+  getExtractionStats,
+  type ExtractedContent,
+} from "./content-extractor";
+import { logger } from "@/lib/infrastructure/logger";
+import { queueContentProcessing } from "@/lib/infrastructure/queue-manager";
 
 const prisma = new PrismaClient();
 
@@ -58,14 +66,14 @@ export async function processAllContent(
   onProgress?: (progress: ProcessingProgress) => void
 ): Promise<ProcessingResult> {
   const startTime = Date.now();
-  
-  logger.logInfo('Starting batch embedding process for all content...');
+
+  logger.logInfo("Starting batch embedding process for all content...");
 
   try {
     // Extract all content
     const { content, stats: extractStats } = await extractAllContent();
-    
-    logger.logInfo('Content extraction complete', extractStats);
+
+    logger.logInfo("Content extraction complete", extractStats);
 
     // Estimate total cost
     const totalEstimate = content.reduce((sum, item) => {
@@ -73,17 +81,17 @@ export async function processAllContent(
       return sum + estimatedCost;
     }, 0);
 
-    logger.logInfo('Estimated embedding cost', {
+    logger.logInfo("Estimated embedding cost", {
       totalItems: content.length,
       estimatedCost: totalEstimate.toFixed(4),
-      currency: 'USD',
+      currency: "USD",
     });
 
     // Process in batches
     const result = await processBatch(content, onProgress);
 
     const duration = Date.now() - startTime;
-    logger.logInfo('Batch embedding process complete', {
+    logger.logInfo("Batch embedding process complete", {
       ...result.stats,
       duration,
     });
@@ -96,7 +104,7 @@ export async function processAllContent(
       },
     };
   } catch (error) {
-    logger.logError('Failed to process all content', error as Error);
+    logger.logError("Failed to process all content", error as Error);
     throw error;
   }
 }
@@ -109,14 +117,14 @@ export async function processUnembeddedContent(
   onProgress?: (progress: ProcessingProgress) => void
 ): Promise<ProcessingResult> {
   const startTime = Date.now();
-  
-  logger.logInfo('Starting batch embedding process for unembedded content...');
+
+  logger.logInfo("Starting batch embedding process for unembedded content...");
 
   try {
     const content = await extractUnembbeddedContent();
-    
+
     if (content.length === 0) {
-      logger.logInfo('No unembedded content found');
+      logger.logInfo("No unembedded content found");
       return {
         success: true,
         stats: {
@@ -131,14 +139,14 @@ export async function processUnembeddedContent(
       };
     }
 
-    logger.logInfo('Unembedded content found', {
+    logger.logInfo("Unembedded content found", {
       count: content.length,
     });
 
     const result = await processBatch(content, onProgress);
 
     const duration = Date.now() - startTime;
-    logger.logInfo('Unembedded content processing complete', {
+    logger.logInfo("Unembedded content processing complete", {
       ...result.stats,
       duration,
     });
@@ -151,13 +159,24 @@ export async function processUnembeddedContent(
       },
     };
   } catch (error) {
-    logger.logError('Failed to process unembedded content', error as Error);
+    logger.logError("Failed to process unembedded content", error as Error);
     throw error;
   }
 }
 
 /**
  * Process a batch of content items
+ * Exported for use by API routes with specific content
+ */
+export async function processBatchForContent(
+  content: ExtractedContent[],
+  onProgress?: (progress: ProcessingProgress) => void
+): Promise<ProcessingResult> {
+  return processBatch(content, onProgress);
+}
+
+/**
+ * Internal process batch function
  */
 async function processBatch(
   content: ExtractedContent[],
@@ -183,11 +202,11 @@ async function processBatch(
 
     try {
       // Generate embeddings for batch
-      const texts = batch.map(item => item.content);
-      const ids = batch.map(item => item.id);
-      const types = batch.map(item => item.type);
+      const texts = batch.map((item) => item.content);
+      const ids = batch.map((item) => item.id);
+      const types = batch.map((item) => item.type);
 
-      const result = await generateBatchEmbeddings(texts, 'mixed', ids);
+      const result = await generateBatchEmbeddings(texts, "mixed", ids);
 
       totalCost += result.totalCost;
       totalTokens += result.totalTokens;
@@ -207,7 +226,7 @@ async function processBatch(
             type: item.type,
             error: (error as Error).message,
           });
-          logger.logError('Failed to store embedding', error as Error, {
+          logger.logError("Failed to store embedding", error as Error, {
             itemId: item.id,
             itemType: item.type,
           });
@@ -219,7 +238,9 @@ async function processBatch(
       const percentComplete = (processed / content.length) * 100;
       const avgTimePerItem = (Date.now() - batchStartTime) / batch.length;
       const remainingItems = content.length - processed;
-      const estimatedTimeRemaining = Math.ceil((remainingItems * avgTimePerItem) / 1000);
+      const estimatedTimeRemaining = Math.ceil(
+        (remainingItems * avgTimePerItem) / 1000
+      );
 
       const progress: ProcessingProgress = {
         total: content.length,
@@ -247,16 +268,16 @@ async function processBatch(
 
       // Small delay between batches to avoid rate limiting
       if (i + BATCH_SIZE < content.length) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     } catch (error) {
-      logger.logError('Batch processing failed', error as Error, {
+      logger.logError("Batch processing failed", error as Error, {
         batch: currentBatch,
         totalBatches,
       });
 
       // Mark entire batch as failed
-      batch.forEach(item => {
+      batch.forEach((item) => {
         failed++;
         errors.push({
           id: item.id,
@@ -290,7 +311,7 @@ async function storeEmbedding(
 ): Promise<void> {
   try {
     // Convert embedding array to pgvector format
-    const embeddingStr = `[${embedding.join(',')}]`;
+    const embeddingStr = `[${embedding.join(",")}]`;
 
     // Upsert embedding (update if exists, insert if not)
     await prisma.$executeRaw`
@@ -324,12 +345,12 @@ async function storeEmbedding(
         updated_at = NOW();
     `;
 
-    logger.logInfo('Embedding stored', {
+    logger.logInfo("Embedding stored", {
       itemId: item.id,
       itemType: item.type,
     });
   } catch (error) {
-    logger.logError('Failed to store embedding', error as Error, {
+    logger.logError("Failed to store embedding", error as Error, {
       itemId: item.id,
       itemType: item.type,
     });
@@ -342,8 +363,8 @@ async function storeEmbedding(
  */
 export async function retryFailedEmbeddings(): Promise<ProcessingResult> {
   const startTime = Date.now();
-  
-  logger.logInfo('Retrying failed embeddings...');
+
+  logger.logInfo("Retrying failed embeddings...");
 
   try {
     // Get all content
@@ -355,16 +376,18 @@ export async function retryFailedEmbeddings(): Promise<ProcessingResult> {
     });
 
     const embeddedSet = new Set(
-      embedded.map(e => `${e.contentType}:${e.contentId}`)
+      embedded.map((e: { contentType: string; contentId: string }) => 
+        `${e.contentType}:${e.contentId}`
+      )
     );
 
     // Filter to get failed items
     const failed = content.filter(
-      item => !embeddedSet.has(`${item.type}:${item.id}`)
+      (item) => !embeddedSet.has(`${item.type}:${item.id}`)
     );
 
     if (failed.length === 0) {
-      logger.logInfo('No failed embeddings to retry');
+      logger.logInfo("No failed embeddings to retry");
       return {
         success: true,
         stats: {
@@ -379,7 +402,7 @@ export async function retryFailedEmbeddings(): Promise<ProcessingResult> {
       };
     }
 
-    logger.logInfo('Failed embeddings found', { count: failed.length });
+    logger.logInfo("Failed embeddings found", { count: failed.length });
 
     const result = await processBatch(failed);
 
@@ -391,7 +414,7 @@ export async function retryFailedEmbeddings(): Promise<ProcessingResult> {
       },
     };
   } catch (error) {
-    logger.logError('Failed to retry failed embeddings', error as Error);
+    logger.logError("Failed to retry failed embeddings", error as Error);
     throw error;
   }
 }
@@ -403,21 +426,19 @@ export async function retryFailedEmbeddings(): Promise<ProcessingResult> {
 export async function queueBatchEmbeddingJob(): Promise<string> {
   try {
     const stats = await getExtractionStats();
-    
-    const jobId = await queueContentProcessing({
-      type: 'batch_embedding',
-      contentType: 'all',
-      itemCount: stats.pending,
-    });
+    const jobId = `batch-embedding-${Date.now()}`;
 
-    logger.logInfo('Batch embedding job queued', {
+    logger.logInfo("Batch embedding job would be queued", {
       jobId,
       pendingItems: stats.pending,
+      note: "Using direct processing for now - queue integration coming soon",
     });
 
+    // For now, return a job ID without actually queuing
+    // The API will handle synchronous processing
     return jobId;
   } catch (error) {
-    logger.logError('Failed to queue batch embedding job', error as Error);
+    logger.logError("Failed to queue batch embedding job", error as Error);
     throw error;
   }
 }
@@ -441,7 +462,7 @@ export async function getProcessingStatus(): Promise<{
       isComplete,
     };
   } catch (error) {
-    logger.logError('Failed to get processing status', error as Error);
+    logger.logError("Failed to get processing status", error as Error);
     throw error;
   }
 }

@@ -1,25 +1,25 @@
 /**
  * Content Extraction Service
- * 
+ *
  * Extracts and prepares text content from various sources for embedding generation:
  * - Courses (title, description, content)
  * - Lessons (content, transcripts, materials)
  * - Quizzes (questions, answers, explanations)
  * - Books (chapters, summaries)
  * - Concepts (definitions, examples)
- * 
+ *
  * Week 2 - Phase 1 Self-Healing Knowledge Graph MVP
  */
 
-import { PrismaClient } from '@prisma/client';
-import { logger } from '@/lib/infrastructure/logger';
+import { PrismaClient } from "@prisma/client";
+import { logger } from "@/lib/infrastructure/logger";
 
 const prisma = new PrismaClient();
 
 // Types
 export interface ExtractedContent {
   id: string;
-  type: 'course' | 'lesson' | 'quiz' | 'book' | 'concept' | 'question';
+  type: "course" | "lesson" | "quiz" | "book" | "concept" | "question";
   title: string;
   content: string;
   metadata: {
@@ -49,7 +49,7 @@ export async function extractCourses(
   offset: number = 0
 ): Promise<ExtractedContent[]> {
   const startTime = Date.now();
-  
+
   try {
     const courses = await prisma.course.findMany({
       take: limit,
@@ -63,25 +63,27 @@ export async function extractCourses(
       },
     });
 
-    const extracted: ExtractedContent[] = courses.map(course => {
+    const extracted: ExtractedContent[] = courses.map((course) => {
       // Combine title, description, and learning outcomes into searchable content
       const contentParts = [
         course.title,
-        course.description || '',
-        course.shortDescription || '',
-        course.learningOutcomes || '',
-        course.prerequisites || '',
+        course.description || "",
+        course.shortDescription || "",
+        course.learningOutcomes || "",
+        course.prerequisites || "",
       ].filter(Boolean);
 
       return {
         id: course.id,
-        type: 'course',
+        type: "course",
         title: course.title,
-        content: contentParts.join('\n\n'),
+        content: contentParts.join("\n\n"),
         metadata: {
           categoryId: course.categoryId || undefined,
           category: course.category?.name,
-          difficulty: course.difficulty ? difficultyToNumber(course.difficulty) : undefined,
+          difficulty: course.difficulty
+            ? difficultyToNumber(course.difficulty)
+            : undefined,
           duration: course.duration || undefined,
           authorId: course.instructorId,
           tags: course.tags || [],
@@ -92,14 +94,14 @@ export async function extractCourses(
       };
     });
 
-    logger.logInfo('Courses extracted for embedding', {
+    logger.logInfo("Courses extracted for embedding", {
       count: extracted.length,
       duration: Date.now() - startTime,
     });
 
     return extracted;
   } catch (error) {
-    logger.logError('Failed to extract courses', error as Error);
+    logger.logError("Failed to extract courses", error as Error);
     throw error;
   }
 }
@@ -112,7 +114,7 @@ export async function extractLessons(
   offset: number = 0
 ): Promise<ExtractedContent[]> {
   const startTime = Date.now();
-  
+
   try {
     const lessons = await prisma.lesson.findMany({
       take: limit,
@@ -126,20 +128,20 @@ export async function extractLessons(
       },
     });
 
-    const extracted: ExtractedContent[] = lessons.map(lesson => {
+    const extracted: ExtractedContent[] = lessons.map((lesson) => {
       // Combine all lesson content
       const contentParts = [
         lesson.title,
-        lesson.description || '',
-        lesson.content || '',
-        lesson.videoTranscript || '',
+        lesson.description || "",
+        lesson.content || "",
+        lesson.videoTranscript || "",
       ].filter(Boolean);
 
       return {
         id: lesson.id,
-        type: 'lesson',
+        type: "lesson",
         title: lesson.title,
-        content: contentParts.join('\n\n'),
+        content: contentParts.join("\n\n"),
         metadata: {
           courseId: lesson.courseId,
           categoryId: lesson.course.categoryId || undefined,
@@ -152,14 +154,14 @@ export async function extractLessons(
       };
     });
 
-    logger.logInfo('Lessons extracted for embedding', {
+    logger.logInfo("Lessons extracted for embedding", {
       count: extracted.length,
       duration: Date.now() - startTime,
     });
 
     return extracted;
   } catch (error) {
-    logger.logError('Failed to extract lessons', error as Error);
+    logger.logError("Failed to extract lessons", error as Error);
     throw error;
   }
 }
@@ -172,7 +174,7 @@ export async function extractQuizQuestions(
   offset: number = 0
 ): Promise<ExtractedContent[]> {
   const startTime = Date.now();
-  
+
   try {
     const questions = await prisma.quiz_questions.findMany({
       take: limit,
@@ -190,25 +192,25 @@ export async function extractQuizQuestions(
       },
     });
 
-    const extracted: ExtractedContent[] = questions.map(question => {
+    const extracted: ExtractedContent[] = questions.map((question) => {
       // Combine question, options, and explanation
       const contentParts = [
         question.question,
-        question.explanation || '',
+        question.explanation || "",
         // Include correct answer context
         `Correct answer: ${question.correctAnswer}`,
       ].filter(Boolean);
 
       // Add options if they exist
       if (question.options && Array.isArray(question.options)) {
-        contentParts.push(`Options: ${question.options.join(', ')}`);
+        contentParts.push(`Options: ${question.options.join(", ")}`);
       }
 
       return {
         id: question.id,
-        type: 'question',
+        type: "question",
         title: question.question,
-        content: contentParts.join('\n\n'),
+        content: contentParts.join("\n\n"),
         metadata: {
           quizId: question.quizId,
           lessonId: question.quiz.lessonId || undefined,
@@ -220,14 +222,14 @@ export async function extractQuizQuestions(
       };
     });
 
-    logger.logInfo('Quiz questions extracted for embedding', {
+    logger.logInfo("Quiz questions extracted for embedding", {
       count: extracted.length,
       duration: Date.now() - startTime,
     });
 
     return extracted;
   } catch (error) {
-    logger.logError('Failed to extract quiz questions', error as Error);
+    logger.logError("Failed to extract quiz questions", error as Error);
     throw error;
   }
 }
@@ -240,7 +242,7 @@ export async function extractBooks(
   offset: number = 0
 ): Promise<ExtractedContent[]> {
   const startTime = Date.now();
-  
+
   try {
     const books = await prisma.book.findMany({
       take: limit,
@@ -250,18 +252,18 @@ export async function extractBooks(
       },
     });
 
-    const extracted: ExtractedContent[] = books.map(book => {
+    const extracted: ExtractedContent[] = books.map((book) => {
       const contentParts = [
         book.title,
         book.description,
-        book.excerpt || '',
+        book.excerpt || "",
       ].filter(Boolean);
 
       return {
         id: book.id,
-        type: 'book',
+        type: "book",
         title: book.title,
-        content: contentParts.join('\n\n'),
+        content: contentParts.join("\n\n"),
         metadata: {
           category: book.category,
           tags: book.tags || [],
@@ -273,14 +275,14 @@ export async function extractBooks(
       };
     });
 
-    logger.logInfo('Books extracted for embedding', {
+    logger.logInfo("Books extracted for embedding", {
       count: extracted.length,
       duration: Date.now() - startTime,
     });
 
     return extracted;
   } catch (error) {
-    logger.logError('Failed to extract books', error as Error);
+    logger.logError("Failed to extract books", error as Error);
     throw error;
   }
 }
@@ -293,8 +295,8 @@ export async function extractAllContent(): Promise<{
   stats: ExtractionStats;
 }> {
   const startTime = Date.now();
-  
-  logger.logInfo('Starting full content extraction...');
+
+  logger.logInfo("Starting full content extraction...");
 
   try {
     // Extract from all sources in parallel
@@ -311,7 +313,7 @@ export async function extractAllContent(): Promise<{
     const byType: Record<string, number> = {};
     let totalCharacters = 0;
 
-    allContent.forEach(item => {
+    allContent.forEach((item) => {
       byType[item.type] = (byType[item.type] || 0) + 1;
       totalCharacters += item.content.length;
     });
@@ -324,11 +326,11 @@ export async function extractAllContent(): Promise<{
       processingTime: Date.now() - startTime,
     };
 
-    logger.logInfo('Full content extraction complete', stats);
+    logger.logInfo("Full content extraction complete", stats);
 
     return { content: allContent, stats };
   } catch (error) {
-    logger.logError('Failed to extract all content', error as Error);
+    logger.logError("Failed to extract all content", error as Error);
     throw error;
   }
 }
@@ -338,7 +340,7 @@ export async function extractAllContent(): Promise<{
  */
 export async function extractUnembbeddedContent(): Promise<ExtractedContent[]> {
   const startTime = Date.now();
-  
+
   try {
     // Get IDs of content that already has embeddings
     const existingEmbeddings = await prisma.contentEmbedding.findMany({
@@ -349,7 +351,7 @@ export async function extractUnembbeddedContent(): Promise<ExtractedContent[]> {
     });
 
     const embeddedIds = new Map<string, Set<string>>();
-    existingEmbeddings.forEach(e => {
+    existingEmbeddings.forEach((e) => {
       if (!embeddedIds.has(e.contentType)) {
         embeddedIds.set(e.contentType, new Set());
       }
@@ -360,13 +362,13 @@ export async function extractUnembbeddedContent(): Promise<ExtractedContent[]> {
     const { content: allContent } = await extractAllContent();
 
     // Filter out content that already has embeddings
-    const unembedded = allContent.filter(item => {
-      const typeKey = item.type === 'question' ? 'quiz' : item.type;
+    const unembedded = allContent.filter((item) => {
+      const typeKey = item.type === "question" ? "quiz" : item.type;
       const embeddedSet = embeddedIds.get(typeKey);
       return !embeddedSet || !embeddedSet.has(item.id);
     });
 
-    logger.logInfo('Unembedded content identified', {
+    logger.logInfo("Unembedded content identified", {
       total: allContent.length,
       unembedded: unembedded.length,
       alreadyEmbedded: allContent.length - unembedded.length,
@@ -375,7 +377,7 @@ export async function extractUnembbeddedContent(): Promise<ExtractedContent[]> {
 
     return unembedded;
   } catch (error) {
-    logger.logError('Failed to extract unembedded content', error as Error);
+    logger.logError("Failed to extract unembedded content", error as Error);
     throw error;
   }
 }
@@ -387,7 +389,7 @@ export async function extractRecentlyUpdatedContent(
   since: Date
 ): Promise<ExtractedContent[]> {
   const startTime = Date.now();
-  
+
   try {
     const [courses, lessons] = await Promise.all([
       prisma.course.findMany({
@@ -410,24 +412,26 @@ export async function extractRecentlyUpdatedContent(
     const extracted: ExtractedContent[] = [];
 
     // Process courses
-    courses.forEach(course => {
+    courses.forEach((course) => {
       const contentParts = [
         course.title,
-        course.description || '',
-        course.shortDescription || '',
-        course.learningOutcomes || '',
-        course.prerequisites || '',
+        course.description || "",
+        course.shortDescription || "",
+        course.learningOutcomes || "",
+        course.prerequisites || "",
       ].filter(Boolean);
 
       extracted.push({
         id: course.id,
-        type: 'course',
+        type: "course",
         title: course.title,
-        content: contentParts.join('\n\n'),
+        content: contentParts.join("\n\n"),
         metadata: {
           categoryId: course.categoryId || undefined,
           category: course.category?.name,
-          difficulty: course.difficulty ? difficultyToNumber(course.difficulty) : undefined,
+          difficulty: course.difficulty
+            ? difficultyToNumber(course.difficulty)
+            : undefined,
           duration: course.duration || undefined,
           authorId: course.instructorId,
           tags: course.tags || [],
@@ -436,19 +440,19 @@ export async function extractRecentlyUpdatedContent(
     });
 
     // Process lessons
-    lessons.forEach(lesson => {
+    lessons.forEach((lesson) => {
       const contentParts = [
         lesson.title,
-        lesson.description || '',
-        lesson.content || '',
-        lesson.videoTranscript || '',
+        lesson.description || "",
+        lesson.content || "",
+        lesson.videoTranscript || "",
       ].filter(Boolean);
 
       extracted.push({
         id: lesson.id,
-        type: 'lesson',
+        type: "lesson",
         title: lesson.title,
-        content: contentParts.join('\n\n'),
+        content: contentParts.join("\n\n"),
         metadata: {
           courseId: lesson.courseId,
           categoryId: lesson.course.categoryId || undefined,
@@ -458,7 +462,7 @@ export async function extractRecentlyUpdatedContent(
       });
     });
 
-    logger.logInfo('Recently updated content extracted', {
+    logger.logInfo("Recently updated content extracted", {
       since: since.toISOString(),
       count: extracted.length,
       duration: Date.now() - startTime,
@@ -466,7 +470,10 @@ export async function extractRecentlyUpdatedContent(
 
     return extracted;
   } catch (error) {
-    logger.logError('Failed to extract recently updated content', error as Error);
+    logger.logError(
+      "Failed to extract recently updated content",
+      error as Error
+    );
     throw error;
   }
 }
@@ -504,7 +511,7 @@ export async function getExtractionStats(): Promise<{
       pending: Math.max(0, total - embedded),
     };
   } catch (error) {
-    logger.logError('Failed to get extraction stats', error as Error);
+    logger.logError("Failed to get extraction stats", error as Error);
     throw error;
   }
 }
@@ -524,7 +531,7 @@ function difficultyToNumber(difficulty: string): number {
     hard: 9,
     expert: 10,
   };
-  
+
   return map[difficulty.toLowerCase()] || 5;
 }
 
@@ -533,7 +540,7 @@ function difficultyToNumber(difficulty: string): number {
  */
 export function cleanContent(text: string): string {
   return text
-    .replace(/<[^>]*>/g, '') // Remove HTML tags
-    .replace(/\s+/g, ' ') // Normalize whitespace
+    .replace(/<[^>]*>/g, "") // Remove HTML tags
+    .replace(/\s+/g, " ") // Normalize whitespace
     .trim();
 }
