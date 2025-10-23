@@ -318,11 +318,19 @@ export async function getSystemHealth(): Promise<{
   // Determine health status
   let status: "healthy" | "degraded" | "unhealthy" = "healthy";
 
-  if (memory.heapUsedMB > 1000 || avgApiDuration > 1000 || avgDbDuration > 500) {
+  if (
+    memory.heapUsedMB > 1000 ||
+    avgApiDuration > 1000 ||
+    avgDbDuration > 500
+  ) {
     status = "degraded";
   }
 
-  if (memory.heapUsedMB > 1500 || avgApiDuration > 3000 || avgDbDuration > 1000) {
+  if (
+    memory.heapUsedMB > 1500 ||
+    avgApiDuration > 3000 ||
+    avgDbDuration > 1000
+  ) {
     status = "unhealthy";
   }
 
@@ -347,17 +355,15 @@ export async function getSystemHealth(): Promise<{
  */
 export async function cacheSystemHealth(): Promise<void> {
   const health = await getSystemHealth();
-  await setCache(
-    `${CacheKeys.METRICS}system_health`,
-    health,
-    CacheTTL.SHORT
-  );
+  await setCache(`${CacheKeys.METRICS}system_health`, health, CacheTTL.SHORT);
 }
 
 /**
  * Get cached system health
  */
-export async function getCachedSystemHealth(): Promise<ReturnType<typeof getSystemHealth> | null> {
+export async function getCachedSystemHealth(): Promise<ReturnType<
+  typeof getSystemHealth
+> | null> {
   return getCache<Awaited<ReturnType<typeof getSystemHealth>>>(
     `${CacheKeys.METRICS}system_health`
   );

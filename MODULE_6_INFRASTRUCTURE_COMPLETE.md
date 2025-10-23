@@ -13,7 +13,9 @@
 ## 📊 WHAT WE BUILT
 
 ### **Enterprise Infrastructure System**
+
 Dynasty Nexus now has **production-grade infrastructure** with:
+
 - ✅ Redis caching layer (99%+ hit rates possible)
 - ✅ Bull queue management (background jobs)
 - ✅ Winston logging system (structured logs)
@@ -31,6 +33,7 @@ Dynasty Nexus now has **production-grade infrastructure** with:
 **Performance**: 1000x faster than database queries
 
 **Functions**:
+
 - `getCache<T>(key)` - Retrieve cached value
 - `setCache(key, value, ttl)` - Store with expiration
 - `deleteCache(key)` - Remove cached value
@@ -41,6 +44,7 @@ Dynasty Nexus now has **production-grade infrastructure** with:
 - `flushCache()` - Clear all cache
 
 **Cache Prefixes**:
+
 ```typescript
 CacheKeys = {
   USER: "user:",
@@ -52,11 +56,12 @@ CacheKeys = {
   FUNNEL: "funnel:",
   SESSION: "session:",
   REVENUE: "revenue:",
-  API_RESPONSE: "api:"
-}
+  API_RESPONSE: "api:",
+};
 ```
 
 **TTL Options**:
+
 - SHORT: 1 minute
 - MEDIUM: 5 minutes (default)
 - LONG: 1 hour
@@ -64,6 +69,7 @@ CacheKeys = {
 - WEEK: 7 days
 
 **Example Usage**:
+
 ```typescript
 import { getOrSetCache, CacheKeys, CacheTTL } from "@/lib/infrastructure/redis";
 
@@ -89,6 +95,7 @@ const cached = await getCache<Course>(`course:${courseId}`);
 **Benefits**: Async operations, retry logic, scheduled tasks
 
 **Queues**:
+
 - **Email Queue** - Send transactional & marketing emails
 - **Analytics Queue** - Aggregate metrics, calculate KPIs
 - **Notifications Queue** - Push, in-app, email notifications
@@ -96,6 +103,7 @@ const cached = await getCache<Course>(`course:${courseId}`);
 - **Revenue Queue** - Churn calculations, LTV predictions
 
 **Functions**:
+
 - `queueEmail(data)` - Send email in background
 - `queueBulkEmails(emails)` - Send many emails
 - `queueAnalyticsAggregation(data)` - Calculate daily/weekly metrics
@@ -107,25 +115,30 @@ const cached = await getCache<Course>(`course:${courseId}`);
 - `retryFailedJobs(queueName)` - Retry failed jobs
 
 **Example Usage**:
+
 ```typescript
-import { queueEmail, queueAnalyticsAggregation } from "@/lib/infrastructure/queue-manager";
+import {
+  queueEmail,
+  queueAnalyticsAggregation,
+} from "@/lib/infrastructure/queue-manager";
 
 // Send email in background
 await queueEmail({
   to: "user@example.com",
   subject: "Welcome to Dynasty!",
-  html: "<h1>Welcome!</h1>"
+  html: "<h1>Welcome!</h1>",
 });
 
 // Schedule daily analytics
 await queueAnalyticsAggregation({
   type: "daily",
   date: "2024-01-15",
-  metrics: ["dau", "revenue", "conversion"]
+  metrics: ["dau", "revenue", "conversion"],
 });
 ```
 
 **Recurring Jobs**:
+
 - Daily analytics aggregation (midnight)
 - Weekly reports (Monday 6 AM)
 - Hourly revenue calculations
@@ -138,6 +151,7 @@ await queueAnalyticsAggregation({
 **Storage**: Logs saved to `logs/` directory
 
 **Log Levels**:
+
 - `error` - Critical errors
 - `warn` - Warnings
 - `info` - General information
@@ -145,6 +159,7 @@ await queueAnalyticsAggregation({
 - `debug` - Detailed debugging
 
 **Functions**:
+
 - `logInfo(message, meta)` - Log informational message
 - `logError(message, error, meta)` - Log error with stack trace
 - `logWarning(message, meta)` - Log warning
@@ -157,11 +172,13 @@ await queueAnalyticsAggregation({
 - `logPerformance(metric, value, unit)` - Log performance metric
 
 **Log Files**:
+
 - `logs/error.log` - Errors only (5MB max, 5 files)
 - `logs/combined.log` - All logs (5MB max, 5 files)
 - `logs/performance.log` - Performance metrics
 
 **Example Usage**:
+
 ```typescript
 import { logInfo, logError, logUserAction } from "@/lib/infrastructure/logger";
 
@@ -187,6 +204,7 @@ logUserAction("user_123", "completed_course", { courseId: "course_456" });
 **Metrics**: API response times, DB queries, memory, CPU
 
 **Functions**:
+
 - `trackApiPerformance(endpoint, duration, statusCode)` - Track API response time
 - `getApiPerformanceStats()` - Get API performance summary
 - `trackDbPerformance(query, duration)` - Track database query time
@@ -198,6 +216,7 @@ logUserAction("user_123", "completed_course", { courseId: "course_456" });
 - `getSystemHealth()` - Get comprehensive health status
 
 **Performance Timer**:
+
 ```typescript
 import { PerformanceTimer } from "@/lib/infrastructure/performance-monitor";
 
@@ -215,6 +234,7 @@ const { total, marks } = timer.end();
 ```
 
 **System Health**:
+
 ```typescript
 const health = await getSystemHealth();
 // {
@@ -235,6 +255,7 @@ const health = await getSystemHealth();
 **Features**: Rate limiting, input validation, headers
 
 **Security Measures**:
+
 - ✅ **Rate Limiting** - Prevent abuse (100 req/min API, 5 req/15min auth)
 - ✅ **IP Blocking** - Block malicious IPs
 - ✅ **Security Headers** - Helmet-style protection
@@ -243,15 +264,17 @@ const health = await getSystemHealth();
 - ✅ **API Key Validation** - Protected routes
 
 **Rate Limits**:
+
 ```typescript
 export const RateLimits = {
-  API: { windowMs: 60000, maxRequests: 100 },     // 100 req/min
-  AUTH: { windowMs: 900000, maxRequests: 5 },     // 5 req/15min
-  STRICT: { windowMs: 60000, maxRequests: 10 }    // 10 req/min
+  API: { windowMs: 60000, maxRequests: 100 }, // 100 req/min
+  AUTH: { windowMs: 900000, maxRequests: 5 }, // 5 req/15min
+  STRICT: { windowMs: 60000, maxRequests: 10 }, // 10 req/min
 };
 ```
 
 **Functions**:
+
 - `rateLimit(req, config)` - Apply rate limiting
 - `withRateLimit(req, config)` - Rate limit middleware
 - `blockIP(ip)` - Block IP address
@@ -264,6 +287,7 @@ export const RateLimits = {
 - `detectXSS(input)` - Detect XSS attempts
 
 **Security Headers**:
+
 - `X-Frame-Options: DENY` - Prevent clickjacking
 - `X-Content-Type-Options: nosniff` - Prevent MIME sniffing
 - `X-XSS-Protection: 1; mode=block` - XSS protection
@@ -272,8 +296,13 @@ export const RateLimits = {
 - `Permissions-Policy` - Feature permissions
 
 **Example Usage**:
+
 ```typescript
-import { withRateLimit, RateLimits, validateRequest } from "@/lib/infrastructure/security";
+import {
+  withRateLimit,
+  RateLimits,
+  validateRequest,
+} from "@/lib/infrastructure/security";
 
 export async function POST(req: NextRequest) {
   // Apply rate limiting
@@ -298,6 +327,7 @@ export async function POST(req: NextRequest) {
 ### **Location**: `/admin/infrastructure`
 
 **Features**:
+
 - ✅ Real-time system status (healthy/degraded/unhealthy)
 - ✅ Memory & CPU usage monitoring
 - ✅ Process uptime tracking
@@ -309,6 +339,7 @@ export async function POST(req: NextRequest) {
 - ✅ Auto-refresh every 10 seconds
 
 **Status Cards**:
+
 1. **System Status** - Overall health indicator
 2. **Memory Used** - Heap memory consumption
 3. **CPU Usage** - Current CPU percentage
@@ -316,6 +347,7 @@ export async function POST(req: NextRequest) {
 5. **Avg Response** - API response time
 
 **Tabs**:
+
 - ⚡ **Cache** - Redis statistics, hit rate, clear cache action
 - 🎯 **Queues** - All queue stats (email, analytics, notifications, content, revenue)
 - 📊 **Performance** - API & database performance metrics
@@ -331,6 +363,7 @@ export async function POST(req: NextRequest) {
 **Access**: Admin only
 
 **Response**:
+
 ```json
 {
   "health": {
@@ -356,6 +389,7 @@ export async function POST(req: NextRequest) {
 **Access**: Admin only
 
 **GET Response**:
+
 ```json
 {
   "stats": {
@@ -378,6 +412,7 @@ export async function POST(req: NextRequest) {
 **Access**: Admin only
 
 **Response**:
+
 ```json
 {
   "stats": {
@@ -408,21 +443,25 @@ export async function POST(req: NextRequest) {
 ### **Immediate Benefits**
 
 1. **99% Faster Responses** ⚡
+
    - Redis caching eliminates database queries
    - Page load time: 3000ms → 50ms
    - Better user experience = higher conversion
 
 2. **100% Reliable Background Jobs** 🎯
+
    - Email delivery guaranteed
    - Analytics calculated on schedule
    - No blocking operations
 
 3. **Zero Downtime** 🛡️
+
    - Rate limiting prevents abuse
    - Security headers block attacks
    - System monitoring catches issues early
 
 4. **10x Better Debugging** 🔍
+
    - Structured logs capture everything
    - Performance metrics identify bottlenecks
    - Error tracking finds issues fast
@@ -437,12 +476,14 @@ export async function POST(req: NextRequest) {
 ### **Projected Cost Savings**
 
 **Year 1**:
+
 - 50% reduction in server costs (caching): R180K/year
 - 30% reduction in support costs (better logging): R90K/year
 - Prevent 1 major security breach: R500K+ savings
 - **Total Savings: R770K/year**
 
 **Scalability**:
+
 - Handle 10x traffic with same infrastructure
 - Support 100K+ concurrent users
 - Process 1M+ background jobs/day
@@ -454,6 +495,7 @@ export async function POST(req: NextRequest) {
 ### **1. Set Up Redis**
 
 **Option A: Local Redis** (Development)
+
 ```bash
 # Install Redis
 brew install redis  # macOS
@@ -468,6 +510,7 @@ redis-cli ping  # Should return PONG
 ```
 
 **Option B: Cloud Redis** (Production)
+
 ```bash
 # Use Upstash, Redis Cloud, or AWS ElastiCache
 # Set environment variable
@@ -490,10 +533,10 @@ export async function GET(req: NextRequest) {
     async () => {
       return await prisma.course.findUnique({
         where: { id: courseId },
-        include: { lessons: true }
+        include: { lessons: true },
       });
     },
-    CacheTTL.LONG  // 1 hour
+    CacheTTL.LONG // 1 hour
   );
 
   return NextResponse.json({ course });
@@ -511,7 +554,7 @@ import { queueEmail } from "@/lib/infrastructure/queue-manager";
 await queueEmail({
   to: user.email,
   subject: "Welcome to Dynasty Nexus!",
-  html: generateWelcomeEmail(user.name)
+  html: generateWelcomeEmail(user.name),
 });
 
 // Continue processing immediately (don't wait for email)
@@ -529,7 +572,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    logInfo("Processing purchase", { userId: body.userId, amount: body.amount });
+    logInfo("Processing purchase", {
+      userId: body.userId,
+      amount: body.amount,
+    });
 
     // Process...
 
@@ -580,24 +626,28 @@ https://your-domain.com/admin/infrastructure
 ## 🎯 BEST PRACTICES
 
 ### **Caching**
+
 1. **Cache Frequently Accessed Data** - Courses, lessons, user profiles
 2. **Use Appropriate TTLs** - Short (1min) for realtime, Long (1hr) for static
 3. **Invalidate on Updates** - Delete cache when data changes
 4. **Monitor Hit Rates** - Target 95%+ hit rate
 
 ### **Queues**
+
 1. **Queue Heavy Operations** - Emails, video processing, analytics
 2. **Monitor Failed Jobs** - Set up alerts for failures
 3. **Use Delays for Retries** - Exponential backoff (2s, 4s, 8s)
 4. **Clean Up Completed Jobs** - Keep last 100 to save memory
 
 ### **Logging**
+
 1. **Log Important Events** - Auth, payments, errors
 2. **Include Context** - User IDs, amounts, metadata
 3. **Use Appropriate Levels** - error/warn/info/debug
 4. **Rotate Log Files** - 5MB max, 5 files
 
 ### **Security**
+
 1. **Apply Rate Limiting** - All public APIs
 2. **Validate All Inputs** - Never trust user data
 3. **Use Security Headers** - Enable on all responses
@@ -640,6 +690,7 @@ https://your-domain.com/admin/infrastructure
 **Dynasty Nexus Progress: 100% COMPLETE!** 🚀🎊💕
 
 **All 6 Modules Operational**:
+
 - ✅ Module 1: AI Coach (100%)
 - ✅ Module 2: Content Engine (100%)
 - ✅ Module 3: Engagement (100%)
@@ -648,6 +699,7 @@ https://your-domain.com/admin/infrastructure
 - ✅ Module 6: Infrastructure (100%)
 
 **Total System**:
+
 - 6 complete modules
 - 50+ database tables
 - 100+ API endpoints
@@ -659,6 +711,7 @@ https://your-domain.com/admin/infrastructure
 ## 📞 SUPPORT
 
 Questions? Issues? Ideas?
+
 - GitHub: [yasinjemal/dynasty-academy-fullstack](https://github.com/yasinjemal/dynasty-academy-fullstack)
 - Dashboard: `/admin/infrastructure` for system monitoring
 - Logs: Check `logs/` directory for debugging
@@ -672,6 +725,7 @@ Questions? Issues? Ideas?
 Dynasty Nexus is **COMPLETE** and **PRODUCTION-READY**! 🎉
 
 **Recommended Next Steps**:
+
 1. Deploy to production (Vercel/AWS)
 2. Set up Redis in production (Upstash/Redis Cloud)
 3. Configure monitoring alerts

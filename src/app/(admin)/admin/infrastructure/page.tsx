@@ -173,15 +173,21 @@ export default function InfrastructureDashboard() {
               <div className="flex items-center gap-3">
                 <HardDrive className="h-8 w-8 text-blue-500" />
                 <div>
-                  <div className="text-2xl font-bold">{health.memory.heapUsedMB}MB</div>
-                  <div className="text-sm text-muted-foreground">Memory Used</div>
+                  <div className="text-2xl font-bold">
+                    {health.memory.heapUsedMB}MB
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Memory Used
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
                 <Cpu className="h-8 w-8 text-green-500" />
                 <div>
-                  <div className="text-2xl font-bold">{health.cpu.percent}%</div>
+                  <div className="text-2xl font-bold">
+                    {health.cpu.percent}%
+                  </div>
                   <div className="text-sm text-muted-foreground">CPU Usage</div>
                 </div>
               </div>
@@ -189,7 +195,9 @@ export default function InfrastructureDashboard() {
               <div className="flex items-center gap-3">
                 <Clock className="h-8 w-8 text-purple-500" />
                 <div>
-                  <div className="text-2xl font-bold">{health.uptime.processFormatted}</div>
+                  <div className="text-2xl font-bold">
+                    {health.uptime.processFormatted}
+                  </div>
                   <div className="text-sm text-muted-foreground">Uptime</div>
                 </div>
               </div>
@@ -197,8 +205,12 @@ export default function InfrastructureDashboard() {
               <div className="flex items-center gap-3">
                 <Activity className="h-8 w-8 text-orange-500" />
                 <div>
-                  <div className="text-2xl font-bold">{health.api.avgResponseTime}ms</div>
-                  <div className="text-sm text-muted-foreground">Avg Response</div>
+                  <div className="text-2xl font-bold">
+                    {health.api.avgResponseTime}ms
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Avg Response
+                  </div>
                 </div>
               </div>
             </div>
@@ -224,7 +236,9 @@ export default function InfrastructureDashboard() {
                   <CardTitle className="text-sm">Cached Keys</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold">{cache.keys.toLocaleString()}</div>
+                  <div className="text-3xl font-bold">
+                    {cache.keys.toLocaleString()}
+                  </div>
                 </CardContent>
               </Card>
 
@@ -242,9 +256,12 @@ export default function InfrastructureDashboard() {
                   <CardTitle className="text-sm">Hit Rate</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-green-500">{cache.hitRate}</div>
+                  <div className="text-3xl font-bold text-green-500">
+                    {cache.hitRate}
+                  </div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    {cache.hits.toLocaleString()} hits / {cache.misses.toLocaleString()} misses
+                    {cache.hits.toLocaleString()} hits /{" "}
+                    {cache.misses.toLocaleString()} misses
                   </div>
                 </CardContent>
               </Card>
@@ -280,23 +297,41 @@ export default function InfrastructureDashboard() {
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                     <div>
                       <div className="text-2xl font-bold">{stats.waiting}</div>
-                      <div className="text-sm text-muted-foreground">Waiting</div>
+                      <div className="text-sm text-muted-foreground">
+                        Waiting
+                      </div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-blue-500">{stats.active}</div>
-                      <div className="text-sm text-muted-foreground">Active</div>
+                      <div className="text-2xl font-bold text-blue-500">
+                        {stats.active}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Active
+                      </div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-green-500">{stats.completed}</div>
-                      <div className="text-sm text-muted-foreground">Completed</div>
+                      <div className="text-2xl font-bold text-green-500">
+                        {stats.completed}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Completed
+                      </div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-red-500">{stats.failed}</div>
-                      <div className="text-sm text-muted-foreground">Failed</div>
+                      <div className="text-2xl font-bold text-red-500">
+                        {stats.failed}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Failed
+                      </div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-yellow-500">{stats.delayed}</div>
-                      <div className="text-sm text-muted-foreground">Delayed</div>
+                      <div className="text-2xl font-bold text-yellow-500">
+                        {stats.delayed}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Delayed
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -317,7 +352,9 @@ export default function InfrastructureDashboard() {
                   <div>
                     <div className="flex justify-between mb-1">
                       <span className="text-sm">Avg Response Time</span>
-                      <span className="font-bold">{health.api.avgResponseTime}ms</span>
+                      <span className="font-bold">
+                        {health.api.avgResponseTime}ms
+                      </span>
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {health.api.requestCount.toLocaleString()} requests
@@ -334,7 +371,9 @@ export default function InfrastructureDashboard() {
                   <div>
                     <div className="flex justify-between mb-1">
                       <span className="text-sm">Avg Query Time</span>
-                      <span className="font-bold">{health.database.avgQueryTime}ms</span>
+                      <span className="font-bold">
+                        {health.database.avgQueryTime}ms
+                      </span>
                     </div>
                     <div className="text-sm text-muted-foreground">
                       {health.database.queryCount.toLocaleString()} queries

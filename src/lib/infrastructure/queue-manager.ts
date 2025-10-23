@@ -235,9 +235,7 @@ export async function scheduleRecurringJobs(): Promise<void> {
 /**
  * Get queue statistics
  */
-export async function getQueueStats(
-  queueName: string
-): Promise<{
+export async function getQueueStats(queueName: string): Promise<{
   waiting: number;
   active: number;
   completed: number;

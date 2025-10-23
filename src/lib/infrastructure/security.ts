@@ -131,20 +131,14 @@ export function checkIPRestrictions(req: NextRequest): NextResponse | null {
     logSecurity(`Blocked IP attempted access: ${ip}`, "high", {
       path: req.nextUrl.pathname,
     });
-    return NextResponse.json(
-      { error: "Access denied" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
   if (!isIPAllowed(ip)) {
     logSecurity(`Non-allowed IP attempted access: ${ip}`, "medium", {
       path: req.nextUrl.pathname,
     });
-    return NextResponse.json(
-      { error: "Access denied" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
   return null;
@@ -199,10 +193,7 @@ export function sanitizeInput(input: string): string {
 /**
  * Validate request body size
  */
-export function validateBodySize(
-  body: any,
-  maxSizeKB: number = 100
-): boolean {
+export function validateBodySize(body: any, maxSizeKB: number = 100): boolean {
   const size = JSON.stringify(body).length / 1024;
   return size <= maxSizeKB;
 }
@@ -239,9 +230,10 @@ export function detectXSS(input: string): boolean {
 /**
  * Validate and sanitize request
  */
-export function validateRequest(
-  body: any
-): { valid: boolean; errors: string[] } {
+export function validateRequest(body: any): {
+  valid: boolean;
+  errors: string[];
+} {
   const errors: string[] = [];
 
   // Check body size
@@ -307,10 +299,7 @@ export async function securityMiddleware(
       logSecurity(`Invalid API key attempt`, "high", {
         path: req.nextUrl.pathname,
       });
-      return NextResponse.json(
-        { error: "Invalid API key" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
     }
   }
 

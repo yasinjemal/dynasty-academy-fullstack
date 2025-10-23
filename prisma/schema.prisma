@@ -127,6 +127,9 @@ model User {
   churnRisk              ChurnRisk?           @relation("UserChurnRisk")
   winBackOffers          WinBackOffer[]       @relation("UserWinBackOffers")
   userLTV                UserLTV?             @relation("UserLTV")
+  // 🧠 Dynasty Nexus 2.0 - Knowledge Graph Relations
+  learningPaths          LearningPath[]       @relation("UserLearningPaths")
+  knowledgeGaps          KnowledgeGap[]       @relation("UserKnowledgeGaps")
 
   @@index([email])
   @@index([role])
@@ -2904,4 +2907,190 @@ model Alert {
   @@index([metric])
   @@index([active])
   @@map("alerts")
+}
+
+// ============================================================
+// 🧠 DYNASTY NEXUS 2.0 - PHASE 1: SELF-HEALING KNOWLEDGE GRAPH
+// ============================================================
+// Week 1 - Vector Embeddings & Knowledge Graph Schema
+// Enables adaptive learning paths, gap detection, and intelligent recommendations
+
+// 🎯 Concepts - Core knowledge units in the learning graph
+model Concept {
+  id                String   @id @default(cuid())
+  name              String   @db.VarChar(255)
+  description       String?  @db.Text
+  
+  // Vector embedding for semantic search (pgvector: 1536 dimensions)
+  // Note: Stored as raw bytes, use custom functions for similarity search
+  embedding         Unsupported("vector(1536)")?
+  
+  // Learning metrics
+  difficultyScore   Float?   // 0-10 scale
+  category          String?  @db.VarChar(100)
+  prerequisitesCount Int     @default(0)
+  dependentsCount   Int      @default(0)
+  avgTimeToMaster   Int?     // minutes
+  masteryRate       Float?   // percentage
+  
+  // Metadata
+  metadata          Json?    @db.JsonB
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  childRelationships  ConceptRelationship[] @relation("ParentConcept")
+  parentRelationships ConceptRelationship[] @relation("ChildConcept")
+  learningPaths       LearningPath[]
+  knowledgeGaps       KnowledgeGap[]
+  
+  @@index([category])
+  @@index([difficultyScore])
+  @@map("concepts")
+}
+
+// 🔗 Concept Relationships - How concepts connect to each other
+model ConceptRelationship {
+  id              String   @id @default(cuid())
+  
+  parentConceptId String
+  childConceptId  String
+  
+  // Relationship metadata
+  relationshipType String  @db.VarChar(50) // 'prerequisite', 'related', 'builds_on', 'alternative'
+  strength        Float?   // 0-1 scale (weak to strong)
+  validated       Boolean  @default(false)
+  
+  metadata        Json?    @db.JsonB
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  parentConcept   Concept @relation("ParentConcept", fields: [parentConceptId], references: [id], onDelete: Cascade)
+  childConcept    Concept @relation("ChildConcept", fields: [childConceptId], references: [id], onDelete: Cascade)
+  
+  @@unique([parentConceptId, childConceptId, relationshipType])
+  @@index([parentConceptId])
+  @@index([childConceptId])
+  @@index([relationshipType])
+  @@map("concept_relationships")
+}
+
+// 🛤️ Learning Paths - Optimized sequences for each learner
+model LearningPath {
+  id                  String    @id @default(cuid())
+  userId              String
+  goalConceptId       String
+  
+  // Path data
+  conceptSequence     Json      @db.JsonB // Array of concept IDs in order
+  optimizationScore   Float?    // 0-100 score
+  
+  // Performance metrics
+  estimatedTimeMinutes Int?
+  actualTimeMinutes   Int?
+  completionRate      Float?
+  
+  // Status
+  status              String    @default("active") @db.VarChar(50) // 'active', 'completed', 'abandoned'
+  
+  startedAt           DateTime  @default(now())
+  completedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  
+  // Relations
+  user                User      @relation("UserLearningPaths", fields: [userId], references: [id], onDelete: Cascade)
+  goalConcept         Concept   @relation(fields: [goalConceptId], references: [id])
+  
+  @@index([userId])
+  @@index([goalConceptId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("learning_paths")
+}
+
+// 🕳️ Knowledge Gaps - Detected learning gaps requiring remediation
+model KnowledgeGap {
+  id                String    @id @default(cuid())
+  userId            String
+  conceptId         String
+  
+  // Gap details
+  detectedAt        DateTime  @default(now())
+  detectionSource   String    @db.VarChar(100) // 'quiz_failure', 'time_spent', 'skip_pattern'
+  severity          Int       // 1-10 scale
+  
+  // Remediation
+  remediationPlan   Json?     @db.JsonB // {recommended_content: [], estimated_time: 0}
+  
+  // Status
+  status            String    @default("open") @db.VarChar(50) // 'open', 'in_progress', 'resolved'
+  resolvedAt        DateTime?
+  
+  metadata          Json?     @db.JsonB
+  
+  // Relations
+  user              User      @relation("UserKnowledgeGaps", fields: [userId], references: [id], onDelete: Cascade)
+  concept           Concept   @relation(fields: [conceptId], references: [id])
+  
+  @@index([userId])
+  @@index([conceptId])
+  @@index([status])
+  @@index([detectedAt])
+  @@index([severity])
+  @@map("knowledge_gaps")
+}
+
+// 📄 Content Embeddings - Vector representations of all content
+model ContentEmbedding {
+  id            String   @id @default(cuid())
+  
+  contentType   String   @db.VarChar(50) // 'course', 'lesson', 'quiz', 'concept'
+  contentId     String
+  
+  // Vector embedding (pgvector: 1536 dimensions)
+  embedding     Unsupported("vector(1536)")
+  
+  // Source text for debugging/regeneration
+  textContent   String?  @db.Text
+  
+  // Metadata
+  metadata      Json?    @db.JsonB
+  version       Int      @default(1)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  similarityCaches SimilarityCache[]
+  
+  @@unique([contentType, contentId, version])
+  @@index([contentType])
+  @@index([contentId])
+  @@map("content_embeddings")
+}
+
+// 💾 Similarity Cache - Cache for vector similarity search results
+model SimilarityCache {
+  id                  String   @id @default(cuid())
+  queryEmbeddingId    String
+  
+  // Cached results
+  similarContentIds   String[] // Array of content IDs
+  similarityScores    Float[]  // Corresponding similarity scores
+  
+  // Query metadata
+  queryMetadata       Json?    @db.JsonB
+  cacheHitCount       Int      @default(0)
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  expiresAt           DateTime?
+  
+  // Relations
+  queryEmbedding      ContentEmbedding @relation(fields: [queryEmbeddingId], references: [id])
+  
+  @@index([queryEmbeddingId])
+  @@index([expiresAt])
+  @@map("similarity_cache")
 }

@@ -95,7 +95,11 @@ export function logError(
   error?: Error,
   meta?: Record<string, any>
 ): void {
-  logger.error(message, { error: error?.message, stack: error?.stack, ...meta });
+  logger.error(message, {
+    error: error?.message,
+    stack: error?.stack,
+    ...meta,
+  });
 }
 
 /**
@@ -149,7 +153,9 @@ export function logApiCall(
   const level = success ? "info" : "error";
   logger.log(
     level,
-    `API Call: ${service} ${endpoint} - ${duration}ms - ${success ? "SUCCESS" : "FAILED"}`,
+    `API Call: ${service} ${endpoint} - ${duration}ms - ${
+      success ? "SUCCESS" : "FAILED"
+    }`,
     meta
   );
 }
@@ -220,7 +226,8 @@ export function logSecurity(
   severity: "low" | "medium" | "high" | "critical",
   meta?: Record<string, any>
 ): void {
-  const level = severity === "critical" || severity === "high" ? "error" : "warn";
+  const level =
+    severity === "critical" || severity === "high" ? "error" : "warn";
   logger.log(level, `Security: [${severity.toUpperCase()}] ${event}`, meta);
 }
 
