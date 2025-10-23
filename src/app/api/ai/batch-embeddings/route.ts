@@ -59,10 +59,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { 
-      mode = "unembedded", 
+    const {
+      mode = "unembedded",
       async = false,
-      contentTypes = [] // New: specific content types to process
+      contentTypes = [], // New: specific content types to process
     } = body;
 
     logger.logInfo("Batch embedding process triggered", {
@@ -86,14 +86,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Import content-specific extraction functions
-    const { 
-      extractCourses, 
-      extractLessons, 
-      extractQuizQuestions, 
-      extractBooks 
-    } = await import('@/lib/ai/content-extractor');
-    
-    const { processBatchForContent } = await import('@/lib/ai/batch-embedding-processor');
+    const {
+      extractCourses,
+      extractLessons,
+      extractQuizQuestions,
+      extractBooks,
+    } = await import("@/lib/ai/content-extractor");
+
+    const { processBatchForContent } = await import(
+      "@/lib/ai/batch-embedding-processor"
+    );
 
     // If specific content types are requested, process only those
     if (contentTypes.length > 0) {
@@ -101,19 +103,19 @@ export async function POST(request: NextRequest) {
 
       for (const type of contentTypes) {
         switch (type) {
-          case 'courses':
+          case "courses":
             const courses = await extractCourses();
             contentToProcess.push(...courses);
             break;
-          case 'lessons':
+          case "lessons":
             const lessons = await extractLessons();
             contentToProcess.push(...lessons);
             break;
-          case 'questions':
+          case "questions":
             const questions = await extractQuizQuestions();
             contentToProcess.push(...questions);
             break;
-          case 'books':
+          case "books":
             const books = await extractBooks();
             contentToProcess.push(...books);
             break;
@@ -121,33 +123,36 @@ export async function POST(request: NextRequest) {
       }
 
       // Filter based on mode
-      if (mode === 'unembedded') {
+      if (mode === "unembedded") {
         // Filter out content that already has embeddings
-        const { PrismaClient } = await import('@prisma/client');
+        const { PrismaClient } = await import("@prisma/client");
         const prisma = new PrismaClient();
-        
+
         const existingEmbeddings = await prisma.contentEmbedding.findMany({
           select: { contentType: true, contentId: true },
         });
-        
+
         const embeddedIds = new Set(
-          existingEmbeddings.map(e => `${e.contentType}:${e.contentId}`)
+          existingEmbeddings.map((e) => `${e.contentType}:${e.contentId}`)
         );
-        
+
         const unembedded = contentToProcess.filter(
-          item => !embeddedIds.has(`${item.type}:${item.id}`)
+          (item) => !embeddedIds.has(`${item.type}:${item.id}`)
         );
-        
+
         contentToProcess.length = 0;
         contentToProcess.push(...unembedded);
-        
+
         await prisma.$disconnect();
       }
 
       // Process the selected content
-      const result = await processBatchForContent(contentToProcess, (progress) => {
-        logger.logInfo("Batch embedding progress", progress);
-      });
+      const result = await processBatchForContent(
+        contentToProcess,
+        (progress) => {
+          logger.logInfo("Batch embedding progress", progress);
+        }
+      );
 
       return NextResponse.json({
         success: result.success,

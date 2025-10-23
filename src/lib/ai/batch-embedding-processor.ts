@@ -376,8 +376,9 @@ export async function retryFailedEmbeddings(): Promise<ProcessingResult> {
     });
 
     const embeddedSet = new Set(
-      embedded.map((e: { contentType: string; contentId: string }) => 
-        `${e.contentType}:${e.contentId}`
+      embedded.map(
+        (e: { contentType: string; contentId: string }) =>
+          `${e.contentType}:${e.contentId}`
       )
     );
 
