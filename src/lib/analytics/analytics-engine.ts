@@ -67,7 +67,9 @@ export async function getEvents(filters: {
 /**
  * Calculate daily/monthly active users
  */
-export async function calculateActiveUsers(period: "daily" | "weekly" | "monthly") {
+export async function calculateActiveUsers(
+  period: "daily" | "weekly" | "monthly"
+) {
   const now = new Date();
   let startDate: Date;
 

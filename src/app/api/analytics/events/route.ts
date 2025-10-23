@@ -6,7 +6,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { trackEvent, getEvents, getEventCounts, getTopEvents } from "@/lib/analytics/analytics-engine";
+import {
+  trackEvent,
+  getEvents,
+  getEventCounts,
+  getTopEvents,
+} from "@/lib/analytics/analytics-engine";
 
 /**
  * POST /api/analytics/events - Track new event
@@ -24,11 +29,15 @@ export async function POST(req: NextRequest) {
     const { event, category, properties, page, referrer } = body;
 
     if (!event) {
-      return NextResponse.json({ error: "Event name required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Event name required" },
+        { status: 400 }
+      );
     }
 
     // Get session ID from cookies or generate
-    const sessionId = req.cookies.get("session_id")?.value || crypto.randomUUID();
+    const sessionId =
+      req.cookies.get("session_id")?.value || crypto.randomUUID();
 
     const analyticsEvent = await trackEvent({
       userId: session.user.id,
@@ -68,7 +77,10 @@ export async function GET(req: NextRequest) {
     });
 
     if (user?.role !== "admin") {
-      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     const { searchParams } = new URL(req.url);
@@ -76,7 +88,8 @@ export async function GET(req: NextRequest) {
 
     // Event counts
     if (action === "counts") {
-      const groupBy = searchParams.get("groupBy") as "day" | "hour" | "userId" || "day";
+      const groupBy =
+        (searchParams.get("groupBy") as "day" | "hour" | "userId") || "day";
       const event = searchParams.get("event") || undefined;
       const startDate = searchParams.get("startDate")
         ? new Date(searchParams.get("startDate")!)

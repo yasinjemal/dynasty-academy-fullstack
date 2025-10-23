@@ -162,7 +162,11 @@ export async function GET(req: NextRequest) {
         ? new Date(searchParams.get("endDate")!)
         : undefined;
 
-      const rate = await calculateFunnelConversion(funnelId, startDate, endDate);
+      const rate = await calculateFunnelConversion(
+        funnelId,
+        startDate,
+        endDate
+      );
       return NextResponse.json({ funnelId, conversionRate: rate });
     }
 

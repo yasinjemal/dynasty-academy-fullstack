@@ -157,13 +157,15 @@ export async function getFunnelResults(
     const stepEvents = events.filter((e) => e.step === i);
     const uniqueUsers = new Set(stepEvents.map((e) => e.userId)).size;
 
-    const conversions = i < steps.length - 1 
-      ? events.filter((e) => e.step === i + 1).length 
-      : stepEvents.filter((e) => e.completed).length;
+    const conversions =
+      i < steps.length - 1
+        ? events.filter((e) => e.step === i + 1).length
+        : stepEvents.filter((e) => e.completed).length;
 
     const conversionRate = uniqueUsers > 0 ? conversions / uniqueUsers : 0;
     const dropoff = i > 0 ? previousUsers - uniqueUsers : 0;
-    const dropoffRate = i > 0 && previousUsers > 0 ? dropoff / previousUsers : 0;
+    const dropoffRate =
+      i > 0 && previousUsers > 0 ? dropoff / previousUsers : 0;
 
     // Calculate avg time to next step
     let avgTimeToNext: number | undefined;
@@ -223,8 +225,12 @@ export async function calculateFunnelConversion(
 
   if (events.length === 0) return 0;
 
-  const startedUsers = new Set(events.filter((e) => e.step === 0).map((e) => e.userId)).size;
-  const completedUsers = new Set(events.filter((e) => e.completed).map((e) => e.userId)).size;
+  const startedUsers = new Set(
+    events.filter((e) => e.step === 0).map((e) => e.userId)
+  ).size;
+  const completedUsers = new Set(
+    events.filter((e) => e.completed).map((e) => e.userId)
+  ).size;
 
   return startedUsers > 0 ? completedUsers / startedUsers : 0;
 }

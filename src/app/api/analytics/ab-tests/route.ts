@@ -80,7 +80,10 @@ export async function POST(req: NextRequest) {
       }
 
       if (!testId) {
-        return NextResponse.json({ error: "Test ID required" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Test ID required" },
+          { status: 400 }
+        );
       }
 
       const test = await startABTest(testId);
@@ -102,7 +105,10 @@ export async function POST(req: NextRequest) {
       }
 
       if (!testId) {
-        return NextResponse.json({ error: "Test ID required" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Test ID required" },
+          { status: 400 }
+        );
       }
 
       const test = await pauseABTest(testId);
@@ -125,7 +131,10 @@ export async function POST(req: NextRequest) {
 
       const { testId, metric } = body;
       if (!testId) {
-        return NextResponse.json({ error: "Test ID required" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Test ID required" },
+          { status: 400 }
+        );
       }
 
       const test = await declareWinner(testId, metric);
@@ -135,7 +144,10 @@ export async function POST(req: NextRequest) {
     // Assign user to variant
     if (action === "assign") {
       if (!testId) {
-        return NextResponse.json({ error: "Test ID required" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Test ID required" },
+          { status: 400 }
+        );
       }
 
       const assignment = await assignUserToVariant(testId, session.user.id);
@@ -146,7 +158,10 @@ export async function POST(req: NextRequest) {
     if (action === "convert") {
       const { testId, value } = body;
       if (!testId) {
-        return NextResponse.json({ error: "Test ID required" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Test ID required" },
+          { status: 400 }
+        );
       }
 
       await trackABTestConversion(testId, session.user.id, value);

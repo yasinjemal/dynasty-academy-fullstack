@@ -56,7 +56,8 @@ export async function predictRevenue(days = 30): Promise<number> {
     .slice(0, 30)
     .reduce((sum, [_, rev]) => sum + rev, 0);
 
-  const growthRate = olderRevenue > 0 ? (recentRevenue - olderRevenue) / olderRevenue : 0;
+  const growthRate =
+    olderRevenue > 0 ? (recentRevenue - olderRevenue) / olderRevenue : 0;
 
   // Apply growth
   const finalPrediction = predictedRevenue * (1 + growthRate);
@@ -231,7 +232,9 @@ export async function forecastMetrics(
 /**
  * Calculate prediction accuracy
  */
-export async function calculatePredictionAccuracy(type: string): Promise<number> {
+export async function calculatePredictionAccuracy(
+  type: string
+): Promise<number> {
   const predictions = await prisma.prediction.findMany({
     where: {
       type,

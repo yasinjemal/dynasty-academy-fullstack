@@ -9,16 +9,16 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Users, 
+import {
+  BarChart3,
+  TrendingUp,
+  Users,
   Target,
   Zap,
   Brain,
   AlertTriangle,
   CheckCircle2,
-  XCircle
+  XCircle,
 } from "lucide-react";
 
 interface Metric {
@@ -91,7 +91,9 @@ export default function AnalyticsDashboard() {
       setABTests(testsData.tests || []);
 
       // Load top events
-      const eventsRes = await fetch("/api/analytics/events?action=top&limit=10");
+      const eventsRes = await fetch(
+        "/api/analytics/events?action=top&limit=10"
+      );
       const eventsData = await eventsRes.json();
       setTopEvents(eventsData.events || []);
 
@@ -152,11 +154,15 @@ export default function AnalyticsDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Daily Active Users</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Daily Active Users
+            </CardTitle>
             <Users className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{activeUsers.dau.toLocaleString()}</div>
+            <div className="text-3xl font-bold">
+              {activeUsers.dau.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">
               MAU: {activeUsers.mau.toLocaleString()}
             </p>
@@ -165,14 +171,16 @@ export default function AnalyticsDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Engagement Score</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Engagement Score
+            </CardTitle>
             <Target className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{calculateEngagementScore()}%</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              DAU/MAU ratio
-            </p>
+            <div className="text-3xl font-bold">
+              {calculateEngagementScore()}%
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">DAU/MAU ratio</p>
           </CardContent>
         </Card>
 
@@ -193,7 +201,9 @@ export default function AnalyticsDashboard() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Conversion Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Conversion Rate
+            </CardTitle>
             <BarChart3 className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
@@ -313,7 +323,10 @@ export default function AnalyticsDashboard() {
                         variant="outline"
                         size="sm"
                         onClick={() =>
-                          window.open(`/admin/analytics/ab-tests/${test.id}`, "_blank")
+                          window.open(
+                            `/admin/analytics/ab-tests/${test.id}`,
+                            "_blank"
+                          )
                         }
                       >
                         View Results
@@ -350,7 +363,10 @@ export default function AnalyticsDashboard() {
                           variant="outline"
                           size="sm"
                           onClick={() =>
-                            window.open(`/admin/analytics/funnels/${funnel.id}`, "_blank")
+                            window.open(
+                              `/admin/analytics/funnels/${funnel.id}`,
+                              "_blank"
+                            )
                           }
                         >
                           View Analysis
@@ -410,8 +426,8 @@ export default function AnalyticsDashboard() {
                       AI Insights
                     </div>
                     <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                      Engagement is trending up 8% week-over-week. Consider launching
-                      new content to capitalize on momentum.
+                      Engagement is trending up 8% week-over-week. Consider
+                      launching new content to capitalize on momentum.
                     </p>
                   </div>
                 </div>

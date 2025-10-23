@@ -34,7 +34,10 @@ export async function POST(req: NextRequest) {
     });
 
     if (user?.role !== "admin") {
-      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     const body = await req.json();
@@ -79,7 +82,10 @@ export async function GET(req: NextRequest) {
     });
 
     if (user?.role !== "admin") {
-      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     const { searchParams } = new URL(req.url);
@@ -87,7 +93,8 @@ export async function GET(req: NextRequest) {
 
     // Calculate active users
     if (action === "active_users") {
-      const period = searchParams.get("period") as "day" | "week" | "month" || "day";
+      const period =
+        (searchParams.get("period") as "day" | "week" | "month") || "day";
       const count = await calculateActiveUsers(period);
       return NextResponse.json({ period, count });
     }
@@ -128,8 +135,12 @@ export async function GET(req: NextRequest) {
     // Calculate growth rate
     if (action === "growth") {
       const metric = searchParams.get("metric");
-      const currentPeriod = searchParams.get("currentPeriod") as "day" | "week" | "month" || "week";
-      const previousPeriod = searchParams.get("previousPeriod") as "day" | "week" | "month" || "week";
+      const currentPeriod =
+        (searchParams.get("currentPeriod") as "day" | "week" | "month") ||
+        "week";
+      const previousPeriod =
+        (searchParams.get("previousPeriod") as "day" | "week" | "month") ||
+        "week";
 
       if (!metric) {
         return NextResponse.json(
@@ -148,7 +159,11 @@ export async function GET(req: NextRequest) {
 
     // Query metrics
     const name = searchParams.get("name");
-    const period = searchParams.get("period") as "hourly" | "daily" | "weekly" | "monthly";
+    const period = searchParams.get("period") as
+      | "hourly"
+      | "daily"
+      | "weekly"
+      | "monthly";
     const startDate = searchParams.get("startDate")
       ? new Date(searchParams.get("startDate")!)
       : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

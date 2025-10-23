@@ -28,7 +28,10 @@ export interface ABTestConfig {
  */
 export async function createABTest(config: ABTestConfig) {
   // Validate allocations sum to 100
-  const totalAllocation = config.variants.reduce((sum, v) => sum + v.allocation, 0);
+  const totalAllocation = config.variants.reduce(
+    (sum, v) => sum + v.allocation,
+    0
+  );
   if (Math.abs(totalAllocation - 100) > 0.01) {
     throw new Error("Variant allocations must sum to 100%");
   }
@@ -238,7 +241,9 @@ export async function getABTestResults(testId: string) {
   const results: Record<string, any> = {};
 
   for (const variant of variants) {
-    const assignments = test.assignments.filter((a) => a.variant === variant.id);
+    const assignments = test.assignments.filter(
+      (a) => a.variant === variant.id
+    );
     const conversions = assignments.filter((a) => a.converted);
     const totalValue = conversions.reduce((sum, a) => sum + (a.value || 0), 0);
 
@@ -246,7 +251,10 @@ export async function getABTestResults(testId: string) {
       name: variant.name,
       participants: assignments.length,
       conversions: conversions.length,
-      conversionRate: assignments.length > 0 ? (conversions.length / assignments.length) * 100 : 0,
+      conversionRate:
+        assignments.length > 0
+          ? (conversions.length / assignments.length) * 100
+          : 0,
       totalValue,
       avgValue: conversions.length > 0 ? totalValue / conversions.length : 0,
     };
@@ -298,8 +306,8 @@ function calculateStatisticalSignificance(
   // z > 1.96 = 95% confidence, z > 2.58 = 99% confidence
   if (z > 2.58) return 0.99;
   if (z > 1.96) return 0.95;
-  if (z > 1.64) return 0.90;
-  if (z > 1.28) return 0.80;
+  if (z > 1.64) return 0.9;
+  if (z > 1.28) return 0.8;
   return z / 2.58; // Rough approximation
 }
 
