@@ -1,7 +1,6 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@ function LoginPageContent() {
     setLoading(true);
 
     try {
+      const { signIn } = await import("next-auth/react");
       const result = await signIn("credentials", {
         email,
         password,
@@ -42,7 +42,9 @@ function LoginPageContent() {
   };
 
   const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl });
+    import("next-auth/react").then(({ signIn }) =>
+      signIn("google", { callbackUrl })
+    );
   };
 
   return (

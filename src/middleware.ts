@@ -8,9 +8,14 @@ import rateLimiter, {
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const shouldRateLimit =
+    process.env.DISABLE_AUTH_RATE_LIMIT !== "true" &&
+    process.env.NODE_ENV === "production";
 
-  // Rate limiting for auth pages
-  if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
+  if (
+    shouldRateLimit &&
+    (pathname.startsWith("/login") || pathname.startsWith("/register"))
+  ) {
     const identifier = getIdentifier(request);
     const config = pathname.startsWith("/login")
       ? RATE_LIMITS.LOGIN

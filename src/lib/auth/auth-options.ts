@@ -68,14 +68,54 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      // For Google OAuth, ensure user exists in database
+    async signIn({ user, account, profile }) {
+      // For Google OAuth, ensure user exists in database and link accounts
       if (account?.provider === "google" && user.email) {
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email },
         });
 
-        if (!existingUser) {
+        if (existingUser) {
+          // User exists - check if this OAuth account is already linked
+          const existingAccount = await prisma.account.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+              },
+            },
+          });
+
+          // If account not linked, link it to the existing user
+          if (!existingAccount) {
+            await prisma.account.create({
+              data: {
+                userId: existingUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                refresh_token: account.refresh_token,
+                access_token: account.access_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                session_state: account.session_state,
+              },
+            });
+          }
+
+          // Update user info from Google if needed
+          if (profile?.picture && !existingUser.image) {
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: {
+                image: profile.picture as string,
+                emailVerified: existingUser.emailVerified || new Date(),
+              },
+            });
+          }
+        } else {
           // Create user in database if they don't exist
           await prisma.user.create({
             data: {
