@@ -28,13 +28,13 @@ async function getEmbeddingStats() {
     // Get stats from Supabase using raw SQL
     const stats = await prisma.$queryRaw`
       SELECT 
-        content_type,
+        "contentType" as content_type,
         COUNT(*) as chunk_count,
-        COUNT(DISTINCT content_id) as item_count,
-        MIN(created_at) as oldest_embedding,
-        MAX(updated_at) as newest_embedding
+        COUNT(DISTINCT "contentId") as item_count,
+        MIN("createdAt") as oldest_embedding,
+        MAX("updatedAt") as newest_embedding
       FROM content_embeddings
-      GROUP BY content_type
+      GROUP BY "contentType"
     `;
 
     return stats;
@@ -48,13 +48,14 @@ async function getRecentEmbeddings() {
   try {
     const recent = await prisma.$queryRaw`
       SELECT 
-        content_type,
-        content_title,
+        "contentType" as content_type,
+        "contentId" as content_id,
+        LEFT("textContent", 100) as content_preview,
         COUNT(*) as chunks,
-        MAX(updated_at) as last_updated
+        MAX("updatedAt") as last_updated
       FROM content_embeddings
-      GROUP BY content_type, content_id, content_title
-      ORDER BY MAX(updated_at) DESC
+      GROUP BY "contentType", "contentId", "textContent"
+      ORDER BY MAX("updatedAt") DESC
       LIMIT 10
     `;
 

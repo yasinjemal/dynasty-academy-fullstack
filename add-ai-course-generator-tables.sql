@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS ai_generated_content (
   
   -- Quality & Status
   status TEXT DEFAULT 'draft', -- 'draft' | 'review' | 'approved' | 'rejected' | 'published'
-  quality_score DECIMAL(3, 2), -- 0-100 score
-  confidence_score DECIMAL(3, 2), -- AI's confidence in generation
+  quality_score DECIMAL(5, 2), -- 0-100 score (changed from 3,2 to 5,2)
+  confidence_score DECIMAL(5, 2), -- AI's confidence in generation (changed from 3,2 to 5,2)
   
   -- Review Workflow
   reviewed_by TEXT,            -- userId of reviewer
@@ -106,8 +106,8 @@ CREATE TABLE IF NOT EXISTS ai_course_templates (
   
   -- Usage Stats
   use_count INTEGER DEFAULT 0,
-  success_rate DECIMAL(3, 2),
-  avg_quality_score DECIMAL(3, 2),
+  success_rate DECIMAL(5, 2),      -- Changed from 3,2 to 5,2 for percentages 0-100
+  avg_quality_score DECIMAL(5, 2), -- Changed from 3,2 to 5,2 for scores 0-100
   
   -- Settings
   is_active BOOLEAN DEFAULT true,

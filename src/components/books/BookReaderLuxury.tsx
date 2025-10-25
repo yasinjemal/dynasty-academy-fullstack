@@ -16,6 +16,7 @@ import ParticleEffect from "./ParticleEffect";
 import QuoteShareModal from "./QuoteShareModal";
 import VideoBackground from "./VideoBackground";
 import VideoControls from "./VideoControls";
+import ReaderAICoach from "./ReaderAICoach";
 import { ContentFormatter } from "@/lib/bookContent/contentFormatter";
 import { useFastBookReader } from "@/hooks/useFastBookReader";
 import InsanePageFlip from "./InsanePageFlip";
@@ -5744,98 +5745,6 @@ export default function BookReaderLuxury({
         )}
 
         {/* ===========================================
-          🤖 AI STUDY BUDDY SIDEBAR - REVOLUTIONARY!
-          =========================================== */}
-        {showAIChat && !zenMode && (
-          <div className="fixed right-0 top-0 h-full w-96 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 border-l-2 border-blue-500/30 shadow-2xl z-50 flex flex-col">
-            <div className="p-6 border-b border-blue-500/30">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-600 rounded-full flex items-center justify-center">
-                    <span className="text-2xl">🤖</span>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">
-                      AI Study Buddy
-                    </h3>
-                    <p className="text-xs text-blue-300/70">
-                      Ask anything about what you're reading
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowAIChat(false)}
-                  className="text-slate-400 hover:text-white transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-
-            {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {aiChatMessages.length === 0 && (
-                <div className="text-center text-blue-300/50 mt-12">
-                  <Sparkles className="w-12 h-12 mx-auto mb-4 text-blue-400/50" />
-                  <p className="text-sm">
-                    Ask me anything about what you're reading!
-                  </p>
-                  <div className="mt-4 space-y-2 text-xs">
-                    <p className="text-blue-400">
-                      "Explain this concept simply"
-                    </p>
-                    <p className="text-blue-400">"Give me an example"</p>
-                    <p className="text-blue-400">"How can I apply this?"</p>
-                    <p className="text-blue-400">"What's the main takeaway?"</p>
-                  </div>
-                </div>
-              )}
-              {aiChatMessages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={`flex ${
-                    msg.role === "user" ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`max-w-[80%] rounded-2xl p-3 ${
-                      msg.role === "user"
-                        ? "bg-gradient-to-br from-blue-600 to-cyan-600 text-white"
-                        : "bg-slate-800/50 text-slate-200 border border-blue-500/20"
-                    }`}
-                  >
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Input */}
-            <div className="p-4 border-t border-blue-500/30">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={aiChatInput}
-                  onChange={(e) => setAIChatInput(e.target.value)}
-                  onKeyPress={(e) =>
-                    e.key === "Enter" && askAIStudyBuddy(aiChatInput)
-                  }
-                  placeholder="Ask a question..."
-                  className="flex-1 bg-slate-800/50 border border-blue-500/30 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/60"
-                />
-                <button
-                  onClick={() => askAIStudyBuddy(aiChatInput)}
-                  disabled={!aiChatInput.trim()}
-                  className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-xl font-bold transition-all"
-                >
-                  Ask
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ===========================================
           🔥 LIVE CO-READING FEATURES (NEW!)
           =========================================== */}
         {!zenMode && (
@@ -5867,6 +5776,24 @@ export default function BookReaderLuxury({
         )}
       </div>{" "}
       {/* End of z-10 content wrapper */}
+      {/* ===========================================
+        🤖 READER AI COACH - CONTEXT-AWARE ASSISTANT
+        =========================================== */}
+      <ReaderAICoach
+        bookId={bookId}
+        bookSlug={slug}
+        bookTitle={bookTitle}
+        pageNumber={currentPage}
+        totalPages={totalPages}
+        pageText={pageContent}
+        userStats={{
+          wpm: readingSpeed,
+          minutesToday: Math.round(totalReadingTime),
+          progressPct: Math.round((currentPage / totalPages) * 100),
+        }}
+        isOpen={showAIChat}
+        onClose={() => setShowAIChat(false)}
+      />
       {/* ✨ ACHIEVEMENT TOAST NOTIFICATION - LUXURY GAMIFICATION */}
       {showAchievementToast && (
         <div className="fixed top-24 right-8 z-50 animate-slide-in-right">

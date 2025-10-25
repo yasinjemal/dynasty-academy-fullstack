@@ -18,30 +18,67 @@ export default async function QuizGeneratorPage() {
     redirect("/admin");
   }
 
-  // Get all generated courses
-  const generatedCoursesRaw = (await prisma.$queryRaw`
-    SELECT id, source_id, source_title, generated_data, status, confidence_score, created_at
-    FROM ai_generated_content
-    WHERE content_type = 'course' AND status IN ('draft', 'approved', 'published')
-    ORDER BY created_at DESC
-  `) as any[];
+  // Get all PUBLISHED courses from the actual courses table
+  const publishedCourses = await prisma.courses.findMany({
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-  // Convert Decimal objects to numbers
-  const generatedCourses = generatedCoursesRaw.map((course) => ({
-    ...course,
-    confidence_score: course.confidence_score
-      ? Number(course.confidence_score)
-      : null,
+  // Convert to format expected by client (matching old structure)
+  const generatedCourses = publishedCourses.map((course) => ({
+    id: course.id,
+    source_id: course.id,
+    source_title: course.title,
+    status: "published",
+    confidence_score: 100,
+    created_at: course.createdAt,
+    generated_data: {
+      course: {
+        title: course.title,
+        description: course.description,
+      },
+    },
   }));
 
-  // Get all generated lessons
-  const generatedLessons = (await prisma.$queryRaw`
-    SELECT id, source_title, generated_data, status, metadata, created_at
-    FROM ai_generated_content
-    WHERE content_type = 'lesson'
-    ORDER BY created_at DESC
-    LIMIT 100
-  `) as any[];
+  // Get all PUBLISHED lessons from the actual course_lessons table
+  const publishedLessons = await prisma.course_lessons.findMany({
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      courseId: true,
+      createdAt: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: 100,
+  });
+
+  // Convert to format expected by client
+  const generatedLessons = publishedLessons.map((lesson) => ({
+    id: lesson.id,
+    source_title: lesson.title,
+    status: "published",
+    created_at: lesson.createdAt,
+    metadata: {
+      courseId: lesson.courseId,
+    },
+    generated_data: {
+      lesson: {
+        title: lesson.title,
+        description: lesson.description,
+      },
+    },
+  }));
 
   // Get all generated quizzes
   const generatedQuizzesRaw = (await prisma.$queryRaw`

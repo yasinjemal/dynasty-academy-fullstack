@@ -511,8 +511,14 @@ export async function saveGeneratedQuiz(
   config: QuizGenerationConfig
 ): Promise<string> {
   try {
-    const id = `quiz_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const quizId = `quiz_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+    const auditId = `audit_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
 
+    // 1. Save to ai_generated_content for audit trail
     await prisma.$executeRaw`
       INSERT INTO ai_generated_content (
         id, content_type, source_type, source_id, source_title,
@@ -520,7 +526,9 @@ export async function saveGeneratedQuiz(
         generation_time_ms, temperature, status, confidence_score, quality_score,
         metadata, created_at, updated_at
       ) VALUES (
-        ${id}, 'quiz', ${sourceType}, ${sourceId}, ${quizResult.quiz.title},
+        ${auditId}, 'quiz', ${sourceType}, ${sourceId}, ${
+      quizResult.quiz.title
+    },
         ${JSON.stringify(quizResult.quiz)}::jsonb, 
         'Generate quiz', 'gpt-4-turbo-preview',
         ${quizResult.metadata.tokensUsed}, ${quizResult.metadata.costUSD},
@@ -534,7 +542,72 @@ export async function saveGeneratedQuiz(
       )
     `;
 
-    return id;
+    // 2. Create actual quiz in course_quizzes table
+    if (sourceType === "course" || sourceType === "lesson") {
+      const courseId = sourceType === "course" ? sourceId : null;
+      const lessonId = sourceType === "lesson" ? sourceId : null;
+
+      // If lesson, get the courseId
+      let finalCourseId = courseId;
+      if (sourceType === "lesson" && lessonId) {
+        const lesson = await prisma.course_lessons.findUnique({
+          where: { id: lessonId },
+          select: { courseId: true },
+        });
+        finalCourseId = lesson?.courseId || "";
+      }
+
+      if (finalCourseId) {
+        // Create quiz
+        await prisma.course_quizzes.create({
+          data: {
+            id: quizId,
+            courseId: finalCourseId,
+            lessonId: lessonId || undefined,
+            title: quizResult.quiz.title,
+            description: quizResult.quiz.description,
+            passingScore: 70,
+            timeLimit: quizResult.quiz.timeLimit,
+            maxAttempts: 3,
+            showAnswers: true,
+            order: 0,
+          },
+        });
+
+        // Create questions
+        for (let i = 0; i < quizResult.quiz.questions.length; i++) {
+          const question = quizResult.quiz.questions[i];
+
+          // Convert correctAnswer to string (handles number/boolean types)
+          let correctAnswer = question.correctAnswer;
+          if (typeof correctAnswer === "number") {
+            correctAnswer = String(correctAnswer);
+          } else if (typeof correctAnswer === "boolean") {
+            correctAnswer = correctAnswer ? "true" : "false";
+          }
+
+          await prisma.quiz_questions.create({
+            data: {
+              id: `q_${quizId}_${i}`,
+              quizId: quizId,
+              question: question.question,
+              type: question.type,
+              options: question.options || null,
+              correctAnswer: correctAnswer,
+              explanation: question.explanation || null,
+              points: question.points || 1,
+              order: i,
+            },
+          });
+        }
+
+        console.log(
+          `✅ Quiz created with ${quizResult.quiz.questions.length} questions`
+        );
+      }
+    }
+
+    return quizId;
   } catch (error) {
     console.error("Error saving quiz to database:", error);
     throw new Error(`Failed to save quiz: ${error}`);

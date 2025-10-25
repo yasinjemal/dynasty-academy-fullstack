@@ -72,6 +72,34 @@ export async function POST(
       );
     }
 
+    // 🔒 NEW: Check if all required quizzes are passed
+    const quizValidation = await prisma.$queryRaw<any[]>`
+      SELECT 
+        COUNT(*) FILTER (WHERE l."requiresQuiz" = true) as "totalRequiredQuizzes",
+        COUNT(*) FILTER (WHERE l."requiresQuiz" = true AND lp."quizPassed" = true) as "passedQuizzes"
+      FROM course_lessons l
+      LEFT JOIN lesson_progress lp ON lp."lessonId" = l.id AND lp."userId" = ${session.user.id}
+      WHERE l."courseId" = ${courseId}
+    `;
+
+    if (quizValidation && quizValidation.length > 0) {
+      const { totalRequiredQuizzes, passedQuizzes } = quizValidation[0];
+
+      if (Number(totalRequiredQuizzes) > Number(passedQuizzes)) {
+        return NextResponse.json(
+          {
+            error:
+              "All required quizzes must be passed to generate certificate",
+            totalRequiredQuizzes: Number(totalRequiredQuizzes),
+            passedQuizzes: Number(passedQuizzes),
+            remainingQuizzes:
+              Number(totalRequiredQuizzes) - Number(passedQuizzes),
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // Check if certificate already issued
     if (enrollmentData.certificateIssued) {
       // Return existing certificate

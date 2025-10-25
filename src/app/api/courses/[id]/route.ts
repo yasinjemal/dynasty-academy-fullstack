@@ -49,14 +49,19 @@ export async function GET(
       ORDER BY "order" ASC
     `;
 
-    // Fetch lessons with progress
+    // Fetch lessons with progress and quiz info
     const lessons = await prisma.$queryRaw<any[]>`
       SELECT 
         l.id, l."sectionId", l.title, l.type,
         l."videoUrl", l."pdfUrl",
         l.content, l."order",
+        l."isLocked", l."requiresQuiz",
         COALESCE(l."videoDuration" / 60, 10) as duration,
-        COALESCE(lp.completed, false) as completed
+        COALESCE(lp.completed, false) as completed,
+        COALESCE(lp."quizPassed", false) as "quizPassed",
+        COALESCE(lp."quizAttempts", 0) as "quizAttempts",
+        lp."lastQuizScore" as "lastQuizScore",
+        (SELECT COUNT(*) > 0 FROM course_quizzes WHERE "lessonId" = l.id) as "hasQuiz"
       FROM course_lessons l
       LEFT JOIN lesson_progress lp ON lp."lessonId" = l.id AND lp."userId" = ${userId}
       WHERE l."courseId" = ${courseId}

@@ -49,6 +49,13 @@ interface Lesson {
   pdfUrl?: string;
   content?: string;
   order: number;
+  // 🔒 Course Progression
+  isLocked?: boolean;
+  requiresQuiz?: boolean;
+  quizPassed?: boolean;
+  quizAttempts?: number;
+  lastQuizScore?: number;
+  hasQuiz?: boolean;
   // 🎬 YouTube section timestamps
   startTime?: number; // Start time in seconds
   endTime?: number; // End time in seconds
@@ -222,6 +229,15 @@ export default function AdvancedCoursePage({
   const completeLesson = async () => {
     if (!currentLesson || !courseData) return;
 
+    // Check if quiz is required and not passed
+    if (currentLesson.hasQuiz && !currentLesson.quizPassed) {
+      alert(
+        "⚠️ Please complete and pass the quiz before marking this lesson as complete!"
+      );
+      setActiveTab("quiz"); // Switch to quiz tab
+      return;
+    }
+
     await trackProgress(currentLesson.id, true);
 
     // Update local state
@@ -232,13 +248,21 @@ export default function AdvancedCoursePage({
         ((courseData.completedLessons + 1) / courseData.totalLessons) * 100,
     });
 
-    // Move to next lesson
-    goToNextLesson();
+    // If quiz was passed, automatically go to next lesson
+    if (currentLesson.quizPassed) {
+      goToNextLesson();
+    }
   };
 
   // Navigate to next lesson
   const goToNextLesson = () => {
     if (!courseData || !currentSection || !currentLesson) return;
+
+    // If lesson has quiz and not passed, go to quiz tab instead
+    if (currentLesson.hasQuiz && !currentLesson.quizPassed) {
+      setActiveTab("quiz");
+      return;
+    }
 
     const currentSectionIndex = courseData.sections.findIndex(
       (s) => s.id === currentSection.id
@@ -250,13 +274,73 @@ export default function AdvancedCoursePage({
     // Try next lesson in current section
     if (currentLessonIndex < currentSection.lessons.length - 1) {
       const nextLesson = currentSection.lessons[currentLessonIndex + 1];
+
+      // Check if next lesson is locked
+      if (nextLesson.isLocked) {
+        alert(
+          `🔒 "${nextLesson.title}" is locked. Complete the current lesson and pass its quiz first!`
+        );
+        return;
+      }
+
       setCurrentLesson(nextLesson);
+      setActiveTab("overview"); // Reset to overview for new lesson
     }
     // Try first lesson of next section
     else if (currentSectionIndex < courseData.sections.length - 1) {
       const nextSection = courseData.sections[currentSectionIndex + 1];
+      const firstLesson = nextSection.lessons[0];
+
+      // Check if next lesson is locked
+      if (firstLesson.isLocked) {
+        alert(
+          `🔒 "${firstLesson.title}" is locked. Complete the current lesson and pass its quiz first!`
+        );
+        return;
+      }
+
       setCurrentSection(nextSection);
-      setCurrentLesson(nextSection.lessons[0]);
+      setCurrentLesson(firstLesson);
+      setActiveTab("overview"); // Reset to overview for new lesson
+    }
+  };
+
+  // Handle quiz completion - refresh course data when quiz is passed
+  const handleQuizComplete = async (passed: boolean, score: number) => {
+    if (!courseId) return;
+
+    // If quiz was passed, refresh course data to get updated lock states
+    if (passed) {
+      try {
+        const response = await fetch(`/api/courses/${courseId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setCourseData(data);
+
+          // Update current lesson with new quiz status
+          const updatedSection = data.sections.find((s: Section) =>
+            s.lessons.some((l: Lesson) => l.id === currentLesson?.id)
+          );
+          if (updatedSection) {
+            const updatedLesson = updatedSection.lessons.find(
+              (l: Lesson) => l.id === currentLesson?.id
+            );
+            if (updatedLesson) {
+              setCurrentLesson(updatedLesson);
+            }
+          }
+
+          // Show success message
+          alert(
+            `🎉 Congratulations! You passed with ${score}%! The next lesson is now unlocked.`
+          );
+
+          // Switch to overview tab
+          setActiveTab("overview");
+        }
+      } catch (error) {
+        console.error("Error refreshing course data:", error);
+      }
     }
   };
 
@@ -464,31 +548,52 @@ export default function AdvancedCoursePage({
                       </button>
 
                       {!collapsedSections.has(section.id) && (
-                        <div className="divide-y divide-gray-100">
+                        <div className="divide-y divide-purple-500/10">
                           {section.lessons?.map((lesson) => (
                             <button
                               key={lesson.id}
                               onClick={() => {
+                                if (lesson.isLocked) {
+                                  alert(
+                                    `🔒 "${lesson.title}" is locked. Complete previous lessons and pass their quizzes first!`
+                                  );
+                                  return;
+                                }
                                 setCurrentLesson(lesson);
                                 setCurrentSection(section);
+                                setActiveTab("overview"); // Reset to overview when changing lessons
+                                setIsSidebarOpen(false); // Close sidebar on mobile
                               }}
-                              className={`w-full p-3 flex items-center gap-3 hover:bg-purple-50 transition-colors text-left ${
+                              disabled={lesson.isLocked}
+                              className={`w-full p-3 flex items-center gap-3 transition-colors text-left ${
+                                lesson.isLocked
+                                  ? "opacity-50 cursor-not-allowed bg-gray-500/5"
+                                  : "hover:bg-purple-500/10"
+                              } ${
                                 currentLesson.id === lesson.id
-                                  ? "bg-purple-50 border-l-2 border-purple-600"
+                                  ? "bg-purple-500/20 border-l-2 border-cyan-400"
                                   : ""
                               }`}
                             >
-                              {lesson.completed ? (
+                              {lesson.isLocked ? (
+                                <div className="w-5 h-5 text-gray-500 flex-shrink-0">
+                                  🔒
+                                </div>
+                              ) : lesson.completed ? (
                                 <CheckCircle2 className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                              ) : lesson.quizPassed ? (
+                                <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
                               ) : (
-                                <Circle className="w-5 h-5 text-gray-600 flex-shrink-0" />
+                                <Circle className="w-5 h-5 text-purple-400 flex-shrink-0" />
                               )}
 
                               <div className="flex-1 min-w-0">
                                 <p
                                   className={`text-sm font-medium truncate ${
-                                    currentLesson.id === lesson.id
-                                      ? "text-purple-400"
+                                    lesson.isLocked
+                                      ? "text-gray-500"
+                                      : currentLesson.id === lesson.id
+                                      ? "text-cyan-400"
                                       : "text-gray-300"
                                   }`}
                                 >
@@ -507,6 +612,23 @@ export default function AdvancedCoursePage({
                                   <span className="text-xs text-gray-400 font-mono">
                                     {lesson.duration} min
                                   </span>
+                                  {lesson.hasQuiz && (
+                                    <span className="text-xs text-purple-400 font-mono flex items-center gap-1">
+                                      <Brain className="w-3 h-3" />
+                                      Quiz
+                                      {lesson.quizPassed && (
+                                        <span className="text-green-400">
+                                          ✓
+                                        </span>
+                                      )}
+                                      {(lesson.quizAttempts || 0) > 0 &&
+                                        !lesson.quizPassed && (
+                                          <span className="text-orange-400">
+                                            ({lesson.quizAttempts})
+                                          </span>
+                                        )}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </button>
@@ -659,8 +781,7 @@ export default function AdvancedCoursePage({
                     )}
 
                     {/* Text/Article Content */}
-                    {(currentLesson.type === "article" ||
-                      currentLesson.type === "text") && (
+                    {currentLesson.type === "article" && (
                       <div className="bg-black/40 backdrop-blur-xl rounded-xl border border-purple-500/20 p-8">
                         <div className="prose prose-lg prose-purple max-w-none">
                           {currentLesson.content ? (
@@ -698,23 +819,46 @@ export default function AdvancedCoursePage({
                             onClick={goToNextLesson}
                             className="px-4 py-2 bg-purple-500/20 text-gray-300 rounded-lg hover:bg-purple-500/30 hover:text-cyan-400 transition-all flex items-center gap-2 font-mono"
                           >
-                            Next
-                            <ChevronRight className="w-4 h-4" />
+                            {currentLesson.hasQuiz &&
+                            !currentLesson.quizPassed ? (
+                              <>
+                                Take Quiz
+                                <Brain className="w-4 h-4" />
+                              </>
+                            ) : (
+                              <>
+                                Next
+                                <ChevronRight className="w-4 h-4" />
+                              </>
+                            )}
                           </button>
                         </div>
 
                         <button
                           onClick={completeLesson}
-                          disabled={currentLesson.completed}
+                          disabled={
+                            currentLesson.completed ||
+                            (currentLesson.hasQuiz && !currentLesson.quizPassed)
+                          }
                           className={`px-6 py-2 rounded-lg transition-all flex items-center gap-2 font-mono ${
                             currentLesson.completed
                               ? "bg-cyan-500/20 text-cyan-400 cursor-not-allowed border border-cyan-500/30"
+                              : currentLesson.hasQuiz &&
+                                !currentLesson.quizPassed
+                              ? "bg-gray-500/20 text-gray-500 cursor-not-allowed border border-gray-500/30"
                               : "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:shadow-lg hover:shadow-purple-500/50"
                           }`}
+                          title={
+                            currentLesson.hasQuiz && !currentLesson.quizPassed
+                              ? "Pass the quiz first to complete this lesson"
+                              : ""
+                          }
                         >
                           <CheckCircle2 className="w-5 h-5" />
                           {currentLesson.completed
                             ? "Completed"
+                            : currentLesson.hasQuiz && !currentLesson.quizPassed
+                            ? "Complete Quiz First 🔒"
                             : "Mark Complete"}
                         </button>
                       </div>
@@ -763,7 +907,10 @@ export default function AdvancedCoursePage({
 
                 {/* Quiz Tab */}
                 {activeTab === "quiz" && currentLesson && (
-                  <QuizComponent lessonId={currentLesson.id} />
+                  <QuizComponent
+                    lessonId={currentLesson.id}
+                    onComplete={handleQuizComplete}
+                  />
                 )}
 
                 {/* Discussion Tab */}
