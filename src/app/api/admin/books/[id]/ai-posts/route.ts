@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db/prisma";
 // GET - Fetch all AI-generated posts for a specific book
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,7 +17,7 @@ export async function GET(
       );
     }
 
-    const bookId = params.id;
+    const { id: bookId } = await params;
 
     // Get book details
     const book = await prisma.book.findUnique({
@@ -25,7 +25,6 @@ export async function GET(
       select: {
         id: true,
         title: true,
-        author: true,
         coverImage: true,
       },
     });
@@ -34,14 +33,13 @@ export async function GET(
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    // Find posts that mention this book in tags or are created around the same time
-    // We'll use a simple heuristic: posts with book title in tags or created by admin with book cover
+    // Find posts that mention this book in tags or are created by admin with book cover
     const posts = await prisma.post.findMany({
       where: {
         OR: [
           {
             tags: {
-              hasSome: [book.title, book.author || ""],
+              hasSome: [book.title],
             },
           },
           {
@@ -91,7 +89,7 @@ export async function GET(
 // DELETE - Delete a specific AI-generated post
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -101,6 +99,8 @@ export async function DELETE(
         { status: 401 }
       );
     }
+
+    await params; // Await params even though we don't use it here
 
     const { searchParams } = new URL(request.url);
     const postId = searchParams.get("postId");
@@ -134,7 +134,7 @@ export async function DELETE(
 // PATCH - Update a specific AI-generated post
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);

@@ -213,6 +213,7 @@ Return ONLY valid JSON, no markdown formatting.
             userId: authorId,
             type: "POST",
             postId: post.id,
+            publishedAt: new Date(),
           },
         });
 
