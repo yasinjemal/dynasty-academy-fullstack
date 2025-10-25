@@ -191,7 +191,7 @@ export default function VideoBackground({
             },
           }}
           style={{
-            background: currentGradient,
+            backgroundImage: currentGradient,
             backgroundSize: "200% 200%",
             opacity: opacity / 100,
             filter: blur > 0 ? `blur(${blur}px)` : "none",
