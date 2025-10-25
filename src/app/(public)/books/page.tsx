@@ -215,16 +215,19 @@ export default function BooksPage() {
             </div>
 
             <div className="flex items-center gap-3 flex-wrap">
-              {/* 🚀 NEW: Book Type Filter */}
-              <select
-                value={bookType}
-                onChange={(e) => setBookType(e.target.value)}
-                className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-purple-500/50"
-              >
-                <option value="all">All Books</option>
-                <option value="premium">👑 Premium Only</option>
-                <option value="free">📖 Free Only</option>
-              </select>
+              {/* 🚀 Book Type Filter - Enhanced */}
+              <div className="relative">
+                <select
+                  value={bookType}
+                  onChange={(e) => setBookType(e.target.value)}
+                  className="px-4 py-2.5 bg-gradient-to-r from-white/10 to-white/5 border border-white/20 rounded-xl text-white text-sm font-semibold focus:outline-none focus:border-purple-500/50 hover:border-purple-500/30 transition-all cursor-pointer appearance-none pr-10"
+                >
+                  <option value="all" className="bg-[#1a1f3a] text-white">📚 All Books</option>
+                  <option value="premium" className="bg-[#1a1f3a] text-white">👑 Premium Books (Dynasty Curated)</option>
+                  <option value="free" className="bg-[#1a1f3a] text-white">🎁 Free Books (Public Library)</option>
+                </select>
+                <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
+              </div>
 
               <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1">
                 <button
@@ -268,6 +271,34 @@ export default function BooksPage() {
       {/* 📚 BOOKS GRID */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* 🚀 NEW: Section Header Based on Filter */}
+          {bookType !== "all" && filteredBooks.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center gap-3 mb-2">
+                {bookType === "premium" ? (
+                  <>
+                    <Crown className="w-6 h-6 text-orange-400" />
+                    <h2 className="text-2xl font-bold text-white">
+                      Dynasty Curated Collection
+                    </h2>
+                  </>
+                ) : (
+                  <>
+                    <BookOpen className="w-6 h-6 text-green-400" />
+                    <h2 className="text-2xl font-bold text-white">
+                      Free Public Library
+                    </h2>
+                  </>
+                )}
+              </div>
+              <p className="text-white/60">
+                {bookType === "premium"
+                  ? "Hand-picked premium books from expert authors and industry leaders"
+                  : "Free books imported from public libraries and open-source collections"}
+              </p>
+            </div>
+          )}
+
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
