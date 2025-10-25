@@ -10,24 +10,38 @@ import mammoth from "mammoth";
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("🔍 Upload request received");
+    
     // Auth check
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const formData = await req.formData();
-    const file = formData.get("file") as File;
+    let formData;
+    try {
+      formData = await req.formData();
+      console.log("📦 FormData keys:", Array.from(formData.keys()));
+    } catch (error) {
+      console.error("❌ Failed to parse formData:", error);
+      return NextResponse.json(
+        { error: "Failed to parse form data" },
+        { status: 400 }
+      );
+    }
+
+    const file = formData.get("file") as File | null;
 
     console.log("📤 File upload attempt:", {
       hasFile: !!file,
       fileName: file?.name,
       fileType: file?.type,
       fileSize: file?.size,
+      formDataKeys: Array.from(formData.keys()),
     });
 
-    if (!file) {
-      console.error("❌ No file in formData");
+    if (!file || typeof file === 'string') {
+      console.error("❌ No valid file in formData. Received:", typeof file);
       return NextResponse.json(
         { error: "No file provided. Please select a file to upload." },
         { status: 400 }
