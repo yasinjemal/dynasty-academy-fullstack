@@ -68,35 +68,35 @@ export class MultiLanguageSitemapGenerator {
    * 🔥 Generate sitemaps for EVERY language
    */
   static async generateMultiLanguageSitemap(): Promise<SitemapEntry[]> {
-    const books = await prisma.book.findMany({
-      where: { publishedAt: { not: null } },
-      select: {
-        slug: true,
-        title: true,
-        description: true,
-        updatedAt: true,
-        bookType: true,
-        language: true,
-      },
-    });
+    const entries: SitemapEntry[] = this.getStaticEntries();
 
-    const entries: SitemapEntry[] = [];
+    let books: Array<{
+      slug: string;
+      title: string;
+      description: string;
+      updatedAt: Date;
+      bookType: string;
+      language: string;
+    }>; // fallthrough type
 
-    // Static pages (homepage, books listing, etc.)
-    entries.push(
-      {
-        url: "https://dynasty-academy.com",
-        lastModified: new Date(),
-        changeFrequency: "daily",
-        priority: 1.0,
-      },
-      {
-        url: "https://dynasty-academy.com/books",
-        lastModified: new Date(),
-        changeFrequency: "hourly",
-        priority: 0.9,
+    try {
+      books = await prisma.book.findMany({
+        where: { publishedAt: { not: null } },
+        select: {
+          slug: true,
+          title: true,
+          description: true,
+          updatedAt: true,
+          bookType: true,
+          language: true,
+        },
+      });
+    } catch (error) {
+      if (process.env.NODE_ENV !== "test") {
+        console.warn("Sitemap generator using fallback entries (book query failed)", error);
       }
-    );
+      return entries;
+    }
 
     // Generate entries for each book with language alternates
     for (const book of books) {
@@ -123,18 +123,27 @@ export class MultiLanguageSitemapGenerator {
       entries.push(bookEntry);
 
       // Add reading pages (first 10 pages to avoid bloat)
-      const totalPages = await prisma.bookContent.count({
-        where: { bookId: book.slug },
-      });
-
-      const pagesToIndex = Math.min(totalPages || 10, 10);
-      for (let page = 1; page <= pagesToIndex; page++) {
-        entries.push({
-          url: `https://dynasty-academy.com/books/${book.slug}/read?page=${page}`,
-          lastModified: book.updatedAt,
-          changeFrequency: "monthly",
-          priority: page === 1 ? 0.7 : 0.5,
+      try {
+        const totalPages = await prisma.bookContent.count({
+          where: { bookId: book.slug },
         });
+
+        const pagesToIndex = Math.min(totalPages || 10, 10);
+        for (let page = 1; page <= pagesToIndex; page++) {
+          entries.push({
+            url: `https://dynasty-academy.com/books/${book.slug}/read?page=${page}`,
+            lastModified: book.updatedAt,
+            changeFrequency: "monthly",
+            priority: page === 1 ? 0.7 : 0.5,
+          });
+        }
+      } catch (error) {
+        if (process.env.NODE_ENV !== "test") {
+          console.warn(
+            "Sitemap generator skipped reading pages (book content query failed)",
+            error
+          );
+        }
       }
     }
 
@@ -218,5 +227,38 @@ export class MultiLanguageSitemapGenerator {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&apos;");
+  }
+
+  /**
+   * Provide static entries so sitemap still builds when DB unavailable.
+   */
+  private static getStaticEntries(): SitemapEntry[] {
+    const now = new Date();
+    return [
+      {
+        url: "https://dynasty-academy.com",
+        lastModified: now,
+        changeFrequency: "daily",
+        priority: 1.0,
+      },
+      {
+        url: "https://dynasty-academy.com/books",
+        lastModified: now,
+        changeFrequency: "hourly",
+        priority: 0.9,
+      },
+      {
+        url: "https://dynasty-academy.com/marketplace",
+        lastModified: now,
+        changeFrequency: "hourly",
+        priority: 0.9,
+      },
+      {
+        url: "https://dynasty-academy.com/instructors",
+        lastModified: now,
+        changeFrequency: "weekly",
+        priority: 0.6,
+      },
+    ];
   }
 }
