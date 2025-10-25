@@ -1,11 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function setBookTypes() {
   try {
-    console.log('📚 Updating book types...\n');
-    
+    console.log("📚 Updating book types...\n");
+
     // Get all books
     const allBooks = await prisma.book.findMany({
       select: {
@@ -14,7 +14,7 @@ async function setBookTypes() {
         source: true,
         bookType: true,
         price: true,
-      }
+      },
     });
 
     console.log(`Total books: ${allBooks.length}\n`);
@@ -24,46 +24,56 @@ async function setBookTypes() {
     const freeBooks = await prisma.book.updateMany({
       where: {
         source: {
-          in: ['gutenberg', 'openlibrary', 'google', 'archive']
-        }
+          in: ["gutenberg", "openlibrary", "google", "archive"],
+        },
       },
       data: {
-        bookType: 'free',
+        bookType: "free",
         price: 0, // Free books should be $0
-      }
+      },
     });
 
-    console.log(`✅ Set ${freeBooks.count} books as FREE (from public sources)`);
+    console.log(
+      `✅ Set ${freeBooks.count} books as FREE (from public sources)`
+    );
 
     // Premium books: manually added
     const premiumBooks = await prisma.book.updateMany({
       where: {
-        source: 'manual'
+        source: "manual",
       },
       data: {
-        bookType: 'premium'
-      }
+        bookType: "premium",
+      },
     });
 
-    console.log(`✅ Set ${premiumBooks.count} books as PREMIUM (manually added)`);
+    console.log(
+      `✅ Set ${premiumBooks.count} books as PREMIUM (manually added)`
+    );
 
     // Show summary
     const summary = await prisma.book.groupBy({
-      by: ['bookType'],
+      by: ["bookType"],
       _count: true,
     });
 
-    console.log('\n📊 Summary:');
-    summary.forEach(item => {
-      const icon = item.bookType === 'premium' ? '👑' : item.bookType === 'free' ? '🎁' : '📖';
-      console.log(`  ${icon} ${item.bookType.toUpperCase()}: ${item._count} books`);
+    console.log("\n📊 Summary:");
+    summary.forEach((item) => {
+      const icon =
+        item.bookType === "premium"
+          ? "👑"
+          : item.bookType === "free"
+          ? "🎁"
+          : "📖";
+      console.log(
+        `  ${icon} ${item.bookType.toUpperCase()}: ${item._count} books`
+      );
     });
 
-    console.log('\n✨ Done! Book types updated.');
-    console.log('🔄 Refresh your browser to see the changes.\n');
-    
+    console.log("\n✨ Done! Book types updated.");
+    console.log("🔄 Refresh your browser to see the changes.\n");
   } catch (error) {
-    console.error('❌ Error:', error);
+    console.error("❌ Error:", error);
   } finally {
     await prisma.$disconnect();
   }

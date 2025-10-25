@@ -6,11 +6,7 @@ import { join } from "path";
 import { v4 as uuidv4 } from "uuid";
 import mammoth from "mammoth";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// Next.js 15 App Router - no config export needed
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,8 +19,19 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
+    console.log("📤 File upload attempt:", {
+      hasFile: !!file,
+      fileName: file?.name,
+      fileType: file?.type,
+      fileSize: file?.size,
+    });
+
     if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+      console.error("❌ No file in formData");
+      return NextResponse.json(
+        { error: "No file provided. Please select a file to upload." },
+        { status: 400 }
+      );
     }
 
     // Validate file type
