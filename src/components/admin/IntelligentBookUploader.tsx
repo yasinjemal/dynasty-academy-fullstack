@@ -194,16 +194,24 @@ export default function IntelligentBookUploader({
       const formData = new FormData();
       formData.append("file", file);
 
+      console.log("📤 Uploading file:", file.name, file.type, file.size);
+
       const uploadRes = await fetch("/api/admin/books/intelligent-upload", {
         method: "POST",
         body: formData,
       });
 
+      console.log("📡 Upload response status:", uploadRes.status);
+
       if (!uploadRes.ok) {
-        throw new Error("Upload failed");
+        const errorData = await uploadRes.json().catch(() => ({ error: "Unknown error" }));
+        console.error("❌ Upload failed:", errorData);
+        throw new Error(errorData.error || "Upload failed");
       }
 
       const uploadData = await uploadRes.json();
+      console.log("✅ Upload successful:", uploadData);
+      
       updateStage(0, "complete", {
         fileUrl: uploadData.fileUrl,
         fileId: uploadData.fileId,

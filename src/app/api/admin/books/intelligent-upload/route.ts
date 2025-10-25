@@ -11,7 +11,7 @@ import mammoth from "mammoth";
 export async function POST(req: NextRequest) {
   try {
     console.log("🔍 Upload request received");
-    
+
     // Auth check
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.role !== "ADMIN") {
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       formDataKeys: Array.from(formData.keys()),
     });
 
-    if (!file || typeof file === 'string') {
+    if (!file || typeof file === "string") {
       console.error("❌ No valid file in formData. Received:", typeof file);
       return NextResponse.json(
         { error: "No file provided. Please select a file to upload." },
@@ -48,23 +48,37 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate file type
+    // Validate file type by MIME type OR file extension
     const allowedTypes = [
       "application/pdf",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       "application/epub+zip",
       "text/plain",
       "text/markdown",
+      "application/octet-stream", // Allow generic binary (check extension below)
     ];
 
-    if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: "Invalid file type" }, { status: 400 });
+    const allowedExtensions = [".pdf", ".docx", ".epub", ".txt", ".md"];
+    const fileExtension = file.name.toLowerCase().match(/\.[^.]+$/)?.[0] || "";
+
+    const isValidType = allowedTypes.includes(file.type);
+    const isValidExtension = allowedExtensions.includes(fileExtension);
+
+    if (!isValidType && !isValidExtension) {
+      console.error("❌ Invalid file type:", file.type, "Extension:", fileExtension);
+      return NextResponse.json(
+        {
+          error: `Invalid file type. Allowed: PDF, DOCX, EPUB, TXT, MD. Got: ${file.type} (${fileExtension})`,
+        },
+        { status: 400 }
+      );
     }
+
+    console.log("✅ File validation passed:", file.type, fileExtension);
 
     // Generate unique file ID
     const fileId = uuidv4();
-    const fileExtension = file.name.split(".").pop();
-    const fileName = `${fileId}.${fileExtension}`;
+    const fileName = `${fileId}${fileExtension}`; // fileExtension already has the dot
 
     // Create upload directory
     const uploadDir = join(process.cwd(), "public", "uploads", "books");
