@@ -204,14 +204,16 @@ export default function IntelligentBookUploader({
       console.log("📡 Upload response status:", uploadRes.status);
 
       if (!uploadRes.ok) {
-        const errorData = await uploadRes.json().catch(() => ({ error: "Unknown error" }));
+        const errorData = await uploadRes
+          .json()
+          .catch(() => ({ error: "Unknown error" }));
         console.error("❌ Upload failed:", errorData);
         throw new Error(errorData.error || "Upload failed");
       }
 
       const uploadData = await uploadRes.json();
       console.log("✅ Upload successful:", uploadData);
-      
+
       updateStage(0, "complete", {
         fileUrl: uploadData.fileUrl,
         fileId: uploadData.fileId,

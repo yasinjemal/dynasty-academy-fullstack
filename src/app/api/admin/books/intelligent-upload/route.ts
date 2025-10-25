@@ -65,7 +65,12 @@ export async function POST(req: NextRequest) {
     const isValidExtension = allowedExtensions.includes(fileExtension);
 
     if (!isValidType && !isValidExtension) {
-      console.error("❌ Invalid file type:", file.type, "Extension:", fileExtension);
+      console.error(
+        "❌ Invalid file type:",
+        file.type,
+        "Extension:",
+        fileExtension
+      );
       return NextResponse.json(
         {
           error: `Invalid file type. Allowed: PDF, DOCX, EPUB, TXT, MD. Got: ${file.type} (${fileExtension})`,

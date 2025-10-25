@@ -12,18 +12,31 @@ export async function POST(req: NextRequest) {
     // Auth check
     const session = await getServerSession(authOptions);
     if (!session?.user || session.user.role !== "ADMIN") {
+      console.error("❌ Unauthorized access attempt");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { fileId, title, author, contentPreview, totalPages, wordCount } =
-      await req.json();
+    const body = await req.json();
+    console.log("📥 AI Analysis request:", {
+      hasFileId: !!body.fileId,
+      hasTitle: !!body.title,
+      hasAuthor: !!body.author,
+      hasContent: !!body.contentPreview,
+      totalPages: body.totalPages,
+      wordCount: body.wordCount,
+    });
+
+    const { fileId, title, author, contentPreview, totalPages, wordCount } = body;
 
     if (!title) {
+      console.error("❌ Missing required data: title");
       return NextResponse.json(
         { error: "Missing required data: title is required" },
         { status: 400 }
       );
     }
+
+    console.log("✅ Starting AI analysis for:", title);
 
     // If no content preview, use title and author for analysis
     const hasContent = contentPreview && contentPreview.trim().length > 0;
