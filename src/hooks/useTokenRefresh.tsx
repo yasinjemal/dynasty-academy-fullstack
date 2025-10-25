@@ -2,7 +2,7 @@
 
 /**
  * useTokenRefresh Hook
- * 
+ *
  * Automatically refreshes NextAuth session before expiration
  * Shows notification when token is about to expire
  */
@@ -17,24 +17,24 @@ interface UseTokenRefreshOptions {
    * Default: 5 minutes (300 seconds)
    */
   refreshThreshold?: number;
-  
+
   /**
    * Show notification when token is about to expire
    * Default: true
    */
   showNotification?: boolean;
-  
+
   /**
    * Redirect to login on expiration
    * Default: true
    */
   redirectOnExpiry?: boolean;
-  
+
   /**
    * Callback when token is refreshed
    */
   onRefresh?: () => void;
-  
+
   /**
    * Callback when token expires
    */
@@ -158,7 +158,8 @@ export function SessionExpiryNotification() {
           <div>
             <p className="font-semibold">Session Expiring Soon</p>
             <p className="text-sm">
-              Your session will expire in {minutes}:{seconds.toString().padStart(2, "0")}
+              Your session will expire in {minutes}:
+              {seconds.toString().padStart(2, "0")}
             </p>
           </div>
         </div>

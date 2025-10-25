@@ -11,6 +11,7 @@ model User {
   id                     String               @id @default(cuid())
   name                   String?
   email                  String               @unique
+  clerkId                String?              @unique
   emailVerified          DateTime?
   image                  String?
   password               String?
@@ -137,9 +138,13 @@ model User {
   auditLogsCreated      AuditLog[]              @relation("AuditLogsCreated")
   instructorVerification InstructorVerification? @relation("InstructorVerification")
   verifiedInstructors   InstructorVerification[] @relation("VerifiedInstructors")
+  instructorProfile     Instructor?          @relation("UserInstructor")
+  ownerships            Ownership[]          @relation("UserOwnerships")
+  stripeConnect         StripeConnect?       @relation("UserStripeConnect")
 
   @@index([email])
   @@index([role])
+  @@index([clerkId])
   @@index([username])
   @@index([dynastyScore])
   @@index([level])
@@ -3173,4 +3178,206 @@ model InstructorVerification {
   @@index([verified])
   @@index([kycStatus])
   @@map("instructor_verification")
+}
+
+model Instructor {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  name       String?
+  bio        String?  @db.Text
+  avatarUrl  String?
+  verified   Boolean  @default(false)
+  status     String   @default("pending")
+  trustScore Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation("UserInstructor", fields: [userId], references: [id], onDelete: Cascade)
+  products   Product[] @relation("InstructorProducts")
+  payouts    Payout[]
+
+  @@index([status])
+  @@map("instructors")
+}
+
+// ============================================
+// MARKETPLACE SAFE MODE SCHEMA
+// Non-custodial ledger system for Dynasty Academy
+// ============================================
+
+// ============================================
+// DOUBLE-ENTRY LEDGER SYSTEM
+// ============================================
+
+// Account: A container for balance tracking
+// Follows accounting principles: every debit needs a credit
+model LedgerAccount {
+  id         String        @id @default(cuid())
+  ownerId    String?       // null for platform accounts (was userId)
+  kind       String        @default("user") // "platform" | "instructor" | "user" (was type)
+  currency   String        @default("USD") // One currency per account
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  entries    LedgerEntry[]
+
+  @@unique([ownerId, kind, currency])
+  @@index([ownerId, kind, currency])
+  @@map("ledger_accounts")
+}
+
+// Entry: Individual debit/credit in the ledger
+// amount: positive = credit (increase), negative = debit (decrease)
+model LedgerEntry {
+  id          String          @id @default(cuid())
+  transferId  String          // Link to parent transfer
+  accountId   String          // Which account this entry affects
+  amount      Int             // Signed integer in cents: +500 = $5 credit, -500 = $5 debit
+  currency    String
+  direction   String          // "debit" | "credit"
+  refType     String?         // "purchase" | "refund" | "payout" | "platform_fee"
+  refId       String?         // Foreign key to business object (productId, orderId, etc)
+  metadata    Json?           // Additional context
+  createdAt   DateTime        @default(now())
+
+  transfer    LedgerTransfer  @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  account     LedgerAccount   @relation(fields: [accountId], references: [id], onDelete: Restrict)
+
+  @@index([transferId])
+  @@index([accountId])
+  @@index([refType, refId])
+  @@map("ledger_entries")
+}
+
+// Transfer: Atomic movement between two accounts
+// Always creates 2 entries: debit from source, credit to destination
+model LedgerTransfer {
+  id              String        @id @default(cuid())
+  fromAccountId   String        // Account being debited
+  toAccountId     String        // Account being credited
+  amount          Int           // Always positive (cents)
+  currency        String
+  reason          String        // Human-readable reason
+  refType         String?       // "purchase" | "refund" | "payout" | "platform_fee"
+  refId           String?       // Foreign key to business object
+  idempotencyKey  String?       @unique // Prevents duplicate transfers
+  metadata        Json?
+  state           String        @default("posted") // "posted" | "pending"
+  createdAt       DateTime      @default(now())
+
+  entries         LedgerEntry[]
+
+  @@index([fromAccountId])
+  @@index([toAccountId])
+  @@index([refType, refId])
+  @@map("ledger_transfers")
+}
+
+// ============================================
+// PRODUCT CATALOG
+// ============================================
+
+model Product {
+  id           String   @id @default(cuid())
+  type         String   // "course" | "pdf" | "audio" | "workshop" | "subscription" | "bundle" | "download"
+  title        String
+  description  String   @db.Text
+  slug         String   @unique
+  instructorId String
+  status       String   @default("active") // "active" | "archived" | "pending"
+  
+  // JSON fields for flexibility
+  pricingJson  Json     // { model: "one_time", prices: [{amount: 4999, label: "Standard"}], currency: "USD" }
+  contentJson  Json     // { fileUrl, duration, format, previewUrl, version }
+  statsJson    Json?    // { totalSales, revenue, rating, reviewCount, views }
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  instructor   Instructor @relation("InstructorProducts", fields: [instructorId], references: [id], onDelete: Cascade)
+  ownerships   Ownership[]
+
+  @@index([instructorId, type, status])
+  @@index([slug])
+  @@map("marketplace_products")
+}
+
+// Ownership: User's access to products
+// Idempotent: unique constraint prevents duplicate ownership
+model Ownership {
+  id         String   @id @default(cuid())
+  userId     String
+  productId  String
+  source     String   // "purchase" | "subscription" | "grant" | "bundle" | "revoked"
+  grantedAt  DateTime @default(now())
+  revokedAt  DateTime? // Set when refunded
+  metadata   Json?    // { orderId, subscriptionId, etc }
+
+  user       User     @relation("UserOwnerships", fields: [userId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+  @@map("product_ownerships")
+}
+
+// ============================================
+// STRIPE INTEGRATION
+// ============================================
+
+// StripeConnect: Instructor payout accounts
+model StripeConnect {
+  id                String   @id @default(cuid())
+  userId            String   @unique // Instructor
+  stripeAccountId   String   @unique
+  onboardingComplete Boolean @default(false)
+  payoutsEnabled    Boolean @default(false)
+  country           String?
+  currency          String?
+  metadata          Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User    @relation("UserStripeConnect", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([stripeAccountId])
+  @@map("stripe_connect_accounts")
+}
+
+// StripeEvent: Webhook event tracking
+// Prevents duplicate processing via idempotency
+model StripeEvent {
+  id         String   @id // Stripe event ID
+  type       String   // "checkout.session.completed", etc
+  processed  Boolean  @default(false)
+  data       Json     // Full event payload
+  createdAt  DateTime @default(now())
+  processedAt DateTime?
+
+  @@index([type, processed])
+  @@map("stripe_webhook_events")
+}
+
+// ============================================
+// PAYOUTS
+// ============================================
+
+model Payout {
+  id              String   @id @default(cuid())
+  instructorId    String
+  amountCents     Int      // Amount requested
+  currency        String   @default("USD")
+  status          String   @default("pending") // "pending" | "processing" | "completed" | "failed"
+  stripePayoutId  String?  // Stripe payout ID when processed
+  failureReason   String?
+  requestedAt     DateTime @default(now())
+  processedAt     DateTime?
+  metadata        Json?
+
+  instructor      Instructor @relation(fields: [instructorId], references: [id], onDelete: Cascade)
+
+  @@index([instructorId, status])
+  @@map("instructor_payouts")
 }

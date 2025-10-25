@@ -1,12 +1,12 @@
 /**
  * JWT Token Rotation & Security Enhancement
- * 
+ *
  * Implements:
  * - Short-lived access tokens (15 minutes)
  * - Automatic token refresh
  * - Refresh token rotation
  * - Token revocation support
- * 
+ *
  * Security improvements:
  * - Reduces token hijacking window
  * - Detects token reuse attacks
@@ -30,10 +30,10 @@ export const TOKEN_CONFIG = {
  */
 export function shouldRefreshToken(token: JWT): boolean {
   if (!token.exp) return true;
-  
+
   const now = Math.floor(Date.now() / 1000);
   const timeUntilExpiry = token.exp - now;
-  
+
   return timeUntilExpiry < TOKEN_CONFIG.REFRESH_THRESHOLD;
 }
 
@@ -84,7 +84,7 @@ export async function refreshAccessToken(token: JWT): Promise<JWT> {
     return newToken;
   } catch (error) {
     console.error("Token refresh failed:", error);
-    
+
     // Log failed refresh attempt
     await createAuditLog({
       action: "LOGIN_FAILED",
@@ -113,7 +113,7 @@ export async function revokeUserTokens(userId: string, reason: string) {
   try {
     // In a production system, you'd store refresh tokens in database
     // and mark them as revoked. For now, we'll just log the action.
-    
+
     await createAuditLog({
       action: "LOGOUT",
       userId,
@@ -187,7 +187,7 @@ export async function enhancedJWTCallback({
   // Initial sign in
   if (user) {
     const now = Math.floor(Date.now() / 1000);
-    
+
     return {
       ...token,
       sub: user.id,
@@ -221,7 +221,7 @@ export async function enhancedSessionCallback({
 }): Promise<Session> {
   // Validate token
   const validation = await validateToken(token);
-  
+
   if (!validation.valid) {
     // Token invalid - return minimal session to trigger re-auth
     return {
@@ -284,8 +284,10 @@ export function createTokenMonitor(
   const start = () => {
     // Check every minute
     checkInterval = setInterval(async () => {
-      const session = await fetch("/api/auth/session").then(res => res.json());
-      
+      const session = await fetch("/api/auth/session").then((res) =>
+        res.json()
+      );
+
       if (!session) {
         onExpired();
         return;

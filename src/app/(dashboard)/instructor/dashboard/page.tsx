@@ -12,7 +12,10 @@ import {
   Star,
   Eye,
   MessageSquare,
+  Shield,
+  Award,
 } from "lucide-react";
+import { calculateTrustScore } from "@/lib/governance/trust-score-engine";
 
 interface DashboardStats {
   totalRevenue: number;
@@ -32,11 +35,16 @@ interface DashboardStats {
 
 export default function InstructorDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [trustScore, setTrustScore] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Mock data - replace with actual API call
-    setTimeout(() => {
+    setTimeout(async () => {
+      // Calculate trust score for instructor
+      const instructorId = "user_instructor_123"; // TODO: Get from session
+      const trust = await calculateTrustScore(instructorId);
+
       setStats({
         totalRevenue: 12450,
         monthlyRevenue: 3200,
@@ -66,6 +74,7 @@ export default function InstructorDashboardPage() {
           },
         ],
       });
+      setTrustScore(trust);
       setLoading(false);
     }, 1000);
   }, []);
@@ -91,6 +100,81 @@ export default function InstructorDashboardPage() {
           Here's what's happening with your courses today
         </p>
       </div>
+
+      {/* Trust Score Card (NEW!) */}
+      {trustScore && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-cyan-500/10 via-blue-500/10 to-purple-500/10 border-2 border-cyan-500/30 rounded-2xl p-6 backdrop-blur-sm shadow-xl"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-cyan-500/20 rounded-xl">
+                <Shield className="w-8 h-8 text-cyan-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-white">
+                  Trust Score: {trustScore.tier}
+                </h3>
+                <p className="text-sm text-gray-400">
+                  {trustScore.totalScore}/1000 points
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/admin/instructor-verification"
+              className="px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 rounded-lg text-cyan-400 text-sm font-medium transition-colors"
+            >
+              Improve Score
+            </Link>
+          </div>
+
+          <div className="space-y-3">
+            {/* Revenue Share */}
+            <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+              <span className="text-gray-300 text-sm">Revenue Share</span>
+              <span className="text-green-400 font-bold">
+                {(trustScore.multipliers.revenueShare * 100).toFixed(0)}%
+              </span>
+            </div>
+
+            {/* Visibility Boost */}
+            <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+              <span className="text-gray-300 text-sm">Visibility Boost</span>
+              <span className="text-purple-400 font-bold">
+                {trustScore.multipliers.visibility}x
+              </span>
+            </div>
+
+            {/* Moderation Level */}
+            <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+              <span className="text-gray-300 text-sm">Moderation Level</span>
+              <span className="text-blue-400 font-bold">
+                {trustScore.multipliers.moderationThreshold > 80
+                  ? "Auto-Approved"
+                  : trustScore.multipliers.moderationThreshold > 50
+                  ? "Light"
+                  : "Standard"}
+              </span>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+              <span>Progress to next tier</span>
+              <span>{((trustScore.totalScore / 1000) * 100).toFixed(0)}%</span>
+            </div>
+            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-cyan-500 to-purple-500"
+                style={{ width: `${(trustScore.totalScore / 1000) * 100}%` }}
+              />
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -91,6 +91,24 @@ export default function DashboardPage() {
                   📚 Library
                 </Button>
               </Link>
+              <Link href="/marketplace">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs sm:text-sm bg-gradient-to-r from-green-500/10 to-emerald-500/10 hover:from-green-500/20 hover:to-emerald-500/20 border border-green-500/30"
+                >
+                  🛒 Marketplace
+                </Button>
+              </Link>
+              <Link href="/wallet">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs sm:text-sm bg-gradient-to-r from-yellow-500/10 to-amber-500/10 hover:from-yellow-500/20 hover:to-amber-500/20 border border-yellow-500/30"
+                >
+                  💰 Wallet
+                </Button>
+              </Link>
               <Link href="/blog">
                 <Button
                   variant="ghost"

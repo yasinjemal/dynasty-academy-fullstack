@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { sendEngagementEmail } from "../services/sendgrid";
-import { sendEngagementPush } from "../services/push";
+import { sendEngagementEmail } from "@/lib/services/sendgrid";
+import { sendEngagementPush } from "@/lib/services/push";
 
 /**
  * Smart Notification Engine

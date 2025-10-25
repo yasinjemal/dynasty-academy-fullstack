@@ -38,6 +38,11 @@ interface AuditLogParams {
  * Create audit log entry
  */
 export async function createAuditLog(params: AuditLogParams) {
+  // Skip audit logging in test environment
+  if (process.env.SKIP_AUDIT_LOGS === "true") {
+    return null;
+  }
+
   try {
     const {
       action,

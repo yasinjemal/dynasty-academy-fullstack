@@ -1,7 +1,7 @@
 /**
  * Active Sessions API
  * GET /api/admin/sessions/active
- * 
+ *
  * Returns real-time active session statistics
  */
 
@@ -19,12 +19,9 @@ export async function GET(request: NextRequest) {
   try {
     // Authentication check
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Authorization check - Admin only
@@ -42,12 +39,13 @@ export async function GET(request: NextRequest) {
 
     // Get active session statistics
     const stats = getActiveUserStats();
-    
+
     // Get all active sessions (limited to last 50)
-    const allSessions = sessionStore.getAllSessions()
+    const allSessions = sessionStore
+      .getAllSessions()
       .sort((a, b) => b.lastActivity.getTime() - a.lastActivity.getTime())
       .slice(0, 50)
-      .map(s => ({
+      .map((s) => ({
         userId: s.userId,
         sessionId: s.sessionId.substring(0, 8) + "...", // Truncate for security
         ipAddress: s.ipAddress,
@@ -63,7 +61,6 @@ export async function GET(request: NextRequest) {
       sessions: allSessions,
       timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error("Active sessions API error:", error);
     return NextResponse.json(

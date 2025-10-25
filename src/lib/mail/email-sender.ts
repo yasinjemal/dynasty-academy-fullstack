@@ -1,35 +1,35 @@
 /**
  * Dynasty Academy Email Notification System
- * 
+ *
  * Handles all transactional emails:
  * - Instructor approvals
  * - Security alerts
  * - Course enrollments
  * - Payout notifications
- * 
+ *
  * Supports: Resend API (primary) + SMTP fallback
  */
 
-import { Resend } from 'resend';
+import { Resend } from "resend";
 
 // Initialize Resend client
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Email configuration
 const EMAIL_CONFIG = {
-  from: process.env.EMAIL_FROM || 'Dynasty Academy <no-reply@dynasty.academy>',
-  replyTo: process.env.EMAIL_REPLY_TO || 'support@dynasty.academy',
+  from: process.env.EMAIL_FROM || "Dynasty Academy <no-reply@dynasty.academy>",
+  replyTo: process.env.EMAIL_REPLY_TO || "support@dynasty.academy",
 };
 
 // Email template types
-export type EmailTemplate = 
-  | 'instructor-approved'
-  | 'instructor-rejected'
-  | 'security-alert'
-  | 'course-enrollment'
-  | 'payout-processed'
-  | 'new-student'
-  | 'critical-security-event';
+export type EmailTemplate =
+  | "instructor-approved"
+  | "instructor-rejected"
+  | "security-alert"
+  | "course-enrollment"
+  | "payout-processed"
+  | "new-student"
+  | "critical-security-event";
 
 // Email data interfaces
 export interface InstructorApprovedData {
@@ -48,7 +48,7 @@ export interface InstructorRejectedData {
 
 export interface SecurityAlertData {
   alertType: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   timestamp: string;
   details: string;
   ipAddress?: string;
@@ -103,10 +103,10 @@ export async function sendEmail({
     return { success: true, messageId: result.data?.id };
   } catch (error) {
     console.error(`❌ Email send failed: ${template}`, error);
-    
+
     // Log to audit system
     await logEmailFailure(template, to, error);
-    
+
     return { success: false, error };
   }
 }
@@ -118,8 +118,8 @@ export async function sendInstructorApprovalEmail(
 ) {
   return sendEmail({
     to: instructorEmail,
-    subject: '🎉 Congratulations! Your Instructor Application is Approved',
-    template: 'instructor-approved',
+    subject: "🎉 Congratulations! Your Instructor Application is Approved",
+    template: "instructor-approved",
     data,
   });
 }
@@ -131,8 +131,8 @@ export async function sendInstructorRejectionEmail(
 ) {
   return sendEmail({
     to: instructorEmail,
-    subject: 'Regarding Your Instructor Application',
-    template: 'instructor-rejected',
+    subject: "Regarding Your Instructor Application",
+    template: "instructor-rejected",
     data,
   });
 }
@@ -142,12 +142,12 @@ export async function sendSecurityAlert(
   adminEmails: string[],
   data: SecurityAlertData
 ) {
-  const urgencyPrefix = data.severity === 'critical' ? '🚨 URGENT: ' : '⚠️ ';
-  
+  const urgencyPrefix = data.severity === "critical" ? "🚨 URGENT: " : "⚠️ ";
+
   return sendEmail({
     to: adminEmails,
     subject: `${urgencyPrefix}Security Alert: ${data.alertType}`,
-    template: 'security-alert',
+    template: "security-alert",
     data,
   });
 }
@@ -160,7 +160,7 @@ export async function sendCourseEnrollmentEmail(
   return sendEmail({
     to: instructorEmail,
     subject: `🎓 New Student Enrolled: ${data.courseName}`,
-    template: 'course-enrollment',
+    template: "course-enrollment",
     data,
   });
 }
@@ -173,7 +173,7 @@ export async function sendPayoutProcessedEmail(
   return sendEmail({
     to: instructorEmail,
     subject: `💰 Payout Processed: $${data.amount.toFixed(2)}`,
-    template: 'payout-processed',
+    template: "payout-processed",
     data,
   });
 }
@@ -196,7 +196,7 @@ function generateEmailHTML(template: EmailTemplate, data: any): string {
   `;
 
   switch (template) {
-    case 'instructor-approved':
+    case "instructor-approved":
       return `
         ${baseStyles}
         <div class="container">
@@ -230,7 +230,7 @@ function generateEmailHTML(template: EmailTemplate, data: any): string {
         </div>
       `;
 
-    case 'instructor-rejected':
+    case "instructor-rejected":
       return `
         ${baseStyles}
         <div class="container">
@@ -259,7 +259,7 @@ function generateEmailHTML(template: EmailTemplate, data: any): string {
         </div>
       `;
 
-    case 'security-alert':
+    case "security-alert":
       const alertClass = `alert-${data.severity}`;
       return `
         ${baseStyles}
@@ -275,14 +275,26 @@ function generateEmailHTML(template: EmailTemplate, data: any): string {
             </div>
             <h3>Details:</h3>
             <p>${data.details}</p>
-            ${data.ipAddress ? `<p><strong>IP Address:</strong> ${data.ipAddress}</p>` : ''}
-            ${data.userAgent ? `<p><strong>User Agent:</strong> ${data.userAgent}</p>` : ''}
-            ${data.actionRequired ? `
+            ${
+              data.ipAddress
+                ? `<p><strong>IP Address:</strong> ${data.ipAddress}</p>`
+                : ""
+            }
+            ${
+              data.userAgent
+                ? `<p><strong>User Agent:</strong> ${data.userAgent}</p>`
+                : ""
+            }
+            ${
+              data.actionRequired
+                ? `
               <div style="background: #fef2f2; padding: 16px; margin-top: 20px; border-radius: 6px;">
                 <h4>🚨 Action Required:</h4>
                 <p>${data.actionRequired}</p>
               </div>
-            ` : ''}
+            `
+                : ""
+            }
             <p style="text-align: center; margin: 30px 0;">
               <a href="https://dynasty.academy/admin/security" class="button">View Security Dashboard</a>
             </p>
@@ -293,7 +305,7 @@ function generateEmailHTML(template: EmailTemplate, data: any): string {
         </div>
       `;
 
-    case 'course-enrollment':
+    case "course-enrollment":
       return `
         ${baseStyles}
         <div class="container">
@@ -318,7 +330,7 @@ function generateEmailHTML(template: EmailTemplate, data: any): string {
         </div>
       `;
 
-    case 'payout-processed':
+    case "payout-processed":
       return `
         ${baseStyles}
         <div class="container">
@@ -329,8 +341,12 @@ function generateEmailHTML(template: EmailTemplate, data: any): string {
             <h2>Hello ${data.instructorName},</h2>
             <p>Your payout has been successfully processed!</p>
             <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
-              <h1 style="color: #15803d; margin: 0;">$${data.amount.toFixed(2)}</h1>
-              <p style="color: #16a34a; margin: 5px 0;">For period: ${data.period}</p>
+              <h1 style="color: #15803d; margin: 0;">$${data.amount.toFixed(
+                2
+              )}</h1>
+              <p style="color: #16a34a; margin: 5px 0;">For period: ${
+                data.period
+              }</p>
             </div>
             <p><strong>Transaction ID:</strong> ${data.transactionId}</p>
             <p><strong>Processed Date:</strong> ${data.processedDate}</p>
@@ -354,7 +370,7 @@ function generateEmailHTML(template: EmailTemplate, data: any): string {
 // Generate plain text email content (fallback)
 function generateEmailText(template: EmailTemplate, data: any): string {
   switch (template) {
-    case 'instructor-approved':
+    case "instructor-approved":
       return `
 Congratulations, ${data.instructorName}!
 
@@ -370,7 +386,7 @@ What's next?
 Dynasty Academy - From Learner to Legend
       `.trim();
 
-    case 'security-alert':
+    case "security-alert":
       return `
 SECURITY ALERT
 
@@ -380,33 +396,37 @@ Time: ${data.timestamp}
 
 Details: ${data.details}
 
-${data.ipAddress ? `IP Address: ${data.ipAddress}` : ''}
-${data.actionRequired ? `Action Required: ${data.actionRequired}` : ''}
+${data.ipAddress ? `IP Address: ${data.ipAddress}` : ""}
+${data.actionRequired ? `Action Required: ${data.actionRequired}` : ""}
 
 View Security Dashboard: https://dynasty.academy/admin/security
       `.trim();
 
     default:
-      return 'Dynasty Academy Notification';
+      return "Dynasty Academy Notification";
   }
 }
 
 // Log email failures to audit system
-async function logEmailFailure(template: EmailTemplate, to: string | string[], error: any) {
+async function logEmailFailure(
+  template: EmailTemplate,
+  to: string | string[],
+  error: any
+) {
   try {
     // Import audit logger dynamically to avoid circular dependencies
-    const { createAuditLog } = await import('@/lib/security/audit-logger');
-    
+    const { createAuditLog } = await import("@/lib/security/audit-logger");
+
     await createAuditLog({
-      action: 'EMAIL_SEND_FAILURE',
-      severity: 'medium',
+      action: "EMAIL_SEND_FAILURE",
+      severity: "medium",
       metadata: {
         before: { template, recipients: Array.isArray(to) ? to : [to] },
         after: { error: error.message },
       },
     });
   } catch (logError) {
-    console.error('Failed to log email failure:', logError);
+    console.error("Failed to log email failure:", logError);
   }
 }
 
@@ -418,28 +438,28 @@ export async function sendBatchEmails(
   data: any
 ) {
   const results = [];
-  
+
   // Send in batches of 50 to avoid rate limits
   const batchSize = 50;
   for (let i = 0; i < recipients.length; i += batchSize) {
     const batch = recipients.slice(i, i + batchSize);
-    
-    const promises = batch.map(email => 
+
+    const promises = batch.map((email) =>
       sendEmail({ to: email, subject, template, data })
     );
-    
+
     const batchResults = await Promise.allSettled(promises);
     results.push(...batchResults);
-    
+
     // Wait 1 second between batches
     if (i + batchSize < recipients.length) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
-  
-  const successful = results.filter(r => r.status === 'fulfilled').length;
-  const failed = results.filter(r => r.status === 'rejected').length;
-  
+
+  const successful = results.filter((r) => r.status === "fulfilled").length;
+  const failed = results.filter((r) => r.status === "rejected").length;
+
   return { successful, failed, total: recipients.length };
 }
 
@@ -447,13 +467,13 @@ export async function sendBatchEmails(
 export async function sendTestEmail(to: string) {
   return sendEmail({
     to,
-    subject: '✅ Dynasty Academy Email System Test',
-    template: 'instructor-approved',
+    subject: "✅ Dynasty Academy Email System Test",
+    template: "instructor-approved",
     data: {
-      instructorName: 'Test Instructor',
-      approvedBy: 'Admin',
+      instructorName: "Test Instructor",
+      approvedBy: "Admin",
       approvalDate: new Date().toLocaleDateString(),
-      dashboardUrl: 'https://dynasty.academy/instructor/dashboard',
+      dashboardUrl: "https://dynasty.academy/instructor/dashboard",
     },
   });
 }

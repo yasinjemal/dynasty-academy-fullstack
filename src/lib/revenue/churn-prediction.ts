@@ -4,7 +4,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import { sendEngagementEmail } from "@/lib/engagement/notifications";
+import { sendEngagementEmail } from "@/lib/services/sendgrid";
 
 export interface ChurnFactors {
   loginFrequency: number; // 0-100

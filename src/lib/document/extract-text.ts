@@ -1,5 +1,4 @@
 import mammoth from "mammoth";
-import EPub from "epub";
 import { promisify } from "util";
 
 interface ExtractedPage {
@@ -127,6 +126,8 @@ async function extractDOCX(buffer: Buffer): Promise<DocumentExtractionResult> {
 async function extractEPUB(buffer: Buffer): Promise<DocumentExtractionResult> {
   return new Promise((resolve) => {
     try {
+      const req = eval("require") as NodeRequire;
+      const EPub = req("epub");
       // EPub expects a file path or ArrayBuffer, convert buffer
       const epub = new EPub(buffer as any);
 

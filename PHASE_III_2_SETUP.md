@@ -53,7 +53,7 @@ NEXTAUTH_SECRET=your-secret-key-here
 ### 1️⃣ Email System Setup (Resend)
 
 1. **Create Resend Account**: https://resend.com/signup
-2. **Get API Key**: 
+2. **Get API Key**:
    - Go to Dashboard → API Keys
    - Create new key
    - Copy and add to `.env` as `RESEND_API_KEY`
@@ -127,6 +127,7 @@ curl http://localhost:3000/api/admin/sessions/active \
 ```
 
 Returns:
+
 ```json
 {
   "stats": {
@@ -156,6 +157,7 @@ done
 ```
 
 Expected output:
+
 ```
 Attempt 1: 401
 Attempt 2: 401
@@ -315,43 +317,47 @@ Expected: `{"result":"PONG"}`
 
 **Free Tier Usage** (assumes 1,000 users, 10,000 daily requests):
 
-| Service | Free Tier | Estimated Usage | Cost |
-|---------|-----------|-----------------|------|
-| **Resend** | 3,000 emails/month | 500 emails/month | $0 |
-| **Upstash Redis** | 10,000 commands/day | 5,000 commands/day | $0 |
-| **Total** | - | - | **$0/month** |
+| Service           | Free Tier           | Estimated Usage    | Cost         |
+| ----------------- | ------------------- | ------------------ | ------------ |
+| **Resend**        | 3,000 emails/month  | 500 emails/month   | $0           |
+| **Upstash Redis** | 10,000 commands/day | 5,000 commands/day | $0           |
+| **Total**         | -                   | -                  | **$0/month** |
 
 **Paid Tier** (when you outgrow free):
 
-| Service | Plan | Cost |
-|---------|------|------|
-| **Resend** | Pro | $20/month (50,000 emails) |
-| **Upstash Redis** | Pay-as-you-go | ~$10-30/month |
-| **Total** | - | **$30-50/month** |
+| Service           | Plan          | Cost                      |
+| ----------------- | ------------- | ------------------------- |
+| **Resend**        | Pro           | $20/month (50,000 emails) |
+| **Upstash Redis** | Pay-as-you-go | ~$10-30/month             |
+| **Total**         | -             | **$30-50/month**          |
 
 ---
 
 ## 🎉 What You Now Have
 
 ✅ **Email System**
+
 - Transactional emails (approvals, notifications)
 - Beautiful HTML templates
 - Professional email sending
 - Delivery tracking
 
 ✅ **JWT Security**
+
 - 15-minute token expiration
 - Automatic token refresh
 - Session validation
 - Token revocation support
 
 ✅ **Session Tracking**
+
 - Real-time active user count
 - Multiple device detection
 - Session hijacking detection
 - Suspicious activity alerts
 
 ✅ **Production Rate Limiting**
+
 - Distributed rate limiting (Upstash)
 - Persistent across deployments
 - Per-endpoint configurations
@@ -363,6 +369,7 @@ Expected: `{"result":"PONG"}`
 ## 🔮 Next Steps
 
 **Immediate:**
+
 1. Install dependencies (`npm install resend @upstash/redis @upstash/ratelimit`)
 2. Add environment variables to `.env`
 3. Test email system
@@ -370,6 +377,7 @@ Expected: `{"result":"PONG"}`
 5. Check active sessions dashboard
 
 **Short-term:**
+
 1. Create admin UI for email testing
 2. Build active sessions management page
 3. Add rate limit override controls
@@ -377,6 +385,7 @@ Expected: `{"result":"PONG"}`
 5. Add webhook notifications
 
 **Long-term (Phase IV):**
+
 1. AI-powered threat detection
 2. Automated security responses
 3. Self-healing system
@@ -401,6 +410,7 @@ Expected: `{"result":"PONG"}`
 **Phase III.2 Complete** 🎉
 
 You now have:
+
 - **Bank-grade security** (JWT rotation + rate limiting)
 - **Real-time monitoring** (active sessions + security dashboard)
 - **Professional communications** (email system)

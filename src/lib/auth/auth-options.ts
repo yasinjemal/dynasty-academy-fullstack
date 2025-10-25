@@ -94,7 +94,7 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, trigger, session, account }) {
       // Use enhanced JWT callback with automatic token rotation
       const enhancedToken = await enhancedJWTCallback({ token, user, trigger });
-      
+
       if (user) {
         // For Google OAuth, fetch the user from database to get the actual ID
         if (account?.provider === "google" && user.email) {

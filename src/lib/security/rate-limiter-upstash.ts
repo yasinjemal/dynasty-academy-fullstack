@@ -1,14 +1,14 @@
 /**
  * Production Rate Limiter with Upstash Redis
- * 
+ *
  * Distributed rate limiting for production environments
  * Replaces in-memory limiter for scalability
- * 
+ *
  * Setup:
  * 1. Create Upstash Redis database at https://upstash.com
  * 2. Add UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to .env
  * 3. Install @upstash/redis: npm install @upstash/redis
- * 
+ *
  * Features:
  * - Distributed rate limiting (works across multiple servers)
  * - Persistent across deployments
@@ -111,7 +111,7 @@ export const RATE_LIMITS = {
 
 /**
  * Check rate limit for an identifier
- * 
+ *
  * @param limiterType - Type of rate limiter to use
  * @param identifier - Unique identifier (user ID, IP address, etc.)
  * @returns Rate limit result with allowed/denied status
@@ -129,11 +129,13 @@ export async function checkRateLimit(
       limit: result.limit,
       remaining: result.remaining,
       reset: result.reset,
-      retryAfter: result.success ? null : Math.ceil((result.reset - Date.now()) / 1000),
+      retryAfter: result.success
+        ? null
+        : Math.ceil((result.reset - Date.now()) / 1000),
     };
   } catch (error) {
     console.error(`Rate limit check failed for ${limiterType}:`, error);
-    
+
     // Fail open (allow request) if rate limiter is down
     // This prevents rate limiter issues from breaking the app
     return {
@@ -150,7 +152,7 @@ export async function checkRateLimit(
 /**
  * Rate limit middleware helper
  * Use this in API routes for easy rate limiting
- * 
+ *
  * @example
  * ```typescript
  * export async function POST(request: NextRequest) {
@@ -218,7 +220,7 @@ export async function getRateLimitAnalytics() {
   try {
     // Upstash Ratelimit automatically tracks analytics
     // You can query Redis for stats if needed
-    
+
     const stats = {
       available: true,
       message: "Rate limit analytics are tracked in Upstash dashboard",
@@ -246,7 +248,7 @@ export async function resetRateLimit(
     const limiter = RATE_LIMITS[limiterType];
     // Reset by deleting the key
     await redis.del(`@ratelimit/${limiterType.toLowerCase()}:${identifier}`);
-    
+
     return { success: true };
   } catch (error) {
     return { success: false, error };

@@ -33,6 +33,31 @@ const menuItems = [
     icon: "🛡️",
   },
   {
+    href: "/admin/email-test",
+    label: "📧 Email Testing",
+    icon: "📧",
+  },
+  {
+    href: "/admin/sessions",
+    label: "🔐 Active Sessions",
+    icon: "🔐",
+  },
+  {
+    href: "/admin/analytics",
+    label: "📈 Advanced Analytics",
+    icon: "📈",
+  },
+  {
+    href: "/admin/leaderboard",
+    label: "🏆 Dynasty Leaderboard",
+    icon: "🏆",
+  },
+  {
+    href: "/admin/instructor-verification",
+    label: "🎯 Instructor Verification",
+    icon: "🎯",
+  },
+  {
     href: "/admin/gamification-demo",
     label: "🎮 Gamification Demo",
     icon: "🎮",

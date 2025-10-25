@@ -1,12 +1,12 @@
 /**
  * Active Session Tracking System
- * 
+ *
  * Tracks active users in real-time for:
  * - Security dashboard metrics
  * - Concurrent user monitoring
  * - Session analytics
  * - Suspicious activity detection
- * 
+ *
  * Uses in-memory store (Redis-ready for production)
  */
 
@@ -106,7 +106,7 @@ class SessionStore {
     if (!sessionIds) return [];
 
     return Array.from(sessionIds)
-      .map(id => this.sessions.get(id))
+      .map((id) => this.sessions.get(id))
       .filter((s): s is ActiveSession => s !== undefined);
   }
 
@@ -149,7 +149,10 @@ class SessionStore {
   /**
    * Detect multiple concurrent sessions (security alert)
    */
-  private async detectMultipleSessions(userId: string, count: number): Promise<void> {
+  private async detectMultipleSessions(
+    userId: string,
+    count: number
+  ): Promise<void> {
     if (count >= 5) {
       await createAuditLog({
         action: "SUSPICIOUS_ACTIVITY",
@@ -257,7 +260,7 @@ export function getActiveUserStats(): {
   const recentThreshold = 15 * 60 * 1000; // 15 minutes
 
   const recentLogins = allSessions.filter(
-    s => now - s.loginTime.getTime() < recentThreshold
+    (s) => now - s.loginTime.getTime() < recentThreshold
   ).length;
 
   const activeUsers = sessionStore.getActiveUserCount();
@@ -285,19 +288,24 @@ export function getUserSessionDetails(userId: string): {
   return {
     sessions,
     totalSessions: sessions.length,
-    oldestSession: sessions.length > 0
-      ? new Date(Math.min(...sessions.map(s => s.loginTime.getTime())))
-      : null,
-    newestSession: sessions.length > 0
-      ? new Date(Math.max(...sessions.map(s => s.loginTime.getTime())))
-      : null,
+    oldestSession:
+      sessions.length > 0
+        ? new Date(Math.min(...sessions.map((s) => s.loginTime.getTime())))
+        : null,
+    newestSession:
+      sessions.length > 0
+        ? new Date(Math.max(...sessions.map((s) => s.loginTime.getTime())))
+        : null,
   };
 }
 
 /**
  * Force logout user from all sessions
  */
-export async function forceLogoutUser(userId: string, reason: string): Promise<void> {
+export async function forceLogoutUser(
+  userId: string,
+  reason: string
+): Promise<void> {
   const sessions = sessionStore.getUserSessions(userId);
 
   for (const session of sessions) {
@@ -356,8 +364,10 @@ export async function detectSessionAnomaly(params: {
 
   // Check if user agent changed significantly
   if (session.userAgent !== params.currentUserAgent) {
-    const significantChange = !session.userAgent.includes(params.currentUserAgent.split('/')[0]);
-    
+    const significantChange = !session.userAgent.includes(
+      params.currentUserAgent.split("/")[0]
+    );
+
     if (significantChange) {
       await createAuditLog({
         action: "SUSPICIOUS_ACTIVITY",
