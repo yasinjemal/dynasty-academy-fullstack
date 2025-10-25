@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     };
 
     try {
-      if (file.type === "application/pdf") {
+      if (file.type === "application/pdf" || fileExtension === ".pdf") {
         // Extract PDF content
         extractedData = {
           ...extractedData,
@@ -114,14 +114,20 @@ export async function POST(req: NextRequest) {
         };
       } else if (
         file.type ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        fileExtension === ".docx"
       ) {
         // Extract DOCX content
         extractedData = {
           ...extractedData,
           ...(await extractDOCXContent(buffer, file.name)),
         };
-      } else if (file.type === "text/plain" || file.type === "text/markdown") {
+      } else if (
+        file.type === "text/plain" ||
+        file.type === "text/markdown" ||
+        fileExtension === ".txt" ||
+        fileExtension === ".md"
+      ) {
         // Extract text content
         extractedData = {
           ...extractedData,
@@ -136,6 +142,14 @@ export async function POST(req: NextRequest) {
       extractedData.wordCount = 0;
       extractedData.contentPreview = "";
     }
+
+    console.log("📊 Extracted data:", {
+      hasExtractedTitle: !!extractedData.extractedTitle,
+      hasExtractedAuthor: !!extractedData.extractedAuthor,
+      hasContentPreview: !!extractedData.contentPreview,
+      totalPages: extractedData.totalPages,
+      wordCount: extractedData.wordCount,
+    });
 
     return NextResponse.json({
       success: true,

@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
       wordCount: body.wordCount,
     });
 
-    const { fileId, title, author, contentPreview, totalPages, wordCount } = body;
+    const { fileId, title, author, contentPreview, totalPages, wordCount } =
+      body;
 
     if (!title) {
       console.error("❌ Missing required data: title");
