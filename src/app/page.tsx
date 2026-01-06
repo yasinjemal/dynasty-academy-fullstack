@@ -1,56 +1,35 @@
-﻿"use client";
+﻿import { Suspense } from "react";
+import { getHomepageData } from "@/lib/api/homepage-data";
+import HomePageClient from "@/components/home/HomePageClient";
 
-import { useState } from "react";
-import FuturePortalSimple from "@/components/intro/FuturePortalSimple";
-import Hero3D from "@/components/home/Hero3D";
-import FeaturesShowcase from "@/components/home/FeaturesShowcase";
-import StatsSection from "@/components/home/StatsSection";
-import TestimonialsSection from "@/components/home/TestimonialsSection";
-import PricingSection from "@/components/home/PricingSection";
-import Footer from "@/components/home/Footer";
-import ScrollProgress from "@/components/effects/ScrollProgress";
-import MouseGlow from "@/components/effects/MouseGlow";
-import LiveActivityFeed from "@/components/effects/LiveActivityFeed";
+// Force dynamic to ensure fresh data
+export const dynamic = "force-dynamic";
+export const revalidate = 60; // Revalidate every minute
 
-export default function Home() {
-  const [showIntro, setShowIntro] = useState(true);
+export default async function Home() {
+  // Fetch all homepage data in parallel on the server
+  const data = await getHomepageData();
 
   return (
-    <>
-      {/* Future Portal Intro - PRO VERSION WITH 3D */}
-      {showIntro && (
-        <FuturePortalSimple onComplete={() => setShowIntro(false)} />
-      )}
+    <Suspense fallback={<HomePageLoading />}>
+      <HomePageClient data={data} />
+    </Suspense>
+  );
+}
 
-      {/* Main Homepage */}
-      <div className="min-h-screen bg-[#0A0E27] overflow-hidden">
-        {/* Scroll Progress Indicator - Top Bar + Circular */}
-        <ScrollProgress />
-
-        {/* Mouse Glow Effect */}
-        <MouseGlow />
-
-        {/* Live Activity Feed - Bottom Left */}
-        <LiveActivityFeed />
-
-        {/* INSANE 3D Hero Section with Floating Book */}
-        <Hero3D />
-
-        {/* Premium Features Showcase with Animated Cards */}
-        <FeaturesShowcase />
-
-        {/* Animated Stats with Counting Numbers */}
-        <StatsSection />
-
-        {/* Testimonials with 3D Cards & Sparkles */}
-        <TestimonialsSection />
-
-        {/* Pricing Plans with Glow Effects */}
-        <PricingSection />
-
-        {/* Footer with Wave Divider */}
-        <Footer />
+// Loading skeleton for the homepage
+function HomePageLoading() {
+  return (
+    <div className="min-h-screen bg-[#030014] flex items-center justify-center">
+      <div className="text-center">
+        <div className="relative w-20 h-20 mx-auto mb-6">
+          <div className="absolute inset-0 rounded-full border-4 border-orange-500/30" />
+          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-orange-500 animate-spin" />
+        </div>
+        <p className="text-gray-400 animate-pulse">
+          Loading Dynasty Academy...
+        </p>
       </div>
-    </>
+    </div>
   );
 }

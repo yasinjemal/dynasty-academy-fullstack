@@ -65,7 +65,7 @@ export async function createAuditLog(params: AuditLogParams) {
 
     // Try to find the user first - if not found, skip audit log for now
     // This handles cases where OAuth user IDs don't match our internal user IDs
-    let validUserId = userId;
+    let validUserId: string | undefined = userId;
 
     if (userId && userId !== "anonymous") {
       const user = await prisma.user.findUnique({
@@ -84,7 +84,7 @@ export async function createAuditLog(params: AuditLogParams) {
           },
           select: { id: true },
         });
-        validUserId = userByClerk?.id || null;
+        validUserId = userByClerk?.id ?? undefined;
       }
     }
 
