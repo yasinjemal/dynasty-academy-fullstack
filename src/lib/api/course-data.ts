@@ -150,12 +150,19 @@ const FALLBACK_COURSE: CourseDetail = {
 This course covers everything from basic budgeting to advanced investment strategies, all taught through real-world examples and actionable exercises.
 
 Whether you're just starting your financial journey or looking to optimize your existing wealth, this course provides the framework and tools you need to succeed.`,
-  shortDescription: "The complete guide to building lasting wealth through smart financial decisions.",
+  shortDescription:
+    "The complete guide to building lasting wealth through smart financial decisions.",
   coverImage: "/images/courses/finance-master.jpg",
   previewVideo: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
   level: "beginner",
   category: "Finance",
-  tags: ["Finance", "Investing", "Budgeting", "Wealth Building", "Personal Finance"],
+  tags: [
+    "Finance",
+    "Investing",
+    "Budgeting",
+    "Wealth Building",
+    "Personal Finance",
+  ],
   duration: 1240,
   lessonCount: 48,
   price: 197,
@@ -185,14 +192,78 @@ Whether you're just starting your financial journey or looking to optimize your 
       duration: 180,
       lessonCount: 8,
       lessons: [
-        { id: "l1", title: "Welcome & Course Overview", type: "video", duration: 15, order: 1, isFree: true, hasQuiz: false },
-        { id: "l2", title: "The Psychology of Money", type: "video", duration: 28, order: 2, isFree: true, hasQuiz: false },
-        { id: "l3", title: "Understanding Your Money Story", type: "video", duration: 22, order: 3, isFree: false, hasQuiz: false },
-        { id: "l4", title: "The Wealth Mindset Framework", type: "video", duration: 25, order: 4, isFree: false, hasQuiz: false },
-        { id: "l5", title: "Goal Setting for Financial Success", type: "video", duration: 20, order: 5, isFree: false, hasQuiz: false },
-        { id: "l6", title: "Creating Your Financial Vision", type: "article", duration: 15, order: 6, isFree: false, hasQuiz: false },
-        { id: "l7", title: "Module Resources & Worksheets", type: "pdf", duration: 10, order: 7, isFree: false, hasQuiz: false },
-        { id: "l8", title: "Module 1 Assessment", type: "quiz", duration: 15, order: 8, isFree: false, hasQuiz: true },
+        {
+          id: "l1",
+          title: "Welcome & Course Overview",
+          type: "video",
+          duration: 15,
+          order: 1,
+          isFree: true,
+          hasQuiz: false,
+        },
+        {
+          id: "l2",
+          title: "The Psychology of Money",
+          type: "video",
+          duration: 28,
+          order: 2,
+          isFree: true,
+          hasQuiz: false,
+        },
+        {
+          id: "l3",
+          title: "Understanding Your Money Story",
+          type: "video",
+          duration: 22,
+          order: 3,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l4",
+          title: "The Wealth Mindset Framework",
+          type: "video",
+          duration: 25,
+          order: 4,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l5",
+          title: "Goal Setting for Financial Success",
+          type: "video",
+          duration: 20,
+          order: 5,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l6",
+          title: "Creating Your Financial Vision",
+          type: "article",
+          duration: 15,
+          order: 6,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l7",
+          title: "Module Resources & Worksheets",
+          type: "pdf",
+          duration: 10,
+          order: 7,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l8",
+          title: "Module 1 Assessment",
+          type: "quiz",
+          duration: 15,
+          order: 8,
+          isFree: false,
+          hasQuiz: true,
+        },
       ],
     },
     {
@@ -203,16 +274,96 @@ Whether you're just starting your financial journey or looking to optimize your 
       duration: 210,
       lessonCount: 10,
       lessons: [
-        { id: "l9", title: "The 50/30/20 Rule Explained", type: "video", duration: 24, order: 1, isFree: false, hasQuiz: false },
-        { id: "l10", title: "Building Your First Budget", type: "video", duration: 32, order: 2, isFree: false, hasQuiz: false },
-        { id: "l11", title: "Tracking Every Dollar", type: "video", duration: 18, order: 3, isFree: false, hasQuiz: false },
-        { id: "l12", title: "Cutting Expenses Without Sacrifice", type: "video", duration: 26, order: 4, isFree: false, hasQuiz: false },
-        { id: "l13", title: "Increasing Your Income Streams", type: "video", duration: 30, order: 5, isFree: false, hasQuiz: false },
-        { id: "l14", title: "Automating Your Finances", type: "video", duration: 22, order: 6, isFree: false, hasQuiz: false },
-        { id: "l15", title: "Emergency Fund Strategy", type: "video", duration: 20, order: 7, isFree: false, hasQuiz: false },
-        { id: "l16", title: "Budget Templates & Tools", type: "pdf", duration: 10, order: 8, isFree: false, hasQuiz: false },
-        { id: "l17", title: "Cash Flow Calculator", type: "pdf", duration: 8, order: 9, isFree: false, hasQuiz: false },
-        { id: "l18", title: "Module 2 Assessment", type: "quiz", duration: 20, order: 10, isFree: false, hasQuiz: true },
+        {
+          id: "l9",
+          title: "The 50/30/20 Rule Explained",
+          type: "video",
+          duration: 24,
+          order: 1,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l10",
+          title: "Building Your First Budget",
+          type: "video",
+          duration: 32,
+          order: 2,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l11",
+          title: "Tracking Every Dollar",
+          type: "video",
+          duration: 18,
+          order: 3,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l12",
+          title: "Cutting Expenses Without Sacrifice",
+          type: "video",
+          duration: 26,
+          order: 4,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l13",
+          title: "Increasing Your Income Streams",
+          type: "video",
+          duration: 30,
+          order: 5,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l14",
+          title: "Automating Your Finances",
+          type: "video",
+          duration: 22,
+          order: 6,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l15",
+          title: "Emergency Fund Strategy",
+          type: "video",
+          duration: 20,
+          order: 7,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l16",
+          title: "Budget Templates & Tools",
+          type: "pdf",
+          duration: 10,
+          order: 8,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l17",
+          title: "Cash Flow Calculator",
+          type: "pdf",
+          duration: 8,
+          order: 9,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l18",
+          title: "Module 2 Assessment",
+          type: "quiz",
+          duration: 20,
+          order: 10,
+          isFree: false,
+          hasQuiz: true,
+        },
       ],
     },
     {
@@ -223,13 +374,69 @@ Whether you're just starting your financial journey or looking to optimize your 
       duration: 150,
       lessonCount: 7,
       lessons: [
-        { id: "l19", title: "Understanding Good vs Bad Debt", type: "video", duration: 22, order: 1, isFree: false, hasQuiz: false },
-        { id: "l20", title: "The Debt Snowball Method", type: "video", duration: 25, order: 2, isFree: false, hasQuiz: false },
-        { id: "l21", title: "The Debt Avalanche Method", type: "video", duration: 23, order: 3, isFree: false, hasQuiz: false },
-        { id: "l22", title: "Negotiating with Creditors", type: "video", duration: 28, order: 4, isFree: false, hasQuiz: false },
-        { id: "l23", title: "Building Credit While Paying Off Debt", type: "video", duration: 20, order: 5, isFree: false, hasQuiz: false },
-        { id: "l24", title: "Debt Payoff Calculator", type: "pdf", duration: 12, order: 6, isFree: false, hasQuiz: false },
-        { id: "l25", title: "Module 3 Assessment", type: "quiz", duration: 20, order: 7, isFree: false, hasQuiz: true },
+        {
+          id: "l19",
+          title: "Understanding Good vs Bad Debt",
+          type: "video",
+          duration: 22,
+          order: 1,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l20",
+          title: "The Debt Snowball Method",
+          type: "video",
+          duration: 25,
+          order: 2,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l21",
+          title: "The Debt Avalanche Method",
+          type: "video",
+          duration: 23,
+          order: 3,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l22",
+          title: "Negotiating with Creditors",
+          type: "video",
+          duration: 28,
+          order: 4,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l23",
+          title: "Building Credit While Paying Off Debt",
+          type: "video",
+          duration: 20,
+          order: 5,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l24",
+          title: "Debt Payoff Calculator",
+          type: "pdf",
+          duration: 12,
+          order: 6,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l25",
+          title: "Module 3 Assessment",
+          type: "quiz",
+          duration: 20,
+          order: 7,
+          isFree: false,
+          hasQuiz: true,
+        },
       ],
     },
     {
@@ -240,18 +447,114 @@ Whether you're just starting your financial journey or looking to optimize your 
       duration: 280,
       lessonCount: 12,
       lessons: [
-        { id: "l26", title: "Introduction to Investing", type: "video", duration: 28, order: 1, isFree: false, hasQuiz: false },
-        { id: "l27", title: "Stocks, Bonds & ETFs Explained", type: "video", duration: 35, order: 2, isFree: false, hasQuiz: false },
-        { id: "l28", title: "Understanding Market Cycles", type: "video", duration: 30, order: 3, isFree: false, hasQuiz: false },
-        { id: "l29", title: "Building Your Investment Portfolio", type: "video", duration: 32, order: 4, isFree: false, hasQuiz: false },
-        { id: "l30", title: "Risk Management Strategies", type: "video", duration: 26, order: 5, isFree: false, hasQuiz: false },
-        { id: "l31", title: "Retirement Accounts Masterclass", type: "video", duration: 28, order: 6, isFree: false, hasQuiz: false },
-        { id: "l32", title: "Real Estate Investing Basics", type: "video", duration: 30, order: 7, isFree: false, hasQuiz: false },
-        { id: "l33", title: "Alternative Investments", type: "video", duration: 24, order: 8, isFree: false, hasQuiz: false },
-        { id: "l34", title: "Tax-Efficient Investing", type: "video", duration: 22, order: 9, isFree: false, hasQuiz: false },
-        { id: "l35", title: "Investment Checklist", type: "pdf", duration: 10, order: 10, isFree: false, hasQuiz: false },
-        { id: "l36", title: "Portfolio Tracker Template", type: "pdf", duration: 5, order: 11, isFree: false, hasQuiz: false },
-        { id: "l37", title: "Module 4 Assessment", type: "quiz", duration: 25, order: 12, isFree: false, hasQuiz: true },
+        {
+          id: "l26",
+          title: "Introduction to Investing",
+          type: "video",
+          duration: 28,
+          order: 1,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l27",
+          title: "Stocks, Bonds & ETFs Explained",
+          type: "video",
+          duration: 35,
+          order: 2,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l28",
+          title: "Understanding Market Cycles",
+          type: "video",
+          duration: 30,
+          order: 3,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l29",
+          title: "Building Your Investment Portfolio",
+          type: "video",
+          duration: 32,
+          order: 4,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l30",
+          title: "Risk Management Strategies",
+          type: "video",
+          duration: 26,
+          order: 5,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l31",
+          title: "Retirement Accounts Masterclass",
+          type: "video",
+          duration: 28,
+          order: 6,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l32",
+          title: "Real Estate Investing Basics",
+          type: "video",
+          duration: 30,
+          order: 7,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l33",
+          title: "Alternative Investments",
+          type: "video",
+          duration: 24,
+          order: 8,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l34",
+          title: "Tax-Efficient Investing",
+          type: "video",
+          duration: 22,
+          order: 9,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l35",
+          title: "Investment Checklist",
+          type: "pdf",
+          duration: 10,
+          order: 10,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l36",
+          title: "Portfolio Tracker Template",
+          type: "pdf",
+          duration: 5,
+          order: 11,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l37",
+          title: "Module 4 Assessment",
+          type: "quiz",
+          duration: 25,
+          order: 12,
+          isFree: false,
+          hasQuiz: true,
+        },
       ],
     },
     {
@@ -262,15 +565,87 @@ Whether you're just starting your financial journey or looking to optimize your 
       duration: 220,
       lessonCount: 9,
       lessons: [
-        { id: "l38", title: "Multiple Income Streams", type: "video", duration: 30, order: 1, isFree: false, hasQuiz: false },
-        { id: "l39", title: "Business Ownership for Wealth", type: "video", duration: 35, order: 2, isFree: false, hasQuiz: false },
-        { id: "l40", title: "Tax Optimization Strategies", type: "video", duration: 28, order: 3, isFree: false, hasQuiz: false },
-        { id: "l41", title: "Estate Planning Essentials", type: "video", duration: 25, order: 4, isFree: false, hasQuiz: false },
-        { id: "l42", title: "Protecting Your Wealth", type: "video", duration: 22, order: 5, isFree: false, hasQuiz: false },
-        { id: "l43", title: "Legacy Building", type: "video", duration: 20, order: 6, isFree: false, hasQuiz: false },
-        { id: "l44", title: "Your 90-Day Wealth Action Plan", type: "video", duration: 25, order: 7, isFree: false, hasQuiz: false },
-        { id: "l45", title: "Wealth Building Resources", type: "pdf", duration: 15, order: 8, isFree: false, hasQuiz: false },
-        { id: "l46", title: "Final Course Assessment", type: "quiz", duration: 30, order: 9, isFree: false, hasQuiz: true },
+        {
+          id: "l38",
+          title: "Multiple Income Streams",
+          type: "video",
+          duration: 30,
+          order: 1,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l39",
+          title: "Business Ownership for Wealth",
+          type: "video",
+          duration: 35,
+          order: 2,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l40",
+          title: "Tax Optimization Strategies",
+          type: "video",
+          duration: 28,
+          order: 3,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l41",
+          title: "Estate Planning Essentials",
+          type: "video",
+          duration: 25,
+          order: 4,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l42",
+          title: "Protecting Your Wealth",
+          type: "video",
+          duration: 22,
+          order: 5,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l43",
+          title: "Legacy Building",
+          type: "video",
+          duration: 20,
+          order: 6,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l44",
+          title: "Your 90-Day Wealth Action Plan",
+          type: "video",
+          duration: 25,
+          order: 7,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l45",
+          title: "Wealth Building Resources",
+          type: "pdf",
+          duration: 15,
+          order: 8,
+          isFree: false,
+          hasQuiz: false,
+        },
+        {
+          id: "l46",
+          title: "Final Course Assessment",
+          type: "quiz",
+          duration: 30,
+          order: 9,
+          isFree: false,
+          hasQuiz: true,
+        },
       ],
     },
   ],
@@ -320,7 +695,8 @@ const FALLBACK_REVIEWS: CourseReview[] = [
     userImage: "/images/users/sarah.jpg",
     rating: 5,
     title: "Life-changing course!",
-    content: "This course completely transformed how I think about money. I went from living paycheck to paycheck to having a 6-month emergency fund in just 8 months. The investment section alone was worth 10x the price.",
+    content:
+      "This course completely transformed how I think about money. I went from living paycheck to paycheck to having a 6-month emergency fund in just 8 months. The investment section alone was worth 10x the price.",
     helpful: 234,
     createdAt: "2024-11-15T00:00:00.000Z",
     verified: true,
@@ -332,7 +708,8 @@ const FALLBACK_REVIEWS: CourseReview[] = [
     userImage: "/images/users/michael.jpg",
     rating: 5,
     title: "Finally understand investing",
-    content: "I've tried reading books and watching YouTube videos, but nothing clicked until this course. Dr. Chen breaks down complex concepts into simple, actionable steps. My portfolio is up 15% since completing the course.",
+    content:
+      "I've tried reading books and watching YouTube videos, but nothing clicked until this course. Dr. Chen breaks down complex concepts into simple, actionable steps. My portfolio is up 15% since completing the course.",
     helpful: 189,
     createdAt: "2024-11-01T00:00:00.000Z",
     verified: true,
@@ -344,7 +721,8 @@ const FALLBACK_REVIEWS: CourseReview[] = [
     userImage: "/images/users/emily.jpg",
     rating: 5,
     title: "Paid off $30k in debt!",
-    content: "The debt elimination strategies in this course are incredible. I used the debt avalanche method and paid off $30,000 in student loans in 18 months. Can't recommend this enough!",
+    content:
+      "The debt elimination strategies in this course are incredible. I used the debt avalanche method and paid off $30,000 in student loans in 18 months. Can't recommend this enough!",
     helpful: 312,
     createdAt: "2024-10-20T00:00:00.000Z",
     verified: true,
@@ -356,7 +734,8 @@ const FALLBACK_REVIEWS: CourseReview[] = [
     userImage: "/images/users/david.jpg",
     rating: 4,
     title: "Great content, well structured",
-    content: "Very comprehensive course covering all aspects of personal finance. Only giving 4 stars because I wish there was more on cryptocurrency and alternative investments. Otherwise, excellent!",
+    content:
+      "Very comprehensive course covering all aspects of personal finance. Only giving 4 stars because I wish there was more on cryptocurrency and alternative investments. Otherwise, excellent!",
     helpful: 98,
     createdAt: "2024-10-05T00:00:00.000Z",
     verified: true,
@@ -368,7 +747,8 @@ const FALLBACK_REVIEWS: CourseReview[] = [
     userImage: "/images/users/jessica.jpg",
     rating: 5,
     title: "Best investment I've made",
-    content: "Ironic that the best investment I made this year was investing in my financial education. The ROI on this course is insane. Already saved $500/month from the budgeting techniques alone.",
+    content:
+      "Ironic that the best investment I made this year was investing in my financial education. The ROI on this course is insane. Already saved $500/month from the budgeting techniques alone.",
     helpful: 156,
     createdAt: "2024-09-28T00:00:00.000Z",
     verified: true,
@@ -470,7 +850,9 @@ export const getCourseDetail = cache(
         if (author) {
           // Count instructor's courses and students
           const [courseCount, totalStudents] = await Promise.all([
-            prisma.courses.count({ where: { authorId: author.id, status: "published" } }),
+            prisma.courses.count({
+              where: { authorId: author.id, status: "published" },
+            }),
             prisma.course_enrollments.count({
               where: { courses: { authorId: author.id } },
             }),
@@ -479,7 +861,10 @@ export const getCourseDetail = cache(
           instructorInfo = {
             id: author.id,
             name: author.name || course.instructorName || "Instructor",
-            image: author.image || course.instructorImage || "/images/instructors/default.jpg",
+            image:
+              author.image ||
+              course.instructorImage ||
+              "/images/instructors/default.jpg",
             bio: author.bio || course.instructorBio || "Expert instructor",
             title: "Course Instructor",
             totalStudents,
@@ -497,36 +882,42 @@ export const getCourseDetail = cache(
       ]);
 
       // Transform sections with proper typing
-      const sections: CurriculumSection[] = course.course_sections.map((section: {
-        id: string;
-        title: string;
-        description: string | null;
-        order: number;
-        course_lessons: Array<{
+      const sections: CurriculumSection[] = course.course_sections.map(
+        (section: {
           id: string;
           title: string;
-          type: string;
-          videoDuration: number | null;
+          description: string | null;
           order: number;
-          isFree: boolean | null;
-        }>;
-      }) => ({
-        id: section.id,
-        title: section.title,
-        description: section.description,
-        order: section.order,
-        duration: section.course_lessons.reduce((acc: number, l) => acc + (l.videoDuration || 0), 0),
-        lessonCount: section.course_lessons.length,
-        lessons: section.course_lessons.map((lesson) => ({
-          id: lesson.id,
-          title: lesson.title,
-          type: (lesson.type as "video" | "article" | "pdf" | "quiz") || "video",
-          duration: lesson.videoDuration || 0,
-          order: lesson.order,
-          isFree: lesson.isFree || false,
-          hasQuiz: false, // Would need to check quizzes
-        })),
-      }));
+          course_lessons: Array<{
+            id: string;
+            title: string;
+            type: string;
+            videoDuration: number | null;
+            order: number;
+            isFree: boolean | null;
+          }>;
+        }) => ({
+          id: section.id,
+          title: section.title,
+          description: section.description,
+          order: section.order,
+          duration: section.course_lessons.reduce(
+            (acc: number, l) => acc + (l.videoDuration || 0),
+            0
+          ),
+          lessonCount: section.course_lessons.length,
+          lessons: section.course_lessons.map((lesson) => ({
+            id: lesson.id,
+            title: lesson.title,
+            type:
+              (lesson.type as "video" | "article" | "pdf" | "quiz") || "video",
+            duration: lesson.videoDuration || 0,
+            order: lesson.order,
+            isFree: lesson.isFree || false,
+            hasQuiz: false, // Would need to check quizzes
+          })),
+        })
+      );
 
       return {
         id: course.id,
@@ -536,13 +927,17 @@ export const getCourseDetail = cache(
         shortDescription: course.shortDescription || "",
         coverImage: course.coverImage || "/images/courses/default.jpg",
         previewVideo: course.previewVideo,
-        level: (course.level as "beginner" | "intermediate" | "advanced") || "beginner",
+        level:
+          (course.level as "beginner" | "intermediate" | "advanced") ||
+          "beginner",
         category: course.category,
         tags: course.tags || [],
         duration: course.duration || 0,
         lessonCount: course.lessonCount || 0,
         price: Number(course.price) || 0,
-        originalPrice: course.discount ? Number(course.price) / (1 - course.discount / 100) : Number(course.price),
+        originalPrice: course.discount
+          ? Number(course.price) / (1 - course.discount / 100)
+          : Number(course.price),
         discount: course.discount || 0,
         isFree: course.isFree || false,
         isPremium: course.isPremium || false,
@@ -566,7 +961,9 @@ export const getCourseDetail = cache(
           `${totalQuizzes} quizzes to test knowledge`,
           `${totalResources} downloadable resources`,
           "Lifetime access",
-          course.certificateEnabled ? "Certificate of completion" : "Progress tracking",
+          course.certificateEnabled
+            ? "Certificate of completion"
+            : "Progress tracking",
         ],
         requirements: [
           "No prior experience required",
@@ -617,18 +1014,20 @@ export const getCourseReviews = cache(
         return FALLBACK_REVIEWS;
       }
 
-      return reviews.map((review): CourseReview => ({
-        id: review.id,
-        userId: review.userId,
-        userName: review.users.name || "Anonymous",
-        userImage: review.users.image || "/images/users/default.jpg",
-        rating: review.rating,
-        title: "",
-        content: review.comment || "",
-        helpful: review.helpful || 0,
-        createdAt: review.createdAt.toISOString(),
-        verified: review.verified || true,
-      }));
+      return reviews.map(
+        (review): CourseReview => ({
+          id: review.id,
+          userId: review.userId,
+          userName: review.users.name || "Anonymous",
+          userImage: review.users.image || "/images/users/default.jpg",
+          rating: review.rating,
+          title: "",
+          content: review.comment || "",
+          helpful: review.helpful || 0,
+          createdAt: review.createdAt.toISOString(),
+          verified: review.verified || true,
+        })
+      );
     } catch (error) {
       console.error("Error fetching reviews:", error);
       return FALLBACK_REVIEWS;
@@ -637,7 +1036,11 @@ export const getCourseReviews = cache(
 );
 
 export const getRelatedCourses = cache(
-  async (courseId: string, category: string, limit = 3): Promise<RelatedCourse[]> => {
+  async (
+    courseId: string,
+    category: string,
+    limit = 3
+  ): Promise<RelatedCourse[]> => {
     try {
       const courses = await prisma.courses.findMany({
         where: {
@@ -674,7 +1077,10 @@ export const getRelatedCourses = cache(
 );
 
 export const checkEnrollment = cache(
-  async (courseId: string, userId: string | undefined): Promise<{ isEnrolled: boolean; progress: number }> => {
+  async (
+    courseId: string,
+    userId: string | undefined
+  ): Promise<{ isEnrolled: boolean; progress: number }> => {
     if (!userId) {
       return { isEnrolled: false, progress: 0 };
     }

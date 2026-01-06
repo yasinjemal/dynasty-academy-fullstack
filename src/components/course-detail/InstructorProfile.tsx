@@ -36,7 +36,9 @@ export function InstructorProfile({ instructor }: InstructorProfileProps) {
           viewport={{ once: true }}
           className="text-center mb-10"
         >
-          <h2 className="text-3xl font-bold text-white mb-2">Meet Your Instructor</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">
+            Meet Your Instructor
+          </h2>
           <p className="text-gray-400">Learn from an industry expert</p>
         </motion.div>
 
@@ -71,7 +73,9 @@ export function InstructorProfile({ instructor }: InstructorProfileProps) {
                 <h3 className="text-2xl font-bold text-white mb-1">
                   {instructor.name}
                 </h3>
-                <p className="text-purple-400 font-medium">{instructor.title}</p>
+                <p className="text-purple-400 font-medium">
+                  {instructor.title}
+                </p>
               </div>
 
               {/* Stats */}
@@ -81,7 +85,9 @@ export function InstructorProfile({ instructor }: InstructorProfileProps) {
                     <Star className="w-5 h-5 text-yellow-400" />
                   </div>
                   <div>
-                    <p className="text-white font-bold">{instructor.averageRating}</p>
+                    <p className="text-white font-bold">
+                      {instructor.averageRating}
+                    </p>
                     <p className="text-gray-500 text-xs">Rating</p>
                   </div>
                 </div>
@@ -101,7 +107,9 @@ export function InstructorProfile({ instructor }: InstructorProfileProps) {
                     <BookOpen className="w-5 h-5 text-cyan-400" />
                   </div>
                   <div>
-                    <p className="text-white font-bold">{instructor.totalCourses}</p>
+                    <p className="text-white font-bold">
+                      {instructor.totalCourses}
+                    </p>
                     <p className="text-gray-500 text-xs">Courses</p>
                   </div>
                 </div>
@@ -115,23 +123,26 @@ export function InstructorProfile({ instructor }: InstructorProfileProps) {
               {/* Social Links */}
               {Object.keys(instructor.socialLinks).length > 0 && (
                 <div className="flex flex-wrap justify-center md:justify-start gap-3">
-                  {Object.entries(instructor.socialLinks).map(([platform, url]) => {
-                    if (!url) return null;
-                    const Icon = socialIcons[platform as keyof typeof socialIcons];
-                    if (!Icon) return null;
+                  {Object.entries(instructor.socialLinks).map(
+                    ([platform, url]) => {
+                      if (!url) return null;
+                      const Icon =
+                        socialIcons[platform as keyof typeof socialIcons];
+                      if (!Icon) return null;
 
-                    return (
-                      <a
-                        key={platform}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-10 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg flex items-center justify-center transition-colors group"
-                      >
-                        <Icon className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
-                      </a>
-                    );
-                  })}
+                      return (
+                        <a
+                          key={platform}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg flex items-center justify-center transition-colors group"
+                        >
+                          <Icon className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+                        </a>
+                      );
+                    }
+                  )}
                 </div>
               )}
             </div>

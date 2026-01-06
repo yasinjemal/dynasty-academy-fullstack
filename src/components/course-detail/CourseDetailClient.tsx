@@ -14,42 +14,56 @@ const CourseHero = dynamic(
 );
 
 const CourseOverview = dynamic(
-  () => import("./CourseOverview").then((mod) => ({ default: mod.CourseOverview })),
+  () =>
+    import("./CourseOverview").then((mod) => ({ default: mod.CourseOverview })),
   {
     loading: () => <div className="h-96 bg-black animate-pulse" />,
   }
 );
 
 const CourseCurriculum = dynamic(
-  () => import("./CourseCurriculum").then((mod) => ({ default: mod.CourseCurriculum })),
+  () =>
+    import("./CourseCurriculum").then((mod) => ({
+      default: mod.CourseCurriculum,
+    })),
   {
     loading: () => <div className="h-96 bg-gray-900 animate-pulse" />,
   }
 );
 
 const InstructorProfile = dynamic(
-  () => import("./InstructorProfile").then((mod) => ({ default: mod.InstructorProfile })),
+  () =>
+    import("./InstructorProfile").then((mod) => ({
+      default: mod.InstructorProfile,
+    })),
   {
     loading: () => <div className="h-64 bg-black animate-pulse" />,
   }
 );
 
 const CourseReviewsSection = dynamic(
-  () => import("./CourseReviewsSection").then((mod) => ({ default: mod.CourseReviewsSection })),
+  () =>
+    import("./CourseReviewsSection").then((mod) => ({
+      default: mod.CourseReviewsSection,
+    })),
   {
     loading: () => <div className="h-96 bg-gray-900 animate-pulse" />,
   }
 );
 
 const RelatedCourses = dynamic(
-  () => import("./RelatedCourses").then((mod) => ({ default: mod.RelatedCourses })),
+  () =>
+    import("./RelatedCourses").then((mod) => ({ default: mod.RelatedCourses })),
   {
     loading: () => <div className="h-64 bg-black animate-pulse" />,
   }
 );
 
 const StickyEnrollBar = dynamic(
-  () => import("./StickyEnrollBar").then((mod) => ({ default: mod.StickyEnrollBar })),
+  () =>
+    import("./StickyEnrollBar").then((mod) => ({
+      default: mod.StickyEnrollBar,
+    })),
   { ssr: false }
 );
 

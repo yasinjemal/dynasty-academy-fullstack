@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
@@ -12,6 +12,19 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+// Mobile viewport configuration (Next.js 15+ requires separate export)
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover", // For iPhone notch support
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#030014" },
+    { media: "(prefers-color-scheme: dark)", color: "#030014" },
+  ],
+};
+
 export const metadata: Metadata = {
   title: "Dynasty Built Academy - Build Your Future | Online Learning Platform",
   description:
@@ -19,6 +32,12 @@ export const metadata: Metadata = {
   keywords:
     "online learning, education platform, books, courses, personal development, community learning",
   authors: [{ name: "Dynasty Built Academy" }],
+  // Apple mobile web app configuration
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Dynasty Academy",
+  },
   openGraph: {
     title: "Dynasty Built Academy - Build Your Future",
     description:

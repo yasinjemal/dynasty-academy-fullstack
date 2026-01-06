@@ -60,7 +60,7 @@ export function CourseHero({
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-black/70" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/50" />
-        
+
         {/* Animated particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(20)].map((_, i) => (
@@ -108,7 +108,11 @@ export function CourseHero({
                   Premium
                 </span>
               )}
-              <span className={`inline-flex items-center px-3 py-1.5 bg-gradient-to-r ${levelColors[course.level]}/20 border border-white/10 rounded-full text-sm font-medium capitalize`}>
+              <span
+                className={`inline-flex items-center px-3 py-1.5 bg-gradient-to-r ${
+                  levelColors[course.level]
+                }/20 border border-white/10 rounded-full text-sm font-medium capitalize`}
+              >
                 {course.level}
               </span>
               <span className="px-3 py-1.5 bg-white/10 border border-white/10 rounded-full text-white/70 text-sm">
@@ -150,7 +154,9 @@ export function CourseHero({
               </div>
               <div className="flex items-center gap-2 text-gray-300">
                 <Users className="w-5 h-5 text-purple-400" />
-                <span>{course.stats.enrollmentCount.toLocaleString()} students</span>
+                <span>
+                  {course.stats.enrollmentCount.toLocaleString()} students
+                </span>
               </div>
             </div>
 
@@ -183,7 +189,9 @@ export function CourseHero({
             {/* Instructor Mini */}
             <div className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-xl mb-8">
               <Image
-                src={course.instructor.image || "/images/instructors/default.jpg"}
+                src={
+                  course.instructor.image || "/images/instructors/default.jpg"
+                }
                 alt={course.instructor.name}
                 width={56}
                 height={56}
@@ -191,14 +199,19 @@ export function CourseHero({
               />
               <div>
                 <p className="text-sm text-gray-400">Created by</p>
-                <p className="text-white font-semibold">{course.instructor.name}</p>
-                <p className="text-sm text-purple-400">{course.instructor.title}</p>
+                <p className="text-white font-semibold">
+                  {course.instructor.name}
+                </p>
+                <p className="text-sm text-purple-400">
+                  {course.instructor.title}
+                </p>
               </div>
             </div>
 
             {/* Last Updated */}
             <p className="text-sm text-gray-500">
-              Last updated: {new Date(course.updatedAt).toLocaleDateString("en-US", {
+              Last updated:{" "}
+              {new Date(course.updatedAt).toLocaleDateString("en-US", {
                 month: "long",
                 year: "numeric",
               })}
@@ -240,7 +253,9 @@ export function CourseHero({
               <div className="mb-6">
                 {course.isFree ? (
                   <div className="text-center">
-                    <span className="text-4xl font-bold text-green-400">FREE</span>
+                    <span className="text-4xl font-bold text-green-400">
+                      FREE
+                    </span>
                   </div>
                 ) : (
                   <div className="flex items-end gap-3">
@@ -268,7 +283,9 @@ export function CourseHero({
                   <div className="mb-4">
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span className="text-gray-400">Your Progress</span>
-                      <span className="text-cyan-400 font-semibold">{Math.round(userProgress)}%</span>
+                      <span className="text-cyan-400 font-semibold">
+                        {Math.round(userProgress)}%
+                      </span>
                     </div>
                     <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
                       <motion.div
@@ -324,7 +341,9 @@ export function CourseHero({
 
               {/* Includes */}
               <div className="mt-6 pt-6 border-t border-white/10">
-                <h4 className="text-white font-semibold mb-3">This course includes:</h4>
+                <h4 className="text-white font-semibold mb-3">
+                  This course includes:
+                </h4>
                 <ul className="space-y-2 text-sm text-gray-400">
                   {course.highlights.slice(0, 6).map((highlight, i) => (
                     <li key={i} className="flex items-center gap-2">

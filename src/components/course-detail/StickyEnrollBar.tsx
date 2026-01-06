@@ -67,7 +67,9 @@ export function StickyEnrollBar({
                 {!isEnrolled && (
                   <div className="text-right hidden md:block">
                     {course.isFree ? (
-                      <span className="text-2xl font-bold text-green-400">FREE</span>
+                      <span className="text-2xl font-bold text-green-400">
+                        FREE
+                      </span>
                     ) : (
                       <div className="flex items-center gap-2">
                         <span className="text-2xl font-bold text-white">

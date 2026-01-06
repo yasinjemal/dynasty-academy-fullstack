@@ -12,7 +12,10 @@ import {
   Clock,
   Eye,
 } from "lucide-react";
-import type { CurriculumSection, CurriculumLesson } from "@/lib/api/course-data";
+import type {
+  CurriculumSection,
+  CurriculumLesson,
+} from "@/lib/api/course-data";
 
 interface CourseCurriculumProps {
   sections: CurriculumSection[];
@@ -82,9 +85,12 @@ export function CourseCurriculum({
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-white mb-2">Course Curriculum</h2>
+            <h2 className="text-3xl font-bold text-white mb-2">
+              Course Curriculum
+            </h2>
             <p className="text-gray-400">
-              {sections.length} sections • {totalLessons} lessons • {formatDuration(totalDuration)} total
+              {sections.length} sections • {totalLessons} lessons •{" "}
+              {formatDuration(totalDuration)} total
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -109,7 +115,8 @@ export function CourseCurriculum({
           <div className="mb-6 p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl flex items-center gap-3">
             <Eye className="w-5 h-5 text-purple-400" />
             <p className="text-purple-300 text-sm">
-              <span className="font-semibold">{freeLessons} lessons</span> are available for free preview
+              <span className="font-semibold">{freeLessons} lessons</span> are
+              available for free preview
             </p>
           </div>
         )}
@@ -134,10 +141,14 @@ export function CourseCurriculum({
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-lg flex items-center justify-center">
-                      <span className="text-purple-400 font-bold">{sectionIndex + 1}</span>
+                      <span className="text-purple-400 font-bold">
+                        {sectionIndex + 1}
+                      </span>
                     </div>
                     <div className="text-left">
-                      <h3 className="text-white font-semibold text-lg">{section.title}</h3>
+                      <h3 className="text-white font-semibold text-lg">
+                        {section.title}
+                      </h3>
                       {section.description && (
                         <p className="text-gray-500 text-sm mt-0.5 line-clamp-1">
                           {section.description}
@@ -147,7 +158,8 @@ export function CourseCurriculum({
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="text-gray-500 text-sm hidden sm:block">
-                      {section.lessonCount} lessons • {formatDuration(section.duration)}
+                      {section.lessonCount} lessons •{" "}
+                      {formatDuration(section.duration)}
                     </span>
                     <motion.div
                       animate={{ rotate: isExpanded ? 180 : 0 }}

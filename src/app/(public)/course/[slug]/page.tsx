@@ -10,7 +10,9 @@ interface PageProps {
 }
 
 // Generate metadata for SEO
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const course = await getCourseDetail(slug);
 
@@ -36,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CourseDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const session = await getServerSession(authOptions);
-  
+
   // Fetch all course page data
   const data = await getCoursePageData(slug, session?.user?.id);
 
@@ -44,10 +46,5 @@ export default async function CourseDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  return (
-    <CourseDetailClient
-      data={data}
-      userId={session?.user?.id}
-    />
-  );
+  return <CourseDetailClient data={data} userId={session?.user?.id} />;
 }

@@ -30,7 +30,9 @@ export function CourseOverview({
             <div className="w-10 h-10 bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl flex items-center justify-center">
               <CheckCircle className="w-5 h-5 text-green-400" />
             </div>
-            <h2 className="text-2xl font-bold text-white">What You&apos;ll Learn</h2>
+            <h2 className="text-2xl font-bold text-white">
+              What You&apos;ll Learn
+            </h2>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4 p-6 bg-gradient-to-br from-gray-900/50 to-black/50 border border-white/10 rounded-2xl">
@@ -57,7 +59,9 @@ export function CourseOverview({
           viewport={{ once: true }}
           className="mb-16"
         >
-          <h2 className="text-2xl font-bold text-white mb-6">About This Course</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">
+            About This Course
+          </h2>
           <div className="prose prose-invert prose-lg max-w-none">
             {description.split("\n\n").map((paragraph, index) => (
               <p key={index} className="text-gray-300 leading-relaxed mb-4">
@@ -108,7 +112,9 @@ export function CourseOverview({
             <div className="w-10 h-10 bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
               <Users className="w-5 h-5 text-purple-400" />
             </div>
-            <h2 className="text-2xl font-bold text-white">Who This Course Is For</h2>
+            <h2 className="text-2xl font-bold text-white">
+              Who This Course Is For
+            </h2>
           </div>
 
           <ul className="space-y-3">

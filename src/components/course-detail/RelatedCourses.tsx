@@ -27,7 +27,9 @@ export function RelatedCourses({ courses }: RelatedCoursesProps) {
           viewport={{ once: true }}
           className="text-center mb-10"
         >
-          <h2 className="text-3xl font-bold text-white mb-2">Related Courses</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">
+            Related Courses
+          </h2>
           <p className="text-gray-400">Continue your learning journey</p>
         </motion.div>
 
@@ -51,7 +53,7 @@ export function RelatedCourses({ courses }: RelatedCoursesProps) {
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                    
+
                     {/* Price Badge */}
                     <div className="absolute top-3 right-3">
                       <span className="px-3 py-1 bg-black/60 backdrop-blur-sm rounded-full text-white font-semibold text-sm">

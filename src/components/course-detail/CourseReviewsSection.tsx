@@ -32,7 +32,9 @@ export function CourseReviewsSection({
     count: reviews.filter((r) => Math.round(r.rating) === rating).length,
     percentage:
       totalReviews > 0
-        ? (reviews.filter((r) => Math.round(r.rating) === rating).length / totalReviews) * 100
+        ? (reviews.filter((r) => Math.round(r.rating) === rating).length /
+            totalReviews) *
+          100
         : 0,
   }));
 
@@ -41,7 +43,9 @@ export function CourseReviewsSection({
       ? reviews
       : reviews.filter((r) => Math.round(r.rating) === filter);
 
-  const displayedReviews = showAll ? filteredReviews : filteredReviews.slice(0, 4);
+  const displayedReviews = showAll
+    ? filteredReviews
+    : filteredReviews.slice(0, 4);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -61,7 +65,9 @@ export function CourseReviewsSection({
           viewport={{ once: true }}
           className="text-center mb-10"
         >
-          <h2 className="text-3xl font-bold text-white mb-2">Student Reviews</h2>
+          <h2 className="text-3xl font-bold text-white mb-2">
+            Student Reviews
+          </h2>
           <p className="text-gray-400">See what our students are saying</p>
         </motion.div>
 
@@ -191,7 +197,9 @@ export function CourseReviewsSection({
                   <div className="flex items-start justify-between gap-4 mb-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="text-white font-semibold">{review.userName}</h4>
+                        <h4 className="text-white font-semibold">
+                          {review.userName}
+                        </h4>
                         {review.verified && (
                           <span className="flex items-center gap-1 text-green-400 text-xs">
                             <CheckCircle2 className="w-3.5 h-3.5" />
@@ -199,7 +207,9 @@ export function CourseReviewsSection({
                           </span>
                         )}
                       </div>
-                      <p className="text-gray-500 text-sm">{formatDate(review.createdAt)}</p>
+                      <p className="text-gray-500 text-sm">
+                        {formatDate(review.createdAt)}
+                      </p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
                       {[1, 2, 3, 4, 5].map((star) => (
@@ -217,11 +227,15 @@ export function CourseReviewsSection({
 
                   {/* Review Title */}
                   {review.title && (
-                    <h5 className="text-white font-medium mb-2">{review.title}</h5>
+                    <h5 className="text-white font-medium mb-2">
+                      {review.title}
+                    </h5>
                   )}
 
                   {/* Review Content */}
-                  <p className="text-gray-300 leading-relaxed">{review.content}</p>
+                  <p className="text-gray-300 leading-relaxed">
+                    {review.content}
+                  </p>
 
                   {/* Helpful */}
                   <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/5">
@@ -248,9 +262,13 @@ export function CourseReviewsSection({
               onClick={() => setShowAll(!showAll)}
               className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-medium hover:bg-white/10 transition-colors"
             >
-              {showAll ? "Show Less" : `Show All ${filteredReviews.length} Reviews`}
+              {showAll
+                ? "Show Less"
+                : `Show All ${filteredReviews.length} Reviews`}
               <ChevronDown
-                className={`w-4 h-4 transition-transform ${showAll ? "rotate-180" : ""}`}
+                className={`w-4 h-4 transition-transform ${
+                  showAll ? "rotate-180" : ""
+                }`}
               />
             </button>
           </motion.div>
