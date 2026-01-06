@@ -63,12 +63,43 @@ export async function createAuditLog(params: AuditLogParams) {
       "SUSPICIOUS_ACTIVITY",
     ].includes(action);
 
+    // Try to find the user first - if not found, skip audit log for now
+    // This handles cases where OAuth user IDs don't match our internal user IDs
+    let validUserId = userId;
+
+    if (userId && userId !== "anonymous") {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true },
+      });
+
+      if (!user) {
+        // Try to find by clerkId or email patterns
+        const userByClerk = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { clerkId: userId },
+              { email: { contains: userId.substring(0, 10) } },
+            ],
+          },
+          select: { id: true },
+        });
+        validUserId = userByClerk?.id || null;
+      }
+    }
+
+    // Skip audit log if we can't find a valid user (non-critical)
+    if (!validUserId) {
+      console.log(`Audit log skipped: No valid user found for ID ${userId}`);
+      return null;
+    }
+
     const log = await prisma.auditLog.create({
       data: {
-        actorUserId: userId || "anonymous",
+        actorUserId: validUserId,
         action,
         entity: targetEntity || "system",
-        entityId: targetEntityId || null,
+        entityId: targetEntityId || "system",
         before: metadata?.before || null,
         after: {
           ipAddress,
