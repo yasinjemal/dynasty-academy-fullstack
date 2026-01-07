@@ -36,19 +36,16 @@ interface CourseWithRelations {
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const userId = session.user.id;
 
     // Fetch instructor's courses with stats
-    const courses = await prisma.courses.findMany({
-      where: { 
+    const courses = (await prisma.courses.findMany({
+      where: {
         authorId: userId,
       },
       include: {
@@ -78,11 +75,12 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-    }) as unknown as CourseWithRelations[];
+    })) as unknown as CourseWithRelations[];
 
     // Calculate stats
     const totalStudents = courses.reduce(
-      (acc: number, course: CourseWithRelations) => acc + course._count.course_enrollments,
+      (acc: number, course: CourseWithRelations) =>
+        acc + course._count.course_enrollments,
       0
     );
 
@@ -91,7 +89,8 @@ export async function GET(request: NextRequest) {
     );
     const averageRating =
       allRatings.length > 0
-        ? allRatings.reduce((a: number, b: number) => a + b, 0) / allRatings.length
+        ? allRatings.reduce((a: number, b: number) => a + b, 0) /
+          allRatings.length
         : 0;
 
     // Get recent enrollments across all courses
@@ -111,7 +110,8 @@ export async function GET(request: NextRequest) {
 
     // Calculate revenue (mock for now - would need payment integration)
     const totalRevenue = courses.reduce(
-      (acc: number, course: CourseWithRelations) => acc + (Number(course.price) || 0) * course._count.course_enrollments,
+      (acc: number, course: CourseWithRelations) =>
+        acc + (Number(course.price) || 0) * course._count.course_enrollments,
       0
     );
 
@@ -129,8 +129,10 @@ export async function GET(request: NextRequest) {
       reviews: course._count.course_reviews,
       rating:
         course.course_reviews.length > 0
-          ? course.course_reviews.reduce((a: number, r: CourseReview) => a + Number(r.rating), 0) /
-            course.course_reviews.length
+          ? course.course_reviews.reduce(
+              (a: number, r: CourseReview) => a + Number(r.rating),
+              0
+            ) / course.course_reviews.length
           : 0,
       revenue: (Number(course.price) || 0) * course._count.course_enrollments,
       status: course.status === "published" ? "published" : "draft",
@@ -148,11 +150,19 @@ export async function GET(request: NextRequest) {
         totalRevenue,
         monthlyRevenue,
         totalStudents,
-        activeCourses: courses.filter((c: CourseWithRelations) => c.status === "published").length,
-        draftCourses: courses.filter((c: CourseWithRelations) => c.status !== "published").length,
+        activeCourses: courses.filter(
+          (c: CourseWithRelations) => c.status === "published"
+        ).length,
+        draftCourses: courses.filter(
+          (c: CourseWithRelations) => c.status !== "published"
+        ).length,
         averageRating: Math.round(averageRating * 10) / 10,
         totalReviews: allRatings.length,
-        totalLessons: courses.reduce((acc: number, c: CourseWithRelations) => acc + c._count.course_lessons, 0),
+        totalLessons: courses.reduce(
+          (acc: number, c: CourseWithRelations) =>
+            acc + c._count.course_lessons,
+          0
+        ),
       },
       recentEnrollments,
       coursePerformance,
@@ -181,7 +191,11 @@ function calculateSimpleTrustScore(
 
   const totalScore = Math.min(
     1000,
-    contentScore + engagementScore + reliabilityScore + communityScore + complianceScore
+    contentScore +
+      engagementScore +
+      reliabilityScore +
+      communityScore +
+      complianceScore
   );
 
   const tier =
@@ -218,7 +232,14 @@ function calculateSimpleTrustScore(
     },
     multipliers: {
       revenueShare,
-      visibility: tier === "Legendary" ? 5 : tier === "Elite" ? 3 : tier === "Trusted" ? 2 : 1,
+      visibility:
+        tier === "Legendary"
+          ? 5
+          : tier === "Elite"
+          ? 3
+          : tier === "Trusted"
+          ? 2
+          : 1,
       moderationThreshold: totalScore >= 800 ? 90 : totalScore >= 500 ? 70 : 50,
     },
   };

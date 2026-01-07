@@ -124,7 +124,7 @@ export default function PostDetailClient({
   // Handle like toggle
   const handleLike = async () => {
     if (!session) {
-      router.push("/auth/signin");
+      router.push("/login");
       return;
     }
 
@@ -160,7 +160,7 @@ export default function PostDetailClient({
   // Handle save toggle
   const handleSave = async () => {
     if (!session) {
-      router.push("/auth/signin");
+      router.push("/login");
       return;
     }
 
@@ -220,7 +220,7 @@ export default function PostDetailClient({
     e.preventDefault();
 
     if (!session) {
-      router.push("/auth/signin");
+      router.push("/login");
       return;
     }
 
@@ -255,7 +255,7 @@ export default function PostDetailClient({
   // Handle comment like toggle
   const handleCommentLike = async (commentId: string) => {
     if (!session) {
-      router.push("/auth/signin");
+      router.push("/login");
       return;
     }
 
@@ -312,7 +312,7 @@ export default function PostDetailClient({
   // Handle reply submission
   const handleReplySubmit = async (parentId: string) => {
     if (!session) {
-      router.push("/auth/signin");
+      router.push("/login");
       return;
     }
 
@@ -698,7 +698,7 @@ export default function PostDetailClient({
                     Sign in to join the discussion and earn Dynasty Score!
                   </p>
                   <Link
-                    href="/auth/signin"
+                    href="/login"
                     className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium shadow-lg shadow-purple-200 hover:shadow-xl transition-all"
                   >
                     <Sparkles className="w-4 h-4" />

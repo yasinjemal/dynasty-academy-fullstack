@@ -504,7 +504,7 @@ export default function LiveChatWidget({
                         Please log in to send messages
                       </p>
                       <a
-                        href="/auth/signin"
+                        href="/login"
                         className="text-purple-600 hover:text-purple-700 dark:text-purple-400 text-sm font-medium underline"
                       >
                         Sign in to chat

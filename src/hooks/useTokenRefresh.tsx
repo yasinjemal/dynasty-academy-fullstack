@@ -117,7 +117,7 @@ export function useTokenRefresh(options: UseTokenRefreshOptions = {}) {
     onExpire?.();
 
     if (redirectOnExpiry) {
-      router.push("/auth/signin?callbackUrl=" + window.location.pathname);
+      router.push("/login?callbackUrl=" + window.location.pathname);
     }
   };
 

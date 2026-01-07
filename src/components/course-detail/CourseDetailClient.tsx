@@ -82,7 +82,7 @@ export function CourseDetailClient({ data, userId }: CourseDetailClientProps) {
       router.push(`/courses/${data.course.id}`);
     } else if (!userId) {
       // Redirect to login
-      router.push(`/auth/signin?callbackUrl=/course/${data.course.slug}`);
+      router.push(`/login?callbackUrl=/course/${data.course.slug}`);
     } else if (data.course.isFree) {
       // Free course - enroll directly
       enrollInCourse();

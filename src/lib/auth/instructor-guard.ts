@@ -12,7 +12,7 @@ export async function checkInstructorAccess() {
 
   // Not authenticated
   if (!session?.user?.id) {
-    redirect("/auth/signin?callbackUrl=/instructor/dashboard");
+    redirect("/login?callbackUrl=/instructor/dashboard");
   }
 
   // Get user role from database

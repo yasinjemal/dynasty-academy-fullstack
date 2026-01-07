@@ -55,7 +55,7 @@ export default function BookImportPage() {
   // Check admin access with useEffect to avoid hydration mismatch
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/auth/signin");
+      router.push("/login");
     }
   }, [status, router]);
 

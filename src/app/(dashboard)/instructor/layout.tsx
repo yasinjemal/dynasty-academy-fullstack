@@ -76,7 +76,7 @@ export default function InstructorLayout({ children }: InstructorLayoutProps) {
 
     if (status === "unauthenticated") {
       // Not logged in - redirect to login
-      router.push("/auth/signin?callbackUrl=/instructor/dashboard");
+      router.push("/login?callbackUrl=/instructor/dashboard");
       return;
     }
 
