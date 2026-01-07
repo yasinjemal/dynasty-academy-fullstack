@@ -50,17 +50,39 @@ export default function Navigation() {
     { href: "/books", label: "Books", icon: BookOpen },
     { href: "/blog", label: "Blog", icon: FileText },
     { href: "/community", label: "Community", icon: Users, highlight: true },
-    { href: "/become-instructor", label: "Teach", icon: GraduationCap, highlight: true },
-    { href: "/pdf-to-course", label: "PDF to Course", icon: FileText, highlight: true },
-    { href: "/onboarding", label: "Dynasty Brain", icon: Brain, highlight: true },
-    { href: "/study-rooms", label: "Study Rooms", icon: Users, highlight: true },
+    {
+      href: "/become-instructor",
+      label: "Teach",
+      icon: GraduationCap,
+      highlight: true,
+    },
+    {
+      href: "/pdf-to-course",
+      label: "PDF to Course",
+      icon: FileText,
+      highlight: true,
+    },
+    {
+      href: "/onboarding",
+      label: "Dynasty Brain",
+      icon: Brain,
+      highlight: true,
+    },
+    {
+      href: "/study-rooms",
+      label: "Study Rooms",
+      icon: Users,
+      highlight: true,
+    },
     { href: "/career", label: "Career", icon: Briefcase, highlight: true },
     { href: "/works", label: "Works", icon: Briefcase },
     { href: "/contact", label: "Contact", icon: Mail },
   ];
 
   const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname === href || pathname?.startsWith(href + "/");
+    href === "/"
+      ? pathname === "/"
+      : pathname === href || pathname?.startsWith(href + "/");
 
   return (
     <>
@@ -244,9 +266,13 @@ export default function Navigation() {
                             : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                         }`}
                       >
-                        <Icon className={`w-5 h-5 flex-shrink-0 ${
-                          isActive(link.href) ? "text-purple-500" : "text-gray-400"
-                        }`} />
+                        <Icon
+                          className={`w-5 h-5 flex-shrink-0 ${
+                            isActive(link.href)
+                              ? "text-purple-500"
+                              : "text-gray-400"
+                          }`}
+                        />
                         <span className="flex-1">{link.label}</span>
                         {link.highlight && (
                           <span className="px-2 py-0.5 bg-purple-500/20 text-purple-600 dark:text-purple-400 text-xs font-semibold rounded-full">

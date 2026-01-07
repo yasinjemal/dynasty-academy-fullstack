@@ -15,7 +15,7 @@ export function useMediaQuery(query: string): boolean {
     if (typeof window === "undefined") return;
 
     const mediaQuery = window.matchMedia(query);
-    
+
     // Set initial value
     setMatches(mediaQuery.matches);
 
@@ -64,20 +64,24 @@ export function useIsMobile(): boolean {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    
+
     // Check for touch capability
     const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-    
+
     // Check user agent for mobile
-    const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    );
-    
+    const mobileUA =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
     setIsTouchDevice(hasTouch || mobileUA);
   }, []);
 
   // Return true if either below md breakpoint OR is a touch device at tablet size
-  return isBelowMd || (isTouchDevice && useMediaQuery(`(max-width: ${BREAKPOINTS.lg - 1}px)`));
+  return (
+    isBelowMd ||
+    (isTouchDevice && useMediaQuery(`(max-width: ${BREAKPOINTS.lg - 1}px)`))
+  );
 }
 
 /**
@@ -103,7 +107,7 @@ export function useScreenSize() {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
   const isDesktop = useIsDesktop();
-  
+
   return {
     isMobile,
     isTablet,

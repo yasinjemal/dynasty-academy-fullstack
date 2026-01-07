@@ -788,7 +788,7 @@ html {
     background-color: inherit;
     color: inherit;
   }
-  
+
   /* Larger tap targets on mobile */
   button,
   [role="button"],
@@ -797,7 +797,7 @@ html {
   a {
     min-height: 44px;
   }
-  
+
   /* Better spacing for form inputs */
   input[type="text"],
   input[type="email"],
@@ -818,7 +818,7 @@ html {
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
   }
-  
+
   .landscape-hide {
     display: none;
   }
@@ -849,29 +849,29 @@ html {
     width: 100%;
     max-width: 100%;
   }
-  
+
   .mobile-stack {
     flex-direction: column;
   }
-  
+
   .mobile-center {
     text-align: center;
     justify-content: center;
     align-items: center;
   }
-  
+
   .mobile-p-4 {
     padding: 1rem;
   }
-  
+
   .mobile-gap-2 {
     gap: 0.5rem;
   }
-  
+
   .mobile-text-sm {
     font-size: 0.875rem;
   }
-  
+
   .mobile-hide {
     display: none !important;
   }
@@ -897,11 +897,15 @@ html {
 
 /* Full height minus safe areas */
 .h-screen-safe {
-  height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  height: calc(
+    100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+  );
 }
 
 .min-h-screen-safe {
-  min-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  min-height: calc(
+    100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+  );
 }
 
 /* ===================================
