@@ -105,7 +105,7 @@ function PricingCard({
       initial={{ opacity: 0, y: 50, scale: 0.9 }}
       animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
       transition={{ duration: 0.6, delay: index * 0.15 }}
-      className={`relative group ${
+      className={`relative group flex-shrink-0 w-[85vw] max-w-[320px] md:w-auto md:max-w-none snap-center ${
         plan.popular ? "md:-mt-8 md:scale-105" : ""
       }`}
     >
@@ -147,11 +147,11 @@ function PricingCard({
       <div
         className={`relative backdrop-blur-xl bg-white/5 border-2 ${
           plan.popular ? "border-purple-500/50" : "border-white/10"
-        } rounded-3xl p-8 h-full flex flex-col`}
+        } rounded-2xl sm:rounded-3xl p-5 sm:p-8 h-full flex flex-col`}
       >
         {/* Icon with Gradient */}
         <motion.div
-          className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${plan.gradient} p-0.5 mb-6`}
+          className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br ${plan.gradient} p-0.5 mb-4 sm:mb-6`}
           animate={{
             rotate: plan.popular ? [0, 5, 0, -5, 0] : 0,
           }}
@@ -161,45 +161,51 @@ function PricingCard({
             ease: "easeInOut",
           }}
         >
-          <div className="w-full h-full bg-[#0A0E27] rounded-2xl flex items-center justify-center">
+          <div className="w-full h-full bg-[#0A0E27] rounded-xl sm:rounded-2xl flex items-center justify-center">
             <Icon
-              className={`w-8 h-8 bg-gradient-to-br ${plan.gradient} bg-clip-text text-transparent`}
+              className={`w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br ${plan.gradient} bg-clip-text text-transparent`}
             />
           </div>
         </motion.div>
 
         {/* Plan Name */}
-        <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-        <p className="text-white/60 text-sm mb-6">{plan.description}</p>
+        <h3 className="text-xl sm:text-2xl font-bold text-white mb-1 sm:mb-2">
+          {plan.name}
+        </h3>
+        <p className="text-white/60 text-xs sm:text-sm mb-4 sm:mb-6">
+          {plan.description}
+        </p>
 
         {/* Price */}
-        <div className="mb-8">
-          <div className="flex items-end gap-2">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-end gap-1 sm:gap-2">
             <span
-              className={`text-5xl font-bold bg-gradient-to-br ${plan.gradient} bg-clip-text text-transparent`}
+              className={`text-3xl sm:text-5xl font-bold bg-gradient-to-br ${plan.gradient} bg-clip-text text-transparent`}
             >
               {plan.price}
             </span>
-            <span className="text-white/60 text-sm mb-2">{plan.period}</span>
+            <span className="text-white/60 text-xs sm:text-sm mb-1 sm:mb-2">
+              {plan.period}
+            </span>
           </div>
         </div>
 
         {/* Features */}
-        <div className="space-y-3 mb-8 flex-grow">
+        <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8 flex-grow">
           {plan.features.map((feature, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, x: -20 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.3, delay: index * 0.1 + i * 0.05 }}
-              className="flex items-start gap-3"
+              className="flex items-start gap-2 sm:gap-3"
             >
               <div
-                className={`flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br ${plan.gradient} flex items-center justify-center mt-0.5`}
+                className={`flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-br ${plan.gradient} flex items-center justify-center mt-0.5`}
               >
-                <Check className="w-3 h-3 text-white" />
+                <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
               </div>
-              <span className="text-white/80 text-sm leading-relaxed">
+              <span className="text-white/80 text-xs sm:text-sm leading-relaxed">
                 {feature}
               </span>
             </motion.div>
@@ -210,7 +216,7 @@ function PricingCard({
         <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
           <Button
             onClick={handlePlanClick}
-            className={`w-full bg-gradient-to-r ${plan.gradient} text-white font-semibold py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group/btn cursor-pointer`}
+            className={`w-full bg-gradient-to-r ${plan.gradient} text-white font-semibold py-4 sm:py-6 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group/btn cursor-pointer text-sm sm:text-base min-h-[48px] touch-manipulation`}
           >
             {plan.cta}
             <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
@@ -257,7 +263,10 @@ export default function PricingSection() {
   const titleInView = useInView(titleRef, { once: true });
 
   return (
-    <section ref={containerRef} className="relative py-32 px-4 overflow-hidden">
+    <section
+      ref={containerRef}
+      className="relative py-16 sm:py-24 lg:py-32 px-4 overflow-hidden"
+    >
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-purple-900/10 via-transparent to-blue-900/10" />
 
@@ -283,14 +292,18 @@ export default function PricingSection() {
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Section Header */}
-        <motion.div ref={titleRef} style={{ y }} className="text-center mb-20">
+        <motion.div
+          ref={titleRef}
+          style={{ y }}
+          className="text-center mb-10 sm:mb-16 lg:mb-20"
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={titleInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.5 }}
           >
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-1.5 rounded-full text-sm font-semibold text-white mb-6 inline-block">
-              <Crown className="inline w-4 h-4 mr-2" />
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold text-white mb-4 sm:mb-6 inline-block">
+              <Crown className="inline w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               Invest in Your Dynasty
             </div>
           </motion.div>
@@ -299,7 +312,7 @@ export default function PricingSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={titleInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-4xl md:text-6xl font-bold mb-6"
+            className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6"
           >
             <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
               Choose Your Path
@@ -312,14 +325,14 @@ export default function PricingSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={titleInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-white/60 text-lg max-w-2xl mx-auto"
+            className="text-white/60 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto px-4"
           >
             Every great dynasty starts with a single decision. Make yours today.
           </motion.p>
         </motion.div>
 
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        {/* Pricing Cards - Mobile horizontal scroll, desktop grid */}
+        <div className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 md:grid md:grid-cols-3 md:gap-6 lg:gap-8 md:overflow-x-visible md:mx-0 md:px-0 max-w-6xl md:mx-auto scrollbar-hide snap-x snap-mandatory md:snap-none">
           {plans.map((plan, index) => (
             <PricingCard key={index} plan={plan} index={index} />
           ))}
@@ -330,13 +343,13 @@ export default function PricingSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={titleInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="text-center mt-16"
+          className="text-center mt-10 sm:mt-16 px-4"
         >
-          <div className="inline-flex items-center gap-2 text-white/60 text-sm">
-            <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
-              <Check className="w-4 h-4 text-green-400" />
+          <div className="inline-flex flex-col sm:flex-row items-center gap-2 text-white/60 text-xs sm:text-sm">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-500/20 flex items-center justify-center">
+              <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
             </div>
-            <span>
+            <span className="text-center">
               30-day money-back guarantee • Cancel anytime • No questions asked
             </span>
           </div>

@@ -96,7 +96,7 @@ export default function BooksPage() {
       <Navigation />
 
       {/* 💎 LUXURY HERO */}
-      <section className="relative overflow-hidden py-16 sm:py-20 border-b border-white/5">
+      <section className="relative overflow-hidden py-10 sm:py-16 lg:py-20 border-b border-white/5">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-orange-900/20" />
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-radial from-purple-500/10 via-purple-500/5 to-transparent blur-3xl" />
@@ -104,24 +104,24 @@ export default function BooksPage() {
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8 sm:mb-12">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-orange-500/10 to-pink-500/10 border border-orange-500/20 rounded-full mb-6"
+              className="inline-flex items-center gap-2 px-3 sm:px-5 py-1.5 sm:py-2 bg-gradient-to-r from-orange-500/10 to-pink-500/10 border border-orange-500/20 rounded-full mb-4 sm:mb-6"
             >
-              <Crown className="w-4 h-4 text-orange-400" />
-              <span className="text-sm font-semibold bg-gradient-to-r from-orange-400 to-pink-400 bg-clip-text text-transparent">
+              <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400" />
+              <span className="text-xs sm:text-sm font-semibold bg-gradient-to-r from-orange-400 to-pink-400 bg-clip-text text-transparent">
                 Premium Collection
               </span>
-              <Sparkles className="w-4 h-4 text-pink-400" />
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-pink-400" />
             </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight"
+              className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight"
             >
               Build Your Dynasty,
               <br />
@@ -134,7 +134,7 @@ export default function BooksPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-lg sm:text-xl text-white/70 max-w-2xl mx-auto mb-8"
+              className="text-sm sm:text-lg lg:text-xl text-white/70 max-w-2xl mx-auto mb-6 sm:mb-8 px-4"
             >
               Curated by industry leaders. Designed for champions. Transform
               your life with premium knowledge.
@@ -145,7 +145,7 @@ export default function BooksPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="flex flex-wrap items-center justify-center gap-6 sm:gap-8"
+              className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 lg:gap-8"
             >
               {[
                 { icon: BookOpen, value: "500+", label: "Books" },
@@ -154,12 +154,16 @@ export default function BooksPage() {
                 { icon: Award, value: "98%", label: "Success" },
               ].map((stat, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-white/10 flex items-center justify-center">
-                    <stat.icon className="w-5 h-5 text-purple-400" />
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-white/10 flex items-center justify-center">
+                    <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" />
                   </div>
                   <div className="text-left">
-                    <p className="text-white font-bold text-lg">{stat.value}</p>
-                    <p className="text-white/60 text-xs">{stat.label}</p>
+                    <p className="text-white font-bold text-sm sm:text-lg">
+                      {stat.value}
+                    </p>
+                    <p className="text-white/60 text-[10px] sm:text-xs">
+                      {stat.label}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -171,22 +175,25 @@ export default function BooksPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="max-w-2xl mx-auto"
+            className="max-w-2xl mx-auto px-2"
           >
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-orange-500/30 rounded-2xl blur-xl" />
-              <div className="relative flex items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden">
-                <Search className="absolute left-5 w-5 h-5 text-white/40" />
-                <input
-                  type="text"
-                  placeholder="Search books..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-14 pr-4 py-4 bg-transparent text-white placeholder:text-white/40 focus:outline-none"
-                />
-                <Button className="m-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6">
+              <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-orange-500/30 rounded-xl sm:rounded-2xl blur-xl" />
+              <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl sm:rounded-2xl overflow-hidden">
+                <div className="flex items-center flex-1">
+                  <Search className="ml-4 sm:ml-5 w-5 h-5 text-white/40" />
+                  <input
+                    type="text"
+                    placeholder="Search books..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-3 sm:pl-4 pr-4 py-3 sm:py-4 bg-transparent text-white placeholder:text-white/40 focus:outline-none text-base"
+                  />
+                </div>
+                <Button className="m-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 min-h-[44px] touch-manipulation">
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Search
+                  <span className="hidden sm:inline">Search</span>
+                  <span className="sm:hidden">Go</span>
                 </Button>
               </div>
             </div>
@@ -196,14 +203,15 @@ export default function BooksPage() {
 
       {/* 🎯 FILTERS */}
       <section className="sticky top-16 z-40 backdrop-blur-xl bg-[#0A0E27]/80 border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
+            {/* Categories - horizontal scroll on mobile */}
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 sm:pb-0">
               {categories.map((category) => (
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 rounded-xl font-semibold text-sm whitespace-nowrap transition-all ${
+                  className={`px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap transition-all min-h-[36px] sm:min-h-[40px] touch-manipulation ${
                     selectedCategory === category
                       ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30"
                       : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
@@ -214,31 +222,32 @@ export default function BooksPage() {
               ))}
             </div>
 
-            <div className="flex items-center gap-3 flex-wrap">
+            {/* Filters row - horizontal scroll on mobile */}
+            <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
               {/* 🚀 Book Type Filter - Enhanced */}
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <select
                   value={bookType}
                   onChange={(e) => setBookType(e.target.value)}
-                  className="px-4 py-2.5 bg-gradient-to-r from-white/10 to-white/5 border border-white/20 rounded-xl text-white text-sm font-semibold focus:outline-none focus:border-purple-500/50 hover:border-purple-500/30 transition-all cursor-pointer appearance-none pr-10"
+                  className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-white/10 to-white/5 border border-white/20 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm font-semibold focus:outline-none focus:border-purple-500/50 hover:border-purple-500/30 transition-all cursor-pointer appearance-none pr-8 sm:pr-10 min-h-[36px] sm:min-h-[40px]"
                 >
                   <option value="all" className="bg-[#1a1f3a] text-white">
                     📚 All Books
                   </option>
                   <option value="premium" className="bg-[#1a1f3a] text-white">
-                    👑 Premium Books (Dynasty Curated)
+                    👑 Premium
                   </option>
                   <option value="free" className="bg-[#1a1f3a] text-white">
-                    🎁 Free Books (Public Library)
+                    🎁 Free
                   </option>
                 </select>
-                <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
+                <Filter className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-white/40 pointer-events-none" />
               </div>
 
-              <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1">
+              <div className="flex items-center gap-1 bg-white/5 rounded-lg sm:rounded-xl p-1 flex-shrink-0">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-lg transition-all ${
+                  className={`p-1.5 sm:p-2 rounded-md sm:rounded-lg transition-all min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center ${
                     viewMode === "grid"
                       ? "bg-purple-500 text-white"
                       : "text-white/60 hover:text-white"
@@ -248,7 +257,7 @@ export default function BooksPage() {
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-lg transition-all ${
+                  className={`p-1.5 sm:p-2 rounded-md sm:rounded-lg transition-all min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center ${
                     viewMode === "list"
                       ? "bg-purple-500 text-white"
                       : "text-white/60 hover:text-white"
@@ -261,13 +270,13 @@ export default function BooksPage() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="px-3 sm:px-4 py-2 bg-white/5 border border-white/10 rounded-lg sm:rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-purple-500/50 min-h-[36px] sm:min-h-[40px] flex-shrink-0"
               >
-                <option value="newest">Newest First</option>
-                <option value="price_low">Price: Low to High</option>
-                <option value="price_high">Price: High to Low</option>
+                <option value="newest">Newest</option>
+                <option value="price_low">Price: Low</option>
+                <option value="price_high">Price: High</option>
                 <option value="rating">Top Rated</option>
-                <option value="popular">Most Popular</option>
+                <option value="popular">Popular</option>
               </select>
             </div>
           </div>
@@ -275,58 +284,61 @@ export default function BooksPage() {
       </section>
 
       {/* 📚 BOOKS GRID */}
-      <section className="py-12">
+      <section className="py-6 sm:py-8 lg:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* 🚀 NEW: Section Header Based on Filter */}
           {bookType !== "all" && filteredBooks.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center gap-3 mb-2">
+            <div className="mb-6 sm:mb-8">
+              <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
                 {bookType === "premium" ? (
                   <>
-                    <Crown className="w-6 h-6 text-orange-400" />
-                    <h2 className="text-2xl font-bold text-white">
+                    <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
+                    <h2 className="text-lg sm:text-2xl font-bold text-white">
                       Dynasty Curated Collection
                     </h2>
                   </>
                 ) : (
                   <>
-                    <BookOpen className="w-6 h-6 text-green-400" />
-                    <h2 className="text-2xl font-bold text-white">
+                    <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
+                    <h2 className="text-lg sm:text-2xl font-bold text-white">
                       Free Public Library
                     </h2>
                   </>
                 )}
               </div>
-              <p className="text-white/60">
+              <p className="text-white/60 text-sm sm:text-base">
                 {bookType === "premium"
-                  ? "Hand-picked premium books from expert authors and industry leaders"
-                  : "Free books imported from public libraries and open-source collections"}
+                  ? "Hand-picked premium books from expert authors"
+                  : "Free books from public libraries"}
               </p>
             </div>
           )}
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
               {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
-                  className="animate-pulse bg-white/5 rounded-2xl h-96"
+                  className="animate-pulse bg-white/5 rounded-xl sm:rounded-2xl h-64 sm:h-96"
                 />
               ))}
             </div>
           ) : filteredBooks.length === 0 ? (
-            <div className="text-center py-20">
-              <BookOpen className="w-16 h-16 mx-auto mb-4 text-purple-400" />
-              <h3 className="text-2xl font-bold text-white mb-2">
+            <div className="text-center py-12 sm:py-20">
+              <BookOpen className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 text-purple-400" />
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">
                 No Books Found
               </h3>
-              <p className="text-white/60 mb-6">Try adjusting your filters</p>
+              <p className="text-white/60 mb-4 sm:mb-6 text-sm sm:text-base">
+                Try adjusting your filters
+              </p>
               <Button
                 onClick={() => {
                   setSearchQuery("");
                   setSelectedCategory("All");
                   setBookType("all"); // 🚀 NEW
                 }}
+                className="min-h-[44px]"
               >
                 Clear Filters
               </Button>
@@ -335,8 +347,8 @@ export default function BooksPage() {
             <div
               className={
                 viewMode === "grid"
-                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                  : "space-y-6"
+                  ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6"
+                  : "space-y-4 sm:space-y-6"
               }
             >
               {filteredBooks.map((book, index) => (

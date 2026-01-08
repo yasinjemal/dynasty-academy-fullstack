@@ -142,8 +142,8 @@ export default function HeroBillion({
         className="relative z-10 flex items-center min-h-screen px-4 sm:px-6 lg:px-8"
         style={{ y, opacity }}
       >
-        <div className="max-w-7xl mx-auto w-full py-20">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="max-w-7xl mx-auto w-full py-12 sm:py-16 lg:py-20">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* LEFT: Content */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -152,7 +152,7 @@ export default function HeroBillion({
             >
               {/* Live Badge */}
               <motion.div
-                className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 mb-8"
+                className="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 mb-4 sm:mb-8"
                 animate={{
                   boxShadow: [
                     "0 0 20px rgba(34, 197, 94, 0.2)",
@@ -166,14 +166,14 @@ export default function HeroBillion({
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                 </span>
-                <span className="text-sm font-medium text-green-400">
+                <span className="text-xs sm:text-sm font-medium text-green-400">
                   {stats.activeToday.toLocaleString()}+ learners online now
                 </span>
               </motion.div>
 
               {/* Main Heading */}
               <motion.h1
-                className="text-5xl sm:text-6xl lg:text-7xl font-black mb-6 leading-[1.1] tracking-tight"
+                className="text-3xl xs:text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 sm:mb-6 leading-[1.1] tracking-tight"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
@@ -192,7 +192,7 @@ export default function HeroBillion({
 
               {/* Subheading */}
               <motion.p
-                className="text-xl text-gray-400 mb-10 leading-relaxed max-w-xl"
+                className="text-base sm:text-lg lg:text-xl text-gray-400 mb-6 sm:mb-10 leading-relaxed max-w-xl"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
@@ -214,18 +214,18 @@ export default function HeroBillion({
 
               {/* CTA Buttons */}
               <motion.div
-                className="flex flex-wrap gap-4 mb-12"
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8 sm:mb-12"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
               >
                 <motion.button
                   onClick={handleCTA}
-                  className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 via-pink-500 to-violet-500 rounded-2xl font-bold text-white text-lg overflow-hidden"
+                  className="group relative w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-orange-500 via-pink-500 to-violet-500 rounded-xl sm:rounded-2xl font-bold text-white text-base sm:text-lg overflow-hidden touch-manipulation"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className="relative z-10 flex items-center gap-2">
+                  <span className="relative z-10 flex items-center justify-center gap-2">
                     <Zap className="w-5 h-5" />
                     {session ? "Go to Dashboard" : "Start Free Trial"}
                     <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -238,13 +238,13 @@ export default function HeroBillion({
                   />
                 </motion.button>
 
-                <Link href="/books">
+                <Link href="/books" className="w-full sm:w-auto">
                   <motion.button
-                    className="group px-8 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl font-bold text-white text-lg hover:bg-white/10 hover:border-orange-500/50 transition-all"
+                    className="group w-full px-6 sm:px-8 py-3.5 sm:py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl sm:rounded-2xl font-bold text-white text-base sm:text-lg hover:bg-white/10 hover:border-orange-500/50 transition-all touch-manipulation"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center justify-center gap-2">
                       <BookOpen className="w-5 h-5" />
                       Explore Library
                     </span>
@@ -254,7 +254,7 @@ export default function HeroBillion({
 
               {/* Trust Badges */}
               <motion.div
-                className="flex flex-wrap items-center gap-8"
+                className="grid grid-cols-3 gap-3 sm:flex sm:flex-wrap sm:items-center sm:gap-8"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8 }}
@@ -281,17 +281,19 @@ export default function HeroBillion({
                 ].map((stat, i) => (
                   <motion.div
                     key={i}
-                    className="flex items-center gap-3"
+                    className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3 text-center sm:text-left"
                     whileHover={{ scale: 1.05 }}
                   >
                     <div className={`p-2 rounded-xl bg-white/5 ${stat.color}`}>
-                      <stat.icon className="w-5 h-5" />
+                      <stat.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div>
-                      <div className="text-xl font-bold text-white">
+                      <div className="text-base sm:text-xl font-bold text-white">
                         {stat.value}
                       </div>
-                      <div className="text-xs text-gray-500">{stat.label}</div>
+                      <div className="text-[10px] sm:text-xs text-gray-500">
+                        {stat.label}
+                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -300,12 +302,12 @@ export default function HeroBillion({
 
             {/* RIGHT: Featured Book Showcase */}
             <motion.div
-              className="relative"
+              className="relative hidden sm:block"
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1, delay: 0.3 }}
             >
-              <div className="relative w-full aspect-square max-w-lg mx-auto">
+              <div className="relative w-full aspect-square max-w-sm lg:max-w-lg mx-auto">
                 {/* Glow Background */}
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-pink-500/20 to-violet-500/20 blur-3xl rounded-full" />
 
@@ -430,9 +432,9 @@ export default function HeroBillion({
                   ))}
                 </div>
 
-                {/* Floating Elements */}
+                {/* Floating Elements - hidden on mobile */}
                 <motion.div
-                  className="absolute -top-10 -right-10 w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-xl shadow-violet-500/30"
+                  className="absolute -top-10 -right-10 w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 hidden lg:flex items-center justify-center shadow-xl shadow-violet-500/30"
                   animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
                   transition={{ duration: 4, repeat: Infinity }}
                 >
@@ -440,7 +442,7 @@ export default function HeroBillion({
                 </motion.div>
 
                 <motion.div
-                  className="absolute -bottom-5 -left-5 px-4 py-3 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20"
+                  className="absolute -bottom-5 -left-5 px-4 py-3 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 hidden lg:block"
                   animate={{ y: [0, 10, 0] }}
                   transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
                 >
@@ -464,9 +466,9 @@ export default function HeroBillion({
         </div>
       </motion.div>
 
-      {/* Scroll Indicator */}
+      {/* Scroll Indicator - hidden on mobile */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 hidden sm:flex"
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
       >

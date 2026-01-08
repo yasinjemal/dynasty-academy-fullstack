@@ -197,11 +197,18 @@ export default function CreateCoursePage() {
   };
 
   const handleSaveDraft = async () => {
+    if (!session?.user?.id) {
+      alert("Please sign in to save your course");
+      router.push("/login");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const response = await fetch("/api/courses/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           ...courseData,
           sections,
@@ -214,6 +221,10 @@ export default function CreateCoursePage() {
         const data = await response.json();
         alert("Course saved as draft!");
         router.push("/instructor/courses"); // Redirect to courses list
+      } else {
+        const errorData = await response.json();
+        console.error("Save draft error:", errorData);
+        alert(errorData.error || "Failed to save draft");
       }
     } catch (error) {
       console.error("Error saving draft:", error);
@@ -224,11 +235,18 @@ export default function CreateCoursePage() {
   };
 
   const handlePublish = async () => {
+    if (!session?.user?.id) {
+      alert("Please sign in to publish your course");
+      router.push("/login");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const response = await fetch("/api/courses/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           ...courseData,
           sections,
@@ -241,6 +259,10 @@ export default function CreateCoursePage() {
         const data = await response.json();
         alert("Course published successfully!");
         router.push("/instructor/courses"); // Redirect to courses list instead of individual course
+      } else {
+        const errorData = await response.json();
+        console.error("Publish error:", errorData);
+        alert(errorData.error || "Failed to publish course");
       }
     } catch (error) {
       console.error("Error publishing course:", error);

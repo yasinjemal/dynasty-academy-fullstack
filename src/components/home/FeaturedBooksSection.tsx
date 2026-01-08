@@ -38,7 +38,7 @@ export default function FeaturedBooksSection({
   return (
     <section
       ref={sectionRef}
-      className="relative py-32 bg-[#030014] overflow-hidden"
+      className="relative py-16 sm:py-24 lg:py-32 bg-[#030014] overflow-hidden"
     >
       {/* Background */}
       <div className="absolute inset-0">
@@ -55,37 +55,37 @@ export default function FeaturedBooksSection({
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 lg:mb-16"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
           <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/30 mb-6"
+            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-orange-500/10 border border-orange-500/30 mb-4 sm:mb-6"
             whileHover={{ scale: 1.05 }}
           >
-            <BookOpen className="w-4 h-4 text-orange-400" />
-            <span className="text-sm font-medium text-orange-400">
+            <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
+            <span className="text-xs sm:text-sm font-medium text-orange-400">
               Curated Knowledge Library
             </span>
           </motion.div>
 
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6">
+          <h2 className="text-2xl sm:text-4xl lg:text-5xl xl:text-6xl font-black mb-3 sm:mb-6">
             <span className="text-white">Transform Your </span>
             <span className="bg-gradient-to-r from-orange-400 via-pink-500 to-violet-500 bg-clip-text text-transparent">
               Mind
             </span>
           </h2>
 
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-400 max-w-2xl mx-auto px-4">
             Discover books that build empires. Each title handpicked to
             accelerate your growth.
           </p>
         </motion.div>
 
-        {/* Tabs */}
+        {/* Tabs - horizontal scrollable on mobile */}
         <motion.div
-          className="flex justify-center gap-4 mb-12"
+          className="flex justify-start sm:justify-center gap-2 sm:gap-4 mb-8 sm:mb-12 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -97,7 +97,7 @@ export default function FeaturedBooksSection({
             <motion.button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as "featured" | "popular")}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold transition-all whitespace-nowrap flex-shrink-0 text-sm sm:text-base min-h-[44px] touch-manipulation ${
                 activeTab === tab.id
                   ? "bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg shadow-orange-500/30"
                   : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10"
@@ -111,9 +111,9 @@ export default function FeaturedBooksSection({
           ))}
         </motion.div>
 
-        {/* Books Grid */}
+        {/* Books Grid - Mobile horizontal scroll, desktop grid */}
         <motion.div
-          className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          className="flex overflow-x-auto pb-4 -mx-4 px-4 gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6 sm:overflow-x-visible sm:mx-0 sm:px-0 scrollbar-hide snap-x snap-mandatory sm:snap-none"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.6, delay: 0.3 }}
@@ -124,6 +124,7 @@ export default function FeaturedBooksSection({
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="flex-shrink-0 w-[280px] sm:w-auto snap-start"
             >
               <Link href={`/books/${book.slug}`}>
                 <motion.div
@@ -259,21 +260,21 @@ export default function FeaturedBooksSection({
 
         {/* View All Button */}
         <motion.div
-          className="text-center mt-12"
+          className="text-center mt-8 sm:mt-12"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <Link href="/books">
             <motion.button
-              className="group inline-flex items-center gap-3 px-8 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl font-bold text-white hover:bg-white/10 hover:border-orange-500/50 transition-all"
+              className="group inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl sm:rounded-2xl font-bold text-white hover:bg-white/10 hover:border-orange-500/50 transition-all text-sm sm:text-base min-h-[48px] touch-manipulation"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <span>
                 Explore All {featuredBooks.length + popularBooks.length}+ Books
               </span>
-              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
             </motion.button>
           </Link>
         </motion.div>

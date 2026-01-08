@@ -3,8 +3,9 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import { ToasterWrapper } from "@/components/ui/toaster-wrapper";
-import HeyDynastyUltimate from "@/components/voice/HeyDynastyUltimate";
 import AiChatWidget from "@/components/ai/AiChatWidget";
+import MobileBottomNav from "@/components/shared/MobileBottomNav";
+import DynastyBackground from "@/components/voice/DynastyBackground";
 // import OnboardingCheck from "@/components/profile/OnboardingCheck";
 
 const inter = Inter({
@@ -63,12 +64,16 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`}>
         <ToasterWrapper />
+        {/* 🌌 Dynasty Neural Network Background - Cool 3D holographic effect */}
+        <DynastyBackground />
         <Providers>
-          {children}
+          {/* Main content with bottom padding for mobile nav */}
+          <div className="mobile-bottom-spacing md:pb-0">{children}</div>
+          {/* 📱 Mobile Bottom Navigation */}
+          <MobileBottomNav />
           {/* 🤖 Dynasty AI Coach - Available on all pages */}
           <AiChatWidget />
         </Providers>
-        <HeyDynastyUltimate />
       </body>
     </html>
   );
