@@ -198,6 +198,7 @@ export default function IntelligentBookUploader({
 
       const uploadRes = await fetch("/api/admin/books/intelligent-upload", {
         method: "POST",
+        credentials: "include",
         body: formData,
       });
 
@@ -243,6 +244,7 @@ export default function IntelligentBookUploader({
       const aiRes = await fetch("/api/admin/books/ai-deep-analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           fileId: uploadData.fileId,
           title: uploadData.extractedTitle,
@@ -254,7 +256,10 @@ export default function IntelligentBookUploader({
       });
 
       if (!aiRes.ok) {
-        throw new Error("AI analysis failed");
+        const errorData = await aiRes
+          .json()
+          .catch(() => ({ error: "AI analysis failed" }));
+        throw new Error(errorData.error || "AI analysis failed");
       }
 
       const aiData = await aiRes.json();

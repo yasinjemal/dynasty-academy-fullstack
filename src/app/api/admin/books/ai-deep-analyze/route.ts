@@ -11,9 +11,29 @@ export async function POST(req: NextRequest) {
   try {
     // Auth check
     const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== "ADMIN") {
-      console.error("❌ Unauthorized access attempt");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    console.log("🔐 AI Analysis - Session check:", {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      userId: session?.user?.id,
+      userRole: session?.user?.role,
+    });
+
+    if (!session?.user) {
+      console.error("❌ No session found");
+      return NextResponse.json(
+        { error: "Unauthorized - Please sign in" },
+        { status: 401 }
+      );
+    }
+
+    // Check if user is admin (case-insensitive)
+    const userRole = session.user.role?.toUpperCase();
+    if (userRole !== "ADMIN") {
+      console.error("❌ User is not admin. Role:", session.user.role);
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     const body = await req.json();

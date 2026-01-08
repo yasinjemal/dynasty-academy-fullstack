@@ -14,8 +14,29 @@ export async function POST(req: NextRequest) {
 
     // Auth check
     const session = await getServerSession(authOptions);
-    if (!session?.user || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    console.log("🔐 Session check:", {
+      hasSession: !!session,
+      hasUser: !!session?.user,
+      userId: session?.user?.id,
+      userRole: session?.user?.role,
+      userEmail: session?.user?.email,
+    });
+
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized - Please sign in" },
+        { status: 401 }
+      );
+    }
+
+    // Check if user is admin (case-insensitive)
+    const userRole = session.user.role?.toUpperCase();
+    if (userRole !== "ADMIN") {
+      console.error("❌ User is not admin. Role:", session.user.role);
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     let formData;
@@ -157,8 +178,10 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("Upload error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to upload and process file" },
+      { error: `Failed to upload and process file: ${errorMessage}` },
       { status: 500 }
     );
   }

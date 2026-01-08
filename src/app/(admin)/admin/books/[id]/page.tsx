@@ -54,7 +54,9 @@ export default function AdminBookEditPage({
 
   const fetchBook = async () => {
     try {
-      const res = await fetch(`/api/admin/books/${id}`);
+      const res = await fetch(`/api/admin/books/${id}`, {
+        credentials: "include",
+      });
       if (!res.ok) throw new Error("Failed to fetch book");
       const data = await res.json();
       setBook(data.book);
@@ -86,6 +88,7 @@ export default function AdminBookEditPage({
       const res = await fetch(`/api/admin/books/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           title: editedBook.title,
           description: editedBook.description,
@@ -154,6 +157,7 @@ export default function AdminBookEditPage({
       const res = await fetch("/api/admin/books/upload-cover", {
         method: "POST",
         body: formData,
+        credentials: "include",
       });
 
       if (!res.ok) throw new Error("Failed to upload cover");
@@ -184,6 +188,7 @@ export default function AdminBookEditPage({
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bookId: id }),
+        credentials: "include",
       });
 
       if (!res.ok) throw new Error("Failed to remove cover");

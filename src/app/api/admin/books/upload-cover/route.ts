@@ -10,8 +10,25 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    console.log("[UPLOAD-COVER] Session check:", {
+      hasSession: !!session,
+      userId: session?.user?.id,
+      userRole: session?.user?.role,
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "Not authenticated - please sign in" },
+        { status: 401 }
+      );
+    }
+
+    const userRole = session.user?.role?.toUpperCase();
+    if (userRole !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     const formData = await request.formData();
@@ -112,8 +129,25 @@ export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    console.log("[UPLOAD-COVER DELETE] Session check:", {
+      hasSession: !!session,
+      userId: session?.user?.id,
+      userRole: session?.user?.role,
+    });
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "Not authenticated - please sign in" },
+        { status: 401 }
+      );
+    }
+
+    const userRole = session.user?.role?.toUpperCase();
+    if (userRole !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Admin access required" },
+        { status: 403 }
+      );
     }
 
     const { bookId } = await request.json();
