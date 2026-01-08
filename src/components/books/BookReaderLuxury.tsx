@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import ReaderAICoach from "./ReaderAICoach";
 import { ContentFormatter } from "@/lib/bookContent/contentFormatter";
 import { useFastBookReader } from "@/hooks/useFastBookReader";
 import InsanePageFlip from "./InsanePageFlip";
+import { useIsMobile, useScreenSize } from "@/hooks/useMediaQuery";
 import {
   motion,
   AnimatePresence,
@@ -113,6 +114,19 @@ export default function BookReaderLuxury({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
+
+  // ===========================================
+  // 📱 MOBILE-FIRST RESPONSIVE STATE
+  // ===========================================
+  const isMobile = useIsMobile();
+  const { isTablet, isDesktop, isTouchDevice } = useScreenSize();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSettingsOpen, setMobileSettingsOpen] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchEndX, setTouchEndX] = useState(0);
+  const [isSwipeActive, setIsSwipeActive] = useState(false);
 
   // ===========================================
   // CORE READING STATE
@@ -2092,9 +2106,76 @@ export default function BookReaderLuxury({
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [currentPage, totalPages]);
 
+  // ===========================================
+  // 📱 MOBILE SWIPE GESTURE HANDLING
+  // ===========================================
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+    setTouchEndX(e.touches[0].clientX);
+    setIsSwipeActive(true);
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    setTouchEndX(e.touches[0].clientX);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isSwipeActive) return;
+
+    const swipeDistance = touchStartX - touchEndX;
+    const minSwipeDistance = 50; // Minimum swipe distance to trigger
+
+    if (Math.abs(swipeDistance) > minSwipeDistance) {
+      if (swipeDistance > 0 && currentPage < totalPages) {
+        // Swipe left - next page
+        nextPage();
+      } else if (swipeDistance < 0 && currentPage > 1) {
+        // Swipe right - previous page
+        prevPage();
+      }
+    }
+
+    setIsSwipeActive(false);
+  }, [
+    isSwipeActive,
+    touchStartX,
+    touchEndX,
+    currentPage,
+    totalPages,
+    nextPage,
+    prevPage,
+  ]);
+
+  // ===========================================
+  // 📱 MOBILE NAV AUTO-HIDE ON SCROLL
+  // ===========================================
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down - hide nav
+        setShowMobileNav(false);
+      } else {
+        // Scrolling up - show nav
+        setShowMobileNav(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isMobile, lastScrollY]);
+
   return (
     <div
       className={`min-h-screen flex flex-col ${currentTheme.bg} ${currentTheme.text} transition-colors duration-500 relative`}
+      onTouchStart={isMobile ? handleTouchStart : undefined}
+      onTouchMove={isMobile ? handleTouchMove : undefined}
+      onTouchEnd={isMobile ? handleTouchEnd : undefined}
     >
       {/* 🎥✨ PHASE 5: AMBIENT BACKGROUND VIDEOS */}
       {videoEnabled && (
@@ -2359,35 +2440,102 @@ export default function BookReaderLuxury({
       {/* All content now sits above immersive background */}
       <div className="relative z-10">
         {/* ===========================================
-            ULTRA-LUXURY HEADER
+            📱 MOBILE-OPTIMIZED HEADER
             =========================================== */}
         {!zenMode && (
           <header
-            className={`${currentTheme.secondary} border-b ${currentTheme.border} sticky top-0 z-50 backdrop-blur-xl bg-opacity-90 transition-all duration-300`}
+            className={`${currentTheme.secondary} border-b ${currentTheme.border} sticky top-0 z-50 backdrop-blur-xl bg-opacity-95 transition-all duration-300 safe-area-top`}
           >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between h-16">
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+              {/* Main Header Row */}
+              <div className="flex items-center justify-between h-14 md:h-16">
                 {/* Left: Back Button + Title */}
-                <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => router.back()}
-                    className="shrink-0 hover:scale-105 transition-transform"
+                    className="shrink-0 hover:scale-105 transition-transform p-2 md:px-3"
                   >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
+                    <ArrowLeft className="w-5 h-5 md:w-4 md:h-4" />
+                    <span className="hidden sm:inline ml-2">Back</span>
                   </Button>
 
-                  <div className="flex items-center gap-3 min-w-0">
-                    <BookOpen className="w-5 h-5 text-purple-500 shrink-0" />
-                    <h1 className="text-base font-semibold truncate">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-purple-500 shrink-0" />
+                    <h1 className="text-sm md:text-base font-semibold truncate max-w-[120px] sm:max-w-[200px] md:max-w-none">
                       {bookTitle}
                     </h1>
                   </div>
                 </div>
 
-                {/* Center: LUXURY Progress Ring + Live Stats */}
+                {/* Mobile: Compact Progress + Menu */}
+                {isMobile && (
+                  <div className="flex items-center gap-2">
+                    {/* Mini Progress Circle */}
+                    <div className="relative w-10 h-10">
+                      <svg className="w-10 h-10 transform -rotate-90">
+                        <circle
+                          cx="20"
+                          cy="20"
+                          r="16"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                          fill="none"
+                          className="text-gray-200 dark:text-gray-700"
+                        />
+                        <circle
+                          cx="20"
+                          cy="20"
+                          r="16"
+                          stroke="url(#mobileGradient)"
+                          strokeWidth="3"
+                          fill="none"
+                          strokeDasharray={`${2 * Math.PI * 16}`}
+                          strokeDashoffset={`${
+                            2 * Math.PI * 16 * (1 - completionPercentage / 100)
+                          }`}
+                          className="transition-all duration-500"
+                          strokeLinecap="round"
+                        />
+                        <defs>
+                          <linearGradient
+                            id="mobileGradient"
+                            x1="0%"
+                            y1="0%"
+                            x2="100%"
+                            y2="100%"
+                          >
+                            <stop offset="0%" stopColor="#a855f7" />
+                            <stop offset="100%" stopColor="#ec4899" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold">
+                        {Math.round(completionPercentage)}%
+                      </span>
+                    </div>
+
+                    {/* Mobile Menu Button */}
+                    <motion.button
+                      onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                      whileTap={{ scale: 0.95 }}
+                      className={`p-2.5 rounded-xl transition-all ${
+                        mobileMenuOpen
+                          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                          : "bg-white/10 backdrop-blur-sm border border-white/20"
+                      }`}
+                    >
+                      {mobileMenuOpen ? (
+                        <X className="w-5 h-5" />
+                      ) : (
+                        <Menu className="w-5 h-5" />
+                      )}
+                    </motion.button>
+                  </div>
+                )}
+
+                {/* Desktop: Full Progress Ring + Live Stats */}
                 <div className="hidden lg:flex items-center gap-6 px-8">
                   {/* Circular Progress Ring */}
                   <div className="relative flex items-center justify-center">
@@ -2463,8 +2611,8 @@ export default function BookReaderLuxury({
                   )}
                 </div>
 
-                {/* Right: Modern Control Bar with Labels */}
-                <div className="flex items-center gap-2 flex-1 justify-end">
+                {/* Right: Desktop Control Bar - Hidden on Mobile */}
+                <div className="hidden md:flex items-center gap-2 flex-1 justify-end">
                   {/* 🔖 Bookmark */}
                   <motion.button
                     onClick={toggleBookmark}
@@ -2724,8 +2872,8 @@ export default function BookReaderLuxury({
                 </div>
               </div>
 
-              {/* Sub-header: Compact Quick Actions */}
-              <div className="flex items-center justify-between pb-2 border-t border-gray-200/50 dark:border-gray-700/50 mt-1 pt-2">
+              {/* Sub-header: Compact Quick Actions - Hidden on Mobile */}
+              <div className="hidden md:flex items-center justify-between pb-2 border-t border-gray-200/50 dark:border-gray-700/50 mt-1 pt-2">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setFocusMode(!focusMode)}
@@ -2798,6 +2946,180 @@ export default function BookReaderLuxury({
             </div>
           </header>
         )}
+
+        {/* ===========================================
+          📱 MOBILE SLIDE-DOWN MENU
+          =========================================== */}
+        <AnimatePresence>
+          {isMobile && mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed top-14 left-0 right-0 z-40 safe-area-inset"
+            >
+              <div
+                className={`mx-3 rounded-2xl ${currentTheme.card} border ${currentTheme.border} shadow-2xl overflow-hidden`}
+                style={{
+                  backdropFilter: "blur(20px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(20px) saturate(180%)",
+                }}
+              >
+                {/* Quick Stats Row */}
+                <div className="flex items-center justify-around py-3 px-4 border-b border-gray-200/20 dark:border-gray-700/20">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-purple-500">
+                      {currentPage}
+                    </div>
+                    <div className="text-[10px] opacity-60">Page</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-orange-500">
+                      {readingSpeed}
+                    </div>
+                    <div className="text-[10px] opacity-60">WPM</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-green-500">
+                      {readingTime}
+                    </div>
+                    <div className="text-[10px] opacity-60">Min</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-blue-500">
+                      {bookmarks.length}
+                    </div>
+                    <div className="text-[10px] opacity-60">Marks</div>
+                  </div>
+                </div>
+
+                {/* Action Grid */}
+                <div className="grid grid-cols-4 gap-1 p-3">
+                  {[
+                    {
+                      icon: Bookmark,
+                      label: "Bookmark",
+                      active: currentPageBookmarked,
+                      onClick: toggleBookmark,
+                      color: "purple",
+                    },
+                    {
+                      icon: Headphones,
+                      label: "Listen",
+                      active: listenMode,
+                      onClick: () => setListenMode(!listenMode),
+                      color: "blue",
+                    },
+                    {
+                      icon: Volume2,
+                      label: "Narrate",
+                      active: isNarrating,
+                      onClick: () =>
+                        isNarrating ? stopNarration() : startNarration(),
+                      color: "green",
+                    },
+                    {
+                      icon: Sparkles,
+                      label: "AI",
+                      active: showAIChat,
+                      onClick: () => setShowAIChat(!showAIChat),
+                      color: "cyan",
+                    },
+                    {
+                      icon: Eye,
+                      label: "Focus",
+                      active: focusMode,
+                      onClick: () => setFocusMode(!focusMode),
+                      color: "amber",
+                    },
+                    {
+                      icon: Moon,
+                      label: "Zen",
+                      active: zenMode,
+                      onClick: () => setZenMode(!zenMode),
+                      color: "indigo",
+                    },
+                    {
+                      icon: Share2,
+                      label: "Share",
+                      active: false,
+                      onClick: handleTextSelection,
+                      color: "pink",
+                    },
+                    {
+                      icon: Settings,
+                      label: "Settings",
+                      active: showSettings,
+                      onClick: () => {
+                        setShowSettings(!showSettings);
+                        setMobileMenuOpen(false);
+                      },
+                      color: "gray",
+                    },
+                  ].map((item, idx) => (
+                    <motion.button
+                      key={idx}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => {
+                        item.onClick();
+                        if (item.label !== "Settings") setMobileMenuOpen(false);
+                      }}
+                      className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl transition-all ${
+                        item.active
+                          ? `bg-gradient-to-br from-${item.color}-500 to-${item.color}-600 text-white shadow-lg`
+                          : "bg-white/5 hover:bg-white/10 active:bg-white/20"
+                      }`}
+                    >
+                      <item.icon
+                        className={`w-5 h-5 mb-1 ${
+                          item.active ? "" : "opacity-70"
+                        }`}
+                      />
+                      <span className="text-[10px] font-medium">
+                        {item.label}
+                      </span>
+                    </motion.button>
+                  ))}
+                </div>
+
+                {/* Theme Quick Switch */}
+                <div className="px-3 pb-3">
+                  <div className="flex items-center gap-2 overflow-x-auto py-2 scrollbar-hide">
+                    {["light", "dark", "sepia", "midnight", "forest"].map(
+                      (t) => (
+                        <button
+                          key={t}
+                          onClick={() => {
+                            setTheme(t as any);
+                            setMobileMenuOpen(false);
+                          }}
+                          className={`flex-shrink-0 w-8 h-8 rounded-full border-2 transition-all ${
+                            theme === t
+                              ? "border-purple-500 scale-110"
+                              : "border-transparent"
+                          }`}
+                          style={{
+                            background:
+                              t === "light"
+                                ? "#ffffff"
+                                : t === "dark"
+                                ? "#1a1a2e"
+                                : t === "sepia"
+                                ? "#f4ecd8"
+                                : t === "midnight"
+                                ? "#0f0f23"
+                                : "#1a2f1a",
+                          }}
+                        />
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ===========================================
           SETTINGS PANEL (SLIDE-OUT) - 🎨 GLASSMORPHISM UI + ✨ PHASE 3 ANIMATIONS
@@ -4776,28 +5098,54 @@ export default function BookReaderLuxury({
         {/* ===========================================
           MAIN READING CONTENT
           =========================================== */}
-        <main className="flex-1 flex">
+        <main className={`flex-1 flex ${isMobile ? "pb-36" : ""}`}>
           <div className="flex-1">
             <div
-              className={`${layouts[layout]} mx-auto px-4 sm:px-6 lg:px-8 ${
-                zenMode ? "py-24" : "py-12"
+              className={`${
+                layouts[layout]
+              } mx-auto px-3 sm:px-4 md:px-6 lg:px-8 ${
+                zenMode ? "py-16 md:py-24" : isMobile ? "py-4" : "py-12"
               }`}
             >
-              {/* Page Info (if not Zen mode) */}
+              {/* Page Info (if not Zen mode) - Simplified on Mobile */}
               {!zenMode && (
-                <div className="flex items-center justify-between mb-8">
-                  <span className="text-sm font-medium opacity-60">
-                    Page {currentPage} of {totalPages}
+                <div
+                  className={`flex items-center justify-between mb-4 md:mb-8 ${
+                    isMobile ? "sticky top-14 z-10 py-2 -mx-3 px-3" : ""
+                  }`}
+                  style={
+                    isMobile
+                      ? {
+                          background: "rgba(0,0,0,0.3)",
+                          backdropFilter: "blur(10px)",
+                          WebkitBackdropFilter: "blur(10px)",
+                        }
+                      : {}
+                  }
+                >
+                  <span
+                    className={`text-xs md:text-sm font-medium opacity-60 ${
+                      isMobile ? "bg-white/10 px-2 py-1 rounded-md" : ""
+                    }`}
+                  >
+                    {isMobile
+                      ? `${currentPage}/${totalPages}`
+                      : `Page ${currentPage} of ${totalPages}`}
                   </span>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 md:gap-4">
                     {bookmarks.length > 0 && (
                       <button
                         onClick={() => setShowBookmarks(!showBookmarks)}
-                        className="flex items-center gap-2 text-sm opacity-60 hover:opacity-100 transition-opacity"
+                        className={`flex items-center gap-1 md:gap-2 text-xs md:text-sm opacity-60 hover:opacity-100 transition-opacity ${
+                          isMobile ? "bg-white/10 px-2 py-1 rounded-md" : ""
+                        }`}
                       >
-                        <Bookmark className="w-4 h-4" />
-                        {bookmarks.length} bookmarks
+                        <Bookmark className="w-3 h-3 md:w-4 md:h-4" />
+                        <span className="hidden sm:inline">
+                          {bookmarks.length} bookmarks
+                        </span>
+                        <span className="sm:hidden">{bookmarks.length}</span>
                       </button>
                     )}
                   </div>
@@ -5592,9 +5940,184 @@ export default function BookReaderLuxury({
         </AnimatePresence>
 
         {/* ===========================================
-          FOOTER NAVIGATION - 🎨 GLASSMORPHISM
+          📱 MOBILE BOTTOM NAVIGATION - PRO APP FEEL
           =========================================== */}
-        {!zenMode && (
+        {!zenMode && isMobile && (
+          <motion.footer
+            initial={{ y: 100 }}
+            animate={{ y: showMobileNav ? 0 : 100 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 z-50 safe-area-bottom"
+            style={{
+              background: "rgba(0, 0, 0, 0.85)",
+              backdropFilter: "blur(20px) saturate(180%)",
+              WebkitBackdropFilter: "blur(20px) saturate(180%)",
+              borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            {/* Progress Bar at Top of Footer */}
+            <div className="h-1 bg-gray-800">
+              <motion.div
+                className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500"
+                initial={{ width: "0%" }}
+                animate={{ width: `${completionPercentage}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+
+            <div className="px-4 py-2">
+              {/* Main Navigation Row */}
+              <div className="flex items-center justify-between">
+                {/* Previous Page - Large Touch Target */}
+                <motion.button
+                  onClick={prevPage}
+                  disabled={currentPage === 1}
+                  whileTap={{ scale: 0.9 }}
+                  className={`flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-all ${
+                    currentPage === 1 ? "opacity-30" : "active:bg-white/10"
+                  }`}
+                >
+                  <ChevronLeft className="w-7 h-7 text-white" />
+                  <span className="text-[10px] text-white/60 mt-0.5">Prev</span>
+                </motion.button>
+
+                {/* Page Info - Center */}
+                <div className="flex-1 flex flex-col items-center justify-center">
+                  <div className="flex items-center gap-3">
+                    <motion.button
+                      onClick={() => goToPage(Math.max(1, currentPage - 10))}
+                      whileTap={{ scale: 0.85 }}
+                      className="p-2 rounded-lg bg-white/5 active:bg-white/15"
+                    >
+                      <Rewind className="w-4 h-4 text-white/70" />
+                    </motion.button>
+
+                    <div className="flex items-center bg-white/10 rounded-xl px-3 py-1.5">
+                      <span className="text-lg font-bold text-white">
+                        {currentPage}
+                      </span>
+                      <span className="text-white/40 mx-1">/</span>
+                      <span className="text-sm text-white/60">
+                        {totalPages}
+                      </span>
+                    </div>
+
+                    <motion.button
+                      onClick={() =>
+                        goToPage(Math.min(totalPages, currentPage + 10))
+                      }
+                      whileTap={{ scale: 0.85 }}
+                      className="p-2 rounded-lg bg-white/5 active:bg-white/15"
+                    >
+                      <FastForward className="w-4 h-4 text-white/70" />
+                    </motion.button>
+                  </div>
+
+                  {/* Page Slider */}
+                  <input
+                    type="range"
+                    min="1"
+                    max={totalPages}
+                    value={currentPage}
+                    onChange={(e) => goToPage(parseInt(e.target.value))}
+                    className="w-full mt-2 h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-purple-500"
+                    style={{
+                      background: `linear-gradient(to right, #a855f7 0%, #a855f7 ${completionPercentage}%, rgba(255,255,255,0.2) ${completionPercentage}%, rgba(255,255,255,0.2) 100%)`,
+                    }}
+                  />
+                </div>
+
+                {/* Next Page - Large Touch Target */}
+                <motion.button
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages}
+                  whileTap={{ scale: 0.9 }}
+                  className={`flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-all ${
+                    currentPage === totalPages
+                      ? "opacity-30"
+                      : "active:bg-white/10"
+                  }`}
+                >
+                  <ChevronRight className="w-7 h-7 text-white" />
+                  <span className="text-[10px] text-white/60 mt-0.5">Next</span>
+                </motion.button>
+              </div>
+
+              {/* Quick Actions Row */}
+              <div className="flex items-center justify-around mt-2 pt-2 border-t border-white/10">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={toggleBookmark}
+                  className="flex flex-col items-center p-2"
+                >
+                  <Bookmark
+                    className={`w-5 h-5 ${
+                      currentPageBookmarked
+                        ? "text-purple-400 fill-purple-400"
+                        : "text-white/60"
+                    }`}
+                  />
+                  <span className="text-[9px] text-white/50 mt-1">Mark</span>
+                </motion.button>
+
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setListenMode(!listenMode)}
+                  className="flex flex-col items-center p-2"
+                >
+                  <Headphones
+                    className={`w-5 h-5 ${
+                      listenMode ? "text-blue-400" : "text-white/60"
+                    }`}
+                  />
+                  <span className="text-[9px] text-white/50 mt-1">Listen</span>
+                </motion.button>
+
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() =>
+                    isNarrating ? stopNarration() : startNarration()
+                  }
+                  className="flex flex-col items-center p-2"
+                >
+                  <Volume2
+                    className={`w-5 h-5 ${
+                      isNarrating ? "text-green-400" : "text-white/60"
+                    }`}
+                  />
+                  <span className="text-[9px] text-white/50 mt-1">Read</span>
+                </motion.button>
+
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setShowAIChat(!showAIChat)}
+                  className="flex flex-col items-center p-2"
+                >
+                  <Sparkles
+                    className={`w-5 h-5 ${
+                      showAIChat ? "text-cyan-400" : "text-white/60"
+                    }`}
+                  />
+                  <span className="text-[9px] text-white/50 mt-1">AI</span>
+                </motion.button>
+
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setMobileSettingsOpen(true)}
+                  className="flex flex-col items-center p-2"
+                >
+                  <Settings className="w-5 h-5 text-white/60" />
+                  <span className="text-[9px] text-white/50 mt-1">More</span>
+                </motion.button>
+              </div>
+            </div>
+          </motion.footer>
+        )}
+
+        {/* ===========================================
+          DESKTOP FOOTER NAVIGATION - 🎨 GLASSMORPHISM
+          =========================================== */}
+        {!zenMode && !isMobile && (
           <footer
             className="sticky bottom-0 z-50"
             style={{
@@ -5713,6 +6236,211 @@ export default function BookReaderLuxury({
             </div>
           </footer>
         )}
+
+        {/* ===========================================
+          📱 MOBILE SETTINGS BOTTOM SHEET
+          =========================================== */}
+        <AnimatePresence>
+          {mobileSettingsOpen && isMobile && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] bg-black/60"
+              onClick={() => setMobileSettingsOpen(false)}
+            >
+              <motion.div
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="absolute bottom-0 left-0 right-0 max-h-[85vh] bg-gray-900 rounded-t-3xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Handle Bar */}
+                <div className="flex justify-center py-3">
+                  <div className="w-12 h-1.5 bg-gray-600 rounded-full" />
+                </div>
+
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 pb-4 border-b border-gray-800">
+                  <h3 className="text-lg font-bold text-white">
+                    Reading Settings
+                  </h3>
+                  <button
+                    onClick={() => setMobileSettingsOpen(false)}
+                    className="p-2 rounded-full bg-gray-800 text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Settings Content */}
+                <div className="overflow-y-auto max-h-[calc(85vh-80px)] px-5 py-4 space-y-6">
+                  {/* Font Size */}
+                  <div>
+                    <label className="text-sm font-medium text-white/80 mb-3 block">
+                      Font Size
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => setFontSize(Math.max(12, fontSize - 2))}
+                        className="w-12 h-12 rounded-xl bg-gray-800 flex items-center justify-center text-white"
+                      >
+                        <MinusCircle className="w-5 h-5" />
+                      </button>
+                      <div className="flex-1 text-center">
+                        <span className="text-2xl font-bold text-white">
+                          {fontSize}px
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setFontSize(Math.min(32, fontSize + 2))}
+                        className="w-12 h-12 rounded-xl bg-gray-800 flex items-center justify-center text-white"
+                      >
+                        <PlusCircle className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Theme Selection */}
+                  <div>
+                    <label className="text-sm font-medium text-white/80 mb-3 block">
+                      Theme
+                    </label>
+                    <div className="grid grid-cols-5 gap-2">
+                      {[
+                        { name: "light", bg: "#ffffff", text: "#000" },
+                        { name: "sepia", bg: "#f4ecd8", text: "#5c4b37" },
+                        { name: "dark", bg: "#1a1a2e", text: "#fff" },
+                        { name: "midnight", bg: "#0f0f23", text: "#e0e0ff" },
+                        { name: "forest", bg: "#1a2f1a", text: "#c8e6c9" },
+                      ].map((t) => (
+                        <button
+                          key={t.name}
+                          onClick={() => setTheme(t.name as any)}
+                          className={`aspect-square rounded-xl border-2 transition-all ${
+                            theme === t.name
+                              ? "border-purple-500 scale-105"
+                              : "border-transparent"
+                          }`}
+                          style={{ background: t.bg }}
+                        >
+                          <span
+                            style={{ color: t.text }}
+                            className="text-xs font-medium capitalize"
+                          >
+                            {t.name.charAt(0)}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Font Family */}
+                  <div>
+                    <label className="text-sm font-medium text-white/80 mb-3 block">
+                      Font Style
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { name: "serif", label: "Serif" },
+                        { name: "sans", label: "Sans" },
+                        { name: "mono", label: "Mono" },
+                        { name: "elegant", label: "Elegant" },
+                      ].map((f) => (
+                        <button
+                          key={f.name}
+                          onClick={() => setFontFamily(f.name as any)}
+                          className={`py-3 px-4 rounded-xl border transition-all ${
+                            fontFamily === f.name
+                              ? "bg-purple-500/20 border-purple-500 text-purple-400"
+                              : "bg-gray-800 border-gray-700 text-white/70"
+                          }`}
+                        >
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Line Height */}
+                  <div>
+                    <label className="text-sm font-medium text-white/80 mb-3 block">
+                      Line Spacing
+                    </label>
+                    <input
+                      type="range"
+                      min="1.4"
+                      max="2.4"
+                      step="0.1"
+                      value={lineHeight}
+                      onChange={(e) =>
+                        setLineHeight(parseFloat(e.target.value))
+                      }
+                      className="w-full h-2 bg-gray-700 rounded-full appearance-none cursor-pointer accent-purple-500"
+                    />
+                    <div className="flex justify-between text-xs text-white/50 mt-1">
+                      <span>Compact</span>
+                      <span>{lineHeight.toFixed(1)}</span>
+                      <span>Spacious</span>
+                    </div>
+                  </div>
+
+                  {/* Toggle Options */}
+                  <div className="space-y-3">
+                    {[
+                      {
+                        label: "Focus Mode",
+                        value: focusMode,
+                        onChange: () => setFocusMode(!focusMode),
+                        icon: Eye,
+                      },
+                      {
+                        label: "Auto Scroll",
+                        value: autoScroll,
+                        onChange: () => setAutoScroll(!autoScroll),
+                        icon: FastForward,
+                      },
+                      {
+                        label: "Particles",
+                        value: particlesEnabled,
+                        onChange: () => setParticlesEnabled(!particlesEnabled),
+                        icon: Sparkles,
+                      },
+                    ].map((toggle) => (
+                      <div
+                        key={toggle.label}
+                        className="flex items-center justify-between py-3 px-4 bg-gray-800 rounded-xl"
+                      >
+                        <div className="flex items-center gap-3">
+                          <toggle.icon className="w-5 h-5 text-white/60" />
+                          <span className="text-white">{toggle.label}</span>
+                        </div>
+                        <button
+                          onClick={toggle.onChange}
+                          className={`w-12 h-7 rounded-full transition-all ${
+                            toggle.value ? "bg-purple-500" : "bg-gray-600"
+                          }`}
+                        >
+                          <motion.div
+                            className="w-5 h-5 bg-white rounded-full shadow-md"
+                            animate={{ x: toggle.value ? 24 : 4 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 500,
+                              damping: 30,
+                            }}
+                          />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ===========================================
           FLOATING ACTION BUTTON (Zen Mode Only)
