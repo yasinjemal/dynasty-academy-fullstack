@@ -127,24 +127,24 @@ export async function runSeoPipelinesForBook(
         pages: book.totalPages || 0,
       },
       url: `${
-        process.env.NEXT_PUBLIC_BASE_URL || "https://dynasty-academy.com"
+        process.env.NEXT_PUBLIC_BASE_URL || "https://www.dynastybuiltacademy.com"
       }/books/${book.slug}`,
       breadcrumbs: [
         {
           name: "Home",
           url:
-            process.env.NEXT_PUBLIC_BASE_URL || "https://dynasty-academy.com",
+            process.env.NEXT_PUBLIC_BASE_URL || "https://www.dynastybuiltacademy.com",
         },
         {
           name: "Books",
           url: `${
-            process.env.NEXT_PUBLIC_BASE_URL || "https://dynasty-academy.com"
+            process.env.NEXT_PUBLIC_BASE_URL || "https://www.dynastybuiltacademy.com"
           }/books`,
         },
         {
           name: book.title,
           url: `${
-            process.env.NEXT_PUBLIC_BASE_URL || "https://dynasty-academy.com"
+            process.env.NEXT_PUBLIC_BASE_URL || "https://www.dynastybuiltacademy.com"
           }/books/${book.slug}`,
         },
       ],
@@ -239,7 +239,7 @@ export async function runSeoPipelineBatch(
 export async function revalidatePaths(paths: string[]): Promise<void> {
   const revalidateToken = process.env.REVALIDATE_TOKEN;
   const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || "https://dynasty-academy.com";
+    process.env.NEXT_PUBLIC_BASE_URL || "https://www.dynastybuiltacademy.com";
 
   if (!revalidateToken) {
     console.warn("⚠️  REVALIDATE_TOKEN not set, skipping revalidation");

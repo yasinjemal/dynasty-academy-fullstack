@@ -101,21 +101,21 @@ export class MultiLanguageSitemapGenerator {
     // Generate entries for each book with language alternates
     for (const book of books) {
       const bookEntry: SitemapEntry = {
-        url: `https://dynasty-academy.com/books/${book.slug}`,
+        url: `https://www.dynastybuiltacademy.com/books/${book.slug}`,
         lastModified: book.updatedAt,
         changeFrequency: "weekly",
         priority: book.bookType === "free" ? 0.8 : 0.7,
         alternates: {
           languages: {
-            en: `https://dynasty-academy.com/books/${book.slug}`,
-            es: `https://dynasty-academy.com/es/libros/${book.slug}`,
-            fr: `https://dynasty-academy.com/fr/livres/${book.slug}`,
-            de: `https://dynasty-academy.com/de/bucher/${book.slug}`,
-            it: `https://dynasty-academy.com/it/libri/${book.slug}`,
-            pt: `https://dynasty-academy.com/pt/livros/${book.slug}`,
-            ru: `https://dynasty-academy.com/ru/knigi/${book.slug}`,
-            zh: `https://dynasty-academy.com/zh/shu/${book.slug}`,
-            ja: `https://dynasty-academy.com/ja/hon/${book.slug}`,
+            en: `https://www.dynastybuiltacademy.com/books/${book.slug}`,
+            es: `https://www.dynastybuiltacademy.com/es/libros/${book.slug}`,
+            fr: `https://www.dynastybuiltacademy.com/fr/livres/${book.slug}`,
+            de: `https://www.dynastybuiltacademy.com/de/bucher/${book.slug}`,
+            it: `https://www.dynastybuiltacademy.com/it/libri/${book.slug}`,
+            pt: `https://www.dynastybuiltacademy.com/pt/livros/${book.slug}`,
+            ru: `https://www.dynastybuiltacademy.com/ru/knigi/${book.slug}`,
+            zh: `https://www.dynastybuiltacademy.com/zh/shu/${book.slug}`,
+            ja: `https://www.dynastybuiltacademy.com/ja/hon/${book.slug}`,
           },
         },
       };
@@ -131,7 +131,7 @@ export class MultiLanguageSitemapGenerator {
         const pagesToIndex = Math.min(totalPages || 10, 10);
         for (let page = 1; page <= pagesToIndex; page++) {
           entries.push({
-            url: `https://dynasty-academy.com/books/${book.slug}/read?page=${page}`,
+            url: `https://www.dynastybuiltacademy.com/books/${book.slug}/read?page=${page}`,
             lastModified: book.updatedAt,
             changeFrequency: "monthly",
             priority: page === 1 ? 0.7 : 0.5,
@@ -199,13 +199,13 @@ export class MultiLanguageSitemapGenerator {
       '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
     xml += "  <sitemap>\n";
-    xml += `    <loc>https://dynasty-academy.com/sitemap-main.xml</loc>\n`;
+    xml += `    <loc>https://www.dynastybuiltacademy.com/sitemap-main.xml</loc>\n`;
     xml += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
     xml += "  </sitemap>\n";
 
     for (let i = 0; i < sitemapsNeeded; i++) {
       xml += "  <sitemap>\n";
-      xml += `    <loc>https://dynasty-academy.com/sitemap-books-${
+      xml += `    <loc>https://www.dynastybuiltacademy.com/sitemap-books-${
         i + 1
       }.xml</loc>\n`;
       xml += `    <lastmod>${new Date().toISOString()}</lastmod>\n`;
@@ -236,25 +236,25 @@ export class MultiLanguageSitemapGenerator {
     const now = new Date();
     return [
       {
-        url: "https://dynasty-academy.com",
+        url: "https://www.dynastybuiltacademy.com",
         lastModified: now,
         changeFrequency: "daily",
         priority: 1.0,
       },
       {
-        url: "https://dynasty-academy.com/books",
+        url: "https://www.dynastybuiltacademy.com/books",
         lastModified: now,
         changeFrequency: "hourly",
         priority: 0.9,
       },
       {
-        url: "https://dynasty-academy.com/marketplace",
+        url: "https://www.dynastybuiltacademy.com/marketplace",
         lastModified: now,
         changeFrequency: "hourly",
         priority: 0.9,
       },
       {
-        url: "https://dynasty-academy.com/instructors",
+        url: "https://www.dynastybuiltacademy.com/instructors",
         lastModified: now,
         changeFrequency: "weekly",
         priority: 0.6,

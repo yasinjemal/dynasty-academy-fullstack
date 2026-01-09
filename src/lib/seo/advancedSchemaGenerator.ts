@@ -81,14 +81,14 @@ export class AdvancedSchemaGenerator {
   private static generateBookSchema(book: Book) {
     return {
       "@type": "Book",
-      "@id": `https://dynasty-academy.com/books/${book.slug}#book`,
+      "@id": `https://www.dynastybuiltacademy.com/books/${book.slug}#book`,
       name: book.title,
-      url: `https://dynasty-academy.com/books/${book.slug}`,
+      url: `https://www.dynastybuiltacademy.com/books/${book.slug}`,
       image:
-        book.coverImage || "https://dynasty-academy.com/default-book-cover.jpg",
+        book.coverImage || "https://www.dynastybuiltacademy.com/default-book-cover.jpg",
       author: {
         "@type": "Person",
-        "@id": `https://dynasty-academy.com/authors/${book.author.name
+        "@id": `https://www.dynastybuiltacademy.com/authors/${book.author.name
           .toLowerCase()
           .replace(/\s+/g, "-")}#person`,
         name: book.author.name,
@@ -96,7 +96,7 @@ export class AdvancedSchemaGenerator {
       publisher: {
         "@type": "Organization",
         name: book.publisher || "Dynasty Academy",
-        logo: "https://dynasty-academy.com/logo.png",
+        logo: "https://www.dynastybuiltacademy.com/logo.png",
       },
       datePublished: book.publicationYear
         ? `${book.publicationYear}-01-01`
@@ -122,7 +122,7 @@ export class AdvancedSchemaGenerator {
         price: book.price,
         priceCurrency: "USD",
         availability: "https://schema.org/InStock",
-        url: `https://dynasty-academy.com/books/${book.slug}`,
+        url: `https://www.dynastybuiltacademy.com/books/${book.slug}`,
         priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
           .toISOString()
           .split("T")[0],
@@ -136,22 +136,22 @@ export class AdvancedSchemaGenerator {
   private static generateWebPageSchema(book: Book) {
     return {
       "@type": "WebPage",
-      "@id": `https://dynasty-academy.com/books/${book.slug}#webpage`,
-      url: `https://dynasty-academy.com/books/${book.slug}`,
+      "@id": `https://www.dynastybuiltacademy.com/books/${book.slug}#webpage`,
+      url: `https://www.dynastybuiltacademy.com/books/${book.slug}`,
       name: `${book.title} - Read Online | Dynasty Academy`,
       description: book.description,
       isPartOf: {
-        "@id": "https://dynasty-academy.com/#website",
+        "@id": "https://www.dynastybuiltacademy.com/#website",
       },
       about: {
-        "@id": `https://dynasty-academy.com/books/${book.slug}#book`,
+        "@id": `https://www.dynastybuiltacademy.com/books/${book.slug}#book`,
       },
       datePublished: book.createdAt.toISOString(),
       dateModified: book.createdAt.toISOString(),
       inLanguage: book.language || "en",
       potentialAction: {
         "@type": "ReadAction",
-        target: `https://dynasty-academy.com/books/${book.slug}/read`,
+        target: `https://www.dynastybuiltacademy.com/books/${book.slug}/read`,
         name: `Read ${book.title}`,
       },
     };
@@ -168,25 +168,25 @@ export class AdvancedSchemaGenerator {
           "@type": "ListItem",
           position: 1,
           name: "Home",
-          item: "https://dynasty-academy.com",
+          item: "https://www.dynastybuiltacademy.com",
         },
         {
           "@type": "ListItem",
           position: 2,
           name: "Books",
-          item: "https://dynasty-academy.com/books",
+          item: "https://www.dynastybuiltacademy.com/books",
         },
         {
           "@type": "ListItem",
           position: 3,
           name: book.category,
-          item: `https://dynasty-academy.com/books/category/${book.category.toLowerCase()}`,
+          item: `https://www.dynastybuiltacademy.com/books/category/${book.category.toLowerCase()}`,
         },
         {
           "@type": "ListItem",
           position: 4,
           name: book.title,
-          item: `https://dynasty-academy.com/books/${book.slug}`,
+          item: `https://www.dynastybuiltacademy.com/books/${book.slug}`,
         },
       ],
     };
@@ -202,12 +202,12 @@ export class AdvancedSchemaGenerator {
   }) {
     return {
       "@type": "Person",
-      "@id": `https://dynasty-academy.com/authors/${author.name
+      "@id": `https://www.dynastybuiltacademy.com/authors/${author.name
         .toLowerCase()
         .replace(/\s+/g, "-")}#person`,
       name: author.name,
       description: author.bio || `${author.name} is a renowned author.`,
-      image: author.image || "https://dynasty-academy.com/default-author.jpg",
+      image: author.image || "https://www.dynastybuiltacademy.com/default-author.jpg",
       sameAs: [
         `https://en.wikipedia.org/wiki/${author.name.replace(/\s+/g, "_")}`,
         `https://www.goodreads.com/author/show/${author.name}`,
@@ -221,12 +221,12 @@ export class AdvancedSchemaGenerator {
   private static generateOrganizationSchema() {
     return {
       "@type": "Organization",
-      "@id": "https://dynasty-academy.com/#organization",
+      "@id": "https://www.dynastybuiltacademy.com/#organization",
       name: "Dynasty Academy",
-      url: "https://dynasty-academy.com",
+      url: "https://www.dynastybuiltacademy.com",
       logo: {
         "@type": "ImageObject",
-        url: "https://dynasty-academy.com/logo.png",
+        url: "https://www.dynastybuiltacademy.com/logo.png",
         width: 600,
         height: 60,
       },
@@ -240,7 +240,7 @@ export class AdvancedSchemaGenerator {
       contactPoint: {
         "@type": "ContactPoint",
         contactType: "customer service",
-        email: "support@dynasty-academy.com",
+        email: "support@www.dynastybuiltacademy.com",
       },
     };
   }
@@ -252,7 +252,7 @@ export class AdvancedSchemaGenerator {
     return {
       "@type": "Review",
       itemReviewed: {
-        "@id": `https://dynasty-academy.com/books/${book.slug}#book`,
+        "@id": `https://www.dynastybuiltacademy.com/books/${book.slug}#book`,
       },
       reviewRating: {
         "@type": "Rating",
@@ -296,7 +296,7 @@ export class AdvancedSchemaGenerator {
           "@type": "ListItem",
           position: 1,
           item: {
-            "@id": `https://dynasty-academy.com/books/${book.slug}#book`,
+            "@id": `https://www.dynastybuiltacademy.com/books/${book.slug}#book`,
           },
         },
       ],
@@ -311,14 +311,14 @@ export class AdvancedSchemaGenerator {
       "@type": "ReadAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: `https://dynasty-academy.com/books/${book.slug}/read`,
+        urlTemplate: `https://www.dynastybuiltacademy.com/books/${book.slug}/read`,
         actionPlatform: [
           "http://schema.org/DesktopWebPlatform",
           "http://schema.org/MobileWebPlatform",
         ],
       },
       object: {
-        "@id": `https://dynasty-academy.com/books/${book.slug}#book`,
+        "@id": `https://www.dynastybuiltacademy.com/books/${book.slug}#book`,
       },
       expectsAcceptanceOf: {
         "@type": "Offer",

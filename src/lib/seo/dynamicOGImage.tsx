@@ -249,7 +249,7 @@ export class DynamicOGImageGenerator {
    * 🎯 Get OG image URL for a book
    */
   static getOGImageURL(bookSlug: string): string {
-    return `https://dynasty-academy.com/api/og/book/${bookSlug}`;
+    return `https://www.dynastybuiltacademy.com/api/og/book/${bookSlug}`;
   }
 }
 
