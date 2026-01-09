@@ -1,17 +1,25 @@
-# 🤖 robots.txt - Dynasty Academy
-# Optimized for maximum indexing of book content
+# 🤖 robots.txt - Dynasty Built Academy
+# Optimized for maximum SEO indexing
 
 # Allow all search engines full access
 User-agent: *
 Allow: /
-Allow: /books/
-Allow: /books/*/read
-Allow: /api/og/
 
-# Disallow admin and private API routes
+# Allow important pages
+Allow: /books/
+Allow: /courses/
+Allow: /about
+Allow: /pricing
+Allow: /brain-sync
+Allow: /future-self
+
+# Disallow only private/admin routes
 Disallow: /admin/
 Disallow: /dashboard/
-Disallow: /api/*
+Disallow: /api/
+Disallow: /auth/
+
+# Allow Open Graph images for social sharing
 Allow: /api/og/
 
 # Special crawl delays for aggressive bots
@@ -24,7 +32,5 @@ Crawl-delay: 2
 User-agent: MJ12bot
 Crawl-delay: 3
 
-# Sitemaps (auto-updated with new books)
-Sitemap: https://dynasty-academy.com/sitemap.xml
-Sitemap: https://dynasty-academy.com/sitemap-main.xml
-Sitemap: https://dynasty-academy.com/sitemap-books-1.xml
+# Sitemaps
+Sitemap: https://www.dynastybuiltacademy.com/sitemap.xml
