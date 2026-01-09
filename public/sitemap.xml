@@ -1,75 +1,299 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset 
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- 🏠 HOMEPAGE - Maximum Priority -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
   <url>
     <loc>https://www.dynastybuiltacademy.com/</loc>
     <lastmod>2026-01-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.dynastybuiltacademy.com/og-image.png</image:loc>
+      <image:title>Dynasty Built Academy - AI-Powered Learning Platform</image:title>
+      <image:caption>Build Your Dynasty Through Knowledge - Online Courses, Books, and AI Learning Tools</image:caption>
+    </image:image>
   </url>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- 📚 CORE LEARNING PAGES - High Priority -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
   <url>
     <loc>https://www.dynastybuiltacademy.com/books</loc>
     <lastmod>2026-01-09</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.9</priority>
+    <priority>0.95</priority>
   </url>
   <url>
     <loc>https://www.dynastybuiltacademy.com/courses</loc>
     <lastmod>2026-01-09</lastmod>
     <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/library</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.dynastybuiltacademy.com/brain-sync</loc>
+    <loc>https://www.dynastybuiltacademy.com/learning-path</loc>
     <lastmod>2026-01-09</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- 🧠 AI-POWERED FEATURES - Premium Features -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/brain-sync</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://www.dynastybuiltacademy.com/brain-sync-og.png</image:loc>
+      <image:title>Brain Sync - Multiplayer Collaborative Learning</image:title>
+      <image:caption>Learn together in real-time with voice chat, shared highlights, and live cursors</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://www.dynastybuiltacademy.com/future-self</loc>
     <lastmod>2026-01-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://www.dynastybuiltacademy.com/future-self-og.png</image:loc>
+      <image:title>Future Self Timeline - AI Career Predictions</image:title>
+      <image:caption>See your future with AI-powered career predictions and chat with your future self</image:caption>
+    </image:image>
   </url>
   <url>
-    <loc>https://www.dynastybuiltacademy.com/blog</loc>
+    <loc>https://www.dynastybuiltacademy.com/summaries</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/study-rooms</loc>
     <lastmod>2026-01-09</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- 🎮 GAMIFICATION & COMMUNITY -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
   <url>
-    <loc>https://www.dynastybuiltacademy.com/about</loc>
+    <loc>https://www.dynastybuiltacademy.com/leaderboard</loc>
     <lastmod>2026-01-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://www.dynastybuiltacademy.com/pricing</loc>
-    <lastmod>2026-01-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://www.dynastybuiltacademy.com/achievements</loc>
     <lastmod>2026-01-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/duels</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/community</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/certificates</loc>
+    <lastmod>2026-01-09</lastmod>
     <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- 📖 CONTENT & BLOG -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/blog</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/posts</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- 💰 PRICING & BUSINESS -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/pricing</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/become-instructor</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/career</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- ℹ️ COMPANY INFO -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/about</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/contact</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.dynastybuiltacademy.com/leaderboard</loc>
+    <loc>https://www.dynastybuiltacademy.com/works</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- 👤 USER FEATURES -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/dashboard</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/profile</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/my-courses</loc>
     <lastmod>2026-01-09</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.dynastybuiltacademy.com/login</loc>
+    <loc>https://www.dynastybuiltacademy.com/goals</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/settings</loc>
     <lastmod>2026-01-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- 🔐 AUTHENTICATION (Lower Priority) -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/login</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.dynastybuiltacademy.com/register</loc>
     <lastmod>2026-01-09</lastmod>
     <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- 🛒 E-COMMERCE -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/cart</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/checkout</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/orders</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- 🎓 INSTRUCTOR PAGES -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/instructor</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/pdf-to-course</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <!-- 📱 SPECIAL FEATURES -->
+  <!-- ═══════════════════════════════════════════════════════════════════════════ -->
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/books/immersive</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/extraordinary</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/over-delivery</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.dynastybuiltacademy.com/create-quote</loc>
+    <lastmod>2026-01-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
 </urlset>
