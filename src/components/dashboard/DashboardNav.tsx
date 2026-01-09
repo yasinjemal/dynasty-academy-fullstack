@@ -63,6 +63,24 @@ export default function DashboardNav({
                 🛒 Shop
               </Button>
             </Link>
+            <Link href="/future-self">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-sm bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border border-purple-500/30 animate-pulse"
+              >
+                🔮 Future Self
+              </Button>
+            </Link>
+            <Link href="/brain-sync">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-sm bg-gradient-to-r from-cyan-500/10 to-blue-500/10 hover:from-cyan-500/20 hover:to-blue-500/20 border border-cyan-500/30"
+              >
+                🧠 Brain Sync
+              </Button>
+            </Link>
             <Link href="/blog">
               <Button variant="ghost" size="sm" className="text-sm">
                 ✍️ Blog
