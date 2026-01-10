@@ -57,9 +57,9 @@ export async function GET(
         l.content, l."order",
         COALESCE(l."videoDuration" / 60, 10) as duration,
         COALESCE(lp.completed, false) as completed,
-        COALESCE(lp."quizPassed", false) as "quizPassed",
-        COALESCE(lp."quizAttempts", 0) as "quizAttempts",
-        lp."lastQuizScore" as "lastQuizScore",
+        COALESCE(lp."quiz_passed", false) as "quizPassed",
+        COALESCE(lp."quiz_attempts", 0) as "quizAttempts",
+        lp."last_quiz_score" as "lastQuizScore",
         (SELECT COUNT(*) > 0 FROM course_quizzes WHERE "lessonId" = l.id) as "hasQuiz"
       FROM course_lessons l
       LEFT JOIN lesson_progress lp ON lp."lessonId" = l.id AND lp."userId" = ${userId}
