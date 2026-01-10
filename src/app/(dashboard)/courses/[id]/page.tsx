@@ -137,15 +137,17 @@ export default function AdvancedCoursePage({
     async function fetchCourse() {
       setIsLoading(true);
       setError(null);
-      
+
       try {
         const response = await fetch(`/api/courses/${courseId}`);
-        
+
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || `Failed to load course (${response.status})`);
+          throw new Error(
+            errorData.error || `Failed to load course (${response.status})`
+          );
         }
-        
+
         const data = await response.json();
 
         console.log("📦 Frontend Received Data:");
@@ -175,7 +177,7 @@ export default function AdvancedCoursePage({
             break;
           }
         }
-        
+
         // If no incomplete lesson, set the first lesson
         if (!currentLesson && data.sections?.[0]?.lessons?.[0]) {
           setCurrentLesson(data.sections[0].lessons[0]);
@@ -183,7 +185,9 @@ export default function AdvancedCoursePage({
         }
       } catch (error) {
         console.error("Error fetching course:", error);
-        setError(error instanceof Error ? error.message : "Failed to load course");
+        setError(
+          error instanceof Error ? error.message : "Failed to load course"
+        );
       } finally {
         setIsLoading(false);
       }
@@ -409,10 +413,12 @@ export default function AdvancedCoursePage({
           <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <X className="w-10 h-10 text-red-400" />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Course Not Found</h1>
+          <h1 className="text-2xl font-bold text-white mb-2">
+            Course Not Found
+          </h1>
           <p className="text-gray-400 mb-6">{error}</p>
-          <a 
-            href="/courses" 
+          <a
+            href="/courses"
             className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
