@@ -64,9 +64,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} antialiased`}>
         <ToasterWrapper />
-        {/* 🌌 Dynasty Neural Network Background - Cool 3D holographic effect */}
-        <DynastyBackground />
         <Providers>
+          {/* 🌌 Dynasty Neural Network Background - Cool 3D holographic effect */}
+          <DynastyBackground />
           {/* Main content with bottom padding for mobile nav */}
           <div className="mobile-bottom-spacing md:pb-0">{children}</div>
           {/* 📱 Mobile Bottom Navigation */}
