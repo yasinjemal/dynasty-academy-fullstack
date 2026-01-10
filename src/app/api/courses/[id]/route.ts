@@ -55,8 +55,6 @@ export async function GET(
         l.id, l."sectionId", l.title, l.type,
         l."videoUrl", l."pdfUrl",
         l.content, l."order",
-        l."is_locked" as "isLocked", 
-        l."requires_quiz" as "requiresQuiz",
         COALESCE(l."videoDuration" / 60, 10) as duration,
         COALESCE(lp.completed, false) as completed,
         COALESCE(lp."quizPassed", false) as "quizPassed",
@@ -69,10 +67,17 @@ export async function GET(
       ORDER BY l."order" ASC
     `;
 
+    // Add default values for isLocked and requiresQuiz (since columns may not exist)
+    const lessonsWithDefaults = lessons.map((lesson, index) => ({
+      ...lesson,
+      isLocked: index > 0, // First lesson unlocked, rest locked by default
+      requiresQuiz: lesson.hasQuiz || false,
+    }));
+
     // Group lessons by section
     const sectionsWithLessons = sections.map((section) => ({
       ...section,
-      lessons: lessons.filter((l) => l.sectionId === section.id),
+      lessons: lessonsWithDefaults.filter((l) => l.sectionId === section.id),
     }));
 
     const courseData = {
