@@ -102,10 +102,10 @@ export async function GET(
   } catch (error: any) {
     console.error("❌ Course API Error:", error);
     return NextResponse.json(
-      { 
+      {
         error: "Failed to fetch course",
         details: error?.message || "Unknown error",
-        code: error?.code || "UNKNOWN"
+        code: error?.code || "UNKNOWN",
       },
       { status: 500 }
     );

@@ -26,6 +26,7 @@ import {
   Menu,
   X,
   Loader2,
+  Target,
 } from "lucide-react";
 import { CourseIntelligencePanel } from "@/components/intelligence/CourseIntelligencePanel";
 import { AIDashboard } from "@/components/intelligence/AIDashboard";
@@ -457,13 +458,14 @@ export default function AdvancedCoursePage({
         />
       </div>
 
-      {/* Header */}
-      <header className="bg-black/40 backdrop-blur-xl border-b border-purple-500/20 sticky top-0 z-40 relative">
-        <div className="max-w-full px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      {/* Header - Mobile-First Design */}
+      <header className="bg-black/40 backdrop-blur-xl border-b border-purple-500/20 sticky top-0 z-40 relative safe-area-top">
+        <div className="max-w-full px-2 sm:px-4 py-2 sm:py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="lg:hidden p-2 hover:bg-purple-500/20 rounded-lg transition-colors"
+              className="lg:hidden p-2 hover:bg-purple-500/20 rounded-lg transition-colors touch-manipulation flex-shrink-0"
+              aria-label={isSidebarOpen ? "Close menu" : "Open menu"}
             >
               {isSidebarOpen ? (
                 <X className="w-5 h-5 text-cyan-400" />
@@ -471,17 +473,40 @@ export default function AdvancedCoursePage({
                 <Menu className="w-5 h-5 text-cyan-400" />
               )}
             </button>
-            <div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-purple-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-sm sm:text-lg font-bold bg-gradient-to-r from-purple-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent truncate">
                 {courseData.title}
               </h1>
-              <p className="text-sm text-gray-400 font-mono">
+              <p className="text-xs sm:text-sm text-gray-400 font-mono truncate">
                 {currentSection?.title} • {currentLesson.title}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+            {/* Mobile Progress Ring */}
+            <div className="flex sm:hidden items-center justify-center w-10 h-10 relative">
+              <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(139, 92, 246, 0.2)" strokeWidth="3" />
+                <circle 
+                  cx="18" cy="18" r="15" fill="none" 
+                  stroke="url(#progressGradient)" 
+                  strokeWidth="3" 
+                  strokeLinecap="round"
+                  strokeDasharray={`${courseData.progress * 0.94} 94`}
+                />
+                <defs>
+                  <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#8b5cf6" />
+                    <stop offset="100%" stopColor="#06b6d4" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span className="absolute text-[10px] font-bold text-cyan-400">
+                {Math.round(courseData.progress)}%
+              </span>
+            </div>
+
             {/* User Status Indicator */}
             {session?.user && (
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/30 rounded-lg backdrop-blur-sm">
@@ -503,15 +528,15 @@ export default function AdvancedCoursePage({
               </div>
             )}
 
-            {/* Progress */}
+            {/* Desktop Progress Bar */}
             <div className="hidden md:flex items-center gap-2">
-              <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="w-32 h-2 bg-gray-800/50 rounded-full overflow-hidden border border-purple-500/20">
                 <div
-                  className="h-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all"
+                  className="h-full bg-gradient-to-r from-purple-600 via-fuchsia-500 to-cyan-400 transition-all duration-500"
                   style={{ width: `${courseData.progress}%` }}
                 />
               </div>
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-bold text-cyan-400">
                 {Math.round(courseData.progress)}%
               </span>
             </div>
@@ -519,11 +544,12 @@ export default function AdvancedCoursePage({
             {/* Intelligence Toggle */}
             <button
               onClick={() => setShowIntelligence(!showIntelligence)}
-              className={`p-2 rounded-lg transition-colors ${
+              className={`p-2 rounded-lg transition-all duration-300 touch-manipulation ${
                 showIntelligence
-                  ? "bg-purple-100 text-purple-600"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-purple-500/30 text-cyan-400 shadow-lg shadow-purple-500/30"
+                  : "bg-purple-500/10 text-gray-400 hover:bg-purple-500/20 hover:text-cyan-400"
               }`}
+              aria-label="Toggle AI Intelligence Panel"
             >
               <Brain className="w-5 h-5" />
             </button>
@@ -532,14 +558,28 @@ export default function AdvancedCoursePage({
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar - Course Content */}
+        {/* Mobile Overlay */}
+        <AnimatePresence>
+          {isSidebarOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSidebarOpen(false)}
+              className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-30"
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Sidebar - Course Content - Mobile Slide Over */}
         <AnimatePresence>
           {isSidebarOpen && (
             <motion.aside
               initial={{ x: -320 }}
               animate={{ x: 0 }}
               exit={{ x: -320 }}
-              className="w-80 bg-black/40 backdrop-blur-xl border-r border-purple-500/20 overflow-y-auto flex-shrink-0"
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed lg:relative w-[85vw] max-w-sm lg:w-80 h-[calc(100vh-60px)] lg:h-auto bg-black/95 lg:bg-black/40 backdrop-blur-xl border-r border-purple-500/20 overflow-y-auto flex-shrink-0 z-40 safe-area-left"
             >
               <div className="p-4">
                 <h2 className="text-lg font-bold mb-4 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
@@ -695,81 +735,81 @@ export default function AdvancedCoursePage({
         </AnimatePresence>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto relative z-10">
-          <div className="max-w-6xl mx-auto p-3 sm:p-4 md:p-6">
-            {/* Feature Tabs - Mobile Optimized */}
-            <div className="mb-4 md:mb-6 bg-black/40 backdrop-blur-xl rounded-lg md:rounded-xl border border-purple-500/20 p-1 overflow-x-auto scrollbar-hide">
-              <div className="flex gap-1 min-w-max md:min-w-0">
+        <main className="flex-1 overflow-y-auto relative z-10 pb-20 lg:pb-6">
+          <div className="max-w-6xl mx-auto p-2 sm:p-4 md:p-6">
+            {/* Feature Tabs - Mobile Horizontal Scroll with Snap */}
+            <div className="mb-3 sm:mb-4 md:mb-6 bg-black/40 backdrop-blur-xl rounded-xl border border-purple-500/20 p-1.5 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth">
+              <div className="flex gap-1.5 min-w-max">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-sm md:text-base font-medium transition-all whitespace-nowrap flex items-center gap-1.5 font-mono ${
+                  className={`snap-start px-3 py-2.5 sm:px-4 sm:py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2 font-mono touch-manipulation ${
                     activeTab === "overview"
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/40"
+                      : "text-gray-300 hover:bg-purple-500/20 active:bg-purple-500/30"
                   }`}
                 >
-                  <span className="text-base md:text-lg">📚</span>
-                  <span className="hidden sm:inline">Overview</span>
+                  <span className="text-lg">📚</span>
+                  <span className="hidden xs:inline sm:inline">Overview</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("quiz")}
-                  className={`px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-sm md:text-base font-medium transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  className={`snap-start px-3 py-2.5 sm:px-4 sm:py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2 font-mono touch-manipulation ${
                     activeTab === "quiz"
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/40"
+                      : "text-gray-300 hover:bg-purple-500/20 active:bg-purple-500/30"
                   }`}
                 >
-                  <span className="text-base md:text-lg">🎯</span>
-                  <span className="hidden sm:inline">Quiz</span>
+                  <span className="text-lg">🎯</span>
+                  <span className="hidden xs:inline sm:inline">Quiz</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("discussion")}
-                  className={`px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-sm md:text-base font-medium transition-all whitespace-nowrap flex items-center gap-1.5 font-mono ${
+                  className={`snap-start px-3 py-2.5 sm:px-4 sm:py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2 font-mono touch-manipulation ${
                     activeTab === "discussion"
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md shadow-purple-500/50"
-                      : "text-gray-300 hover:bg-purple-500/20 hover:text-cyan-400"
+                      ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/40"
+                      : "text-gray-300 hover:bg-purple-500/20 active:bg-purple-500/30"
                   }`}
                 >
-                  <span className="text-base md:text-lg">💬</span>
-                  <span className="hidden sm:inline">Discussion</span>
+                  <span className="text-lg">💬</span>
+                  <span className="hidden xs:inline sm:inline">Discussion</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("resources")}
-                  className={`px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-sm md:text-base font-medium transition-all whitespace-nowrap flex items-center gap-1.5 font-mono ${
+                  className={`snap-start px-3 py-2.5 sm:px-4 sm:py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2 font-mono touch-manipulation ${
                     activeTab === "resources"
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md shadow-purple-500/50"
-                      : "text-gray-300 hover:bg-purple-500/20 hover:text-cyan-400"
+                      ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/40"
+                      : "text-gray-300 hover:bg-purple-500/20 active:bg-purple-500/30"
                   }`}
                 >
-                  <span className="text-base md:text-lg">📁</span>
-                  <span className="hidden sm:inline">Resources</span>
+                  <span className="text-lg">📁</span>
+                  <span className="hidden xs:inline sm:inline">Resources</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("progress")}
-                  className={`px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-sm md:text-base font-medium transition-all whitespace-nowrap flex items-center gap-1.5 font-mono ${
+                  className={`snap-start px-3 py-2.5 sm:px-4 sm:py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2 font-mono touch-manipulation ${
                     activeTab === "progress"
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md shadow-purple-500/50"
-                      : "text-gray-300 hover:bg-purple-500/20 hover:text-cyan-400"
+                      ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/40"
+                      : "text-gray-300 hover:bg-purple-500/20 active:bg-purple-500/30"
                   }`}
                 >
-                  <span className="text-base md:text-lg">📈</span>
-                  <span className="hidden sm:inline">Progress</span>
+                  <span className="text-lg">📈</span>
+                  <span className="hidden xs:inline sm:inline">Progress</span>
                 </button>
                 <button
                   onClick={() => setActiveTab("reviews")}
-                  className={`px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-sm md:text-base font-medium transition-all whitespace-nowrap flex items-center gap-1.5 font-mono ${
+                  className={`snap-start px-3 py-2.5 sm:px-4 sm:py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex items-center gap-2 font-mono touch-manipulation ${
                     activeTab === "reviews"
-                      ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md shadow-purple-500/50"
-                      : "text-gray-300 hover:bg-purple-500/20 hover:text-cyan-400"
+                      ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/40"
+                      : "text-gray-300 hover:bg-purple-500/20 active:bg-purple-500/30"
                   }`}
                 >
-                  <span className="text-base md:text-lg">⭐</span>
-                  <span className="hidden sm:inline">Reviews</span>
+                  <span className="text-lg">⭐</span>
+                  <span className="hidden xs:inline sm:inline">Reviews</span>
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
               {/* Lesson Content - 2/3 width */}
               <div className="lg:col-span-2 space-y-4 md:space-y-6">
                 {/* Overview Tab */}
@@ -778,7 +818,7 @@ export default function AdvancedCoursePage({
                     {/* Professional Video Player */}
                     {currentLesson.type === "video" &&
                       currentLesson.videoUrl && (
-                        <div className="relative rounded-xl overflow-hidden border border-purple-500/20 shadow-lg shadow-purple-500/20 bg-black/40 backdrop-blur-xl p-2">
+                        <div className="relative rounded-xl sm:rounded-2xl overflow-hidden border border-purple-500/20 shadow-lg shadow-purple-500/20 bg-black/40 backdrop-blur-xl p-1 sm:p-2">
                           <VideoPlayer
                             videoUrl={currentLesson.videoUrl}
                             videoProvider={
@@ -810,19 +850,19 @@ export default function AdvancedCoursePage({
                         </div>
                       )}
 
-                    {/* Professional PDF Viewer */}
+                    {/* Professional PDF Viewer - Mobile Optimized */}
                     {currentLesson.type === "pdf" && currentLesson.pdfUrl && (
-                      <div className="bg-black/40 backdrop-blur-xl rounded-xl border border-purple-500/20 p-8">
-                        <div className="flex flex-col items-center gap-4">
-                          <FileText className="w-16 h-16 text-cyan-400" />
-                          <h3 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
+                      <div className="bg-black/40 backdrop-blur-xl rounded-xl border border-purple-500/20 p-4 sm:p-8">
+                        <div className="flex flex-col items-center gap-3 sm:gap-4">
+                          <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-cyan-400" />
+                          <h3 className="text-lg sm:text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400">
                             PDF Lesson
                           </h3>
                           <a
                             href={currentLesson.pdfUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:shadow-lg hover:shadow-purple-500/50 transition-all flex items-center gap-2 font-mono"
+                            className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-cyan-500 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/50 transition-all flex items-center justify-center gap-2 font-mono touch-manipulation active:scale-95"
                           >
                             <Download className="w-5 h-5" />
                             Download PDF
@@ -831,13 +871,13 @@ export default function AdvancedCoursePage({
                       </div>
                     )}
 
-                    {/* Text/Article Content */}
+                    {/* Text/Article Content - Mobile Optimized */}
                     {currentLesson.type === "article" && (
-                      <div className="bg-black/40 backdrop-blur-xl rounded-xl border border-purple-500/20 p-8">
-                        <div className="prose prose-lg prose-purple max-w-none">
+                      <div className="bg-black/40 backdrop-blur-xl rounded-xl border border-purple-500/20 p-4 sm:p-8">
+                        <div className="prose prose-sm sm:prose-lg prose-purple max-w-none prose-invert">
                           {currentLesson.content ? (
                             <div
-                              className="whitespace-pre-wrap text-gray-300 leading-relaxed"
+                              className="whitespace-pre-wrap text-gray-300 leading-relaxed text-sm sm:text-base"
                               dangerouslySetInnerHTML={{
                                 __html: currentLesson.content.replace(
                                   /\n/g,
@@ -854,31 +894,31 @@ export default function AdvancedCoursePage({
                       </div>
                     )}
 
-                    {/* Lesson Actions */}
-                    <div className="bg-black/40 backdrop-blur-xl rounded-xl border border-purple-500/20 p-4">
-                      <div className="flex items-center justify-between">
+                    {/* Lesson Actions - Mobile Optimized */}
+                    <div className="bg-black/40 backdrop-blur-xl rounded-xl border border-purple-500/20 p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0">
                         <div className="flex items-center gap-2">
                           <button
                             onClick={goToPreviousLesson}
-                            className="px-4 py-2 bg-purple-500/20 text-gray-300 rounded-lg hover:bg-purple-500/30 hover:text-cyan-400 transition-all flex items-center gap-2 font-mono"
+                            className="flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 bg-purple-500/20 text-gray-300 rounded-xl hover:bg-purple-500/30 hover:text-cyan-400 transition-all flex items-center justify-center gap-2 font-mono touch-manipulation active:scale-95"
                           >
                             <ChevronLeft className="w-4 h-4" />
-                            Previous
+                            <span className="hidden sm:inline">Previous</span>
                           </button>
 
                           <button
                             onClick={goToNextLesson}
-                            className="px-4 py-2 bg-purple-500/20 text-gray-300 rounded-lg hover:bg-purple-500/30 hover:text-cyan-400 transition-all flex items-center gap-2 font-mono"
+                            className="flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 bg-purple-500/20 text-gray-300 rounded-xl hover:bg-purple-500/30 hover:text-cyan-400 transition-all flex items-center justify-center gap-2 font-mono touch-manipulation active:scale-95"
                           >
                             {currentLesson.hasQuiz &&
                             !currentLesson.quizPassed ? (
                               <>
-                                Take Quiz
+                                <span className="hidden sm:inline">Take Quiz</span>
                                 <Brain className="w-4 h-4" />
                               </>
                             ) : (
                               <>
-                                Next
+                                <span className="hidden sm:inline">Next</span>
                                 <ChevronRight className="w-4 h-4" />
                               </>
                             )}
@@ -891,13 +931,13 @@ export default function AdvancedCoursePage({
                             currentLesson.completed ||
                             (currentLesson.hasQuiz && !currentLesson.quizPassed)
                           }
-                          className={`px-6 py-2 rounded-lg transition-all flex items-center gap-2 font-mono ${
+                          className={`w-full sm:w-auto px-4 sm:px-6 py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 font-mono touch-manipulation active:scale-95 ${
                             currentLesson.completed
                               ? "bg-cyan-500/20 text-cyan-400 cursor-not-allowed border border-cyan-500/30"
                               : currentLesson.hasQuiz &&
                                 !currentLesson.quizPassed
                               ? "bg-gray-500/20 text-gray-500 cursor-not-allowed border border-gray-500/30"
-                              : "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:shadow-lg hover:shadow-purple-500/50"
+                              : "bg-gradient-to-r from-purple-600 to-cyan-500 text-white hover:shadow-lg hover:shadow-purple-500/50"
                           }`}
                           title={
                             currentLesson.hasQuiz && !currentLesson.quizPassed
@@ -906,11 +946,13 @@ export default function AdvancedCoursePage({
                           }
                         >
                           <CheckCircle2 className="w-5 h-5" />
-                          {currentLesson.completed
-                            ? "Completed"
-                            : currentLesson.hasQuiz && !currentLesson.quizPassed
-                            ? "Complete Quiz First 🔒"
-                            : "Mark Complete"}
+                          <span className="text-sm sm:text-base">
+                            {currentLesson.completed
+                              ? "Completed"
+                              : currentLesson.hasQuiz && !currentLesson.quizPassed
+                              ? "Quiz First 🔒"
+                              : "Complete"}
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -925,15 +967,15 @@ export default function AdvancedCoursePage({
                       />
                     )}
 
-                    {/* Notes Section */}
-                    <div className="bg-black/40 backdrop-blur-xl rounded-xl border border-purple-500/20 p-4">
+                    {/* Notes Section - Mobile Optimized */}
+                    <div className="bg-black/40 backdrop-blur-xl rounded-xl border border-purple-500/20 p-3 sm:p-4">
                       <button
                         onClick={() => setShowNotes(!showNotes)}
-                        className="w-full flex items-center justify-between mb-3"
+                        className="w-full flex items-center justify-between mb-3 touch-manipulation"
                       >
                         <div className="flex items-center gap-2">
                           <StickyNote className="w-5 h-5 text-cyan-400" />
-                          <h3 className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 font-mono">
+                          <h3 className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-400 font-mono text-sm sm:text-base">
                             Lesson Notes
                           </h3>
                         </div>
@@ -949,7 +991,7 @@ export default function AdvancedCoursePage({
                           value={notes}
                           onChange={(e) => setNotes(e.target.value)}
                           placeholder="Take notes about this lesson..."
-                          className="w-full h-32 p-3 bg-black/40 border border-purple-500/20 rounded-lg focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 resize-none text-gray-300 placeholder:text-gray-500 font-mono backdrop-blur-xl"
+                          className="w-full h-28 sm:h-32 p-3 bg-black/40 border border-purple-500/20 rounded-xl focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 resize-none text-gray-300 placeholder:text-gray-500 font-mono backdrop-blur-xl text-sm sm:text-base"
                         />
                       )}
                     </div>
@@ -994,8 +1036,8 @@ export default function AdvancedCoursePage({
                 )}
               </div>
 
-              {/* Intelligence Panel - 1/3 width */}
-              <div className="lg:col-span-1 space-y-6">
+              {/* Intelligence Panel - 1/3 width - Hidden on mobile, show in modal */}
+              <div className="hidden lg:block lg:col-span-1 space-y-6">
                 {showIntelligence && courseId && session?.user?.id && (
                   <div className="sticky top-6 space-y-6">
                     {/* 💬 Chat with Your Learning Data - SCI-FI EDITION! */}
@@ -1030,6 +1072,139 @@ export default function AdvancedCoursePage({
           </div>
         </main>
       </div>
+
+      {/* 📱 Mobile Bottom Navigation Bar */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-purple-500/30 z-50 safe-area-bottom">
+        <div className="flex items-center justify-around px-2 py-2">
+          {/* Lessons Toggle */}
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all touch-manipulation ${
+              isSidebarOpen 
+                ? "bg-purple-500/30 text-cyan-400" 
+                : "text-gray-400 active:text-cyan-400"
+            }`}
+          >
+            <BookOpen className="w-5 h-5" />
+            <span className="text-[10px] font-medium font-mono">Lessons</span>
+          </button>
+
+          {/* Previous Lesson */}
+          <button
+            onClick={() => {
+              const allLessons = courseData.sections?.flatMap(s => s.lessons) || [];
+              const currentIndex = allLessons.findIndex(l => l.id === currentLesson.id);
+              if (currentIndex > 0) {
+                const prevLesson = allLessons[currentIndex - 1];
+                if (!prevLesson.isLocked) {
+                  setCurrentLesson(prevLesson);
+                  const section = courseData.sections?.find(s => s.lessons?.some(l => l.id === prevLesson.id));
+                  if (section) setCurrentSection(section);
+                }
+              }
+            }}
+            className="flex flex-col items-center gap-1 p-2 rounded-xl text-gray-400 active:text-cyan-400 transition-all touch-manipulation"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            <span className="text-[10px] font-medium font-mono">Prev</span>
+          </button>
+
+          {/* Complete / Quiz Button */}
+          <button
+            onClick={() => {
+              if (currentLesson.requiresQuiz && !currentLesson.quizPassed) {
+                setActiveTab("quiz");
+              } else {
+                completeLesson();
+              }
+            }}
+            className="flex flex-col items-center gap-1 px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/30 transition-all touch-manipulation active:scale-95"
+          >
+            {currentLesson.requiresQuiz && !currentLesson.quizPassed ? (
+              <>
+                <Target className="w-5 h-5" />
+                <span className="text-[10px] font-bold font-mono">QUIZ</span>
+              </>
+            ) : currentLesson.completed ? (
+              <>
+                <CheckCircle2 className="w-5 h-5" />
+                <span className="text-[10px] font-bold font-mono">DONE</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-5 h-5" />
+                <span className="text-[10px] font-bold font-mono">COMPLETE</span>
+              </>
+            )}
+          </button>
+
+          {/* Next Lesson */}
+          <button
+            onClick={() => {
+              const allLessons = courseData.sections?.flatMap(s => s.lessons) || [];
+              const currentIndex = allLessons.findIndex(l => l.id === currentLesson.id);
+              if (currentIndex < allLessons.length - 1) {
+                const nextLesson = allLessons[currentIndex + 1];
+                if (!nextLesson.isLocked) {
+                  setCurrentLesson(nextLesson);
+                  const section = courseData.sections?.find(s => s.lessons?.some(l => l.id === nextLesson.id));
+                  if (section) setCurrentSection(section);
+                }
+              }
+            }}
+            className="flex flex-col items-center gap-1 p-2 rounded-xl text-gray-400 active:text-cyan-400 transition-all touch-manipulation"
+          >
+            <ChevronRight className="w-5 h-5" />
+            <span className="text-[10px] font-medium font-mono">Next</span>
+          </button>
+
+          {/* AI Toggle */}
+          <button
+            onClick={() => setShowIntelligence(!showIntelligence)}
+            className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all touch-manipulation ${
+              showIntelligence 
+                ? "bg-purple-500/30 text-cyan-400" 
+                : "text-gray-400 active:text-cyan-400"
+            }`}
+          >
+            <Brain className="w-5 h-5" />
+            <span className="text-[10px] font-medium font-mono">AI</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* 📱 Mobile AI Panel Slide-up */}
+      <AnimatePresence>
+        {showIntelligence && courseId && session?.user?.id && (
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="lg:hidden fixed inset-x-0 bottom-16 top-1/3 bg-black/95 backdrop-blur-xl border-t border-purple-500/30 rounded-t-3xl z-40 overflow-y-auto safe-area-bottom"
+          >
+            <div className="p-4 space-y-4">
+              {/* Drag Handle */}
+              <div className="flex justify-center">
+                <div className="w-12 h-1.5 bg-purple-500/50 rounded-full" />
+              </div>
+              
+              <h3 className="text-lg font-bold text-center bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                🧠 Dynasty AI Assistant
+              </h3>
+
+              {/* 💬 Chat with Your Learning Data */}
+              <SciFiLearningDataChat
+                userId={session.user.id}
+                courseId={courseId}
+              />
+
+              {/* 🧠 Dynasty AI Dashboard */}
+              <AIDashboard courseId={courseId} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
